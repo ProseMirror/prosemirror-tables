@@ -1,0 +1,21 @@
+{
+  "name": "table-prototype",
+  "version": "0.0.1",
+  "description": "Proof-of-concept for rowspan/colspan tables in ProseMirror",
+  "main": "src/index.js",
+  "dependencies": {
+    "prosemirror-commands": "^0.16.0",
+    "prosemirror-keymap": "^0.16.0",
+    "prosemirror-model": "^0.16.1",
+    "prosemirror-schema-basic": "^0.16.0",
+    "prosemirror-state": "^0.16.0",
+    "prosemirror-transform": "^0.16.0",
+    "prosemirror-view": "^0.16.2"
+  },
+  "devDependencies": {
+    "moduleserve": "^0.8.3"
+  },
+  "scripts": {
+    "demo": "moduleserve . --port 8000"
+  }
+}
