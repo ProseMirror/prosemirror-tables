@@ -24,7 +24,7 @@ function setCellAttrs(node) {
 }
 
 exports.schema = new Schema({
-  nodes: baseSchema.nodeSpec.append({
+  nodes: baseSchema.spec.nodes.append({
     table: {
       content: "table_row+",
       group: "block",
@@ -49,5 +49,5 @@ exports.schema = new Schema({
       toDOM(node) { return ["th", setCellAttrs(node), 0] }
     }
   }),
-  marks: baseSchema.markSpec
+  marks: baseSchema.spec.marks
 })
