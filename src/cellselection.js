@@ -1,20 +1,7 @@
 const {Plugin, PluginKey, Selection, TextSelection} = require("prosemirror-state")
+const {Slice} = require("prosemirror-model")
 const {Decoration, DecorationSet} = require("prosemirror-view")
-
-// Interactions:
-// drag-select should reliably select the dragged range of cells
-// shift-click should extend to a cell selection
-// shift-arrow should expand/shrink the cell selection, or create one when crossing cell boundaries
-// triple-click on a cell should select the cell
-
-// So must listen to mousedown on the editor, and check for not being
-// inside the selection and being inside of a table. Then register a
-// mousemove handler and do nothing. When the mouse moves into another
-// cell, set a cell selection. What when it moves back into its
-// original cell? Should restore the original selection. Does
-// preventDefault-ing mousemove help? I guess.
-//
-// Should also handle shift-drag.
+const {keydownHandler} = require("prosemirror-keymap")
 
 class CellSelection extends Selection {
   map(doc, mapping) {
@@ -62,7 +49,7 @@ class CellSelection extends Selection {
   }
 
   // $anchor and $head must be pointing before cells in the same table
-  static between($anchor, $head) {
+  static between($anchor, $head = $anchor) {
     let anchorCol = colCount($anchor), headCol = colCount($head)
     if (anchorCol < headCol) return new CellSelection($anchor, moveCellForward($head))
     else return new CellSelection(moveCellForward($anchor), $head)
@@ -75,8 +62,80 @@ Selection.jsonID("cell", CellSelection)
 
 const key = new PluginKey("selectingCells")
 
-function stopSelecting(view) {
-  view.dispatch(view.state.tr.setMeta(key, -1))
+const keyDown = keydownHandler({
+  "ArrowLeft": arrow("horiz", -1),
+  "ArrowRight": arrow("horiz", 1),
+  "ArrowUp": arrow("vert", -1),
+  "ArrowDown": arrow("vert", 1),
+
+  "Shift-ArrowLeft": shiftArrow("horiz", -1),
+  "Shift-ArrowRight": shiftArrow("horiz", 1),
+  "Shift-ArrowUp": shiftArrow("vert", -1),
+  "Shift-ArrowDown": shiftArrow("vert", 1),
+
+  "Backspace": deleteCellSelection,
+  "Mod-Backspace": deleteCellSelection,
+  "Delete": deleteCellSelection,
+  "Mod-Delete": deleteCellSelection
+})
+
+function arrow(axis, dir) {
+  return (state, dispatch, view) => {
+    let sel = state.selection
+    if (sel instanceof CellSelection) {
+      dispatch(state.tr.setSelection(Selection.near(sel.$head, dir)))
+      return true
+    }
+    if (axis != "horiz" && !sel.empty) return false
+    let end = atEndOfCell(view, axis, dir)
+    if (end == null) return false
+    if (axis == "horiz") {
+      dispatch(state.tr.setSelection(Selection.near(state.doc.resolve(sel.head + dir), dir)))
+      return true
+    } else {
+      let $cell = state.doc.resolve(end), $next = moveCellPos($cell, axis, dir), newSel
+      if ($next) newSel = Selection.near($next, 1)
+      else if (dir < 0) newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1)
+      else newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1)
+      dispatch(state.tr.setSelection(newSel))
+      return true
+    }
+  }
+}
+
+function shiftArrow(axis, dir) {
+  return (state, dispatch, view) => {
+    let sel = state.selection
+    if (!(sel instanceof CellSelection)) {
+      let end = atEndOfCell(view, axis, dir)
+      if (end == null) return false
+      sel = CellSelection.between(state.doc.resolve(end))
+    }
+    let $head = moveCellPos(sel.$head, axis, dir), $anchor = sel.$anchor
+    if (!$head) return false
+    if ($head.pos == $anchor.pos) {
+      $head = moveCellPos($anchor, axis, dir)
+      if (!$head) return false
+      $anchor = sel.$head
+    }
+    if (dispatch) dispatch(state.tr.setSelection(new CellSelection($anchor, $head)))
+    return true
+  }
+}
+
+function deleteCellSelection(state, dispatch) {
+  let sel = state.selection
+  if (!(sel instanceof CellSelection)) return false
+  if (dispatch) {
+    let tr = state.tr, baseContent = state.schema.nodes.table_cell.createAndFill().content
+    sel.forEachCell((cell, pos) => {
+      if (!cell.content.eq(baseContent))
+        tr.replace(tr.mapping.map(pos + 1), tr.mapping.map(pos + cell.nodeSize - 1),
+                   new Slice(baseContent, 0, 0))
+    })
+    if (tr.docChanged) dispatch(tr)
+  }
+  return true
 }
 
 // This plugin handles drawing and creating cell selections
@@ -108,13 +167,14 @@ exports.cellSelection = function() {
 
       handleDOMEvents: {
         mousedown(view, startEvent) {
+          // FIXME handle shift-select
           let startDOMCell = isInCell(view, startEvent.target)
           if (!startDOMCell) return
 
           function stop() {
             view.root.removeEventListener("mouseup", stop)
             view.root.removeEventListener("mousemove", move)
-            if (key.getState(view.state) != null) stopSelecting(view)
+            if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
           }
           function move(event) {
             let anchor = key.getState(view.state), starting = false
@@ -158,7 +218,11 @@ exports.cellSelection = function() {
           }
         }
         return false
-      }
+      },
+
+      handleKeyDown: keyDown
+
+      // FIXME handle text insertion over a cell selection?
     }
   })
 }
@@ -190,4 +254,38 @@ function colCount($pos) {
   for (let i = $pos.index() - 1; i >= 0; i--)
     count += $pos.parent.child(i).attrs.colspan
   return count
+}
+
+function moveCellPos($pos, axis, dir) {
+  if (axis == "horiz") {
+    if ($pos.index() == (dir < 0 ? 0 : $pos.parent.childCount)) return null
+    return $pos.node(0).resolve($pos.pos + (dir < 0 ? -$pos.nodeBefore.nodeSize : $pos.nodeAfter.nodeSize))
+  } else {
+    let table = $pos.node(-1), index = $pos.index(-1)
+    if (index == (dir < 0 ? 0 : table.childCount)) return null
+    let targetCol = colCount($pos), row = table.child(index + dir)
+    let pos = $pos.before() + (dir < 0 ? -row.nodeSize : $pos.parent.nodeSize) + 1
+    for (let i = 0, col = 0; col < targetCol && i < row.childCount - 1; i++) {
+      let cell = row.child(i)
+      col += cell.attrs.colspan
+      pos += cell.nodeSize
+    }
+    return $pos.node(0).resolve(pos)
+  }
+}
+
+function atEndOfCell(view, axis, dir) {
+  if (!(view.state.selection instanceof TextSelection)) return null
+  let {$head} = view.state.selection
+  if (!$head) return null
+  for (let d = $head.depth - 1; d >= 0; d--) {
+    let parent = $head.node(d), index = dir < 0 ? $head.index(d) : $head.indexAfter(d)
+    if (index != (dir < 0 ? 0 : parent.childCount)) return null
+    if (parent.type.name == "table_cell" || parent.type.name == "table_header") {
+      let cellPos = $head.before(d)
+      let dirStr = axis == "vert" ? (dir > 0 ? "down" : "up") : (dir > 0 ? "right" : "left")
+      return view.endOfTextblock(dirStr) ? cellPos : null
+    }
+  }
+  return null
 }

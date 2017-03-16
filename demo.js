@@ -9,8 +9,8 @@ const {cellSelection} = require("./src/cellselection")
 
 let doc = DOMParser.fromSchema(schema).parse(document.querySelector("#content"))
 let state = EditorState.create({doc, plugins: [
-  keymap(baseKeymap),
-  cellSelection()
+  cellSelection(),
+  keymap(baseKeymap)
 ]})
 
 window.view = new EditorView(document.querySelector("#editor"), {state})
