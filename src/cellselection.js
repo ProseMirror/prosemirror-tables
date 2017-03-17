@@ -39,6 +39,11 @@ class CellSelection extends Selection {
     return this.anchor - (anchorCol < headCol ? 0 : this.$anchor.nodeBefore.nodeSize)
   }
 
+  get headCellPos() {
+    let anchorCol = colCount(this.$anchor), headCol = colCount(this.$head)
+    return this.head - (headCol < anchorCol ? 0 : this.$head.nodeBefore.nodeSize)
+  }
+
   static fromJSON(doc, json) {
     return CellSelection.from(doc, json.anchor, json.head)
   }

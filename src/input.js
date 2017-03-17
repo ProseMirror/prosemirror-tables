@@ -2,7 +2,7 @@ const {Slice} = require("prosemirror-model")
 const {Selection, TextSelection} = require("prosemirror-state")
 const {keydownHandler} = require("prosemirror-keymap")
 
-const {key, moveCellPos, cellAround, inSameTable} = require("./util")
+const {key, moveCellPos, moveCellForward, cellAround, inSameTable} = require("./util")
 const {CellSelection} = require("./cellselection")
 
 exports.handleKeyDown = keydownHandler({
@@ -92,6 +92,16 @@ exports.handleTripleClick = function(view, pos) {
     }
   }
   return false
+}
+
+exports.handleTextInput = function(view, _from, _to, text) {
+  let {selection, doc} = view.state
+  if (!(selection instanceof CellSelection)) return false
+  let $cell = doc.resolve(selection.headCellPos)
+  view.dispatch(view.state.tr
+                .setSelection(TextSelection.between($cell, moveCellForward($cell)))
+                .insertText(text))
+  return true
 }
 
 exports.mousedown = function(view, startEvent) {

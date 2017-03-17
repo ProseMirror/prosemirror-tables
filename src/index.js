@@ -1,6 +1,6 @@
 const {Plugin} = require("prosemirror-state")
 
-const {handleTripleClick, handleKeyDown, mousedown} = require("./input")
+const {handleTripleClick, handleKeyDown, handleTextInput, mousedown} = require("./input")
 const {key} = require("./util")
 const {drawCellSelection} = require("./cellselection")
 
@@ -31,9 +31,9 @@ exports.cellSelection = function() {
 
       handleTripleClick,
 
-      handleKeyDown
+      handleKeyDown,
 
-      // FIXME handle text insertion over a cell selection?
+      handleTextInput
     }
   })
 }
