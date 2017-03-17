@@ -34,6 +34,11 @@ class CellSelection extends Selection {
     }
   }
 
+  get anchorCellPos() {
+    let anchorCol = colCount(this.$anchor), headCol = colCount(this.$head)
+    return this.anchor - (anchorCol < headCol ? 0 : this.$anchor.nodeBefore.nodeSize)
+  }
+
   static fromJSON(doc, json) {
     return CellSelection.from(doc, json.anchor, json.head)
   }
@@ -138,6 +143,56 @@ function deleteCellSelection(state, dispatch) {
   return true
 }
 
+function mousedown(view, startEvent) {
+  if (startEvent.ctrlKey || startEvent.metaKey) return
+
+  let startDOMCell = domInCell(view, startEvent.target), anchor
+  if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {
+    setCellSelection(view.state.selection.anchorCellPos, startEvent)
+    startEvent.preventDefault()
+  } else if (startEvent.shiftKey && startDOMCell &&
+             (anchor = cellAround(view.state.selection.$anchor)) != null &&
+             cellUnderMouse(view, startEvent) != anchor) {
+    setCellSelection(anchor, startEvent)
+    startEvent.preventDefault()
+  } else if (!startDOMCell) {
+    return
+  }
+
+  function setCellSelection(anchor, event) {
+    let $anchor = view.state.doc.resolve(anchor)
+    let head = cellUnderMouse(view, event), $head
+    let starting = key.getState(view.state) == null
+    if (head == null || !inSameTable($anchor, $head = view.state.doc.resolve(head))) {
+      if (starting) $head = $anchor
+      else return
+    }
+    let selection = CellSelection.between($anchor, $head)
+    if (starting || !view.state.selection.eq(selection)) {
+      let tr = view.state.tr.setSelection(selection)
+      if (starting) tr.setMeta(key, anchor)
+      view.dispatch(tr)
+    }
+  }
+
+  function stop() {
+    view.root.removeEventListener("mouseup", stop)
+    view.root.removeEventListener("mousemove", move)
+    if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
+  }
+
+  function move(event) {
+    let anchor = key.getState(view.state)
+    if (anchor == null && domInCell(view, event.target) != startDOMCell) {
+      anchor = cellUnderMouse(view, startEvent)
+      if (anchor == null) return stop()
+    }
+    if (anchor != null) setCellSelection(anchor, event)
+  }
+  view.root.addEventListener("mouseup", stop)
+  view.root.addEventListener("mousemove", move)
+}
+
 // This plugin handles drawing and creating cell selections
 exports.cellSelection = function() {
   return new Plugin({
@@ -165,43 +220,7 @@ exports.cellSelection = function() {
         }
       },
 
-      handleDOMEvents: {
-        mousedown(view, startEvent) {
-          // FIXME handle shift-select
-          let startDOMCell = isInCell(view, startEvent.target)
-          if (!startDOMCell) return
-
-          function stop() {
-            view.root.removeEventListener("mouseup", stop)
-            view.root.removeEventListener("mousemove", move)
-            if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
-          }
-          function move(event) {
-            let anchor = key.getState(view.state), starting = false
-            if (anchor == null && isInCell(view, event.target) != startDOMCell) {
-              anchor = cellUnderMouse(view, startEvent)
-              if (anchor == null) return stop()
-              starting = true
-            }
-            if (anchor != null) {
-              let $anchor = view.state.doc.resolve(anchor)
-              let head = cellUnderMouse(view, event), $head
-              if (head == null || !inSameTable($anchor, $head = view.state.doc.resolve(head))) {
-                if (starting) $head = $anchor
-                else return
-              }
-              let selection = CellSelection.between($anchor, $head)
-              if (starting || !view.state.selection.eq(selection)) {
-                let tr = view.state.tr.setSelection(selection)
-                if (starting) tr.setMeta(key, anchor)
-                view.dispatch(tr)
-              }
-            }
-          }
-          view.root.addEventListener("mouseup", stop)
-          view.root.addEventListener("mousemove", move)
-        }
-      },
+      handleDOMEvents: {mousedown},
 
       createSelectionBetween(view) {
         if (key.getState(view.state) != null) return view.state.selection
@@ -227,7 +246,7 @@ exports.cellSelection = function() {
   })
 }
 
-function isInCell(view, dom) {
+function domInCell(view, dom) {
   for (; dom && dom != view.dom; dom = dom.parentNode)
     if (dom.nodeName == "TD" || dom.nodeName == "TH") return dom
 }
@@ -235,7 +254,10 @@ function isInCell(view, dom) {
 function cellUnderMouse(view, event) {
   let mousePos = view.posAtCoords({left: event.clientX, top: event.clientY})
   if (!mousePos) return null
-  let $pos = view.state.doc.resolve(mousePos.pos)
+  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null
+}
+
+function cellAround($pos) {
   for (let d = $pos.depth - 1; d > 0; d--)
     if ($pos.node(d).type.name == "table_row") return $pos.before(d + 1)
   return null
