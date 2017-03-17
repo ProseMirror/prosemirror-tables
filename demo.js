@@ -5,7 +5,7 @@ const {baseKeymap} = require("prosemirror-commands")
 const {keymap} = require("prosemirror-keymap")
 
 const {schema} = require("./src/schema")
-const {cellSelection} = require("./src/cellselection")
+const {cellSelection} = require("./src")
 
 let doc = DOMParser.fromSchema(schema).parse(document.querySelector("#content"))
 let state = EditorState.create({doc, plugins: [
