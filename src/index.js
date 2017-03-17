@@ -4,8 +4,7 @@ const {handleTripleClick, handleKeyDown, handleTextInput, mousedown} = require("
 const {key} = require("./util")
 const {drawCellSelection} = require("./cellselection")
 
-// This plugin handles drawing and creating cell selections
-exports.cellSelection = function() {
+exports.tableEditing = function() {
   return new Plugin({
     key,
 
