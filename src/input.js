@@ -55,6 +55,7 @@ function shiftArrow(axis, dir) {
       sel = CellSelection.between(state.doc.resolve(end))
     }
     let $head = moveCellPos(sel.$head, axis, dir), $anchor = sel.$anchor
+    if ($head.parent.type.name != "table_row") throw new RangeError("BAD HEAD " + $head)
     if (!$head) return false
     if ($head.pos == $anchor.pos) {
       $head = moveCellPos($anchor, axis, dir)

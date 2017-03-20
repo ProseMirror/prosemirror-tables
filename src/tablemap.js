@@ -27,6 +27,42 @@ class TableMap {
     this.problems = problems
   }
 
+  locate(pos) {
+    for (let i = 0; i < this.map.length; i++) {
+      let off = this.map[i]
+      if (off == pos) return i
+      if (off > pos) return i - 1
+    }
+    return this.map.length
+  }
+
+  colCount(pos) {
+    return this.locate(pos) % (this.width + 1)
+  }
+
+  rowCount(pos) {
+    return (this.locate(pos) / (this.width + 1)) | 0
+  }
+
+  moveCellPos(pos, axis, dir) {
+    let place = this.locate(pos)
+    if (axis == "horiz") {
+      if (place % (this.width + 1) == (dir < 0 ? 0 : this.width)) return null
+      for (;;) {
+        let next = this.map[place += dir]
+        if (next != pos) return next
+      }
+    } else {
+      let row = (this.locate(pos) / this.width) | 0
+      for (;;) {
+        place += dir * (this.width + 1)
+        if (dir < 0 ? place < 0 : place >= this.map.length) return null
+        let next = this.map[place]
+        if (next != pos) return next
+      }
+    }
+  }
+
   static get(table) {
     return readFromCache(table) || addToCache(table, computeMap(table))
   }
@@ -34,9 +70,10 @@ class TableMap {
 exports.TableMap = TableMap
 
 function computeMap(table) {
+  if (table.type.name != "table") throw new RangeError("Not a table node: " + table.type.name)
   let width = findWidth(table), height = table.childCount
   let map = [], mapPos = 0, problems = null
-  for (let i = 0, e = width * height; i < e; i++) map[i] = 0
+  for (let i = 0, e = (width + 1) * height; i < e; i++) map[i] = 0
 
   for (let row = 0, pos = 0; row < height; row++) {
     let rowNode = table.child(row)
@@ -56,7 +93,8 @@ function computeMap(table) {
       mapPos += colspan
       pos += cellNode.nodeSize
     }
-    let expectedPos = (row + 1) * width
+    map[mapPos++] = pos
+    let expectedPos = (row + 1) * (width + 1)
     if (mapPos != expectedPos) {
       ;(problems || (problems = [])).push({type: "missing", row, n: expectedPos - mapPos})
       mapPos = expectedPos
@@ -83,11 +121,10 @@ function findWidth(table) {
       rowWidth += cell.attrs.colspan
       if (cell.attrs.rowspan > 1) hasRowSpan = true
     }
-    if (width == -1) {
+    if (width == -1)
       width = rowWidth
-    } else if (width != rowWidth) {
+    else if (width != rowWidth)
       width = Math.max(width, rowWidth)
-    }
   }
   return width
 }

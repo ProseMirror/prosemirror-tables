@@ -1,5 +1,7 @@
 const {PluginKey} = require("prosemirror-state")
 
+const {TableMap} = require("./tablemap")
+
 exports.key = new PluginKey("selectingCells")
 
 exports.cellAround = function($pos) {
@@ -17,28 +19,13 @@ exports.inSameTable = function($a, $b) {
 }
 
 exports.colCount = function($pos) {
-  let count = 0
-  for (let i = $pos.index() - 1; i >= 0; i--)
-    count += $pos.parent.child(i).attrs.colspan
-  return count
+  return TableMap.get($pos.node(-1)).colCount($pos.pos - $pos.start(-1))
 }
 
 exports.moveCellPos = function($pos, axis, dir) {
-  if (axis == "horiz") {
-    if ($pos.index() == (dir < 0 ? 0 : $pos.parent.childCount)) return null
-    return $pos.node(0).resolve($pos.pos + (dir < 0 ? -$pos.nodeBefore.nodeSize : $pos.nodeAfter.nodeSize))
-  } else {
-    let table = $pos.node(-1), index = $pos.index(-1)
-    if (index == (dir < 0 ? 0 : table.childCount)) return null
-    let targetCol = exports.colCount($pos), row = table.child(index + dir)
-    let pos = $pos.before() + (dir < 0 ? -row.nodeSize : $pos.parent.nodeSize) + 1
-    for (let i = 0, col = 0; col < targetCol && i < row.childCount - 1; i++) {
-      let cell = row.child(i)
-      col += cell.attrs.colspan
-      pos += cell.nodeSize
-    }
-    return $pos.node(0).resolve(pos)
-  }
+  let start = $pos.start(-1), map = TableMap.get($pos.node(-1))
+  let moved = map.moveCellPos($pos.pos - start, axis, dir)
+  return moved == null ? null : $pos.node(0).resolve(start + moved)
 }
 
 exports.setAttr = function(attrs, name, value) {
