@@ -40,3 +40,10 @@ exports.moveCellPos = function($pos, axis, dir) {
     return $pos.node(0).resolve(pos)
   }
 }
+
+exports.setAttr = function(attrs, name, value) {
+  let result = {}
+  for (let prop in attrs) result[prop] = attrs[prop]
+  result[name] = value
+  return result
+}

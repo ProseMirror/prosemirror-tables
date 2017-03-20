@@ -3,6 +3,7 @@ const {Plugin} = require("prosemirror-state")
 const {handleTripleClick, handleKeyDown, handleTextInput, mousedown} = require("./input")
 const {key} = require("./util")
 const {drawCellSelection} = require("./cellselection")
+const {fixTables} = require("./fixtables")
 
 exports.tableEditing = function() {
   return new Plugin({
@@ -33,6 +34,8 @@ exports.tableEditing = function() {
       handleKeyDown,
 
       handleTextInput
-    }
+    },
+
+    appendTransaction: fixTables
   })
 }
