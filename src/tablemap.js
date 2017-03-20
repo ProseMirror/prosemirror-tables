@@ -36,24 +36,21 @@ class TableMap {
     return this.map.length
   }
 
-  colCount(pos) {
-    return this.locate(pos) % (this.width + 1)
-  }
+  colFor(place) { return place % (this.width + 1) }
+  rowFor(place) { return (place / (this.width + 1)) | 0 }
 
-  rowCount(pos) {
-    return (this.locate(pos) / (this.width + 1)) | 0
-  }
+  colCount(pos) { return this.colFor(this.locate(pos)) }
+  rowCount(pos) { return this.rowFor(this.locate(pos)) }
 
   moveCellPos(pos, axis, dir) {
     let place = this.locate(pos)
     if (axis == "horiz") {
-      if (place % (this.width + 1) == (dir < 0 ? 0 : this.width)) return null
+      if (this.colFor(place) == (dir < 0 ? 0 : this.width)) return null
       for (;;) {
         let next = this.map[place += dir]
         if (next != pos) return next
       }
     } else {
-      let row = (this.locate(pos) / this.width) | 0
       for (;;) {
         place += dir * (this.width + 1)
         if (dir < 0 ? place < 0 : place >= this.map.length) return null
@@ -61,6 +58,21 @@ class TableMap {
         if (next != pos) return next
       }
     }
+  }
+
+  rect(a, b) {
+    let placeA = this.locate(a), placeB = this.locate(b)
+    let colA = this.colFor(placeA), colB = this.colFor(placeB)
+    let left = Math.min(colA, colB), right = Math.max(colA, colB)
+    let rowA = this.rowFor(placeA), rowB = this.rowFor(placeB)
+    let bottom = Math.max(rowA, rowB) + 1, botCol = rowA > rowB ? colA : colB
+    if (botCol == right) botCol--
+    let scanPos = bottom * (this.widtH + 1) + botCol, scanValue = this.map[scanPos]
+    for (; scanPos < this.map.length; scanPos += this.width + 1) {
+      if (this.map[scanPos] != scanValue) break
+      bottom++
+    }
+    return {left, top: Math.min(rowA, rowB), right, bottom}
   }
 
   static get(table) {

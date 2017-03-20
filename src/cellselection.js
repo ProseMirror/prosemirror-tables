@@ -2,22 +2,16 @@ const {Selection, TextSelection} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
 
 const {colCount, inSameTable, moveCellForward} = require("./util")
+const {TableMap} = require("./tablemap")
 
 class CellSelection extends Selection {
   map(doc, mapping) {
     return CellSelection.from(doc, mapping.map(this.anchor), mapping.map(this.head))
   }
 
-  get rect() {
-    let anchorCol = colCount(this.$anchor), headCol = colCount(this.$head)
-    return {left: Math.min(anchorCol, headCol),
-            top: this.$from.index(-1),
-            right: Math.max(anchorCol, headCol),
-            bottom: this.$to.index(-1) + 1}
-  }
-
   forEachCell(f) {
-    let {left, right, top, bottom} = this.rect
+    let map = TableMap.get(this.$anchor.node(-1)), start = this.$anchor.start(-1)
+    let {left, right, top, bottom} = map.rect(this.$anchor.pos - start, this.$head.pos - start)
     let table = this.$head.node(-1)
     for (let row = 0, pos = this.$head.start(-1); row < table.childCount; row++) {
       let rowNode = table.child(row)
