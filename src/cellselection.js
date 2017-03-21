@@ -1,55 +1,45 @@
 const {Selection, TextSelection} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
 
-const {colCount, inSameTable, moveCellForward} = require("./util")
+const {colCount, inSameTable, moveCellForward, moveCellBackward, pointsAtCell} = require("./util")
 const {TableMap} = require("./tablemap")
 
 class CellSelection extends Selection {
+  constructor($anchorCell, $headCell = $anchorCell) {
+    let aCol = colCount($anchorCell), bCol = colCount($headCell)
+    if (aCol < bCol) super($anchorCell, moveCellForward($headCell))
+    else super(moveCellForward($anchorCell), $headCell)
+    this.$anchorCell = $anchorCell
+    this.$headCell = $headCell
+  }
+
   map(doc, mapping) {
-    return CellSelection.from(doc, mapping.map(this.anchor), mapping.map(this.head))
+    let dir = this.anchor < this.head ? -1 : 1
+    let $anchorCell = doc.resolve(mapping.map(this.$anchorCell.pos, dir))
+    let $headCell = doc.resolve(mapping.map(this.$headCell.pos, -dir))
+    if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell))
+      return new CellSelection($anchorCell, $headCell)
+    return TextSelection.between($anchorCell, $headCell)
   }
 
   forEachCell(f) {
-    let map = TableMap.get(this.$anchor.node(-1)), start = this.$anchor.start(-1)
-    let {left, right, top, bottom} = map.rect(this.$anchor.pos - start, this.$head.pos - start)
-    let table = this.$head.node(-1)
-    for (let row = 0, pos = this.$head.start(-1); row < table.childCount; row++) {
-      let rowNode = table.child(row)
-      pos++
-      for (let i = 0, col = 0; i < rowNode.childCount; i++) {
-        let cellNode = rowNode.child(i), colEnd = col + cellNode.attrs.colspan
-        if (col < right && colEnd > left &&
-            row < bottom && row + cellNode.attrs.rowspan > top)
-          f(cellNode, pos)
-        col = colEnd
-        pos += cellNode.nodeSize
-      }
-      pos++
-    }
-  }
-
-  get anchorCellPos() {
-    let anchorCol = colCount(this.$anchor), headCol = colCount(this.$head)
-    return this.anchor - (anchorCol < headCol ? 0 : this.$anchor.nodeBefore.nodeSize)
-  }
-
-  get headCellPos() {
-    let anchorCol = colCount(this.$anchor), headCol = colCount(this.$head)
-    return this.head - (headCol < anchorCol ? 0 : this.$head.nodeBefore.nodeSize)
+    let table = this.$anchorCell.node(-1), map = TableMap.get(table), start = this.$anchorCell.start(-1)
+    let cells = map.cellsInRect(this.$anchorCell.pos - start, this.$headCell.pos - start)
+    for (let i = 0; i < cells.length; i++)
+      f(table.nodeAt(cells[i]), start + cells[i])
   }
 
   static fromJSON(doc, json) {
-    return CellSelection.from(doc, json.anchor, json.head)
-  }
-
-  static from(doc, anchor, head) {
-    let $anchor = doc.resolve(anchor), $head = doc.resolve(head)
-    if ($anchor.parent.type.name == "table_row" &&
-        $head.parent.type.name == "table_row" &&
-        $head.pos != $anchor.pos &&
-        inSameTable($anchor, $head))
-      return new CellSelection($anchor, $head)
-    return TextSelection.between($anchor, $head)
+    let $anchor = doc.resolve(json.anchor), $head = doc.resolve(json.head)
+    if ($anchor.pos == $head.pos ||
+        $anchor.parent.type.name != "table_row" ||
+        $head.parent.type.name != "table_row" ||
+        !inSameTable($anchor, $head))
+      return TextSelection.between($anchor, $head)
+    let aCol = colCount($anchor), bCol = colCount($head)
+    return aCol < bCol ? new CellSelection($anchor, moveCellBackward($head))
+         : aCol > bCol ? new CellSelection(moveCellBackward($anchor), $head)
+         : new CellSelection($anchor, $head)
   }
 
   // $anchor and $head must be pointing before cells in the same table

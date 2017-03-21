@@ -2,7 +2,7 @@ const {Slice} = require("prosemirror-model")
 const {Selection, TextSelection} = require("prosemirror-state")
 const {keydownHandler} = require("prosemirror-keymap")
 
-const {key, moveCellPos, moveCellForward, cellAround, inSameTable} = require("./util")
+const {key, nextCell, moveCellForward, cellAround, inSameTable} = require("./util")
 const {CellSelection} = require("./cellselection")
 
 exports.handleKeyDown = keydownHandler({
@@ -26,7 +26,7 @@ function arrow(axis, dir) {
   return (state, dispatch, view) => {
     let sel = state.selection
     if (sel instanceof CellSelection) {
-      dispatch(state.tr.setSelection(Selection.near(sel.$head, dir)))
+      dispatch(state.tr.setSelection(Selection.near(sel.$headCell, dir)))
       return true
     }
     if (axis != "horiz" && !sel.empty) return false
@@ -36,7 +36,7 @@ function arrow(axis, dir) {
       dispatch(state.tr.setSelection(Selection.near(state.doc.resolve(sel.head + dir), dir)))
       return true
     } else {
-      let $cell = state.doc.resolve(end), $next = moveCellPos($cell, axis, dir), newSel
+      let $cell = state.doc.resolve(end), $next = nextCell($cell, axis, dir), newSel
       if ($next) newSel = Selection.near($next, 1)
       else if (dir < 0) newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1)
       else newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1)
@@ -52,17 +52,11 @@ function shiftArrow(axis, dir) {
     if (!(sel instanceof CellSelection)) {
       let end = atEndOfCell(view, axis, dir)
       if (end == null) return false
-      sel = CellSelection.between(state.doc.resolve(end))
+      sel = new CellSelection(state.doc.resolve(end))
     }
-    let $head = moveCellPos(sel.$head, axis, dir), $anchor = sel.$anchor
-    if ($head.parent.type.name != "table_row") throw new RangeError("BAD HEAD " + $head)
+    let $head = nextCell(sel.$headCell, axis, dir)
     if (!$head) return false
-    if ($head.pos == $anchor.pos) {
-      $head = moveCellPos($anchor, axis, dir)
-      if (!$head) return false
-      $anchor = sel.$head
-    }
-    if (dispatch) dispatch(state.tr.setSelection(new CellSelection($anchor, $head)))
+    if (dispatch) dispatch(state.tr.setSelection(new CellSelection(sel.$anchorCell, $head)))
     return true
   }
 }
@@ -83,22 +77,16 @@ function deleteCellSelection(state, dispatch) {
 }
 
 exports.handleTripleClick = function(view, pos) {
-  let doc = view.state.doc, $pos = doc.resolve(pos)
-  for (let i = $pos.depth; i > 0; i--) {
-    let parent = $pos.node(i)
-    if (parent.type.name == "table_cell" || parent.type.name == "table_header") {
-      view.dispatch(view.state.tr.setSelection(new CellSelection(doc.resolve($pos.before(i)),
-                                                                 doc.resolve($pos.after(i)))))
-      return true
-    }
-  }
-  return false
+  let doc = view.state.doc, cell = cellAround(doc.resolve(pos))
+  if (cell == null) return false
+  view.dispatch(view.state.tr.setSelection(new CellSelection(doc.resolve(cell))))
+  return true
 }
 
 exports.handleTextInput = function(view, _from, _to, text) {
-  let {selection, doc} = view.state
+  let {selection} = view.state
   if (!(selection instanceof CellSelection)) return false
-  let $cell = doc.resolve(selection.headCellPos)
+  let $cell = selection.$headCell
   view.dispatch(view.state.tr
                 .setSelection(TextSelection.between($cell, moveCellForward($cell)))
                 .insertText(text))
@@ -110,29 +98,28 @@ exports.mousedown = function(view, startEvent) {
 
   let startDOMCell = domInCell(view, startEvent.target), anchor
   if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {
-    setCellSelection(view.state.selection.anchorCellPos, startEvent)
+    setCellSelection(view.state.selection.$anchorCell, startEvent)
     startEvent.preventDefault()
   } else if (startEvent.shiftKey && startDOMCell &&
              (anchor = cellAround(view.state.selection.$anchor)) != null &&
              cellUnderMouse(view, startEvent) != anchor) {
-    setCellSelection(anchor, startEvent)
+    setCellSelection(view.state.doc.resolve(anchor), startEvent)
     startEvent.preventDefault()
   } else if (!startDOMCell) {
     return
   }
 
-  function setCellSelection(anchor, event) {
-    let $anchor = view.state.doc.resolve(anchor)
+  function setCellSelection($anchor, event) {
     let head = cellUnderMouse(view, event), $head
     let starting = key.getState(view.state) == null
     if (head == null || !inSameTable($anchor, $head = view.state.doc.resolve(head))) {
       if (starting) $head = $anchor
       else return
     }
-    let selection = CellSelection.between($anchor, $head)
+    let selection = new CellSelection($anchor, $head)
     if (starting || !view.state.selection.eq(selection)) {
       let tr = view.state.tr.setSelection(selection)
-      if (starting) tr.setMeta(key, anchor)
+      if (starting) tr.setMeta(key, $anchor.pos)
       view.dispatch(tr)
     }
   }
@@ -149,7 +136,7 @@ exports.mousedown = function(view, startEvent) {
       anchor = cellUnderMouse(view, startEvent)
       if (anchor == null) return stop()
     }
-    if (anchor != null) setCellSelection(anchor, event)
+    if (anchor != null) setCellSelection(view.state.doc.resolve(anchor), event)
   }
   view.root.addEventListener("mouseup", stop)
   view.root.addEventListener("mousemove", move)
@@ -181,4 +168,3 @@ function cellUnderMouse(view, event) {
   if (!mousePos) return null
   return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null
 }
-

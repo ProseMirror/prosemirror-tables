@@ -19,6 +19,15 @@ if (typeof WeakMap != "undefined") {
   }
 }
 
+const cellSize = {left: 0, top: 0, right: 0, bottom: 0}
+function returnSize(left, top, right, bottom) {
+  cellSize.left = left
+  cellSize.right = right
+  cellSize.top = top
+  cellSize.bottom = bottom
+  return cellSize
+}
+
 class TableMap {
   constructor(width, height, map, problems) {
     this.width = width
@@ -27,52 +36,49 @@ class TableMap {
     this.problems = problems
   }
 
-  locate(pos) {
+  findCell(pos) {
     for (let i = 0; i < this.map.length; i++) {
-      let off = this.map[i]
-      if (off == pos) return i
-      if (off > pos) return i - 1
+      let curPos = this.map[i]
+      if (curPos != pos) continue
+      let left = i % this.width, top = (i / this.width) | 0
+      let right = left + 1, bottom = top + 1
+      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++) right++
+      for (let j = 1; bottom < this.height && this.map[i + (this.width * j)] == curPos; j++) bottom++
+      return returnSize(left, top, right, bottom)
     }
-    return this.map.length
+    throw new RangeError("No cell with offset " + pos + " found")
   }
 
-  colFor(place) { return place % (this.width + 1) }
-  rowFor(place) { return (place / (this.width + 1)) | 0 }
+  colCount(pos) {
+    for (let i = 0; i < this.map.length; i++)
+      if (this.map[i] == pos) return i % this.width
+    throw new RangeError("No cell with offset " + pos + " found")
+  }
 
-  colCount(pos) { return this.colFor(this.locate(pos)) }
-  rowCount(pos) { return this.rowFor(this.locate(pos)) }
-
-  moveCellPos(pos, axis, dir) {
-    let place = this.locate(pos)
+  nextCell(pos, axis, dir) {
+    let {left, right, top, bottom} = this.findCell(pos)
     if (axis == "horiz") {
-      if (this.colFor(place) == (dir < 0 ? 0 : this.width)) return null
-      for (;;) {
-        let next = this.map[place += dir]
-        if (next != pos) return next
-      }
+      if (dir < 0 ? left == 0 : right == this.width) return null
+      return this.map[top * this.width + (dir < 0 ? left - 1 : right)]
     } else {
-      for (;;) {
-        place += dir * (this.width + 1)
-        if (dir < 0 ? place < 0 : place >= this.map.length) return null
-        let next = this.map[place]
-        if (next != pos) return next
-      }
+      if (dir < 0 ? top == 0 : bottom == this.height) return null
+      return this.map[left + this.width * (dir < 0 ? top - 1 : bottom)]
     }
   }
 
-  rect(a, b) {
-    let placeA = this.locate(a), placeB = this.locate(b)
-    let colA = this.colFor(placeA), colB = this.colFor(placeB)
-    let left = Math.min(colA, colB), right = Math.max(colA, colB)
-    let rowA = this.rowFor(placeA), rowB = this.rowFor(placeB)
-    let bottom = Math.max(rowA, rowB) + 1, botCol = rowA > rowB ? colA : colB
-    if (botCol == right) botCol--
-    let scanPos = bottom * (this.widtH + 1) + botCol, scanValue = this.map[scanPos]
-    for (; scanPos < this.map.length; scanPos += this.width + 1) {
-      if (this.map[scanPos] != scanValue) break
-      bottom++
+  cellsInRect(a, b) {
+    let {left: leftA, right: rightA, top: topA, bottom: bottomA} = this.findCell(a)
+    let {left: leftB, right: rightB, top: topB, bottom: bottomB} = this.findCell(b)
+    let left = Math.min(leftA, leftB), right = Math.max(rightA, rightB)
+    let top = Math.min(topA, topB), bottom = Math.max(bottomA, bottomB)
+    let result = []
+    for (let row = top; row < bottom; row++) {
+      for (let col = left; col < right; col++) {
+        let pos = this.map[row * this.width + col]
+        if (result.indexOf(pos) == -1) result.push(pos)
+      }
     }
-    return {left, top: Math.min(rowA, rowB), right, bottom}
+    return result
   }
 
   static get(table) {
@@ -85,7 +91,7 @@ function computeMap(table) {
   if (table.type.name != "table") throw new RangeError("Not a table node: " + table.type.name)
   let width = findWidth(table), height = table.childCount
   let map = [], mapPos = 0, problems = null
-  for (let i = 0, e = (width + 1) * height; i < e; i++) map[i] = 0
+  for (let i = 0, e = width * height; i < e; i++) map[i] = 0
 
   for (let row = 0, pos = 0; row < height; row++) {
     let rowNode = table.child(row)
@@ -105,8 +111,7 @@ function computeMap(table) {
       mapPos += colspan
       pos += cellNode.nodeSize
     }
-    map[mapPos++] = pos
-    let expectedPos = (row + 1) * (width + 1)
+    let expectedPos = (row + 1) * width
     if (mapPos != expectedPos) {
       ;(problems || (problems = [])).push({type: "missing", row, n: expectedPos - mapPos})
       mapPos = expectedPos
@@ -124,8 +129,8 @@ function findWidth(table) {
     if (hasRowSpan) for (let j = 0; j < row; j++) {
       let prevRow = table.child(j)
       for (let i = 0; i < prevRow.childCount; i++) {
-        let cell = rowNode.child(i)
-        if (i + cell.attrs.rowspan - 1 >= row) rowWidth += cell.attrs.colspan
+        let cell = prevRow.child(i)
+        if (j + cell.attrs.rowspan > row) rowWidth += cell.attrs.colspan
       }
     }
     for (let i = 0; i < rowNode.childCount; i++) {

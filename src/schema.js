@@ -32,7 +32,7 @@ exports.schema = new Schema({
       toDOM() { return ["table", ["tbody", 0]] }
     },
     table_row: {
-      content: "(table_cell | table_header)+",
+      content: "(table_cell | table_header)*",
       parseDOM: [{tag: "tr"}],
       toDOM() { return ["tr", 0] }
     },

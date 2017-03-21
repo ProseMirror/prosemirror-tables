@@ -10,21 +10,33 @@ exports.cellAround = function($pos) {
   return null
 }
 
+exports.pointsAtCell = function($pos) {
+  return $pos.parent.type.name == "table_row" && $pos.nodeAfter
+}
+
 exports.moveCellForward = function($pos) {
   return $pos.node(0).resolve($pos.pos + $pos.nodeAfter.nodeSize)
+}
+
+exports.moveCellBackward = function($pos) {
+  return $pos.node(0).resolve($pos.pos - $pos.nodeBefore.nodeSize)
 }
 
 exports.inSameTable = function($a, $b) {
   return $a.depth == $b.depth && $a.pos >= $b.start(-1) && $a.pos <= $b.end(-1)
 }
 
+exports.findCell = function($pos) {
+  return TableMap.get($pos.node(-1)).findCell($pos.pos - $pos.start(-1))
+}
+
 exports.colCount = function($pos) {
   return TableMap.get($pos.node(-1)).colCount($pos.pos - $pos.start(-1))
 }
 
-exports.moveCellPos = function($pos, axis, dir) {
+exports.nextCell = function($pos, axis, dir) {
   let start = $pos.start(-1), map = TableMap.get($pos.node(-1))
-  let moved = map.moveCellPos($pos.pos - start, axis, dir)
+  let moved = map.nextCell($pos.pos - start, axis, dir)
   return moved == null ? null : $pos.node(0).resolve(start + moved)
 }
 
