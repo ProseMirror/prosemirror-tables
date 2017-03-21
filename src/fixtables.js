@@ -3,11 +3,29 @@ const {Slice, Fragment} = require("prosemirror-model")
 const {TableMap} = require("./tablemap")
 const {setAttr} = require("./util")
 
-exports.fixTables = function(trs, _, state) {
+function changedDescendants(old, cur, offset, f) {
+  if (old == cur) return
+  let oldSize = old.childCount, curSize = cur.childCount
+  outer: for (let i = 0, j = 0; i < curSize; i++) {
+    let child = cur.child(i)
+    for (let scan = j, e = Math.min(oldSize, i + 3); scan < e; scan++) {
+      if (old.child(scan) == child) {
+        j = scan + 1
+        continue outer
+      }
+    }
+    f(child, offset)
+    if (j < oldSize && old.child(j).sameMarkup(child))
+      changedDescendants(old.child(j), child, offset + 1, f)
+    else
+      child.nodesBetween(0, child.content.size, f, offset)
+    offset += child.nodeSize
+  }
+}
+
+exports.fixTables = function(_, oldState, state) {
   let tr
-  // FIXME refine this so that only tables that were actually touched
-  // by the transforms are checked
-  if (trs.some(tr => tr.docChanged)) state.doc.descendants((node, pos) => {
+  if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, (node, pos) => {
     if (node.type.name == "table") tr = fixTable(state, node, pos, tr)
   })
   return tr
