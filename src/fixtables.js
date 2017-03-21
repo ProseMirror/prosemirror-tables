@@ -13,7 +13,7 @@ exports.fixTables = function(trs, _, state) {
   return tr
 }
 
-function fixTable(state, table, tablePos, tr) {
+let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
   let map = TableMap.get(table)
   if (!map.problems) return tr
   if (!tr) tr = state.tr
@@ -37,7 +37,8 @@ function fixTable(state, table, tablePos, tr) {
       let nodes = []
       for (let j = 0; j < add; j++)
         nodes.push(state.schema.nodes.table_cell.createAndFill())
-      let insertPos = tr.mapping.map(i == 0 || mustAdd[i - 1] > 0 ? pos + 1 : end - 1)
+      let side = (i == 0 ? !mustAdd[i + 1] : mustAdd[i - 1]) ? pos + 1 : end - 1
+      let insertPos = tr.mapping.map(side)
       tr.replace(insertPos, insertPos, new Slice(Fragment.from(nodes), 0, 0))
     }
     pos = end

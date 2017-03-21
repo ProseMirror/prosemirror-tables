@@ -96,9 +96,10 @@ function computeMap(table) {
   for (let row = 0, pos = 0; row < height; row++) {
     let rowNode = table.child(row)
     pos++
-    for (let i = 0; i < rowNode.childCount; i++) {
+    for (let i = 0;; i++) {
+      while (mapPos < map.length && map[mapPos] != 0) mapPos++
+      if (i == rowNode.childCount) break
       let cellNode = rowNode.child(i), {colspan, rowspan} = cellNode.attrs
-      while (map[mapPos] != 0) mapPos++
       for (let h = 0; h < rowspan; h++) {
         let start = mapPos + (h * width)
         for (let w = 0; w < colspan; w++) {
@@ -111,11 +112,9 @@ function computeMap(table) {
       mapPos += colspan
       pos += cellNode.nodeSize
     }
-    let expectedPos = (row + 1) * width
-    if (mapPos != expectedPos) {
-      ;(problems || (problems = [])).push({type: "missing", row, n: expectedPos - mapPos})
-      mapPos = expectedPos
-    }
+    let expectedPos = (row + 1) * width, missing = 0
+    while (mapPos < expectedPos) if (map[mapPos++] == 0) missing++
+    if (missing) (problems || (problems = [])).push({type: "missing", row, n: missing})
     pos++
   }
 
