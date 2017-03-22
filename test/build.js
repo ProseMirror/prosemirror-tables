@@ -11,4 +11,9 @@ e.c = function(colspan, rowspan) {
   return e.td({colspan, rowspan}, e.p("x"))
 }
 e.c11 = e.c(1, 1)
-e.cE = e.td(e.p())
+e.cEmpty = e.td(e.p())
+e.cCursor = e.td(e.p("x<cursor>"))
+e.cAnchor = e.td(e.p("x<anchor>"))
+e.cHead = e.td(e.p("x<head>"))
+
+e.eq = function(a, b) { return a.eq(b) }

@@ -1,5 +1,3 @@
-const {Slice, Fragment} = require("prosemirror-model")
-
 const {TableMap} = require("./tablemap")
 const {setAttr} = require("./util")
 
@@ -56,8 +54,7 @@ let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
       for (let j = 0; j < add; j++)
         nodes.push(state.schema.nodes.table_cell.createAndFill())
       let side = (i == 0 ? !mustAdd[i + 1] : mustAdd[i - 1]) ? pos + 1 : end - 1
-      let insertPos = tr.mapping.map(side)
-      tr.replace(insertPos, insertPos, new Slice(Fragment.from(nodes), 0, 0))
+      tr.insert(tr.mapping.map(side), nodes)
     }
     pos = end
   }
