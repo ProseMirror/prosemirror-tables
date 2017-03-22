@@ -1,15 +1,25 @@
+const {NodeSelection} = require("prosemirror-state")
+
 const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
 const {setAttr, cellAround} = require("./util")
 
+function isInTable(state) {
+  let $head = state.selection.$head
+  for (let d = $head.depth; d > 0; d--) if ($head.node(d).type.name == "table_row") return true
+  return false
+}
+
 function selectedRect(state) {
-  let cellSel = state.selection instanceof CellSelection
-  let $pos = cellSel ? state.selection.$anchorCell : state.doc.resolve(cellAround(state.selection.$head))
+  let sel = state.selection, cellSel = sel instanceof CellSelection
+  let $pos = cellSel ? sel.$anchorCell
+      : (sel instanceof NodeSelection) && sel.$from.parent.type.name == "table_row" ? sel.$from
+      : state.doc.resolve(cellAround(sel.$head))
   let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
   let left, right, top, bottom
   if (cellSel) {
-    let anchor = map.findCell(state.selection.$anchorCell.pos - tableStart)
-    let head = map.findCell(state.selection.$headCell.pos - tableStart)
+    let anchor = map.findCell(sel.$anchorCell.pos - tableStart)
+    let head = map.findCell(sel.$headCell.pos - tableStart)
     left = Math.min(anchor.left, head.left); top = Math.min(anchor.top, head.top)
     right = Math.max(anchor.right, head.right); bottom = Math.max(anchor.bottom, head.bottom)
   } else {
@@ -38,12 +48,6 @@ function addColumn(tr, {map, tableStart, table}, col) {
     rowPos += table.child(row).nodeSize
   }
   return tr
-}
-
-function isInTable(state) {
-  let $head = state.selection.$head
-  for (let d = $head.depth; d > 0; d--) if ($head.node(d).type.name == "table_row") return true
-  return false
 }
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
