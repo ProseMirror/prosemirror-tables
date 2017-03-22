@@ -243,8 +243,9 @@ function mergeCells(state, dispatch) {
         }
       }
     }
-    tr.setNodeType(mergedPos, null, setAttr(setAttr(mergedCell.attrs, "colspan", rect.right - rect.left),
-                                            "rowspan", rect.bottom - rect.top))
+    tr.setNodeType(mergedPos + rect.tableStart, null,
+                   setAttr(setAttr(mergedCell.attrs, "colspan", rect.right - rect.left),
+                           "rowspan", rect.bottom - rect.top))
     if (content.size) {
       let end = mergedPos + 1 + mergedCell.content.size
       let start = isEmpty(mergedCell) ? mergedPos + 1 : end

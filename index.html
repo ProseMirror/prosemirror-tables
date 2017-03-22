@@ -3,13 +3,23 @@
 <title>Table demo</title>
 
 <link rel=stylesheet href="node_modules/prosemirror-view/style/prosemirror.css">
+<link rel=stylesheet href="node_modules/prosemirror-menu/style/menu.css">
+<link rel=stylesheet href="node_modules/prosemirror-example-setup/style/style.css">
 <style>
-  .ProseMirror {
+  body {
+    max-width: 50em;
+    font-family: Georgia;
+  }
+  .ProseMirror-menubar-wrapper {
     border: 1px solid silver;
+    outline: none;
+  }
+  .ProseMirror {
     padding: 5px 15px;
   }
   .ProseMirror table {
     border-collapse: collapse;
+    margin: 1em 0;
   }
   .ProseMirror th, .ProseMirror td {
     min-width: 1em;
@@ -17,7 +27,17 @@
     border: 1px solid #ddd;
     padding: 3px 5px;
   }
-  .selectedCell { background: #eef; }
+  .selectedCell {
+    position: relative;
+  }
+  .selectedCell:after {
+     z-index: 10;
+     position: absolute;
+     content: "";
+     left: 0; right: 0; top: 0; bottom: 0;
+     background: rgba(200, 200, 255, 0.4);
+     pointer-events: none;
+   }
 </style>
 
 <h1>Table demo</h1>
