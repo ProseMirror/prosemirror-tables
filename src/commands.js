@@ -2,6 +2,22 @@ const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
 const {setAttr, cellAround} = require("./util")
 
+function selectedRect(state) {
+  let cellSel = state.selection instanceof CellSelection
+  let $pos = cellSel ? state.selection.$anchorCell : state.doc.resolve(cellAround(state.selection.$head))
+  let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
+  let left, right, top, bottom
+  if (cellSel) {
+    let anchor = map.findCell(state.selection.$anchorCell.pos - tableStart)
+    let head = map.findCell(state.selection.$headCell.pos - tableStart)
+    left = Math.min(anchor.left, head.left); top = Math.min(anchor.top, head.top)
+    right = Math.max(anchor.right, head.right); bottom = Math.max(anchor.bottom, head.bottom)
+  } else {
+    ;({left, right, top, bottom} = map.findCell($pos.pos - tableStart))
+  }
+  return {left, right, top, bottom, table, tableStart, map}
+}
+
 function addColumn(tr, {map, tableStart, table}, col) {
   for (let row = 0, rowPos = 0; row < map.height; row++) {
     let index = row * map.width + col
@@ -30,29 +46,13 @@ function isInTable(state) {
   return false
 }
 
-function selectedColumns(state) {
-  let cellSel = state.selection instanceof CellSelection
-  let $pos = cellSel ? state.selection.$anchorCell : state.doc.resolve(cellAround(state.selection.$head))
-  let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
-  let left, right
-  if (cellSel) {
-    let {left: lAnchor, right: rAnchor} = map.findCell(state.selection.$anchorCell.pos - tableStart)
-    let {left: lHead, right: rHead} = map.findCell(state.selection.$headCell.pos - tableStart)
-    left = Math.min(lAnchor, lHead)
-    right = Math.max(rAnchor, rHead)
-  } else {
-    ;({left, right} = map.findCell($pos.pos - tableStart))
-  }
-  return {left, right, table, tableStart, map}
-}
-
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Command to add a column before the column with the selection.
 function addColumnBefore(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
-    let cols = selectedColumns(state)
-    dispatch(addColumn(state.tr, cols, cols.left))
+    let rect = selectedRect(state)
+    dispatch(addColumn(state.tr, rect, rect.left))
   }
   return true
 }
@@ -63,8 +63,8 @@ exports.addColumnBefore = addColumnBefore
 function addColumnAfter(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
-    let cols = selectedColumns(state)
-    dispatch(addColumn(state.tr, cols, cols.right))
+    let rect = selectedRect(state)
+    dispatch(addColumn(state.tr, rect, rect.right))
   }
   return true
 }
@@ -91,15 +91,53 @@ function removeColumn(tr, {map, table, tableStart}, col) {
 function deleteColumn(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
-    let cols = selectedColumns(state), tr = state.tr
-    for (let i = cols.right - 1;; i--) {
-      removeColumn(tr, cols, i)
-      if (i == cols.left) break
-      cols.table = cols.tableStart ? tr.doc.nodeAt(cols.tableStart - 1) : tr.doc
-      cols.map = TableMap.get(cols.table)
+    let rect = selectedRect(state), tr = state.tr
+    for (let i = rect.right - 1;; i--) {
+      removeColumn(tr, rect, i)
+      if (i == rect.left) break
+      rect.table = rect.tableStart ? tr.doc.nodeAt(rect.tableStart - 1) : tr.doc
+      rect.map = TableMap.get(rect.table)
     }
     dispatch(tr)
   }
   return true
 }
 exports.deleteColumn = deleteColumn
+
+function addRow(tr, {map, tableStart, table}, row) {
+  let rowPos = tableStart
+  for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
+  let cells = [], index = map.width * row
+  for (let col = 0, index = map.width * row; col < map.width; col++, index++) {
+    // Covered by a rowspan cell
+    if (row > 0 && row < map.height && map.map[index] == map.map[index - map.width]) {
+      let pos = map.map[index], cell = table.nodeAt(pos)
+      tr.setNodeType(tableStart + pos, null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan + 1))
+      col += cell.attrs.colspan - 1
+    } else {
+      cells.push(table.type.schema.nodes.table_cell.createAndFill())
+    }
+  }
+  tr.insert(rowPos, table.type.schema.node("table_row", null, cells))
+  return tr
+}
+
+function addRowBefore(state, dispatch) {
+  if (!isInTable(state)) return false
+  if (dispatch) {
+    let rect = selectedRect(state)
+    dispatch(addRow(state.tr, rect, rect.top))
+  }
+  return true
+}
+exports.addRowBefore = addRowBefore
+
+function addRowAfter(state, dispatch) {
+  if (!isInTable(state)) return false
+  if (dispatch) {
+    let rect = selectedRect(state)
+    dispatch(addRow(state.tr, rect, rect.bottom))
+  }
+  return true
+}
+exports.addRowAfter = addRowAfter

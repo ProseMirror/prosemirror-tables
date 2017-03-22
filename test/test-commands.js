@@ -4,7 +4,7 @@ const {EditorState, TextSelection} = require("prosemirror-state")
 const {table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq} = require("./build")
 const {CellSelection} = require("../src/cellselection")
 const {cellAround} = require("../src/util")
-const {addColumnAfter, addColumnBefore, deleteColumn} = require("../src/commands")
+const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore} = require("../src/commands")
 
 function resolveCell(doc, tag) {
   if (tag == null) return null
@@ -135,4 +135,48 @@ describe("deleteColumn", () => {
      test(table(tr(c(1, 2), cAnchor, c11), tr(c11, cEmpty), tr(cHead, c11, c11)),
           deleteColumn,
           table(tr(c11), tr(cEmpty), tr(c11))))
+})
+
+describe("addRowAfter", () => {
+  it("can add a simple row", () =>
+     test(table(tr(cCursor, c11), tr(c11, c11)),
+          addRowAfter,
+          table(tr(c11, c11), tr(cEmpty, cEmpty), tr(c11, c11))))
+
+  it("can add a row at the end", () =>
+     test(table(tr(c11, c11), tr(c11, cCursor)),
+          addRowAfter,
+          table(tr(c11, c11), tr(c11, c11), tr(cEmpty, cEmpty))))
+
+  it("increases rowspan when needed", () =>
+     test(table(tr(cCursor, c(1, 2)), tr(c11)),
+          addRowAfter,
+          table(tr(c11, c(1, 3)), tr(cEmpty), tr(c11))))
+
+  it("skips columns for colspan cells", () =>
+     test(table(tr(cCursor, c(2, 2)), tr(c11)),
+          addRowAfter,
+          table(tr(c11, c(2, 3)), tr(cEmpty), tr(c11))))
+
+  it("picks the row after a cell selection", () =>
+     test(table(tr(cHead, c11, c11), tr(c11, cAnchor, c11), tr(c(3, 1))),
+          addRowAfter,
+          table(tr(c11, c11, c11), tr(c11, c11, c11), tr(cEmpty, cEmpty, cEmpty), tr(c(3, 1)))))
+})
+
+describe("addRowBefore", () => {
+  it("can add a simple row", () =>
+     test(table(tr(c11, c11), tr(cCursor, c11)),
+          addRowBefore,
+          table(tr(c11, c11), tr(cEmpty, cEmpty), tr(c11, c11))))
+
+  it("can add a row at the start", () =>
+     test(table(tr(cCursor, c11), tr(c11, c11)),
+          addRowBefore,
+          table(tr(cEmpty, cEmpty), tr(c11, c11), tr(c11, c11))))
+
+  it("picks the row before a cell selection", () =>
+     test(table(tr(c11, c(2, 1)), tr(cAnchor, c11, c11), tr(c11, cHead, c11)),
+          addRowBefore,
+          table(tr(c11, c(2, 1)), tr(cEmpty, cEmpty, cEmpty), tr(c11, c11, c11), tr(c11, c11, c11))))
 })

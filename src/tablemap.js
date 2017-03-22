@@ -19,13 +19,10 @@ if (typeof WeakMap != "undefined") {
   }
 }
 
-const cellSize = {left: 0, top: 0, right: 0, bottom: 0}
-function returnSize(left, top, right, bottom) {
-  cellSize.left = left
-  cellSize.right = right
-  cellSize.top = top
-  cellSize.bottom = bottom
-  return cellSize
+class Rect {
+  constructor(left, top, right, bottom) {
+    this.left = left; this.top = top; this.right = right; this.bottom = bottom
+  }
 }
 
 class TableMap {
@@ -44,7 +41,7 @@ class TableMap {
       let right = left + 1, bottom = top + 1
       for (let j = 1; right < this.width && this.map[i + j] == curPos; j++) right++
       for (let j = 1; bottom < this.height && this.map[i + (this.width * j)] == curPos; j++) bottom++
-      return returnSize(left, top, right, bottom)
+      return new Rect(left, top, right, bottom)
     }
     throw new RangeError("No cell with offset " + pos + " found")
   }
