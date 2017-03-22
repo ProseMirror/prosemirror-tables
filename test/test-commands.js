@@ -3,7 +3,7 @@ const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells} = require("../src/commands")
+       mergeCells, splitCell} = require("../src/commands")
 
 function test(doc, command, result) {
   if (result == null) result = doc
@@ -254,4 +254,36 @@ describe("mergeCells", () => {
      test(table(tr(c11, cAnchor, c(1, 2), cEmpty, c11), tr(c11, cEmpty, cHead, c11)),
           mergeCells,
           table(tr(c11, td({rowspan: 2, colspan: 3}, p("x"), p("x"), p("x")), c11), tr(c11, c11))))
+})
+
+describe("splitCell", () => {
+  it("does nothing when there isn't a cell selection", () =>
+     test(table(tr(cCursor, c11)),
+          splitCell,
+          null))
+
+  it("does nothing for a multi-cell selection", () =>
+     test(table(tr(cAnchor, cHead, c11)),
+          splitCell,
+          null))
+
+  it("does nothing when the selected cell doesn't span anything", () =>
+     test(table(tr(cAnchor, c11)),
+          splitCell,
+          null))
+
+  it("can split a col-spanning cell", () =>
+     test(table(tr(td({colspan: 2}, p("foo<anchor>")), c11)),
+          splitCell,
+          table(tr(td(p("foo")), cEmpty, c11))))
+
+  it("can split a row-spanning cell", () =>
+     test(table(tr(c11, td({rowspan: 2}, p("foo<anchor>")), c11), tr(c11, c11)),
+          splitCell,
+          table(tr(c11, td(p("foo")), c11), tr(c11, cEmpty, c11))))
+
+  it("can split a rectangular cell", () =>
+     test(table(tr(c(4, 1)), tr(c11, td({rowspan: 2, colspan: 2}, p("foo<anchor>")), c11), tr(c11, c11)),
+          splitCell,
+          table(tr(c(4, 1)), tr(c11, td(p("foo")), cEmpty, c11), tr(c11, cEmpty, cEmpty, c11))))
 })

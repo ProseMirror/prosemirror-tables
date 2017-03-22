@@ -250,3 +250,30 @@ function mergeCells(state, dispatch) {
   return true
 }
 exports.mergeCells = mergeCells
+
+function splitCell(state, dispatch) {
+  let sel = state.selection
+  if (!(sel instanceof CellSelection) || sel.$anchorCell.pos != sel.$headCell.pos) return false
+  let cellNode = sel.$anchorCell.nodeAfter
+  if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) return false
+  if (dispatch) {
+    let rect = selectedRect(state), tr = state.tr
+    let rowIndex = 0, newCell = state.schema.nodes.table_cell.createAndFill()
+    for (let row = 0; row < rect.bottom; row++) {
+      let rowEndIndex = rowIndex + rect.table.child(row).nodeSize
+      if (row >= rect.top) {
+        let pos = findCellPos(rect.map, row, rect.left, rowIndex, rowEndIndex)
+        if (row == rect.top) pos += cellNode.nodeSize
+        for (let col = rect.left; col < rect.right; col++) {
+          if (col == rect.left && row == rect.top) continue
+          tr.insert(tr.mapping.map(pos + rect.tableStart, 1), newCell)
+        }
+      }
+      rowIndex = rowEndIndex
+    }
+    tr.setNodeType(sel.$anchorCell.pos, null, setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1))
+    dispatch(tr)
+  }
+  return true
+}
+exports.splitCell = splitCell
