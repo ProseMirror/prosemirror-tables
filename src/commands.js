@@ -28,8 +28,16 @@ function selectedRect(state) {
   return {left, right, top, bottom, table, tableStart, map}
 }
 
+function findCellPos(map, row, col, rowStart, rowEnd) {
+  // Skip past cells from previous rows (via rowspan)
+  let index = col + row * map.width, rowEndIndex = (row + 1) * map.width
+  while (index < rowEndIndex && map.map[index] < rowStart) index++
+  return index == rowEndIndex ? rowEnd - 1 : map.map[index]
+}
+
 function addColumn(tr, {map, tableStart, table}, col) {
-  for (let row = 0, rowPos = 0; row < map.height; row++) {
+  for (let row = 0, rowStart = 0; row < map.height; row++) {
+    let rowEnd = rowStart + table.child(row).nodeSize
     let index = row * map.width + col
     // If this position falls inside a col-spanning cell
     if (col > 0 && col < map.width && map.map[index - 1] == map.map[index]) {
@@ -37,15 +45,12 @@ function addColumn(tr, {map, tableStart, table}, col) {
       tr.setNodeType(tr.mapping.map(tableStart + pos), null,
                      setAttr(cell.attrs, "colspan", cell.attrs.colspan + 1))
       // Skip ahead if rowspan > 1
-      for (let i = 1; i < cell.rowspan; i++) rowPos += table.child(row++).nodeSize
+      for (let i = 1; i < cell.rowspan; i++) rowEnd += table.child(++row).nodeSize
     } else {
-      let rowEndIndex = (row + 1) * map.width
-      // Skip past cells from previous rows (via rowspan)
-      while (index < rowEndIndex && map.map[index] < rowPos) index++
-      let pos = index == rowEndIndex ? rowPos + table.child(row).nodeSize - 1 : map.map[index]
+      let pos = findCellPos(map, row, col, rowStart, rowEnd)
       tr.insert(tr.mapping.map(tableStart + pos), table.type.schema.nodes.table_cell.createAndFill())
     }
-    rowPos += table.child(row).nodeSize
+    rowStart = rowEnd
   }
   return tr
 }
@@ -111,13 +116,13 @@ exports.deleteColumn = deleteColumn
 function addRow(tr, {map, tableStart, table}, row) {
   let rowPos = tableStart
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
-  let cells = [], index = map.width * row
+  let cells = []
   for (let col = 0, index = map.width * row; col < map.width; col++, index++) {
     // Covered by a rowspan cell
     if (row > 0 && row < map.height && map.map[index] == map.map[index - map.width]) {
-      let pos = map.map[index], cell = table.nodeAt(pos)
-      tr.setNodeType(tableStart + pos, null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan + 1))
-      col += cell.attrs.colspan - 1
+      let pos = map.map[index], attrs = table.nodeAt(pos).attrs
+      tr.setNodeType(tableStart + pos, null, setAttr(attrs, "rowspan", attrs.rowspan + 1))
+      col += attrs.colspan - 1
     } else {
       cells.push(table.type.schema.nodes.table_cell.createAndFill())
     }
@@ -145,3 +150,46 @@ function addRowAfter(state, dispatch) {
   return true
 }
 exports.addRowAfter = addRowAfter
+
+function removeRow(tr, {map, table, tableStart}, row) {
+  let rowPos = 0
+  for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
+  let nextRow = rowPos + table.child(row).nodeSize
+  let nextRowEnd = row < map.height - 1 ? nextRow + table.child(row + 1).nodeSize : 0
+
+  let mapFrom = tr.mapping.maps.length
+  tr.delete(rowPos + tableStart, nextRow + tableStart)
+
+  for (let col = 0, index = row * map.width; col < map.width; col++, index++) {
+    let pos = map.map[index]
+    if (row > 0 && pos == map.map[index - map.width]) {
+      // If this cell starts in the row above, simply reduce its rowspan
+      let attrs = table.nodeAt(pos).attrs
+      tr.setNodeType(tr.mapping.slice(mapFrom).map(pos + tableStart), null, setAttr(attrs, "rowspan", attrs.rowspan - 1))
+      col += attrs.colspan - 1
+    } else if (row < map.width && pos == map.map[index + map.width]) {
+      // Else, if it continues in the row below, it has to be moved down
+      let cell = table.nodeAt(pos)
+      let copy = cell.type.create(setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - 1), cell.content)
+      let newPos = findCellPos(map, row + 1, col, nextRow, nextRowEnd)
+      tr.insert(tr.mapping.slice(mapFrom).map(tableStart + newPos), copy)
+      col += cell.attrs.colspan - 1
+    }
+  }
+}
+
+function deleteRow(state, dispatch) {
+  if (!isInTable(state)) return false
+  if (dispatch) {
+    let rect = selectedRect(state), tr = state.tr
+    for (let i = rect.bottom - 1;; i--) {
+      removeRow(tr, rect, i)
+      if (i == rect.top) break
+      rect.table = rect.tableStart ? tr.doc.nodeAt(rect.tableStart - 1) : tr.doc
+      rect.map = TableMap.get(rect.table)
+    }
+    dispatch(tr)
+  }
+  return true
+}
+exports.deleteRow = deleteRow

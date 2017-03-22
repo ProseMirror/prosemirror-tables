@@ -1,23 +1,8 @@
 const ist = require("ist")
-const {EditorState, TextSelection} = require("prosemirror-state")
+const {EditorState} = require("prosemirror-state")
 
-const {table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq} = require("./build")
-const {CellSelection} = require("../src/cellselection")
-const {cellAround} = require("../src/util")
-const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore} = require("../src/commands")
-
-function resolveCell(doc, tag) {
-  if (tag == null) return null
-  let cell = cellAround(doc.resolve(tag))
-  return cell == null ? null : doc.resolve(cell)
-}
-
-function selectionFor(doc) {
-  let cursor = doc.tag.cursor
-  if (cursor != null) return new TextSelection(doc.resolve(cursor))
-  let $anchor = resolveCell(doc, doc.tag.anchor)
-  if ($anchor) return new CellSelection($anchor, resolveCell(doc, doc.tag.head) || undefined)
-}
+const {doc, table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
+const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow} = require("../src/commands")
 
 function test(doc, command, result) {
   if (result == null) result = doc
@@ -71,6 +56,16 @@ describe("addColumnAfter", () => {
      test(table(tr(cHead, c11, c11), tr(c11, cAnchor, c11)),
           addColumnAfter,
           table(tr(c11, c11, cEmpty, c11), tr(c11, c11, cEmpty, c11))))
+
+  it("properly handles a cell node selection", () =>
+     test(table(tr("<node>", c11, c11), tr(c11, c11)),
+          addColumnAfter,
+          table(tr(c11, cEmpty, c11), tr(c11, cEmpty, c11))))
+
+  it("does nothing outside of a table", () =>
+     test(doc(p("foo<cursor>")),
+          addColumnAfter,
+          null))
 })
 
 describe("addColumnBefore", () => {
@@ -179,4 +174,51 @@ describe("addRowBefore", () => {
      test(table(tr(c11, c(2, 1)), tr(cAnchor, c11, c11), tr(c11, cHead, c11)),
           addRowBefore,
           table(tr(c11, c(2, 1)), tr(cEmpty, cEmpty, cEmpty), tr(c11, c11, c11), tr(c11, c11, c11))))
+})
+
+describe("deleteRow", () => {
+  it("can delete a simple row", () =>
+    test(table(tr(c11, cEmpty), tr(cCursor, c11), tr(c11, cEmpty)),
+         deleteRow,
+         table(tr(c11, cEmpty), tr(c11, cEmpty))))
+
+  it("can delete the first row", () =>
+    test(table(tr(c11, cCursor), tr(cEmpty, c11), tr(c11, cEmpty)),
+         deleteRow,
+         table(tr(cEmpty, c11), tr(c11, cEmpty))))
+
+  it("can delete the last row", () =>
+    test(table(tr(cEmpty, c11), tr(c11, cEmpty), tr(c11, cCursor)),
+         deleteRow,
+         table(tr(cEmpty, c11), tr(c11, cEmpty))))
+
+  it("can shrink rowspan cells", () =>
+     test(table(tr(c(1, 2), c11, c(1, 3)), tr(cCursor), tr(c11, c11)),
+          deleteRow,
+          table(tr(c11, c11, c(1, 2)), tr(c11, c11))))
+
+  it("can move cells that start in the deleted row", () =>
+     test(table(tr(c(1, 2), cCursor), tr(cEmpty)),
+          deleteRow,
+          table(tr(c11, cEmpty))))
+
+  it("deletes multiple rows when the start cell has a rowspan", () =>
+     test(table(tr(td({rowspan: 3}, p("<cursor>")), c11), tr(c11), tr(c11), tr(c11, c11)),
+          deleteRow,
+          table(tr(c11, c11))))
+
+  it("skips columns when adjusting rowspan", () =>
+     test(table(tr(cCursor, c(2, 2)), tr(c11)),
+          deleteRow,
+          table(tr(c11, c(2, 1)))))
+
+  it("can delete a cell selection", () =>
+     test(table(tr(cAnchor, c11), tr(c11, cEmpty)),
+          deleteRow,
+          table(tr(c11, cEmpty))))
+
+  it("will delete all rows in the cell selection", () =>
+     test(table(tr(c11, cEmpty), tr(cAnchor, c11), tr(c11, cHead), tr(cEmpty, c11)),
+          deleteRow,
+          table(tr(c11, cEmpty), tr(cEmpty, c11))))
 })

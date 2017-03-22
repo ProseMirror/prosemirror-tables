@@ -1,4 +1,7 @@
+const {TextSelection, NodeSelection} = require("prosemirror-state")
 const {schema} = require("../src/schema")
+const {cellAround} = require("../src/util")
+const {CellSelection} = require("../src/cellselection")
 
 let e = module.exports = require("prosemirror-test-builder/dist/build")(schema, {
   p: {nodeType: "paragraph"},
@@ -17,3 +20,18 @@ e.cAnchor = e.td(e.p("x<anchor>"))
 e.cHead = e.td(e.p("x<head>"))
 
 e.eq = function(a, b) { return a.eq(b) }
+
+function resolveCell(doc, tag) {
+  if (tag == null) return null
+  let cell = cellAround(doc.resolve(tag))
+  return cell == null ? null : doc.resolve(cell)
+}
+
+e.selectionFor = function(doc) {
+  let cursor = doc.tag.cursor
+  if (cursor != null) return new TextSelection(doc.resolve(cursor))
+  let $anchor = resolveCell(doc, doc.tag.anchor)
+  if ($anchor) return new CellSelection($anchor, resolveCell(doc, doc.tag.head) || undefined)
+  let node = doc.tag.node
+  if (node != null) return new NodeSelection(doc.resolve(node))
+}

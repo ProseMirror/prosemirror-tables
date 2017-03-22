@@ -14,6 +14,7 @@ class CellSelection extends Selection {
   }
 
   map(doc, mapping) {
+    // FIXME grow along with rows/cols added the the sides
     let dir = this.anchor < this.head ? -1 : 1
     let $anchorCell = doc.resolve(mapping.map(this.$anchorCell.pos, dir))
     let $headCell = doc.resolve(mapping.map(this.$headCell.pos, -dir))
