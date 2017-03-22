@@ -1,4 +1,5 @@
 const {NodeSelection} = require("prosemirror-state")
+const {Fragment} = require("prosemirror-model")
 
 const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
@@ -127,7 +128,7 @@ function addRow(tr, {map, tableStart, table}, row) {
       cells.push(table.type.schema.nodes.table_cell.createAndFill())
     }
   }
-  tr.insert(rowPos, table.type.schema.node("table_row", null, cells))
+  tr.insert(rowPos, table.type.schema.nodes.table_row.create(null, cells))
   return tr
 }
 
@@ -193,3 +194,59 @@ function deleteRow(state, dispatch) {
   return true
 }
 exports.deleteRow = deleteRow
+
+function isEmpty(cell) {
+  let c = cell.content
+  return c.childCount == 1 && c.firstChild.isTextblock && c.firstChild.childCount == 0
+}
+
+function cellsOverlapRectangle({width, height, map}, rect) {
+  let indexTop = rect.top * width + rect.left, indexLeft = indexTop
+  let indexBottom = (rect.bottom - 1) * width + rect.left, indexRight = indexTop + (rect.right - rect.left - 1)
+  for (let i = rect.top; i < rect.bottom; i++) {
+    if (rect.left > 0 && map[indexLeft] == map[indexLeft - 1] ||
+        rect.right < width && map[indexRight] == map[indexRight + 1]) return true
+    indexLeft += width; indexRight += width
+  }
+  for (let i = rect.left; i < rect.right; i++) {
+    if (rect.top > 0 && map[indexTop] == map[indexTop - width] ||
+        rect.bottom < height && map[indexBottom] == map[indexBottom + width]) return true
+    indexTop++; indexBottom++
+  }
+  return false
+}
+
+function mergeCells(state, dispatch) {
+  let sel = state.selection
+  if (!(sel instanceof CellSelection) || sel.$anchorCell.pos == sel.$headCell.pos) return false
+  let rect = selectedRect(state), {map} = rect
+  if (cellsOverlapRectangle(map, rect)) return false
+  if (dispatch) {
+    let tr = state.tr, seen = [], content = Fragment.empty, mergedPos, mergedCell
+    for (let row = rect.top; row < rect.bottom; row++) {
+      for (let col = rect.left; col < rect.right; col++) {
+        let cellPos = map.map[row * map.width + col], cell = rect.table.nodeAt(cellPos)
+        if (seen.indexOf(cellPos) > -1) continue
+        seen.push(cellPos)
+        if (mergedPos == null) {
+          mergedPos = cellPos
+          mergedCell = cell
+        } else {
+          if (!isEmpty(cell)) content = content.append(cell.content)
+          let mapped = tr.mapping.map(cellPos + rect.tableStart)
+          tr.delete(mapped, mapped + cell.nodeSize)
+        }
+      }
+    }
+    tr.setNodeType(mergedPos, null, setAttr(setAttr(mergedCell.attrs, "colspan", rect.right - rect.left),
+                                            "rowspan", rect.bottom - rect.top))
+    if (content.size) {
+      let end = mergedPos + 1 + mergedCell.content.size
+      let start = isEmpty(mergedCell) ? mergedPos + 1 : end
+      tr.replaceWith(start + rect.tableStart, end + rect.tableStart, content)
+    }
+    dispatch(tr)
+  }
+  return true
+}
+exports.mergeCells = mergeCells

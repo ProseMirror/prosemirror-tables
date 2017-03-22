@@ -2,7 +2,8 @@ const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
-const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow} = require("../src/commands")
+const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
+       mergeCells} = require("../src/commands")
 
 function test(doc, command, result) {
   if (result == null) result = doc
@@ -221,4 +222,36 @@ describe("deleteRow", () => {
      test(table(tr(c11, cEmpty), tr(cAnchor, c11), tr(c11, cHead), tr(cEmpty, c11)),
           deleteRow,
           table(tr(c11, cEmpty), tr(cEmpty, c11))))
+})
+
+describe("mergeCells", () => {
+  it("doesn't do anything when only one cell is selected", () =>
+     test(table(tr(cAnchor, c11)),
+          mergeCells,
+          null))
+
+  it("doesn't do anything when the selection cuts across spanning cells", () =>
+     test(table(tr(cAnchor, c(2, 1)), tr(c11, cHead, c11)),
+          mergeCells,
+          null))
+
+  it("can merge two cells in a column", () =>
+     test(table(tr(cAnchor, cHead, c11)),
+          mergeCells,
+          table(tr(td({colspan: 2}, p("x"), p("x")), c11))))
+
+  it("can merge two cells in a row", () =>
+     test(table(tr(cAnchor, c11), tr(cHead, c11)),
+          mergeCells,
+          table(tr(td({rowspan: 2}, p("x"), p("x")), c11), tr(c11))))
+
+  it("can merge a rectangle of cells", () =>
+     test(table(tr(c11, cAnchor, cEmpty, cEmpty, c11), tr(c11, cEmpty, cEmpty, cHead, c11)),
+          mergeCells,
+          table(tr(c11, td({rowspan: 2, colspan: 3}, p("x"), p("x")), c11), tr(c11, c11))))
+
+  it("can merge already spanning cells", () =>
+     test(table(tr(c11, cAnchor, c(1, 2), cEmpty, c11), tr(c11, cEmpty, cHead, c11)),
+          mergeCells,
+          table(tr(c11, td({rowspan: 2, colspan: 3}, p("x"), p("x"), p("x")), c11), tr(c11, c11))))
 })
