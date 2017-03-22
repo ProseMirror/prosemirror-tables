@@ -11,14 +11,19 @@ function isInTable(state) {
   return false
 }
 
+function selectionCell(state) {
+  let sel = state.selection
+  if (sel instanceof CellSelection) return sel.$headCell
+  if (sel instanceof NodeSelection && sel.$from.parent.type.name == "table_row") return sel.$from
+  let found = cellAround(sel.$head)
+  if (found != null) return state.doc.resolve(found)
+}
+
 function selectedRect(state) {
-  let sel = state.selection, cellSel = sel instanceof CellSelection
-  let $pos = cellSel ? sel.$anchorCell
-      : (sel instanceof NodeSelection) && sel.$from.parent.type.name == "table_row" ? sel.$from
-      : state.doc.resolve(cellAround(sel.$head))
+  let sel = state.selection, $pos = selectionCell(state)
   let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
   let left, right, top, bottom
-  if (cellSel) {
+  if (sel instanceof CellSelection) {
     let anchor = map.findCell(sel.$anchorCell.pos - tableStart)
     let head = map.findCell(sel.$headCell.pos - tableStart)
     left = Math.min(anchor.left, head.left); top = Math.min(anchor.top, head.top)
@@ -257,8 +262,9 @@ function splitCell(state, dispatch) {
   let cellNode = sel.$anchorCell.nodeAfter
   if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) return false
   if (dispatch) {
+    let attrs = setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1)
     let rect = selectedRect(state), tr = state.tr
-    let rowIndex = 0, newCell = state.schema.nodes.table_cell.createAndFill()
+    let rowIndex = 0, newCell = state.schema.nodes.table_cell.createAndFill(attrs)
     for (let row = 0; row < rect.bottom; row++) {
       let rowEndIndex = rowIndex + rect.table.child(row).nodeSize
       if (row >= rect.top) {
@@ -271,9 +277,34 @@ function splitCell(state, dispatch) {
       }
       rowIndex = rowEndIndex
     }
-    tr.setNodeType(sel.$anchorCell.pos, null, setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1))
+    tr.setNodeType(sel.$anchorCell.pos, null, attrs)
     dispatch(tr)
   }
   return true
 }
 exports.splitCell = splitCell
+
+function forEachCell(state, f) {
+  if (state.selection instanceof CellSelection) {
+    state.selection.forEachCell(f)
+  } else {
+    let $cell = selectionCell(state)
+    f($cell.nodeAfter, $cell.pos)
+  }
+}
+
+function setCellAttr(name, value) {
+  return function(state, dispatch) {
+    if (!isInTable(state)) return false
+    if (dispatch) {
+      let tr = state.tr
+      forEachCell(state, (node, pos) => {
+        if (node.attrs[name] !== value)
+          tr.setNodeType(pos, null, setAttr(node.attrs, name, value))
+      })
+      dispatch(tr)
+    }
+    return true
+  }
+}
+exports.setCellAttr = setCellAttr

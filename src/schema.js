@@ -1,30 +1,37 @@
-const {schema: baseSchema} = require("prosemirror-schema-basic")
-const {Schema} = require("prosemirror-model")
-
-const cellAttrs = {
-  background: {default: null},
-  colspan: {default: 1},
-  rowspan: {default: 1}
-}
-
-function getCellAttrs(dom) {
-  return {
-    background: dom.style.backgroundColor || null,
+function getCellAttrs(dom, extraAttrs) {
+  let result = {
     colspan: Number(dom.getAttribute("colspan") || 1),
     rowspan: Number(dom.getAttribute("rowspan") || 1)
   }
+  for (let prop in extraAttrs) {
+    let getter = extraAttrs[prop].getFromDOM
+    let value = getter && getter(dom)
+    if (value != null) result[prop] = value
+  }
+  return result
 }
 
-function setCellAttrs(node) {
+function setCellAttrs(node, extraAttrs) {
   let attrs = {}
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan
-  if (node.attrs.background) attrs.style = "background-color: " + node.attrs.background
+  for (let prop in extraAttrs) {
+    let setter = extraAttrs[prop].setDOMAttr
+    if (setter) setter(node.attrs[prop], attrs)
+  }
   return attrs
 }
 
-exports.schema = new Schema({
-  nodes: baseSchema.spec.nodes.append({
+function addTableNodes(nodes, options) {
+  let extraAttrs = options.cellAttributes || {}
+  let cellAttrs = {
+    colspan: {default: 1},
+    rowspan: {default: 1}
+  }
+  for (let prop in extraAttrs)
+    cellAttrs[prop] = {default: extraAttrs[prop].default}
+
+  return nodes.append({
     table: {
       content: "table_row+",
       group: "block",
@@ -39,15 +46,15 @@ exports.schema = new Schema({
     table_cell: {
       content: "block+",
       attrs: cellAttrs,
-      parseDOM: [{tag: "td", getAttrs: getCellAttrs}],
-      toDOM(node) { return ["td", setCellAttrs(node), 0] }
+      parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
+      toDOM(node) { return ["td", setCellAttrs(node, extraAttrs), 0] }
     },
     table_header: {
       content: "block+",
       attrs: cellAttrs,
-      parseDOM: [{tag: "th", getAttrs: getCellAttrs}],
-      toDOM(node) { return ["th", setCellAttrs(node), 0] }
+      parseDOM: [{tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
+      toDOM(node) { return ["th", setCellAttrs(node, extraAttrs), 0] }
     }
-  }),
-  marks: baseSchema.spec.marks
-})
+  })
+}
+exports.addTableNodes = addTableNodes

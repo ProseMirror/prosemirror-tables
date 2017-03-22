@@ -3,7 +3,7 @@ const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell} = require("../src/commands")
+       mergeCells, splitCell, setCellAttr} = require("../src/commands")
 
 function test(doc, command, result) {
   if (result == null) result = doc
@@ -286,4 +286,18 @@ describe("splitCell", () => {
      test(table(tr(c(4, 1)), tr(c11, td({rowspan: 2, colspan: 2}, p("foo<anchor>")), c11), tr(c11, c11)),
           splitCell,
           table(tr(c(4, 1)), tr(c11, td(p("foo")), cEmpty, c11), tr(c11, cEmpty, cEmpty, c11))))
+})
+
+describe("setCellAttr", () => {
+  let cAttr = td({test: "value"}, p("x"))
+
+  it("can set an attribute on a parent cell", () =>
+     test(table(tr(cCursor, c11)),
+          setCellAttr("test", "value"),
+          table(tr(cAttr, c11))))
+
+  it("will set attributes on all cells covered by a cell selection", () =>
+     test(table(tr(c11, cAnchor, c11), tr(c(2, 1), cHead), tr(c11, c11, c11)),
+          setCellAttr("test", "value"),
+          table(tr(c11, cAttr, cAttr), tr(td({test: "value", colspan: 2}, p("x")), cAttr), tr(c11, c11, c11))))
 })

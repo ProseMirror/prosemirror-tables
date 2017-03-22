@@ -4,6 +4,7 @@ const {handleTripleClick, handleKeyDown, handleTextInput, mousedown} = require("
 const {key} = require("./util")
 const {drawCellSelection} = require("./cellselection")
 const {fixTables} = require("./fixtables")
+const {addTableNodes} = require("./schema")
 
 exports.tableEditing = function() {
   return new Plugin({
@@ -39,3 +40,5 @@ exports.tableEditing = function() {
     appendTransaction: fixTables
   })
 }
+
+exports.addTableNodes = addTableNodes

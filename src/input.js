@@ -88,7 +88,7 @@ exports.handleTextInput = function(view, _from, _to, text) {
   if (!(selection instanceof CellSelection)) return false
   let $cell = selection.$headCell
   view.dispatch(view.state.tr
-                .setSelection(TextSelection.between($cell, moveCellForward($cell)))
+                .setSelection(TextSelection.between(moveCellForward($cell), $cell))
                 .insertText(text))
   return true
 }
