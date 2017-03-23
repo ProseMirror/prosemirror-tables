@@ -63,14 +63,17 @@ class TableMap {
     }
   }
 
-  cellsInRect(a, b) {
+  rectBetween(a, b) {
     let {left: leftA, right: rightA, top: topA, bottom: bottomA} = this.findCell(a)
     let {left: leftB, right: rightB, top: topB, bottom: bottomB} = this.findCell(b)
-    let left = Math.min(leftA, leftB), right = Math.max(rightA, rightB)
-    let top = Math.min(topA, topB), bottom = Math.max(bottomA, bottomB)
+    return new Rect(Math.min(leftA, leftB), Math.min(topA, topB),
+                    Math.max(rightA, rightB), Math.max(bottomA, bottomB))
+  }
+
+  cellsInRect(rect) {
     let result = []
-    for (let row = top; row < bottom; row++) {
-      for (let col = left; col < right; col++) {
+    for (let row = rect.top; row < rect.bottom; row++) {
+      for (let col = rect.left; col < rect.right; col++) {
         let pos = this.map[row * this.width + col]
         if (result.indexOf(pos) == -1) result.push(pos)
       }

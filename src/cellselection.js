@@ -25,7 +25,7 @@ class CellSelection extends Selection {
 
   forEachCell(f) {
     let table = this.$anchorCell.node(-1), map = TableMap.get(table), start = this.$anchorCell.start(-1)
-    let cells = map.cellsInRect(this.$anchorCell.pos - start, this.$headCell.pos - start)
+    let cells = map.cellsInRect(map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start))
     for (let i = 0; i < cells.length; i++)
       f(table.nodeAt(cells[i]), start + cells[i])
   }

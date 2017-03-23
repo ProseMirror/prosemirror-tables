@@ -49,13 +49,13 @@ describe("TableMap", () => {
   })
 
   it("can find the rectangle between two cells", () => {
-    ist(map.cellsInRect(1, 6).join(", "), "1, 6, 18, 25")
-    ist(map.cellsInRect(1, 25).join(", "), "1, 6, 11, 18, 25")
-    ist(map.cellsInRect(1, 1).join(", "), "1")
-    ist(map.cellsInRect(6, 25).join(", "), "6, 11, 18, 25")
-    ist(map.cellsInRect(6, 11).join(", "), "6, 11, 18")
-    ist(map.cellsInRect(11, 6).join(", "), "6, 11, 18")
-    ist(map.cellsInRect(6, 18).join(", "), "6, 18")
+    ist(map.cellsInRect(map.rectBetween(1, 6)).join(", "), "1, 6, 18, 25")
+    ist(map.cellsInRect(map.rectBetween(1, 25)).join(", "), "1, 6, 11, 18, 25")
+    ist(map.cellsInRect(map.rectBetween(1, 1)).join(", "), "1")
+    ist(map.cellsInRect(map.rectBetween(6, 25)).join(", "), "6, 11, 18, 25")
+    ist(map.cellsInRect(map.rectBetween(6, 11)).join(", "), "6, 11, 18")
+    ist(map.cellsInRect(map.rectBetween(11, 6)).join(", "), "6, 11, 18")
+    ist(map.cellsInRect(map.rectBetween(6, 18)).join(", "), "6, 18")
   })
 
   it("can find adjacent cells", () => {

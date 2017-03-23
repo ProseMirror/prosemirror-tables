@@ -22,16 +22,15 @@ function selectionCell(state) {
 function selectedRect(state) {
   let sel = state.selection, $pos = selectionCell(state)
   let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
-  let left, right, top, bottom
-  if (sel instanceof CellSelection) {
-    let anchor = map.findCell(sel.$anchorCell.pos - tableStart)
-    let head = map.findCell(sel.$headCell.pos - tableStart)
-    left = Math.min(anchor.left, head.left); top = Math.min(anchor.top, head.top)
-    right = Math.max(anchor.right, head.right); bottom = Math.max(anchor.bottom, head.bottom)
-  } else {
-    ;({left, right, top, bottom} = map.findCell($pos.pos - tableStart))
-  }
-  return {left, right, top, bottom, table, tableStart, map}
+  let rect
+  if (sel instanceof CellSelection)
+    rect = map.rectBetween(sel.$anchorCell.pos - tableStart, sel.$headCell.pos - tableStart)
+  else
+    rect = map.findCell($pos.pos - tableStart)
+  rect.tableStart = tableStart
+  rect.map = map
+  rect.table = table
+  return rect
 }
 
 function findCellPos(map, row, col, rowStart, rowEnd) {
