@@ -37,7 +37,13 @@
      left: 0; right: 0; top: 0; bottom: 0;
      background: rgba(200, 200, 255, 0.4);
      pointer-events: none;
-   }
+  }
+  .ProseMirror table.header-top tr:first-child td {
+    font-weight: bold;
+  }
+  .ProseMirror table.header-left td:first-child {
+    font-weight: bold;
+  }
 </style>
 
 <h1>Table demo</h1>
@@ -45,8 +51,8 @@
 <div style="display: none" id=content>
   <h2>Example content</h2>
   <p>The table:</p>
-  <table>
-    <tr><th colspan=3>Wide header</th></tr>
+  <table class="header-top">
+    <tr><td colspan=3>Wide header</th></tr>
     <tr><td>One</td><td>Two</td><td>Three</td></tr>
     <tr><td>Four</td><td>Five</td><td>Six</td></tr>
   </table>

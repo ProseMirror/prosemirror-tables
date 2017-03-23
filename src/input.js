@@ -149,7 +149,7 @@ function atEndOfCell(view, axis, dir) {
   for (let d = $head.depth - 1; d >= 0; d--) {
     let parent = $head.node(d), index = dir < 0 ? $head.index(d) : $head.indexAfter(d)
     if (index != (dir < 0 ? 0 : parent.childCount)) return null
-    if (parent.type.name == "table_cell" || parent.type.name == "table_header") {
+    if (parent.type.name == "table_cell") {
       let cellPos = $head.before(d)
       let dirStr = axis == "vert" ? (dir > 0 ? "down" : "up") : (dir > 0 ? "right" : "left")
       return view.endOfTextblock(dirStr) ? cellPos : null

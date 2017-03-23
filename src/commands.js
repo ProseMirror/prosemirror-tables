@@ -312,3 +312,18 @@ function setCellAttr(name, value) {
   }
 }
 exports.setCellAttr = setCellAttr
+
+function setTableHeader(side, value) {
+  return function(state, dispatch) {
+    if (!isInTable(state)) return false
+    let $cell = selectionCell(state), table = $cell.node(-1)
+    let attr = table.attrs.header, on = attr == "both" || attr == side
+    if (on == !!value) return false
+    if (dispatch) {
+      let newAttr = value ? (attr ? "both" : side) : (attr == "both" ? (side == "left" ? "top" : "left") : null)
+      dispatch(state.tr.setNodeType($cell.before(-1), null, setAttr(table.attrs, "header", newAttr)))
+    }
+    return true
+  }
+}
+exports.setTableHeader = setTableHeader

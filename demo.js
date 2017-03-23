@@ -8,7 +8,7 @@ const {exampleSetup, buildMenuItems} = require("prosemirror-example-setup")
 const {MenuItem, Dropdown} = require("prosemirror-menu")
 
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr} = require("./src/commands")
+       mergeCells, splitCell, setCellAttr, setTableHeader} = require("./src/commands")
 const {tableEditing, addTableNodes} = require("./src")
 
 let schema = new Schema({
@@ -25,17 +25,22 @@ let schema = new Schema({
 })
 
 let menu = buildMenuItems(schema).fullMenu
+function item(label, cmd) { return new MenuItem({label, select: cmd, run: cmd}) }
 let tableMenu = [
-  new MenuItem({label: "Insert column before", select: addColumnBefore, run: addColumnBefore}),
-  new MenuItem({label: "Insert column after", select: addColumnAfter, run: addColumnAfter}),
-  new MenuItem({label: "Delete column", select: deleteColumn, run: deleteColumn}),
-  new MenuItem({label: "Insert row before", select: addRowBefore, run: addRowBefore}),
-  new MenuItem({label: "Insert row after", select: addRowAfter, run: addRowAfter}),
-  new MenuItem({label: "Delete row", select: deleteRow, run: deleteRow}),
-  new MenuItem({label: "Merge cells", select: mergeCells, run: mergeCells}),
-  new MenuItem({label: "Split cell", select: splitCell, run: splitCell}),
-  new MenuItem({label: "Make cell green", select: setCellAttr(), run: setCellAttr("background", "#dfd")}),
-  new MenuItem({label: "Make cell not-green", select: setCellAttr(), run: setCellAttr("background", null)})
+  item("Insert column before", addColumnBefore),
+  item("Insert column after", addColumnAfter),
+  item("Delete column", deleteColumn),
+  item("Insert row before", addRowBefore),
+  item("Insert row after", addRowAfter),
+  item("Delete row", deleteRow),
+  item("Merge cells", mergeCells),
+  item("Split cell", splitCell),
+  item("Remove left header", setTableHeader("left", false)),
+  item("Add left header", setTableHeader("left", true)),
+  item("Remove top header", setTableHeader("top", false)),
+  item("Add top header", setTableHeader("top", true)),
+  item("Make cell green", setCellAttr("background", "#dfd")),
+  item("Make cell not-green", setCellAttr("background", null))
 ]
 menu.splice(2, 0, [new Dropdown(tableMenu, {label: "Table"})])
 

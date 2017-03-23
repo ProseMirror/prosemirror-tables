@@ -34,26 +34,29 @@ function addTableNodes(nodes, options) {
   return nodes.append({
     table: {
       content: "table_row+",
+      attrs: {header: {default: null}},
       group: "block",
-      parseDOM: [{tag: "table"}],
-      toDOM() { return ["table", ["tbody", 0]] }
+      parseDOM: [{tag: "table", getAttrs(dom) {
+        let headerTop = dom.classList.contains("header-top"), headerLeft = dom.classList.contains("header-left")
+        return {header: headerTop && headerLeft ? "both" : headerTop ? "top" : headerLeft ? "left" : null}
+      }}],
+      toDOM(node) {
+        let header = node.attrs.header
+        let cls = header == "both" ? "header-top header-left" : header ? "header-" + header : null
+        return ["table", cls ? {class: cls} : {}, ["tbody", 0]]
+      }
     },
     table_row: {
-      content: "(table_cell | table_header)*",
+      content: "table_cell*",
       parseDOM: [{tag: "tr"}],
       toDOM() { return ["tr", 0] }
     },
     table_cell: {
       content: "block+",
       attrs: cellAttrs,
-      parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
+      parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)},
+                 {tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) { return ["td", setCellAttrs(node, extraAttrs), 0] }
-    },
-    table_header: {
-      content: "block+",
-      attrs: cellAttrs,
-      parseDOM: [{tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
-      toDOM(node) { return ["th", setCellAttrs(node, extraAttrs), 0] }
     }
   })
 }
