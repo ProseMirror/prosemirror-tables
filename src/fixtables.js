@@ -2,13 +2,13 @@ const {TableMap} = require("./tablemap")
 const {setAttr} = require("./util")
 
 function changedDescendants(old, cur, offset, f) {
-  if (old == cur) return
   let oldSize = old.childCount, curSize = cur.childCount
   outer: for (let i = 0, j = 0; i < curSize; i++) {
     let child = cur.child(i)
     for (let scan = j, e = Math.min(oldSize, i + 3); scan < e; scan++) {
       if (old.child(scan) == child) {
         j = scan + 1
+        offset += child.nodeSize
         continue outer
       }
     }
@@ -16,20 +16,21 @@ function changedDescendants(old, cur, offset, f) {
     if (j < oldSize && old.child(j).sameMarkup(child))
       changedDescendants(old.child(j), child, offset + 1, f)
     else
-      child.nodesBetween(0, child.content.size, f, offset)
+      child.nodesBetween(0, child.content.size, f, offset + 1)
     offset += child.nodeSize
   }
 }
 
-exports.fixTables = function(_, oldState, state) {
-  let tr
-  if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, (node, pos) => {
+exports.fixTables = function(state, oldState) {
+  let tr, check = (node, pos) => {
     if (node.type.name == "table") tr = fixTable(state, node, pos, tr)
-  })
+  }
+  if (!oldState) state.doc.descendants(check)
+  else if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, check)
   return tr
 }
 
-let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
+function fixTable(state, table, tablePos, tr) {
   let map = TableMap.get(table)
   if (!map.problems) return tr
   if (!tr) tr = state.tr

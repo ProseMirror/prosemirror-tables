@@ -37,7 +37,7 @@ exports.tableEditing = function() {
       handleTextInput
     },
 
-    appendTransaction: fixTables
+    appendTransaction(_, oldState, state) { return fixTables(state, oldState) }
   })
 }
 

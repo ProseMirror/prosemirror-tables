@@ -2,11 +2,11 @@ const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, c, c11, cEmpty, eq} = require("./build")
-const {fixTable} = require("../src/fixtables")
+const {fixTables} = require("../src/fixtables")
 
 function fix(table) {
   let state = EditorState.create({doc: doc(table)})
-  let tr = fixTable(state, table, 0)
+  let tr = fixTables(state)
   return tr && tr.doc.firstChild
 }
 
