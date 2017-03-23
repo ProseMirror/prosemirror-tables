@@ -47,6 +47,11 @@ function fixTable(state, table, tablePos, tr) {
       mustAdd[prob.row] += prob.n
     }
   }
+  let first, last
+  for (let i = 0; i < mustAdd.length; i++) if (mustAdd[i]) {
+    if (first == null) first = i
+    last = i
+  }
   for (let i = 0, pos = tablePos + 1; i < map.height; i++) {
     let end = pos + table.child(i).nodeSize
     let add = mustAdd[i]
@@ -54,7 +59,7 @@ function fixTable(state, table, tablePos, tr) {
       let nodes = []
       for (let j = 0; j < add; j++)
         nodes.push(state.schema.nodes.table_cell.createAndFill())
-      let side = (i == 0 ? !mustAdd[i + 1] : mustAdd[i - 1]) ? pos + 1 : end - 1
+      let side = (i == 0 || first == i - 1) && last == i ? pos + 1 : end - 1
       tr.insert(tr.mapping.map(side), nodes)
     }
     pos = end
