@@ -81,6 +81,19 @@ class TableMap {
     return result
   }
 
+  positionAt(row, col, table) {
+    for (let i = 0, rowStart = 0;; i++) {
+      let rowEnd = rowStart + table.child(i).nodeSize
+      if (i == row) {
+        let index = col + row * this.width, rowEndIndex = (row + 1) * this.width
+        // Skip past cells from previous rows (via rowspan)
+        while (index < rowEndIndex && this.map[index] < rowStart) index++
+        return index == rowEndIndex ? rowEnd - 1 : this.map[index]
+      }
+      rowStart = rowEnd
+    }
+  }
+
   static get(table) {
     return readFromCache(table) || addToCache(table, computeMap(table))
   }

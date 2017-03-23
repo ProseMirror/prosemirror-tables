@@ -33,16 +33,8 @@ function selectedRect(state) {
   return rect
 }
 
-function findCellPos(map, row, col, rowStart, rowEnd) {
-  // Skip past cells from previous rows (via rowspan)
-  let index = col + row * map.width, rowEndIndex = (row + 1) * map.width
-  while (index < rowEndIndex && map.map[index] < rowStart) index++
-  return index == rowEndIndex ? rowEnd - 1 : map.map[index]
-}
-
 function addColumn(tr, {map, tableStart, table}, col) {
-  for (let row = 0, rowStart = 0; row < map.height; row++) {
-    let rowEnd = rowStart + table.child(row).nodeSize
+  for (let row = 0; row < map.height; row++) {
     let index = row * map.width + col
     // If this position falls inside a col-spanning cell
     if (col > 0 && col < map.width && map.map[index - 1] == map.map[index]) {
@@ -50,12 +42,11 @@ function addColumn(tr, {map, tableStart, table}, col) {
       tr.setNodeType(tr.mapping.map(tableStart + pos), null,
                      setAttr(cell.attrs, "colspan", cell.attrs.colspan + 1))
       // Skip ahead if rowspan > 1
-      for (let i = 1; i < cell.rowspan; i++) rowEnd += table.child(++row).nodeSize
+      row += cell.attrs.rowspan - 1
     } else {
-      let pos = findCellPos(map, row, col, rowStart, rowEnd)
+      let pos = map.positionAt(row, col, table)
       tr.insert(tr.mapping.map(tableStart + pos), table.type.schema.nodes.table_cell.createAndFill())
     }
-    rowStart = rowEnd
   }
   return tr
 }
@@ -160,7 +151,6 @@ function removeRow(tr, {map, table, tableStart}, row) {
   let rowPos = 0
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
   let nextRow = rowPos + table.child(row).nodeSize
-  let nextRowEnd = row < map.height - 1 ? nextRow + table.child(row + 1).nodeSize : 0
 
   let mapFrom = tr.mapping.maps.length
   tr.delete(rowPos + tableStart, nextRow + tableStart)
@@ -176,7 +166,7 @@ function removeRow(tr, {map, table, tableStart}, row) {
       // Else, if it continues in the row below, it has to be moved down
       let cell = table.nodeAt(pos)
       let copy = cell.type.create(setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - 1), cell.content)
-      let newPos = findCellPos(map, row + 1, col, nextRow, nextRowEnd)
+      let newPos = map.positionAt(row + 1, col, table)
       tr.insert(tr.mapping.slice(mapFrom).map(tableStart + newPos), copy)
       col += cell.attrs.colspan - 1
     }
@@ -265,19 +255,17 @@ function splitCell(state, dispatch) {
   if (dispatch) {
     let attrs = setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1)
     let rect = selectedRect(state), tr = state.tr
-    let rowIndex = 0, newCell = state.schema.nodes.table_cell.createAndFill(attrs)
+    let newCell = state.schema.nodes.table_cell.createAndFill(attrs)
     let lastCell
     for (let row = 0; row < rect.bottom; row++) {
-      let rowEndIndex = rowIndex + rect.table.child(row).nodeSize
       if (row >= rect.top) {
-        let pos = findCellPos(rect.map, row, rect.left, rowIndex, rowEndIndex)
+        let pos = rect.map.positionAt(row, rect.left, rect.table)
         if (row == rect.top) pos += cellNode.nodeSize
         for (let col = rect.left; col < rect.right; col++) {
           if (col == rect.left && row == rect.top) continue
           tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), newCell)
         }
       }
-      rowIndex = rowEndIndex
     }
     tr.setNodeType(sel.$anchorCell.pos, null, attrs)
     tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
