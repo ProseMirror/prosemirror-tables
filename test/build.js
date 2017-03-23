@@ -34,8 +34,7 @@ e.eq = function(a, b) { return a.eq(b) }
 
 function resolveCell(doc, tag) {
   if (tag == null) return null
-  let cell = cellAround(doc.resolve(tag))
-  return cell == null ? null : doc.resolve(cell)
+  return cellAround(doc.resolve(tag))
 }
 
 e.selectionFor = function(doc) {

@@ -6,7 +6,7 @@ exports.key = new PluginKey("selectingCells")
 
 exports.cellAround = function($pos) {
   for (let d = $pos.depth - 1; d > 0; d--)
-    if ($pos.node(d).type.name == "table_row") return $pos.before(d + 1)
+    if ($pos.node(d).type.name == "table_row") return $pos.node(0).resolve($pos.before(d + 1))
   return null
 }
 

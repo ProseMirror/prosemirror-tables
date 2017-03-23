@@ -15,8 +15,7 @@ function selectionCell(state) {
   let sel = state.selection
   if (sel instanceof CellSelection) return sel.$headCell
   if (sel instanceof NodeSelection && sel.$from.parent.type.name == "table_row") return sel.$from
-  let found = cellAround(sel.$head)
-  if (found != null) return state.doc.resolve(found)
+  return cellAround(sel.$head)
 }
 
 function selectedRect(state) {
