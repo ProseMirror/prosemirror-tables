@@ -14,12 +14,17 @@ class CellSelection extends Selection {
   }
 
   map(doc, mapping) {
-    // FIXME grow along with rows/cols added the the sides
-    let dir = this.anchor < this.head ? -1 : 1
-    let $anchorCell = doc.resolve(mapping.map(this.$anchorCell.pos, dir))
-    let $headCell = doc.resolve(mapping.map(this.$headCell.pos, -dir))
-    if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell))
-      return new CellSelection($anchorCell, $headCell)
+    let $anchorCell = doc.resolve(mapping.map(this.$anchorCell.pos))
+    let $headCell = doc.resolve(mapping.map(this.$headCell.pos))
+    if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell)) {
+      let tableChanged = this.$anchorCell.node(-1) != $anchorCell.node(-1)
+      if (tableChanged && this.isColSelection())
+        return CellSelection.colSelection($anchorCell, $headCell)
+      else if (tableChanged && this.isRowSelection())
+        return CellSelection.rowSelection($anchorCell, $headCell)
+      else
+        return new CellSelection($anchorCell, $headCell)
+    }
     return TextSelection.between($anchorCell, $headCell)
   }
 
@@ -28,6 +33,60 @@ class CellSelection extends Selection {
     let cells = map.cellsInRect(map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start))
     for (let i = 0; i < cells.length; i++)
       f(table.nodeAt(cells[i]), start + cells[i])
+  }
+
+  isRowSelection() {
+    let anchorTop = this.$anchorCell.index(-1), headTop = this.$headCell.index(-1)
+    if (Math.min(anchorTop, headTop) > 0) return false
+    let anchorBot = anchorTop + this.$anchorCell.nodeAfter.attrs.rowspan,
+        headBot = headTop + this.$headCell.nodeAfter.attrs.rowspan
+    return Math.max(anchorBot, headBot) == this.$headCell.node(-1).childCount
+  }
+
+  static rowSelection($anchorCell, $headCell) {
+    let map = TableMap.get($anchorCell.node(-1)), start = $anchorCell.start(-1)
+    let anchorRect = map.findCell($anchorCell.pos - start), headRect = map.findCell($headCell.pos - start)
+    let doc = $anchorCell.node(0)
+    if (anchorRect.top <= headRect.top) {
+      if (anchorRect.top > 0)
+        $anchorCell = doc.resolve(start + map.map[anchorRect.left])
+      if (headRect.bottom < map.height)
+        $headCell = doc.resolve(start + map.map[map.width * (map.height - 1) + headRect.right - 1])
+    } else {
+      if (headRect.top > 0)
+        $headCell = doc.resolve(start + map.map[headRect.left])
+      if (anchorRect.bottom < map.height)
+        $anchorCell = doc.resolve(start + map.map[map.width * (map.height - 1) + anchorRect.right - 1])
+    }
+    return new CellSelection($anchorCell, $headCell)
+  }
+
+  isColSelection() {
+    let map = TableMap.get(this.$anchorCell.node(-1)), start = this.$anchorCell.start(-1)
+    let anchorLeft = map.colCount(this.$anchorCell.pos - start),
+        headLeft = map.colCount(this.$headCell.pos - start)
+    if (Math.min(anchorLeft, headLeft) > 0) return false
+    let anchorRight = anchorLeft + this.$anchorCell.nodeAfter.attrs.colspan,
+        headRight = headLeft + this.$headCell.nodeAfter.attrs.colspan
+    return Math.max(anchorRight, headRight) == map.width
+  }
+
+  static colSelection($anchorCell, $headCell) {
+    let map = TableMap.get($anchorCell.node(-1)), start = $anchorCell.start(-1)
+    let anchorRect = map.findCell($anchorCell.pos - start), headRect = map.findCell($headCell.pos - start)
+    let doc = $anchorCell.node(0)
+    if (anchorRect.left <= headRect.left) {
+      if (anchorRect.left > 0)
+        $anchorCell = doc.resolve(start + map.map[anchorRect.top * map.width])
+      if (headRect.right < map.width)
+        $headCell = doc.resolve(start + map.map[map.width * (headRect.top + 1) - 1])
+    } else {
+      if (headRect.left > 0)
+        $headCell = doc.resolve(start + map.map[headRect.top * map.width])
+      if (anchorRect.right < map.width)
+        $anchorCell = doc.resolve(start + map.map[map.width * (anchorRect.top + 1) - 1])
+    }
+    return new CellSelection($anchorCell, $headCell)
   }
 
   static fromJSON(doc, json) {
@@ -59,6 +118,10 @@ class CellSelection extends Selection {
     let anchorCol = colCount($anchor), headCol = colCount($head)
     if (anchorCol < headCol) return new CellSelection($anchor, moveCellForward($head))
     else return new CellSelection(moveCellForward($anchor), $head)
+  }
+
+  static create(doc, anchorCell, headCell = anchorCell) {
+    return new CellSelection(doc.resolve(anchorCell), doc.resolve(headCell))
   }
 }
 exports.CellSelection = CellSelection
