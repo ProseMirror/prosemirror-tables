@@ -296,6 +296,11 @@ describe("setCellAttr", () => {
           setCellAttr("test", "value"),
           table(tr(cAttr, c11))))
 
+  it("does nothing when the attribute is already there", () =>
+     test(table(tr(cCursor, c11)),
+          setCellAttr("test", "default"),
+          null))
+
   it("will set attributes on all cells covered by a cell selection", () =>
      test(table(tr(c11, cAnchor, c11), tr(c(2, 1), cHead), tr(c11, c11, c11)),
           setCellAttr("test", "value"),

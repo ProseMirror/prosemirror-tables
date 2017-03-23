@@ -288,24 +288,20 @@ function splitCell(state, dispatch) {
 }
 exports.splitCell = splitCell
 
-function forEachCell(state, f) {
-  if (state.selection instanceof CellSelection) {
-    state.selection.forEachCell(f)
-  } else {
-    let $cell = selectionCell(state)
-    f($cell.nodeAfter, $cell.pos)
-  }
-}
-
 function setCellAttr(name, value) {
   return function(state, dispatch) {
     if (!isInTable(state)) return false
+    let $cell = selectionCell(state)
+    if ($cell.nodeAfter.attrs[name] === value) return false
     if (dispatch) {
       let tr = state.tr
-      forEachCell(state, (node, pos) => {
-        if (node.attrs[name] !== value)
-          tr.setNodeType(pos, null, setAttr(node.attrs, name, value))
-      })
+      if (state.selection instanceof CellSelection)
+        state.selection.forEachCell((node, pos) => {
+          if (node.attrs[name] !== value)
+            tr.setNodeType(pos, null, setAttr(node.attrs, name, value))
+        })
+      else
+        tr.setNodeType($cell.pos, null, setAttr($cell.nodeAfter.attrs, name, value))
       dispatch(tr)
     }
     return true
