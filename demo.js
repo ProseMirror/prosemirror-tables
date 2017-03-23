@@ -8,7 +8,7 @@ const {exampleSetup, buildMenuItems} = require("prosemirror-example-setup")
 const {MenuItem, Dropdown} = require("prosemirror-menu")
 
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, setTableHeader} = require("./src/commands")
+       mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell} = require("./src/commands")
 const {tableEditing, addTableNodes} = require("./src")
 
 let schema = new Schema({
@@ -47,7 +47,11 @@ menu.splice(2, 0, [new Dropdown(tableMenu, {label: "Table"})])
 let doc = DOMParser.fromSchema(schema).parse(document.querySelector("#content"))
 let state = EditorState.create({doc, plugins: [
   tableEditing(),
-  keymap(baseKeymap)
+  keymap(baseKeymap),
+  keymap({
+    "Tab": goToNextCell(1),
+    "Shift-Tab": goToNextCell(-1)
+  })
 ].concat(exampleSetup({schema, menuContent: menu}))})
 
 window.view = new EditorView(document.querySelector("#editor"), {state})

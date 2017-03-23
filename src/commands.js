@@ -1,9 +1,9 @@
-const {NodeSelection} = require("prosemirror-state")
+const {NodeSelection, TextSelection} = require("prosemirror-state")
 const {Fragment} = require("prosemirror-model")
 
 const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
-const {setAttr, cellAround} = require("./util")
+const {setAttr, cellAround, moveCellForward} = require("./util")
 
 function isInTable(state) {
   let $head = state.selection.$head
@@ -327,3 +327,37 @@ function setTableHeader(side, value) {
   }
 }
 exports.setTableHeader = setTableHeader
+
+function findNextCell($cell, dir) {
+  if (dir < 0) {
+    let before = $cell.nodeBefore
+    if (before) return $cell.pos - before.nodeSize
+    for (let row = $cell.index(-1) - 1, rowEnd = $cell.before(); row >= 0; row--) {
+      let rowNode = $cell.node(-1).child(row)
+      if (rowNode.childCount) return rowEnd - 1 - rowNode.lastChild.nodeSize
+      rowEnd -= rowNode.nodeSize
+    }
+  } else {
+    if ($cell.index() < $cell.parent.childCount - 1) return $cell.pos + $cell.nodeAfter.nodeSize
+    let table = $cell.node(-1)
+    for (let row = $cell.indexAfter(-1), rowStart = $cell.after(); row < table.childCount; row++) {
+      let rowNode = table.child(row)
+      if (rowNode.childCount) return rowStart + 1
+      rowStart += rowNode.nodeSize
+    }
+  }
+}
+
+function goToNextCell(direction) {
+  return function(state, dispatch) {
+    if (!isInTable(state) || state.selection instanceof CellSelection) return false
+    let cell = findNextCell(selectionCell(state), direction)
+    if (cell == null) return
+    if (dispatch) {
+      let $cell = state.doc.resolve(cell)
+      dispatch(state.tr.setSelection(TextSelection.between($cell, moveCellForward($cell))).scrollIntoView())
+    }
+    return true
+  }
+}
+exports.goToNextCell = goToNextCell
