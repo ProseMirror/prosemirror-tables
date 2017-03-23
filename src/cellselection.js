@@ -32,15 +32,26 @@ class CellSelection extends Selection {
 
   static fromJSON(doc, json) {
     let $anchor = doc.resolve(json.anchor), $head = doc.resolve(json.head)
-    if ($anchor.pos == $head.pos ||
-        $anchor.parent.type.name != "table_row" ||
-        $head.parent.type.name != "table_row" ||
-        !inSameTable($anchor, $head))
-      return TextSelection.between($anchor, $head)
-    let aCol = colCount($anchor), bCol = colCount($head)
-    return aCol < bCol ? new CellSelection($anchor, moveCellBackward($head))
-         : aCol > bCol ? new CellSelection(moveCellBackward($anchor), $head)
-         : new CellSelection($anchor, $head)
+    if ($anchor.pos != $head.pos &&
+        $anchor.parent.type.name == "table_row" &&
+        $head.parent.type.name == "table_row" &&
+        $head.parent.childCount && $anchor.parent.childCount &&
+        inSameTable($anchor, $head)) {
+      let headAtEnd = $head.index() == $head.parent.childCount, anchorAtEnd = $anchor.index() == $anchor.parent.childCount
+      if (!headAtEnd || !anchorAtEnd) {
+        if (headAtEnd) {
+          $head = moveCellBackward($head)
+        } else if (anchorAtEnd) {
+          $anchor = moveCellBackward($anchor)
+        } else {
+          let aCol = colCount($anchor), bCol = colCount($head)
+          if (aCol < bCol) $head = moveCellBackward($head)
+          else if (aCol > bCol) $anchor = moveCellBackward($anchor)
+        }
+        return new CellSelection($anchor, $head)
+      }
+    }
+    return TextSelection.between($anchor, $head)
   }
 
   // $anchor and $head must be pointing before cells in the same table

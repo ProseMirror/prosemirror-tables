@@ -250,6 +250,7 @@ function mergeCells(state, dispatch) {
       let start = isEmpty(mergedCell) ? mergedPos + 1 : end
       tr.replaceWith(start + rect.tableStart, end + rect.tableStart, content)
     }
+    tr.setSelection(new CellSelection(tr.doc.resolve(mergedPos + rect.tableStart)))
     dispatch(tr)
   }
   return true
@@ -265,6 +266,7 @@ function splitCell(state, dispatch) {
     let attrs = setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1)
     let rect = selectedRect(state), tr = state.tr
     let rowIndex = 0, newCell = state.schema.nodes.table_cell.createAndFill(attrs)
+    let lastCell
     for (let row = 0; row < rect.bottom; row++) {
       let rowEndIndex = rowIndex + rect.table.child(row).nodeSize
       if (row >= rect.top) {
@@ -272,12 +274,14 @@ function splitCell(state, dispatch) {
         if (row == rect.top) pos += cellNode.nodeSize
         for (let col = rect.left; col < rect.right; col++) {
           if (col == rect.left && row == rect.top) continue
-          tr.insert(tr.mapping.map(pos + rect.tableStart, 1), newCell)
+          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), newCell)
         }
       }
       rowIndex = rowEndIndex
     }
     tr.setNodeType(sel.$anchorCell.pos, null, attrs)
+    tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
+                                      lastCell && tr.doc.resolve(lastCell)))
     dispatch(tr)
   }
   return true
