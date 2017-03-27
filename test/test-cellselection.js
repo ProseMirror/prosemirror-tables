@@ -1,7 +1,8 @@
 const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
+const {Slice} = require("prosemirror-model")
 
-const {doc, table, tr, cEmpty} = require("./build")
+const {doc, table, tr, p, td, cEmpty, c11, cAnchor, cHead, c, eq, selectionFor} = require("./build")
 const {CellSelection} = require("../src/cellselection")
 const {addRowBefore, addRowAfter, addColumnBefore, addColumnAfter} = require("../src/commands")
 
@@ -48,4 +49,24 @@ describe("CellSelection", () => {
     ist(sel.$anchorCell.pos, 32)
     ist(sel.$headCell.pos, 38)
   })
+})
+
+describe("CellSelection.content", () => {
+  function slice(doc) { return new Slice(doc.content, 1, 1) }
+
+  it("contains only the selected cells", () =>
+     ist(selectionFor(table(tr(c11, cAnchor, cEmpty), tr(c11, cEmpty, cHead), tr(c11, c11, c11))).content(),
+         slice(table("<a>", tr(c11, cEmpty), tr(cEmpty, c11))), eq))
+
+  it("understands spanning cells", () =>
+     ist(selectionFor(table(tr(cAnchor, c(2, 2), c11, c11), tr(c11, cHead, c11, c11))).content(),
+         slice(table(tr(c11, c(2, 2), c11), tr(c11, c11))), eq))
+
+  it("cuts off cells sticking out horizontally", () =>
+     ist(selectionFor(table(tr(c11, cAnchor, c(2, 1)), tr(c(4, 1)), tr(c(2, 1), cHead, c11))).content(),
+         slice(table(tr(c11, c11), tr(td({colspan: 2}, p())), tr(cEmpty, c11))), eq))
+
+  it("cuts off cells sticking out vertically", () =>
+     ist(selectionFor(table(tr(c11, c(1, 4), c(1, 2)), tr(cAnchor), tr(c(1, 2), cHead), tr(c11))).content(),
+         slice(table(tr(c11, td({rowspan: 2}, p()), cEmpty), tr(c11, c11))), eq))
 })

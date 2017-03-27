@@ -2,7 +2,7 @@ const {Selection, TextSelection} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
 const {Fragment, Slice} = require("prosemirror-model")
 
-const {colCount, inSameTable, moveCellForward, moveCellBackward, pointsAtCell} = require("./util")
+const {colCount, inSameTable, moveCellForward, moveCellBackward, pointsAtCell, setAttr} = require("./util")
 const {TableMap} = require("./tablemap")
 
 class CellSelection extends Selection {
@@ -39,7 +39,18 @@ class CellSelection extends Selection {
         let pos = map.map[index]
         if (seen.indexOf(pos) == -1) {
           seen.push(pos)
-          rowContent.push(table.nodeAt(pos))
+          let cellRect = map.findCell(pos), cell = table.nodeAt(pos)
+          if (cellRect.left < rect.left || cellRect.right > rect.right) {
+            let attrs = setAttr(cell.attrs, "colspan", Math.min(cellRect.right, rect.right) - Math.max(cellRect.left, rect.left))
+            if (cellRect.left < rect.left) cell = cell.type.createAndFill(attrs)
+            else cell = cell.type.create(attrs, cell.content)
+          }
+          if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
+            let attrs = setAttr(cell.attrs, "rowspan", Math.min(cellRect.bottom, rect.bottom) - Math.max(cellRect.top, rect.top))
+            if (cellRect.top < rect.top) cell = cell.type.createAndFill(attrs)
+            else cell = cell.type.create(attrs, cell.content)
+          }
+          rowContent.push(cell)
         }
       }
       rows.push(table.child(row).copy(Fragment.from(rowContent)))
