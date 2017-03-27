@@ -71,11 +71,15 @@ class TableMap {
   }
 
   cellsInRect(rect) {
-    let result = []
+    let result = [], seen = []
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
-        let pos = this.map[row * this.width + col]
-        if (result.indexOf(pos) == -1) result.push(pos)
+        let index = row * this.width + col, pos = this.map[index]
+        if (seen.indexOf(pos) > -1) continue
+        seen.push(pos)
+        if ((col != rect.left || !col || this.map[index - 1] != pos) &&
+            (row != rect.top || !row || this.map[index - this.width] != pos))
+          result.push(pos)
       }
     }
     return result

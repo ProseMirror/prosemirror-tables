@@ -55,6 +55,7 @@ describe("TableMap", () => {
     ist(map.cellsInRect(map.rectBetween(6, 25)).join(", "), "6, 11, 18, 25")
     ist(map.cellsInRect(map.rectBetween(6, 11)).join(", "), "6, 11, 18")
     ist(map.cellsInRect(map.rectBetween(11, 6)).join(", "), "6, 11, 18")
+    ist(map.cellsInRect(map.rectBetween(18, 25)).join(", "), "18, 25")
     ist(map.cellsInRect(map.rectBetween(6, 18)).join(", "), "6, 18")
   })
 

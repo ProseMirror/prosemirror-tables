@@ -304,7 +304,7 @@ describe("setCellAttr", () => {
   it("will set attributes on all cells covered by a cell selection", () =>
      test(table(tr(c11, cAnchor, c11), tr(c(2, 1), cHead), tr(c11, c11, c11)),
           setCellAttr("test", "value"),
-          table(tr(c11, cAttr, cAttr), tr(td({test: "value", colspan: 2}, p("x")), cAttr), tr(c11, c11, c11))))
+          table(tr(c11, cAttr, cAttr), tr(c(2, 1), cAttr), tr(c11, c11, c11))))
 })
 
 describe("setTableHeader", () => {
