@@ -89,6 +89,7 @@ function deleteColumn(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
     let rect = selectedRect(state), tr = state.tr
+    if (rect.left == 0 && rect.right == rect.map.width) return false
     for (let i = rect.right - 1;; i--) {
       removeColumn(tr, rect, i)
       if (i == rect.left) break
@@ -175,6 +176,7 @@ function deleteRow(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
     let rect = selectedRect(state), tr = state.tr
+    if (rect.top == 0 && rect.bottom == rect.map.height) return false
     for (let i = rect.bottom - 1;; i--) {
       removeRow(tr, rect, i)
       if (i == rect.top) break
