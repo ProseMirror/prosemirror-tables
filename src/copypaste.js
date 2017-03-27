@@ -62,10 +62,49 @@ function ensureRectangular(schema, rows) {
   return {height: rows.length, width, rows}
 }
 
-function fitSlice(nodeType, slice) {
+let fitSlice = exports.fitSlice = function(nodeType, slice) {
   let node = nodeType.createAndFill()
   let tr = new Transform(node).replace(0, node.content.size, slice)
   return tr.doc
+}
+
+exports.clipCells = function({width, height, rows}, newWidth, newHeight) {
+  if (width != newWidth) {
+    let added = [], newRows = []
+    for (let row = 0; row < rows.length; row++) {
+      let frag = rows[row], cells = []
+      for (let col = added[row] || 0, i = 0; col < newWidth; i++) {
+        let cell = frag.child(i % frag.childCount)
+        if (col + cell.attrs.colspan > newWidth)
+          cell = cell.type.create(setAttr(cell.attrs, "colspan", newWidth - col), cell.content)
+        cells.push(cell)
+        col += cell.attrs.colspan
+        for (let j = 1; j < cell.attrs.rowspan; j++)
+          added[row + j] = (added[row + j] || 0) + cell.attrs.colspan
+      }
+      newRows.push(Fragment.from(cells))
+    }
+    rows = newRows
+    width = newWidth
+  }
+
+  if (height != newHeight) {
+    let newRows = []
+    for (let row = 0, i = 0; row < newHeight; row++, i++) {
+      let cells = [], source = rows[i % height]
+      for (let j = 0; j < source.childCount; j++) {
+        let cell = source.child(j)
+        if (row + cell.attrs.rowspan > newHeight)
+          cell = cell.type.create(setAttr(cell.attrs, "rowspan", newHeight - cell.attrs.rowspan), cell.content)
+        cells.push(cell)
+      }
+      newRows.push(Fragment.from(cells))
+    }
+    rows = newRows
+    height = newHeight
+  }
+
+  return {width, height, rows}
 }
 
 // Make sure a table has at least the given width and height. Return
@@ -135,14 +174,14 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
 }
 
 // Insert the given set of cells (as returned by `pastedCells`) into a
-// table, starting at the cell pointed at by `$start`.
-exports.insertCells = function(state, dispatch, $start, cells) {
-  let table = $start.node(-1), map = TableMap.get(table), start = $start.start(-1)
-  let {top, left} = map.findCell($start.pos - start)
+// table, at the position pointed at by rect.
+exports.insertCells = function(state, dispatch, tableStart, rect, cells) {
+  let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc, map = TableMap.get(table)
+  let {top, left} = rect
   let right = left + cells.width, bottom = top + cells.height
   let tr = state.tr, mapFrom = 0
   function recomp() {
-    table = start ? tr.doc.nodeAt(start - 1) : tr.doc
+    table = tableStart ? tr.doc.nodeAt(tableStart - 1) : tr.doc
     map = TableMap.get(table)
     mapFrom = tr.mapping.maps.length
   }
@@ -150,19 +189,19 @@ exports.insertCells = function(state, dispatch, $start, cells) {
   // crossing the boundaries of the rectangle that we want to
   // insert into. If anything about it changes, recompute the table
   // map so that subsequent operations can see the current shape.
-  if (growTable(tr, map, table, start, right, bottom, mapFrom)) recomp()
-  if (isolateHorizontal(tr, map, table, start, left, right, top, mapFrom)) recomp()
-  if (isolateHorizontal(tr, map, table, start, left, right, bottom, mapFrom)) recomp()
-  if (isolateVertical(tr, map, table, start, top, bottom, left, mapFrom)) recomp()
-  if (isolateVertical(tr, map, table, start, top, bottom, right, mapFrom)) recomp()
+  if (growTable(tr, map, table, tableStart, right, bottom, mapFrom)) recomp()
+  if (isolateHorizontal(tr, map, table, tableStart, left, right, top, mapFrom)) recomp()
+  if (isolateHorizontal(tr, map, table, tableStart, left, right, bottom, mapFrom)) recomp()
+  if (isolateVertical(tr, map, table, tableStart, top, bottom, left, mapFrom)) recomp()
+  if (isolateVertical(tr, map, table, tableStart, top, bottom, right, mapFrom)) recomp()
 
   for (let row = top; row < bottom; row++) {
     let from = map.positionAt(row, left, table), to = map.positionAt(row, right, table)
-    tr.replace(tr.mapping.slice(mapFrom).map(from + start), tr.mapping.slice(mapFrom).map(to + start),
+    tr.replace(tr.mapping.slice(mapFrom).map(from + tableStart), tr.mapping.slice(mapFrom).map(to + tableStart),
                new Slice(cells.rows[row - top], 0, 0))
   }
   recomp()
-  tr.setSelection(new CellSelection(tr.doc.resolve(start + map.positionAt(top, left, table)),
-                                    tr.doc.resolve(start + map.positionAt(bottom - 1, right - 1, table))))
+  tr.setSelection(new CellSelection(tr.doc.resolve(tableStart + map.positionAt(top, left, table)),
+                                    tr.doc.resolve(tableStart + map.positionAt(bottom - 1, right - 1, table))))
   dispatch(tr)
 }

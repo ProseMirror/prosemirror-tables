@@ -1,11 +1,12 @@
-const {Slice, DOMSerializer} = require("prosemirror-model")
+const {Slice, Fragment, DOMSerializer} = require("prosemirror-model")
 const {Selection, TextSelection} = require("prosemirror-state")
 const {keydownHandler} = require("prosemirror-keymap")
 
 const {key, nextCell, moveCellForward, cellAround, inSameTable,
        isInTable, selectionCell} = require("./util")
 const {CellSelection} = require("./cellselection")
-const {pastedCells, insertCells} = require("./copypaste")
+const {TableMap} = require("./tablemap")
+const {pastedCells, fitSlice, clipCells, insertCells} = require("./copypaste")
 
 exports.handleKeyDown = keydownHandler({
   "ArrowLeft": arrow("horiz", -1),
@@ -97,12 +98,17 @@ exports.handleTextInput = function(view, _from, _to, text) {
 
 exports.handlePaste = function(view, _, slice) {
   if (!isInTable(view.state)) return false
-  let cells = pastedCells(slice)
-  if (view.state.selection instanceof CellSelection) {
-//    overwriteCellSelection(view, cells || [Fragment.from(fitSlice(view.state.schema.nodes.table_cell, slice))])
+  let cells = pastedCells(slice), sel = view.state.selection
+  if (sel instanceof CellSelection) {
+    if (!cells) cells = {width: 1, height: 1, rows: [Fragment.from(fitSlice(view.state.schema.nodes.table_cell, slice))]}
+    let table = sel.$anchorCell.node(-1), start = sel.$anchorCell.start(-1)
+    let rect = TableMap.get(table).rectBetween(sel.$anchorCell.pos - start, sel.$headCell.pos - start)
+    cells = clipCells(cells, rect.right - rect.left, rect.bottom - rect.top)
+    insertCells(view.state, view.dispatch, start, rect, cells)
     return true
   } else if (cells) {
-    insertCells(view.state, view.dispatch, selectionCell(view.state), cells)
+    let $cell = selectionCell(view.state), start = $cell.start(-1)
+    insertCells(view.state, view.dispatch, start, TableMap.get($cell.node(-1)).findCell($cell.pos - start), cells)
     return true
   } else {
     return false
