@@ -1,15 +1,15 @@
-const {EditorView} = require("prosemirror-view")
-const {EditorState} = require("prosemirror-state")
-const {DOMParser, Schema} = require("prosemirror-model")
-const {schema: baseSchema} = require("prosemirror-schema-basic")
-const {baseKeymap} = require("prosemirror-commands")
-const {keymap} = require("prosemirror-keymap")
-const {exampleSetup, buildMenuItems} = require("prosemirror-example-setup")
-const {MenuItem, Dropdown} = require("prosemirror-menu")
+import {EditorView} from "prosemirror-view"
+import {EditorState} from "prosemirror-state"
+import {DOMParser, Schema}  from "prosemirror-model"
+import {schema as baseSchema}  from "prosemirror-schema-basic"
+import {baseKeymap}  from "prosemirror-commands"
+import {keymap}  from "prosemirror-keymap"
+import {exampleSetup, buildMenuItems}  from "prosemirror-example-setup"
+import {MenuItem, Dropdown}  from "prosemirror-menu"
 
-const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell} = require("./src/commands")
-const {tableEditing, addTableNodes} = require("./src")
+import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
+       mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell}  from "./src/commands"
+import {tableEditing, addTableNodes}  from "./src"
 
 let schema = new Schema({
   nodes: addTableNodes(baseSchema.spec.nodes, {
