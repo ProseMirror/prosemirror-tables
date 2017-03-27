@@ -1,5 +1,6 @@
 const {Selection, TextSelection} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
+const {Fragment, Slice} = require("prosemirror-model")
 
 const {colCount, inSameTable, moveCellForward, moveCellBackward, pointsAtCell} = require("./util")
 const {TableMap} = require("./tablemap")
@@ -26,6 +27,24 @@ class CellSelection extends Selection {
         return new CellSelection($anchorCell, $headCell)
     }
     return TextSelection.between($anchorCell, $headCell)
+  }
+
+  content() {
+    let table = this.$anchorCell.node(-1), map = TableMap.get(table), start = this.$anchorCell.start(-1)
+    let rect = map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start)
+    let seen = [], rows = []
+    for (let row = rect.top; row < rect.bottom; row++) {
+      let rowContent = []
+      for (let index = row * map.width + rect.left, col = rect.left; col < rect.right; col++, index++) {
+        let pos = map.map[index]
+        if (seen.indexOf(pos) == -1) {
+          seen.push(pos)
+          rowContent.push(table.nodeAt(pos))
+        }
+      }
+      rows.push(table.child(row).copy(Fragment.from(rowContent)))
+    }
+    return new Slice(Fragment.from(rows), 1, 1)
   }
 
   forEachCell(f) {

@@ -1,11 +1,11 @@
-const {Slice, Fragment, DOMSerializer} = require("prosemirror-model")
+const {Slice, DOMSerializer} = require("prosemirror-model")
 const {Selection, TextSelection} = require("prosemirror-state")
-const {Transform} = require("prosemirror-transform")
 const {keydownHandler} = require("prosemirror-keymap")
 
-const {key, nextCell, moveCellForward, moveCellBackward, cellAround, inSameTable} = require("./util")
+const {key, nextCell, moveCellForward, cellAround, inSameTable,
+       isInTable, selectionCell} = require("./util")
 const {CellSelection} = require("./cellselection")
-const {TableMap} = require("./tablemap")
+const {pastedCells, insertCells} = require("./copypaste")
 
 exports.handleKeyDown = keydownHandler({
   "ArrowLeft": arrow("horiz", -1),
@@ -95,98 +95,36 @@ exports.handleTextInput = function(view, _from, _to, text) {
   return true
 }
 
-function pastedCells(slice) {
-  if (!slice.size) return null
-  slice = slice.normalize()
-  let type = slice.content.firstChild.type.name
-  if (type == "table_row") {
-    let rows = []
-    for (let i = 0; i < slice.content.childCount; i++)
-      rows.push(new Slice(slice.content.child(i).content,
-                          i ? 0 : Math.max(0, slice.openLeft - 1),
-                          i < slice.content.childCount ? 0 : Math.max(0, slice.openRight - 1)))
-    return rows
-  } else if (type == "table_cell") {
-    return [slice]
-  }
-}
-
-function fitSliceIntoCell(schema, slice) {
-  let cell = schema.nodes.table_cell.createAndFill()
-  let tr = new Transform(cell).replace(0, cell.content.size, slice)
-  return new Slice(Fragment.from(tr.doc.content), 0, 0)
-}
-
 exports.handlePaste = function(view, _, slice) {
-  let {selection} = view.state, cellSelection = selection instanceof CellSelection
-  let $cell = cellSelection ? selection.$anchorCell : cellAround(selection.$head)
-  if (!$cell) return false
+  if (!isInTable(view.state)) return false
   let cells = pastedCells(slice)
-  if (!cells && !cellSelection) return false
-
-  let table = $cell.node(-1), map = TableMap.get(table), start = $cell.start(-1)
-  let tr = view.state.tr
-  if (cellSelection) {
-    if (!cells) cells = [fitSliceIntoCell(view.state.schema, slice)]
-    let rect = map.rectBetween(selection.$anchorCell.pos - start, selection.$headCell.pos - start)
-    let seen = []
-    for (let row = rect.top; row < rect.bottom; row++) {
-      let sourceRow = cells[(row - rect.top) % cells.length], sourceLen = sourceRow.content.childCount
-      for (let index = row * map.width + rect.left, col = rect.left, sourceIndex = 0; col < rect.right; col++, index++) {
-        let pos = map.map[index]
-        if (seen.indexOf(pos) == -1) {
-          seen.push(pos)
-          let i = sourceIndex++ % sourceLen
-          let cellSlice = new Slice(Fragment.from(sourceRow.content.child(i)),
-                                    i ? 1 : Math.max(1, sourceRow.openLeft),
-                                    i == sourceLen - 1 ? Math.max(1, sourceRow.openRight) : 1)
-          let from = tr.mapping.map(pos + start)
-          tr.replace(from + 1, from + table.nodeAt(pos).nodeSize - 1, cellSlice)
-        }
-      }
-    }
+  if (view.state.selection instanceof CellSelection) {
+//    overwriteCellSelection(view, cells || [Fragment.from(fitSlice(view.state.schema.nodes.table_cell, slice))])
+    return true
+  } else if (cells) {
+    insertCells(view.state, view.dispatch, selectionCell(view.state), cells)
+    return true
   } else {
-    let endOfCell = selection.head + (selection.$head.depth - $cell.depth) == $cell.pos + $cell.nodeAfter.nodeSize
-    let rect = map.findCell($cell.pos - start), col = endOfCell ? rect.right : rect.left
-    let firstInsert, lastInsert
-    for (let i = 0; i < cells.length; i++) {
-      lastInsert = map.positionAt(rect.top + i, col, table) + start
-      if (firstInsert == null) firstInsert = lastInsert
-      let pos = tr.mapping.map(lastInsert)
-      tr.replace(pos, pos, cells[i])
-    }
-    tr.setSelection(new CellSelection(tr.doc.resolve(firstInsert), moveCellBackward(tr.doc.resolve(tr.mapping.map(lastInsert)))))
+    return false
   }
-  view.dispatch(tr)
-  return true
 }
 
 exports.handleCopyCut = function(view, event) {
   let sel = view.state.selection
-  if (!(sel instanceof CellSelection)) return false
+  if (!(sel instanceof CellSelection)) return
 
-  let table = sel.$anchorCell.node(-1), map = TableMap.get(table), start = sel.$anchorCell.start(-1)
-  let rect = map.rectBetween(sel.$anchorCell.pos - start, sel.$headCell.pos - start)
-  let seen = [], output = document.createElement("tbody")
+  let output = document.createElement("tbody")
   let serializer = view.someProp("clipboardSerializer") || DOMSerializer.fromSchema(view.state.schema)
-  for (let row = rect.top; row < rect.bottom; row++) {
-    let tr = output.appendChild(document.createElement("tr"))
-    for (let index = row * map.width + rect.left, col = rect.left; col < rect.right; col++, index++) {
-      let pos = map.map[index]
-      if (seen.indexOf(pos) == -1) {
-        seen.push(pos)
-        tr.appendChild(serializer.serializeNode(table.nodeAt(pos)))
-      }
-    }
-  }
+  output.appendChild(serializer.serializeFragment(sel.content().content))
+
   event.clipboardData.setData("text/html", output.innerHTML)
   event.clipboardData.setData("text/plain", output.textContent)
 
   if (event.type == "cut") deleteCellSelection(view.state, view.dispatch)
-  return true
+  event.preventDefault()
 }
 
-exports.mousedown = function(view, startEvent) {
+exports.handleMouseDown = function(view, startEvent) {
   if (startEvent.ctrlKey || startEvent.metaKey) return
 
   let startDOMCell = domInCell(view, startEvent.target), $anchor

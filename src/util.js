@@ -1,4 +1,4 @@
-const {PluginKey} = require("prosemirror-state")
+const {PluginKey, NodeSelection} = require("prosemirror-state")
 
 const {TableMap} = require("./tablemap")
 
@@ -8,6 +8,18 @@ exports.cellAround = function($pos) {
   for (let d = $pos.depth - 1; d > 0; d--)
     if ($pos.node(d).type.name == "table_row") return $pos.node(0).resolve($pos.before(d + 1))
   return null
+}
+
+exports.isInTable = function(state) {
+  let $head = state.selection.$head
+  for (let d = $head.depth; d > 0; d--) if ($head.node(d).type.name == "table_row") return true
+  return false
+}
+
+exports.selectionCell = function(state) {
+  let sel = state.selection
+  if (sel instanceof NodeSelection && sel.$from.parent.type.name == "table_row") return sel.$from
+  return sel.$anchorCell || exports.cellAround(sel.$head)
 }
 
 exports.pointsAtCell = function($pos) {

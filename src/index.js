@@ -1,6 +1,6 @@
 const {Plugin} = require("prosemirror-state")
 
-const {handleTripleClick, handleKeyDown, handleTextInput, handlePaste, handleCopyCut, mousedown} = require("./input")
+const {handleTripleClick, handleKeyDown, handleTextInput, handlePaste, handleCopyCut, handleMouseDown} = require("./input")
 const {key} = require("./util")
 const {drawCellSelection} = require("./cellselection")
 const {fixTables} = require("./fixtables")
@@ -24,7 +24,11 @@ exports.tableEditing = function() {
     props: {
       decorations: drawCellSelection,
 
-      handleDOMEvents: {mousedown},
+      handleDOMEvents: {
+        mousedown: handleMouseDown,
+        copy: handleCopyCut,
+        cut: handleCopyCut
+      },
 
       createSelectionBetween(view) {
         if (key.getState(view.state) != null) return view.state.selection
@@ -36,11 +40,7 @@ exports.tableEditing = function() {
 
       handleTextInput,
 
-      handlePaste,
-
-      handleCopy: handleCopyCut,
-
-      handleCut: handleCopyCut
+      handlePaste
     },
 
     appendTransaction(_, oldState, state) { return fixTables(state, oldState) }

@@ -1,22 +1,9 @@
-const {NodeSelection, TextSelection} = require("prosemirror-state")
+const {TextSelection} = require("prosemirror-state")
 const {Fragment} = require("prosemirror-model")
 
 const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
-const {setAttr, cellAround, moveCellForward} = require("./util")
-
-function isInTable(state) {
-  let $head = state.selection.$head
-  for (let d = $head.depth; d > 0; d--) if ($head.node(d).type.name == "table_row") return true
-  return false
-}
-
-function selectionCell(state) {
-  let sel = state.selection
-  if (sel instanceof CellSelection) return sel.$headCell
-  if (sel instanceof NodeSelection && sel.$from.parent.type.name == "table_row") return sel.$from
-  return cellAround(sel.$head)
-}
+const {setAttr, moveCellForward, isInTable, selectionCell} = require("./util")
 
 function selectedRect(state) {
   let sel = state.selection, $pos = selectionCell(state)
