@@ -1,4 +1,17 @@
+// Because working with row and column-spanning cells is not quite
+// trivial, this code builds up a descriptive structure for a given
+// table node. The structures are cached with the (persistent) table
+// nodes as key, so that they only have to be recomputed when the
+// content of the table changes.
+//
+// This does mean that they have to store table-relative, not
+// document-relative positions. So code that uses them will typically
+// compute the start position of the table and offset positions passed
+// to or gotten from this structure by that amount.
+
 let readFromCache, addToCache
+// Prefer using a weak map to cache table maps. Fall back on a
+// fixed-size cache if that's not supported.
 if (typeof WeakMap != "undefined") {
   let cache = new WeakMap
   readFromCache = key => cache.get(key)
@@ -27,12 +40,20 @@ class Rect {
 
 class TableMap {
   constructor(width, height, map, problems) {
+    // The width of the table
     this.width = width
+    // Its height
     this.height = height
+    // A width * height array with the start position of the cell
+    // covering that part of the table in each slot
     this.map = map
+    // An optional array of problems (cell overlap or non-rectangular
+    // shape) for the table, used by the table normalizer.
     this.problems = problems
   }
 
+  // :: (number) → Rect
+  // Find the dimensions of the cell at the given position.
   findCell(pos) {
     for (let i = 0; i < this.map.length; i++) {
       let curPos = this.map[i]
@@ -46,12 +67,17 @@ class TableMap {
     throw new RangeError("No cell with offset " + pos + " found")
   }
 
+  // :: (number) → number
+  // Find the left side of the cell at the given position.
   colCount(pos) {
     for (let i = 0; i < this.map.length; i++)
       if (this.map[i] == pos) return i % this.width
     throw new RangeError("No cell with offset " + pos + " found")
   }
 
+  // :: (number, string, number) → ?number
+  // Find the next cell in the given direction, starting from the cell
+  // at `pos`, if any.
   nextCell(pos, axis, dir) {
     let {left, right, top, bottom} = this.findCell(pos)
     if (axis == "horiz") {
@@ -63,6 +89,8 @@ class TableMap {
     }
   }
 
+  // :: (number, number) → Rect
+  // Get the rectangle spanning the two given cells.
   rectBetween(a, b) {
     let {left: leftA, right: rightA, top: topA, bottom: bottomA} = this.findCell(a)
     let {left: leftB, right: rightB, top: topB, bottom: bottomB} = this.findCell(b)
@@ -70,6 +98,9 @@ class TableMap {
                     Math.max(rightA, rightB), Math.max(bottomA, bottomB))
   }
 
+  // :: (Rect) → [number]
+  // Return the position of all cells that have the top left corner in
+  // the given rectangle.
   cellsInRect(rect) {
     let result = [], seen = []
     for (let row = rect.top; row < rect.bottom; row++) {
@@ -85,6 +116,9 @@ class TableMap {
     return result
   }
 
+  // :: (number, number, Node) → number
+  // Return the position at which the cell at the given row and column
+  // starts, or would start, if a cell started there.
   positionAt(row, col, table) {
     for (let i = 0, rowStart = 0;; i++) {
       let rowEnd = rowStart + table.child(i).nodeSize
@@ -98,12 +132,15 @@ class TableMap {
     }
   }
 
+  // :: (Node) → TableMap
+  // Find the table map for the given table node.
   static get(table) {
     return readFromCache(table) || addToCache(table, computeMap(table))
   }
 }
 exports.TableMap = TableMap
 
+// Compute a table map.
 function computeMap(table) {
   if (table.type.name != "table") throw new RangeError("Not a table node: " + table.type.name)
   let width = findWidth(table), height = table.childCount

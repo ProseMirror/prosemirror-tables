@@ -1,3 +1,5 @@
+// Various helper function for working with tables
+
 const {PluginKey, NodeSelection} = require("prosemirror-state")
 
 const {TableMap} = require("./tablemap")

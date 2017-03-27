@@ -1,3 +1,15 @@
+// Utilities used for copy/paste handling.
+//
+// This module handles pasting cell content into tables, or pasting
+// anything into a cell selection, as replacing a block of cells with
+// the content of the selection. When pasting cells into a cell, that
+// involves placing the block of pasted content so that its top left
+// aligns with the selection cell, optionally extending the table to
+// the right or bottom to make sure it is large enough. Pasting into a
+// cell selection is different, here the cells in the selection are
+// clipped to the selection's rectangle, optionally repeating the
+// pasted cells when they are smaller than the selection.
+
 const {Slice, Fragment} = require("prosemirror-model")
 const {Transform} = require("prosemirror-transform")
 
@@ -68,6 +80,10 @@ let fitSlice = exports.fitSlice = function(nodeType, slice) {
   return tr.doc
 }
 
+// :: ({width: number, height: number, rows: [Fragment]}, number, number) → {width: number, height: number, rows: [Fragment]}
+// Clip or extend (repeat) the given set of cells to cover the given
+// width and height. Will clip rowspan/colspan cells at the edges when
+// they stick out.
 exports.clipCells = function({width, height, rows}, newWidth, newHeight) {
   if (width != newWidth) {
     let added = [], newRows = []

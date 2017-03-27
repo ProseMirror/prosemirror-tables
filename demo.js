@@ -8,11 +8,13 @@ import {exampleSetup, buildMenuItems}  from "prosemirror-example-setup"
 import {MenuItem, Dropdown}  from "prosemirror-menu"
 
 import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell}  from "./src/commands"
+        mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell}  from "./src/commands"
 import {tableEditing, addTableNodes}  from "./src"
 
 let schema = new Schema({
   nodes: addTableNodes(baseSchema.spec.nodes, {
+    tableGroup: "block",
+    cellContent: "block+",
     cellAttributes: {
       background: {
         default: null,

@@ -1,6 +1,14 @@
+// This file defines helpers for normalizing tables, making sure no
+// cells overlap (which can happen, if you have the wrong col- and
+// rowspans) and that each row has the same width. Uses the problems
+// reported by `TableMap`.
+
 const {TableMap} = require("./tablemap")
 const {setAttr} = require("./util")
 
+// Helper for iterating through the nodes in a document that changed
+// compared to the given previous document. Useful for avoiding
+// duplicate work on each transaction.
 function changedDescendants(old, cur, offset, f) {
   let oldSize = old.childCount, curSize = cur.childCount
   outer: for (let i = 0, j = 0; i < curSize; i++) {
@@ -21,6 +29,12 @@ function changedDescendants(old, cur, offset, f) {
   }
 }
 
+// :: (EditorState, ?EditorState) → ?Transaction
+// Inspect all tables in the given state's document and return a
+// transaction that fixes them, if necessary. If `oldState` was
+// provided, that is assumed to hold a previous, known-good state,
+// which will be used to avoid re-scanning unchanged parts of the
+// document.
 exports.fixTables = function(state, oldState) {
   let tr, check = (node, pos) => {
     if (node.type.name == "table") tr = fixTable(state, node, pos, tr)
@@ -30,11 +44,16 @@ exports.fixTables = function(state, oldState) {
   return tr
 }
 
-function fixTable(state, table, tablePos, tr) {
+// :: (EditorState, Node, number, ?Transaction) → ?Transaction
+// Fix the given table, if necessary. Will append to the transaction
+// it was given, if non-null, or create a new one if necessary.
+let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
   let map = TableMap.get(table)
   if (!map.problems) return tr
   if (!tr) tr = state.tr
 
+  // Track which rows we must add cells to, so that we can adjust that
+  // when fixing collisions.
   let mustAdd = []
   for (let i = 0; i < map.height; i++) mustAdd.push(0)
   for (let i = 0; i < map.problems.length; i++) {
@@ -52,6 +71,10 @@ function fixTable(state, table, tablePos, tr) {
     if (first == null) first = i
     last = i
   }
+  // Add the necessary cells, using a heuristic for whether to add the
+  // cells at the start or end of the rows (if it looks like a 'bite'
+  // was taken out of the table, add cells at the start of the row
+  // after the bite. Otherwise add them at the end).
   for (let i = 0, pos = tablePos + 1; i < map.height; i++) {
     let end = pos + table.child(i).nodeSize
     let add = mustAdd[i]

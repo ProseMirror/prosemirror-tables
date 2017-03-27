@@ -1,3 +1,5 @@
+// Helper for creating a schema that supports tables.
+
 function getCellAttrs(dom, extraAttrs) {
   let result = {
     colspan: Number(dom.getAttribute("colspan") || 1),
@@ -22,6 +24,32 @@ function setCellAttrs(node, extraAttrs) {
   return attrs
 }
 
+// :: (OrderedMap, Object) → OrderedMap
+// Extend the given map of schema nodes to include `table`,
+// `table_row`, and `table_cell` nodes as used by this module.
+//
+//   options::- The following options are understood:
+//
+//     tableGroup:: ?string
+//     A group name (something like `"block"`) to add to the table
+//     node type.
+//
+//     cellContent:: string
+//     The content expression for table cells.
+//
+//     cellAttributes:: Object
+//     Additional attributes to add to cells. Maps attribute names to
+//     objects with the following properties:
+//
+//       default:: any
+//       The attribute's default value.
+//
+//       getFromDOM:: ?(dom.Node) → any
+//       A function to read the attribute's value from a DOM node.
+//
+//       setDOMAttr:: ?(value: any, attrs: Object)>
+//       A function to add the attribute's value to an attribute
+//       object that's used to render the cell's DOM.
 function addTableNodes(nodes, options) {
   let extraAttrs = options.cellAttributes || {}
   let cellAttrs = {
@@ -35,7 +63,7 @@ function addTableNodes(nodes, options) {
     table: {
       content: "table_row+",
       attrs: {header: {default: null}},
-      group: "block",
+      group: options.tableGroup,
       parseDOM: [{tag: "table", getAttrs(dom) {
         let headerTop = dom.classList.contains("header-top"), headerLeft = dom.classList.contains("header-left")
         return {header: headerTop && headerLeft ? "both" : headerTop ? "top" : headerLeft ? "left" : null}
@@ -52,7 +80,7 @@ function addTableNodes(nodes, options) {
       toDOM() { return ["tr", 0] }
     },
     table_cell: {
-      content: "block+",
+      content: options.cellContent,
       attrs: cellAttrs,
       parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)},
                  {tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],

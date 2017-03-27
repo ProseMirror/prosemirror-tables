@@ -1,15 +1,25 @@
+// This file defines a plugin that handles the drawing of cell
+// selections and the basic user interactions for creating and working
+// with such selections. It also makes sure that, after each
+// transaction, the shapes of tables are normalized to be rectangular
+// and not contain overlapping cells.
+
 const {Plugin} = require("prosemirror-state")
 
 const {handleTripleClick, handleKeyDown, handleTextInput, handlePaste, handleCopyCut, handleMouseDown} = require("./input")
 const {key} = require("./util")
-const {drawCellSelection} = require("./cellselection")
+const {drawCellSelection, CellSelection} = require("./cellselection")
 const {fixTables} = require("./fixtables")
 const {addTableNodes} = require("./schema")
+const commands = require("./commands")
 
 exports.tableEditing = function() {
   return new Plugin({
     key,
 
+    // This piece of state is used to remember when a mouse-drag
+    // cell-selection is happening, so that it can continue even as
+    // transactions (which might move its anchor cell) come in.
     state: {
       init() { return null },
       apply(tr, cur) {
@@ -48,3 +58,5 @@ exports.tableEditing = function() {
 }
 
 exports.addTableNodes = addTableNodes
+exports.CellSelection = CellSelection
+for (let name in commands) exports[name] = commands[name]

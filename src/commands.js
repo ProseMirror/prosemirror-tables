@@ -1,3 +1,5 @@
+// This file defines a number of table-related commands.
+
 const {TextSelection} = require("prosemirror-state")
 const {Fragment} = require("prosemirror-model")
 
@@ -5,6 +7,9 @@ const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
 const {setAttr, moveCellForward, isInTable, selectionCell} = require("./util")
 
+// Helper to get the selected rectangle in a table, if any. Adds table
+// map, table node, and table start offset to the object for
+// convenience.
 function selectedRect(state) {
   let sel = state.selection, $pos = selectionCell(state)
   let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
@@ -19,6 +24,7 @@ function selectedRect(state) {
   return rect
 }
 
+// Add a column at the given position in a table.
 function addColumn(tr, {map, tableStart, table}, col) {
   for (let row = 0; row < map.height; row++) {
     let index = row * map.width + col
@@ -78,7 +84,7 @@ function removeColumn(tr, {map, table, tableStart}, col) {
 }
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Command function that removes the column with the selection.
+// Command function that removes the selected columns from a table.
 function deleteColumn(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
@@ -113,6 +119,8 @@ function addRow(tr, {map, tableStart, table}, row) {
   return tr
 }
 
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Add a table row before the selection.
 function addRowBefore(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
@@ -123,6 +131,8 @@ function addRowBefore(state, dispatch) {
 }
 exports.addRowBefore = addRowBefore
 
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Add a table row after the selection.
 function addRowAfter(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
@@ -159,6 +169,8 @@ function removeRow(tr, {map, table, tableStart}, row) {
   }
 }
 
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Remove the selected rows from a table.
 function deleteRow(state, dispatch) {
   if (!isInTable(state)) return false
   if (dispatch) {
@@ -196,6 +208,9 @@ function cellsOverlapRectangle({width, height, map}, rect) {
   return false
 }
 
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Merge the selected cells into a single cell. Only available when
+// the selected cells' outline forms a rectangle.
 function mergeCells(state, dispatch) {
   let sel = state.selection
   if (!(sel instanceof CellSelection) || sel.$anchorCell.pos == sel.$headCell.pos) return false
@@ -233,6 +248,9 @@ function mergeCells(state, dispatch) {
 }
 exports.mergeCells = mergeCells
 
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Split a selected cell, whose rowpan or colspan is greater than one,
+// into smaller cells.
 function splitCell(state, dispatch) {
   let sel = state.selection
   if (!(sel instanceof CellSelection) || sel.$anchorCell.pos != sel.$headCell.pos) return false
@@ -262,6 +280,10 @@ function splitCell(state, dispatch) {
 }
 exports.splitCell = splitCell
 
+// :: (string, any) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Returns a command that sets the given attribute to the given value,
+// and is only available when the currently selected cell doesn't
+// already have that attribute set to that value.
 function setCellAttr(name, value) {
   return function(state, dispatch) {
     if (!isInTable(state)) return false
@@ -283,6 +305,9 @@ function setCellAttr(name, value) {
 }
 exports.setCellAttr = setCellAttr
 
+// :: (union<"left", "top">, bool) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Returns a comand to en- or disable the top or left heading for a
+// table.
 function setTableHeader(side, value) {
   return function(state, dispatch) {
     if (!isInTable(state)) return false
@@ -318,6 +343,9 @@ function findNextCell($cell, dir) {
   }
 }
 
+// :: (number) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Returns a command for selecting the next (direction=1) or previous
+// (direction=-1) cell in a table.
 function goToNextCell(direction) {
   return function(state, dispatch) {
     if (!isInTable(state) || state.selection instanceof CellSelection) return false

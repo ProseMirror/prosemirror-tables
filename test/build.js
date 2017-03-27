@@ -7,6 +7,8 @@ const {CellSelection} = require("../src/cellselection")
 
 let schema = new Schema({
   nodes: addTableNodes(baseSchema.spec.nodes, {
+    tableGroup: "block",
+    cellContent: "block+",
     cellAttributes: {
       test: {default: "default"}
     }

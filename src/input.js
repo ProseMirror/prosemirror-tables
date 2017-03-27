@@ -1,3 +1,6 @@
+// This file defines a number of helpers for wiring up user input to
+// table-related functionality.
+
 const {Slice, Fragment, DOMSerializer} = require("prosemirror-model")
 const {Selection, TextSelection} = require("prosemirror-state")
 const {keydownHandler} = require("prosemirror-keymap")
@@ -135,17 +138,23 @@ exports.handleMouseDown = function(view, startEvent) {
 
   let startDOMCell = domInCell(view, startEvent.target), $anchor
   if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {
+    // Adding to an existing cell selection
     setCellSelection(view.state.selection.$anchorCell, startEvent)
     startEvent.preventDefault()
   } else if (startEvent.shiftKey && startDOMCell &&
              ($anchor = cellAround(view.state.selection.$anchor)) != null &&
              cellUnderMouse(view, startEvent).pos != $anchor.pos) {
+    // Adding to a selection that starts in another cell (causing a
+    // cell selection to be created).
     setCellSelection($anchor, startEvent)
     startEvent.preventDefault()
   } else if (!startDOMCell) {
+    // Not in a cell, let the default behavior happen.
     return
   }
 
+  // Create and dispatch a cell selection between the given anchor and
+  // the position under the mouse.
   function setCellSelection($anchor, event) {
     let $head = cellUnderMouse(view, event)
     let starting = key.getState(view.state) == null
@@ -161,6 +170,7 @@ exports.handleMouseDown = function(view, startEvent) {
     }
   }
 
+  // Stop listening to mouse motion events.
   function stop() {
     view.root.removeEventListener("mouseup", stop)
     view.root.removeEventListener("mousemove", move)
@@ -170,8 +180,10 @@ exports.handleMouseDown = function(view, startEvent) {
   function move(event) {
     let anchor = key.getState(view.state), $anchor
     if (anchor != null) {
+      // Continuing an existing cross-cell selection
       $anchor = view.state.doc.resolve(anchor)
     } else if (domInCell(view, event.target) != startDOMCell) {
+      // Moving out of the initial cell -- start a new cell selection
       $anchor = cellUnderMouse(view, startEvent)
       if (!$anchor) return stop()
     }
@@ -181,10 +193,11 @@ exports.handleMouseDown = function(view, startEvent) {
   view.root.addEventListener("mousemove", move)
 }
 
+// Check whether the cursor is at the end of a cell (so that further
+// motion would move out of the cell)
 function atEndOfCell(view, axis, dir) {
   if (!(view.state.selection instanceof TextSelection)) return null
   let {$head} = view.state.selection
-  if (!$head) return null
   for (let d = $head.depth - 1; d >= 0; d--) {
     let parent = $head.node(d), index = dir < 0 ? $head.index(d) : $head.indexAfter(d)
     if (index != (dir < 0 ? 0 : parent.childCount)) return null

@@ -1,3 +1,8 @@
+// This file defines a ProseMirror selection subclass that models
+// table cell selections. The table plugin needs to be active to wire
+// in the user interaction part of table selections (so that you
+// actually get such selections when you select across cells).
+
 const {Selection, TextSelection} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
 const {Fragment, Slice} = require("prosemirror-model")
@@ -6,6 +11,11 @@ const {colCount, inSameTable, moveCellForward, moveCellBackward, pointsAtCell, s
 const {TableMap} = require("./tablemap")
 
 class CellSelection extends Selection {
+  // :: (ResolvedPos, ?ResolvedPos)
+  // A table selection is identified by its anchor and head cells. The
+  // positions given to this constructor should point _before_ two
+  // cells in the same table. They may be the same, to select a single
+  // cell.
   constructor($anchorCell, $headCell = $anchorCell) {
     let aCol = colCount($anchorCell), bCol = colCount($headCell)
     if (aCol < bCol) super($anchorCell, moveCellForward($headCell))
@@ -29,6 +39,9 @@ class CellSelection extends Selection {
     return TextSelection.between($anchorCell, $headCell)
   }
 
+  // :: () → Slice
+  // Returns a rectangular slice of table rows containing the selected
+  // cells.
   content() {
     let table = this.$anchorCell.node(-1), map = TableMap.get(table), start = this.$anchorCell.start(-1)
     let rect = map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start)
@@ -65,6 +78,9 @@ class CellSelection extends Selection {
       f(table.nodeAt(cells[i]), start + cells[i])
   }
 
+  // :: () → bool
+  // True if this selection goes all the way from the left to the
+  // right of the table.
   isRowSelection() {
     let anchorTop = this.$anchorCell.index(-1), headTop = this.$headCell.index(-1)
     if (Math.min(anchorTop, headTop) > 0) return false
@@ -73,7 +89,10 @@ class CellSelection extends Selection {
     return Math.max(anchorBot, headBot) == this.$headCell.node(-1).childCount
   }
 
-  static rowSelection($anchorCell, $headCell) {
+  // :: (ResolvedPos, ?ResolvedPos) → CellSelection
+  // Returns the smallest row selection that covers the given anchor
+  // and head cell.
+  static rowSelection($anchorCell, $headCell = $anchorCell) {
     let map = TableMap.get($anchorCell.node(-1)), start = $anchorCell.start(-1)
     let anchorRect = map.findCell($anchorCell.pos - start), headRect = map.findCell($headCell.pos - start)
     let doc = $anchorCell.node(0)
@@ -91,6 +110,9 @@ class CellSelection extends Selection {
     return new CellSelection($anchorCell, $headCell)
   }
 
+  // :: () → bool
+  // True if this selection goes all the way from the top to the
+  // bottom of the table.
   isColSelection() {
     let map = TableMap.get(this.$anchorCell.node(-1)), start = this.$anchorCell.start(-1)
     let anchorLeft = map.colCount(this.$anchorCell.pos - start),
@@ -101,7 +123,10 @@ class CellSelection extends Selection {
     return Math.max(anchorRight, headRight) == map.width
   }
 
-  static colSelection($anchorCell, $headCell) {
+  // :: (ResolvedPos, ?ResolvedPos) → CellSelection
+  // Returns the smallest column selection that covers the given anchor
+  // and head cell.
+  static colSelection($anchorCell, $headCell = $anchorCell) {
     let map = TableMap.get($anchorCell.node(-1)), start = $anchorCell.start(-1)
     let anchorRect = map.findCell($anchorCell.pos - start), headRect = map.findCell($headCell.pos - start)
     let doc = $anchorCell.node(0)
@@ -143,13 +168,7 @@ class CellSelection extends Selection {
     return TextSelection.between($anchor, $head)
   }
 
-  // $anchor and $head must be pointing before cells in the same table
-  static between($anchor, $head = $anchor) {
-    let anchorCol = colCount($anchor), headCol = colCount($head)
-    if (anchorCol < headCol) return new CellSelection($anchor, moveCellForward($head))
-    else return new CellSelection(moveCellForward($anchor), $head)
-  }
-
+  // :: (Node, number, ?number) → CellSelection
   static create(doc, anchorCell, headCell = anchorCell) {
     return new CellSelection(doc.resolve(anchorCell), doc.resolve(headCell))
   }
