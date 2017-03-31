@@ -3,11 +3,11 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
-const {Selection, TextSelection} = require("prosemirror-state")
+const {Selection, TextSelection, SelectionRange} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
 const {Fragment, Slice} = require("prosemirror-model")
 
-const {colCount, inSameTable, moveCellForward, moveCellBackward, pointsAtCell, setAttr} = require("./util")
+const {inSameTable, pointsAtCell, setAttr} = require("./util")
 const {TableMap} = require("./tablemap")
 
 class CellSelection extends Selection {
@@ -17,9 +17,18 @@ class CellSelection extends Selection {
   // cells in the same table. They may be the same, to select a single
   // cell.
   constructor($anchorCell, $headCell = $anchorCell) {
-    let aCol = colCount($anchorCell), bCol = colCount($headCell)
-    if (aCol < bCol) super($anchorCell, moveCellForward($headCell))
-    else super(moveCellForward($anchorCell), $headCell)
+    let table = $anchorCell.node(-1), map = TableMap.get(table), start = $anchorCell.start(-1)
+    let rect = map.rectBetween($anchorCell.pos - start, $headCell.pos - start)
+    let doc = $anchorCell.node(0)
+    let cells = map.cellsInRect(rect).filter(p => p != $headCell.pos - start)
+    // Make the head cell the first range, so that it counts as the
+    // primary part of the selection
+    cells.unshift($headCell.pos - start)
+    let ranges = cells.map(pos => {
+      let cell = table.nodeAt(pos), from = pos + start + 1
+      return new SelectionRange(doc.resolve(from), doc.resolve(from + cell.content.size))
+    })
+    super(ranges[0].$from, ranges[0].$to, ranges)
     this.$anchorCell = $anchorCell
     this.$headCell = $headCell
   }
@@ -123,6 +132,11 @@ class CellSelection extends Selection {
     return Math.max(anchorRight, headRight) == map.width
   }
 
+  eq(other) {
+    return other instanceof CellSelection && other.$anchorCell.pos == this.$anchorCell.pos &&
+      other.$headCell.pos == this.$headCell.pos
+  }
+
   // :: (ResolvedPos, ?ResolvedPos) → CellSelection
   // Returns the smallest column selection that covers the given anchor
   // and head cell.
@@ -144,40 +158,47 @@ class CellSelection extends Selection {
     return new CellSelection($anchorCell, $headCell)
   }
 
+  toJSON() {
+    return {type: "cell", anchor: this.$anchorCell.pos, head: this.$headCell.pos}
+  }
+
   static fromJSON(doc, json) {
-    let $anchor = doc.resolve(json.anchor), $head = doc.resolve(json.head)
-    if ($anchor.pos != $head.pos &&
-        $anchor.parent.type.name == "table_row" &&
-        $head.parent.type.name == "table_row" &&
-        $head.parent.childCount && $anchor.parent.childCount &&
-        inSameTable($anchor, $head)) {
-      let headAtEnd = $head.index() == $head.parent.childCount, anchorAtEnd = $anchor.index() == $anchor.parent.childCount
-      if (!headAtEnd || !anchorAtEnd) {
-        if (headAtEnd) {
-          $head = moveCellBackward($head)
-        } else if (anchorAtEnd) {
-          $anchor = moveCellBackward($anchor)
-        } else {
-          let aCol = colCount($anchor), bCol = colCount($head)
-          if (aCol < bCol) $head = moveCellBackward($head)
-          else if (aCol > bCol) $anchor = moveCellBackward($anchor)
-        }
-        return new CellSelection($anchor, $head)
-      }
-    }
-    return TextSelection.between($anchor, $head)
+    return new CellSelection(doc.resolve(json.anchor), doc.resolve(json.head))
   }
 
   // :: (Node, number, ?number) → CellSelection
   static create(doc, anchorCell, headCell = anchorCell) {
     return new CellSelection(doc.resolve(anchorCell), doc.resolve(headCell))
   }
+
+  getBookmark() { return new CellBookmark(this.$anchorCell.pos, this.$headCell.pos) }
 }
 exports.CellSelection = CellSelection
 
 CellSelection.prototype.visible = false
 
 Selection.jsonID("cell", CellSelection)
+
+class CellBookmark {
+  constructor(anchor, head) {
+    this.anchor = anchor
+    this.head = head
+  }
+  map(mapping) {
+    return new CellBookmark(mapping.map(this.anchor), mapping.map(this.head))
+  }
+  resolve(doc) {
+    let $anchorCell = doc.resolve(this.anchor), $headCell = doc.resolve(this.head)
+    if ($anchorCell.parent.type.name == "table_row" &&
+        $headCell.parent.type.name == "table_row" &&
+        $anchorCell.index() < $anchorCell.parent.childCount &&
+        $headCell.index() < $headCell.parent.childCount &&
+        inSameTable($anchorCell, $headCell))
+      return new CellSelection($anchorCell, $headCell)
+    else
+      return Selection.near($headCell, 1)
+  }
+}
 
 exports.drawCellSelection = function(state) {
   if (!(state.selection instanceof CellSelection)) return null

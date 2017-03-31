@@ -1,11 +1,11 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
-const {Slice, Fragment, DOMSerializer} = require("prosemirror-model")
+const {Slice, Fragment} = require("prosemirror-model")
 const {Selection, TextSelection} = require("prosemirror-state")
 const {keydownHandler} = require("prosemirror-keymap")
 
-const {key, nextCell, moveCellForward, cellAround, inSameTable,
+const {key, nextCell, cellAround, inSameTable,
        isInTable, selectionCell} = require("./util")
 const {CellSelection} = require("./cellselection")
 const {TableMap} = require("./tablemap")
@@ -89,16 +89,6 @@ exports.handleTripleClick = function(view, pos) {
   return true
 }
 
-exports.handleTextInput = function(view, _from, _to, text) {
-  let {selection} = view.state
-  if (!(selection instanceof CellSelection)) return false
-  let $cell = selection.$headCell
-  view.dispatch(view.state.tr
-                .setSelection(TextSelection.between(moveCellForward($cell), $cell))
-                .insertText(text))
-  return true
-}
-
 exports.handlePaste = function(view, _, slice) {
   if (!isInTable(view.state)) return false
   let cells = pastedCells(slice), sel = view.state.selection
@@ -116,21 +106,6 @@ exports.handlePaste = function(view, _, slice) {
   } else {
     return false
   }
-}
-
-exports.handleCopyCut = function(view, event) {
-  let sel = view.state.selection
-  if (!(sel instanceof CellSelection)) return
-
-  let output = document.createElement("tbody")
-  let serializer = view.someProp("clipboardSerializer") || DOMSerializer.fromSchema(view.state.schema)
-  output.appendChild(serializer.serializeFragment(sel.content().content))
-
-  event.clipboardData.setData("text/html", output.innerHTML)
-  event.clipboardData.setData("text/plain", output.textContent)
-
-  if (event.type == "cut") deleteCellSelection(view.state, view.dispatch)
-  event.preventDefault()
 }
 
 exports.handleMouseDown = function(view, startEvent) {

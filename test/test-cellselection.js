@@ -17,19 +17,19 @@ function run(anchor, head, command) {
 }
 
 describe("CellSelection", () => {
-  it("will put its head/anchor after the node that's further to the right", () => {
+  it("will put its head/anchor around the head cell", () => {
     let s = CellSelection.create(t, 2, 24)
-    ist(s.anchor, 2)
-    ist(s.head, 28)
+    ist(s.anchor, 25)
+    ist(s.head, 27)
     s = CellSelection.create(t, 24, 2)
-    ist(s.anchor, 28)
-    ist(s.head, 2)
+    ist(s.anchor, 3)
+    ist(s.head, 5)
     s = CellSelection.create(t, 10, 30)
-    ist(s.anchor, 14)
-    ist(s.head, 30)
+    ist(s.anchor, 31)
+    ist(s.head, 33)
     s = CellSelection.create(t, 30, 10)
-    ist(s.anchor, 30)
-    ist(s.head, 14)
+    ist(s.anchor, 11)
+    ist(s.head, 13)
   })
 
   it("extends a row selection when adding a row", () => {

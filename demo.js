@@ -58,5 +58,5 @@ let state = EditorState.create({doc, plugins: [
 
 window.view = new EditorView(document.querySelector("#editor"), {state})
 
-document.execCommand("enableObjectResizing", false, "false")
-document.execCommand("enableInlineTableEditing", false, "false")
+document.execCommand("enableObjectResizing", false, false)
+document.execCommand("enableInlineTableEditing", false, false)

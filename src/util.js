@@ -32,10 +32,6 @@ exports.moveCellForward = function($pos) {
   return $pos.node(0).resolve($pos.pos + $pos.nodeAfter.nodeSize)
 }
 
-exports.moveCellBackward = function($pos) {
-  return $pos.node(0).resolve($pos.pos - $pos.nodeBefore.nodeSize)
-}
-
 exports.inSameTable = function($a, $b) {
   return $a.depth == $b.depth && $a.pos >= $b.start(-1) && $a.pos <= $b.end(-1)
 }

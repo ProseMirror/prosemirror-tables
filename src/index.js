@@ -6,7 +6,7 @@
 
 const {Plugin} = require("prosemirror-state")
 
-const {handleTripleClick, handleKeyDown, handleTextInput, handlePaste, handleCopyCut, handleMouseDown} = require("./input")
+const {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} = require("./input")
 const {key} = require("./util")
 const {drawCellSelection, CellSelection} = require("./cellselection")
 const {fixTables} = require("./fixtables")
@@ -35,9 +35,7 @@ exports.tableEditing = function() {
       decorations: drawCellSelection,
 
       handleDOMEvents: {
-        mousedown: handleMouseDown,
-        copy: handleCopyCut,
-        cut: handleCopyCut
+        mousedown: handleMouseDown
       },
 
       createSelectionBetween(view) {
@@ -47,8 +45,6 @@ exports.tableEditing = function() {
       handleTripleClick,
 
       handleKeyDown,
-
-      handleTextInput,
 
       handlePaste
     },
