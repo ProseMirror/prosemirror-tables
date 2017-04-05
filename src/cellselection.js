@@ -80,6 +80,20 @@ class CellSelection extends Selection {
     return new Slice(Fragment.from(rows), 1, 1)
   }
 
+  replace(tr, content = Slice.empty) {
+    let mapFrom = tr.steps.length, ranges = this.ranges
+    for (let i = 0; i < ranges.length; i++) {
+      let {$from, $to} = ranges[i], mapping = tr.mapping.slice(mapFrom)
+      tr.replace(mapping.map($from.pos), mapping.map($to.pos), i ? Slice.empty : content)
+    }
+    let sel = Selection.findFrom(tr.doc.resolve(tr.mapping.slice(mapFrom).map(this.to)), -1)
+    if (sel) tr.setSelection(sel)
+  }
+
+  replaceWith(tr, node) {
+    this.replace(tr, new Slice(Fragment.from(node), 0, 0))
+  }
+
   forEachCell(f) {
     let table = this.$anchorCell.node(-1), map = TableMap.get(table), start = this.$anchorCell.start(-1)
     let cells = map.cellsInRect(map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start))
