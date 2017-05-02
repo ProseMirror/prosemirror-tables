@@ -64,6 +64,9 @@ let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
       tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "colspan", cell.attrs.colspan - prob.n))
     } else if (prob.type == "missing") {
       mustAdd[prob.row] += prob.n
+    } else if (prob.type == "overlong_rowspan") {
+      let cell = table.nodeAt(prob.pos)
+      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - prob.n))
     }
   }
   let first, last

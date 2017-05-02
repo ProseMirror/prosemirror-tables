@@ -155,6 +155,10 @@ function computeMap(table) {
       if (i == rowNode.childCount) break
       let cellNode = rowNode.child(i), {colspan, rowspan} = cellNode.attrs
       for (let h = 0; h < rowspan; h++) {
+        if (h + row >= height) {
+          (problems || (problems = [])).push({type: "overlong_rowspan", pos, n: rowspan - h})
+          break
+        }
         let start = mapPos + (h * width)
         for (let w = 0; w < colspan; w++) {
           if (map[start + w] == 0)

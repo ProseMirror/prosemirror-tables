@@ -39,4 +39,9 @@ describe("fixTable", () => {
     ist(fix(table(tr(c11, c(1, 2), c11), tr(c(2, 1)))),
         table(tr(c11, c(1, 2), c11), tr(c11, cEmpty, cEmpty)), eq)
   })
+
+  it("will fix a rowspan that sticks out of the table", () => {
+    ist(fix(table(tr(c11, c11), tr(c(1, 2), c11))),
+        table(tr(c11, c11), tr(c11, c11)), eq)
+  })
 })
