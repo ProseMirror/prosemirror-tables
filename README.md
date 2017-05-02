@@ -14,20 +14,20 @@ module can be used.
 
 The module's main file exports everything you need to work with it.
 The first thing you'll probably want to do is create a table-enabled
-schema. That's what `addTableNodes` is for:
+schema. That's what `tableNodes` is for:
 
-**`addTableNodes`**`(nodes: OrderedMap, options: Object) → OrderedMap`
+**`tableNodes`**`(nodes: OrderedMap, options: Object) → OrderedMap`
 
-This function takes a set of node types (as in `schema.spec.nodes`),
-and extends it to add the `table`, `table_row`, and `table_cell` nodes
-types as used by this module. The result can then be used as [`nodes`
-spec](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) when
-creating a new schema.
+This function creates a set of [node
+specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
+`table`, `table_row`, and `table_cell` nodes types as used by this
+module. The result can then be added to the set of nodes when creating
+a a schema.
 
 The following options are recognized:
 
  * **`tableGroup`**`: ?string`  
-   A group name (something like `"block"`) to add to the table
+   A group name (something like `"block"`) to ad dto the table
    node type.
 
  * **`cellContent`**`: string`  

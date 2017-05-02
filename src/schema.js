@@ -24,9 +24,9 @@ function setCellAttrs(node, extraAttrs) {
   return attrs
 }
 
-// :: (OrderedMap, Object) → OrderedMap
-// Extend the given map of schema nodes to include `table`,
-// `table_row`, and `table_cell` nodes as used by this module.
+// :: (Object) → Object
+// Create a set of node specs for `table`, `table_row`, and
+// `table_cell` nodes as used by this module.
 //
 //   options::- The following options are understood:
 //
@@ -50,7 +50,7 @@ function setCellAttrs(node, extraAttrs) {
 //       setDOMAttr:: ?(value: any, attrs: Object)>
 //       A function to add the attribute's value to an attribute
 //       object that's used to render the cell's DOM.
-function addTableNodes(nodes, options) {
+function tableNodes(options) {
   let extraAttrs = options.cellAttributes || {}
   let cellAttrs = {
     colspan: {default: 1},
@@ -59,7 +59,7 @@ function addTableNodes(nodes, options) {
   for (let prop in extraAttrs)
     cellAttrs[prop] = {default: extraAttrs[prop].default}
 
-  return nodes.append({
+  return {
     table: {
       content: "table_row+",
       attrs: {header: {default: null}},
@@ -86,6 +86,6 @@ function addTableNodes(nodes, options) {
                  {tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) { return ["td", setCellAttrs(node, extraAttrs), 0] }
     }
-  })
+  }
 }
-exports.addTableNodes = addTableNodes
+exports.tableNodes = tableNodes

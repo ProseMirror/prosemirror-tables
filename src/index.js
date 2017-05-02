@@ -10,7 +10,7 @@ const {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} = require
 const {key} = require("./util")
 const {drawCellSelection, CellSelection} = require("./cellselection")
 const {fixTables} = require("./fixtables")
-const {addTableNodes} = require("./schema")
+const {tableNodes} = require("./schema")
 const commands = require("./commands")
 
 exports.tableEditing = function() {
@@ -53,6 +53,6 @@ exports.tableEditing = function() {
   })
 }
 
-exports.addTableNodes = addTableNodes
+exports.tableNodes = tableNodes
 exports.CellSelection = CellSelection
 for (let name in commands) exports[name] = commands[name]

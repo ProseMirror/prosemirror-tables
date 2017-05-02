@@ -9,10 +9,10 @@ import {MenuItem, Dropdown}  from "prosemirror-menu"
 
 import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
         mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell, deleteTable}  from "./src/commands"
-import {tableEditing, addTableNodes}  from "./src"
+import {tableEditing, tableNodes}  from "./src"
 
 let schema = new Schema({
-  nodes: addTableNodes(baseSchema.spec.nodes, {
+  nodes: baseSchema.spec.nodes.append(tableNodes({
     tableGroup: "block",
     cellContent: "block+",
     cellAttributes: {
@@ -22,7 +22,7 @@ let schema = new Schema({
         setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
       }
     }
-  }),
+  })),
   marks: baseSchema.spec.marks
 })
 

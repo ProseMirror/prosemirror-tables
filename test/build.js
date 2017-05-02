@@ -1,18 +1,18 @@
 const {Schema} = require("prosemirror-model")
 const {TextSelection, NodeSelection} = require("prosemirror-state")
 const {schema: baseSchema} = require("prosemirror-schema-basic")
-const {addTableNodes} = require("../src/schema")
+const {tableNodes} = require("../src/schema")
 const {cellAround} = require("../src/util")
 const {CellSelection} = require("../src/cellselection")
 
 let schema = new Schema({
-  nodes: addTableNodes(baseSchema.spec.nodes, {
+  nodes: baseSchema.spec.append(tableNodes({
     tableGroup: "block",
     cellContent: "block+",
     cellAttributes: {
       test: {default: "default"}
     }
-  }),
+  })),
   marks: baseSchema.spec.marks
 })
 
