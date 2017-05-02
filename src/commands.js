@@ -361,3 +361,18 @@ function goToNextCell(direction) {
   }
 }
 exports.goToNextCell = goToNextCell
+
+// :: (EditorState, ?(tr: Transaction)) → bool
+// Deletes the table around the selection, if any.
+function deleteTable(state, dispatch) {
+  let $pos = state.selection.$anchor
+  for (let d = $pos.depth; d > 0; d--) {
+    let node = $pos.node(d)
+    if (node.type.name == "table") {
+      if (dispatch) dispatch(state.tr.delete($pos.before(d), $pos.after(d)).scrollIntoView())
+      return true
+    }
+  }
+  return false
+}
+exports.deleteTable = deleteTable

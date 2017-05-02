@@ -139,3 +139,6 @@ into consistency issues.
 **`goToNextCell`**`(direction: number) → (EditorState, dispatch: ?(tr: Transaction)) → bool`  
 Returns a command for selecting the next (direction=1) or previous
 (direction=-1) cell in a table.
+
+**`deleteTable`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+Deletes the table around the selection, if any.
