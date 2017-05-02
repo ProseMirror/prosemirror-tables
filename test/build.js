@@ -6,7 +6,7 @@ const {cellAround} = require("../src/util")
 const {CellSelection} = require("../src/cellselection")
 
 let schema = new Schema({
-  nodes: baseSchema.spec.append(tableNodes({
+  nodes: baseSchema.spec.nodes.append(tableNodes({
     tableGroup: "block",
     cellContent: "block+",
     cellAttributes: {
