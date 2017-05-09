@@ -82,6 +82,7 @@ function tableNodes(options) {
     table_cell: {
       content: options.cellContent,
       attrs: cellAttrs,
+      isolating: true,
       parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)},
                  {tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) { return ["td", setCellAttrs(node, extraAttrs), 0] }
