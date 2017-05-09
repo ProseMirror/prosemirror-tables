@@ -3,7 +3,7 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
-const {Selection, TextSelection, SelectionRange} = require("prosemirror-state")
+const {Selection, TextSelection, NodeSelection, SelectionRange} = require("prosemirror-state")
 const {Decoration, DecorationSet} = require("prosemirror-view")
 const {Fragment, Slice} = require("prosemirror-model")
 
@@ -221,4 +221,35 @@ exports.drawCellSelection = function(state) {
     cells.push(Decoration.node(pos, pos + node.nodeSize, {class: "selectedCell"}))
   })
   return DecorationSet.create(state.doc, cells)
+}
+
+function isCellBoundarySelection({$from, $to}) {
+  if ($from.pos == $to.pos || $from.pos < $from.pos - 6) return false // Cheap elimination
+  let afterFrom = $from.pos, beforeTo = $to.pos, depth = $from.depth
+  for (; depth >= 0; depth--, afterFrom++)
+    if ($from.after(depth + 1) < $from.end(depth)) break
+  for (let d = $to.depth; d >= 0; d--, beforeTo--)
+    if ($to.before(d + 1) > $to.start(d)) break
+  return afterFrom == beforeTo && /row|table/.test($from.node(depth).type.spec.tableRole)
+}
+
+exports.normalizeSelection = function(state, tr) {
+  let sel = (tr || state).selection, doc = (tr || state).doc, normalize, role
+  if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
+    if (role == "cell") {
+      normalize = CellSelection.create(doc, sel.from)
+    } else if (role == "row") {
+      let $cell = doc.resolve(sel.from + 1)
+      normalize = CellSelection.rowSelection($cell, $cell)
+    } else {
+      let map = TableMap.get(sel.node), start = sel.from + 1
+      let lastCell = start + map.map[map.width * map.height - 1]
+      normalize = CellSelection.create(doc, start + 1, lastCell)
+    }
+  } else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) {
+    normalize = TextSelection.create(doc, sel.from)
+  }
+  if (normalize)
+    (tr || (tr = state.tr)).setSelection(normalize)
+  return tr
 }

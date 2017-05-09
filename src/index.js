@@ -8,7 +8,7 @@ const {Plugin} = require("prosemirror-state")
 
 const {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} = require("./input")
 const {key} = require("./util")
-const {drawCellSelection, CellSelection} = require("./cellselection")
+const {drawCellSelection, CellSelection, normalizeSelection} = require("./cellselection")
 const {fixTables} = require("./fixtables")
 const {tableNodes} = require("./schema")
 const commands = require("./commands")
@@ -49,7 +49,9 @@ exports.tableEditing = function() {
       handlePaste
     },
 
-    appendTransaction(_, oldState, state) { return fixTables(state, oldState) }
+    appendTransaction(_, oldState, state) {
+      return normalizeSelection(state, fixTables(state, oldState))
+    }
   })
 }
 
