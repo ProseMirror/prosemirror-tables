@@ -24,10 +24,10 @@ const {CellSelection} = require("./cellselection")
 // nodes of the slice aren't table cells or rows.
 exports.pastedCells = function(slice) {
   if (!slice.size) return null
-  let {content, openLeft, openRight} = slice
-  while (content.childCount == 1 && (openLeft > 0 && openRight > 0 || content.firstChild.type.spec.tableRole == "table")) {
-    openLeft--
-    openRight--
+  let {content, openStart, openEnd} = slice
+  while (content.childCount == 1 && (openStart > 0 && openEnd > 0 || content.firstChild.type.spec.tableRole == "table")) {
+    openStart--
+    openEnd--
     content = content.firstChild.content
   }
   let first = content.firstChild, role = first.type.spec.tableRole
@@ -35,13 +35,13 @@ exports.pastedCells = function(slice) {
   if (role == "row") {
     for (let i = 0; i < content.childCount; i++) {
       let cells = content.child(i).content
-      let left = i ? 0 : Math.max(0, openLeft - 1)
-      let right = i < content.childCount - 1 ? 0 : Math.max(0, openRight - 1)
+      let left = i ? 0 : Math.max(0, openStart - 1)
+      let right = i < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1)
       if (left || right) cells = fitSlice(schema.nodes.table_row, new Slice(cells, left, right)).content
       rows.push(cells)
     }
   } else if (role == "cell") {
-    rows.push(openLeft || openRight ? fitSlice(schema.nodes.table_row, new Slice(content, openLeft, openRight)).content : content)
+    rows.push(openStart || openEnd ? fitSlice(schema.nodes.table_row, new Slice(content, openStart, openEnd)).content : content)
   } else {
     return null
   }
