@@ -37,7 +37,7 @@ function changedDescendants(old, cur, offset, f) {
 // document.
 exports.fixTables = function(state, oldState) {
   let tr, check = (node, pos) => {
-    if (node.type.name == "table") tr = fixTable(state, node, pos, tr)
+    if (node.type.spec.tableRole == "table") tr = fixTable(state, node, pos, tr)
   }
   if (!oldState) state.doc.descendants(check)
   else if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, check)

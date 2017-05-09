@@ -25,14 +25,14 @@ const {CellSelection} = require("./cellselection")
 exports.pastedCells = function(slice) {
   if (!slice.size) return null
   let {content, openLeft, openRight} = slice
-  while (content.childCount == 1 && (openLeft > 0 && openRight > 0 || content.firstChild.type.name == "table")) {
+  while (content.childCount == 1 && (openLeft > 0 && openRight > 0 || content.firstChild.type.spec.tableRole == "table")) {
     openLeft--
     openRight--
     content = content.firstChild.content
   }
-  let first = content.firstChild, type = first.type.name
+  let first = content.firstChild, role = first.type.spec.tableRole
   let schema = first.type.schema, rows = []
-  if (type == "table_row") {
+  if (role == "row") {
     for (let i = 0; i < content.childCount; i++) {
       let cells = content.child(i).content
       let left = i ? 0 : Math.max(0, openLeft - 1)
@@ -40,7 +40,7 @@ exports.pastedCells = function(slice) {
       if (left || right) cells = fitSlice(schema.nodes.table_row, new Slice(cells, left, right)).content
       rows.push(cells)
     }
-  } else if (type == "table_cell") {
+  } else if (role == "cell") {
     rows.push(openLeft || openRight ? fitSlice(schema.nodes.table_row, new Slice(content, openLeft, openRight)).content : content)
   } else {
     return null

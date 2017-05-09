@@ -203,8 +203,8 @@ class CellBookmark {
   }
   resolve(doc) {
     let $anchorCell = doc.resolve(this.anchor), $headCell = doc.resolve(this.head)
-    if ($anchorCell.parent.type.name == "table_row" &&
-        $headCell.parent.type.name == "table_row" &&
+    if ($anchorCell.parent.type.spec.tableRole == "row" &&
+        $headCell.parent.type.spec.tableRole == "row" &&
         $anchorCell.index() < $anchorCell.parent.childCount &&
         $headCell.index() < $headCell.parent.childCount &&
         inSameTable($anchorCell, $headCell))

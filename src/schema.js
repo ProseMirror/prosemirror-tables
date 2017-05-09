@@ -63,6 +63,7 @@ function tableNodes(options) {
     table: {
       content: "table_row+",
       attrs: {header: {default: null}},
+      tableRole: "table",
       group: options.tableGroup,
       parseDOM: [{tag: "table", getAttrs(dom) {
         let headerTop = dom.classList.contains("header-top"), headerLeft = dom.classList.contains("header-left")
@@ -76,12 +77,14 @@ function tableNodes(options) {
     },
     table_row: {
       content: "table_cell*",
+      tableRole: "row",
       parseDOM: [{tag: "tr"}],
       toDOM() { return ["tr", 0] }
     },
     table_cell: {
       content: options.cellContent,
       attrs: cellAttrs,
+      tableRole: "cell",
       isolating: true,
       parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)},
                  {tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],

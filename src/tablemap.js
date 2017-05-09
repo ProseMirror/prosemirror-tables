@@ -142,7 +142,7 @@ exports.TableMap = TableMap
 
 // Compute a table map.
 function computeMap(table) {
-  if (table.type.name != "table") throw new RangeError("Not a table node: " + table.type.name)
+  if (table.type.spec.tableRole != "table") throw new RangeError("Not a table node: " + table.type.name)
   let width = findWidth(table), height = table.childCount
   let map = [], mapPos = 0, problems = null
   for (let i = 0, e = width * height; i < e; i++) map[i] = 0
