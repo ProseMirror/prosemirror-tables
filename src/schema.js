@@ -62,21 +62,13 @@ function tableNodes(options) {
   return {
     table: {
       content: "table_row+",
-      attrs: {header: {default: null}},
       tableRole: "table",
       group: options.tableGroup,
-      parseDOM: [{tag: "table", getAttrs(dom) {
-        let headerTop = dom.classList.contains("header-top"), headerLeft = dom.classList.contains("header-left")
-        return {header: headerTop && headerLeft ? "both" : headerTop ? "top" : headerLeft ? "left" : null}
-      }}],
-      toDOM(node) {
-        let header = node.attrs.header
-        let cls = header == "both" ? "header-top header-left" : header ? "header-" + header : null
-        return ["table", cls ? {class: cls} : {}, ["tbody", 0]]
-      }
+      parseDOM: [{tag: "table"}],
+      toDOM(node) { return ["table", ["tbody", 0]] }
     },
     table_row: {
-      content: "table_cell*",
+      content: "(table_cell | table_header)*",
       tableRole: "row",
       parseDOM: [{tag: "tr"}],
       toDOM() { return ["tr", 0] }
@@ -86,9 +78,16 @@ function tableNodes(options) {
       attrs: cellAttrs,
       tableRole: "cell",
       isolating: true,
-      parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)},
-                 {tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
+      parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) { return ["td", setCellAttrs(node, extraAttrs), 0] }
+    },
+    table_header: {
+      content: options.cellContent,
+      attrs: cellAttrs,
+      tableRole: "cell",
+      isolating: true,
+      parseDOM: [{tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
+      toDOM(node) { return ["th", setCellAttrs(node, extraAttrs), 0] }
     }
   }
 }
