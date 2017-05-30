@@ -127,25 +127,35 @@ exports.clipCells = function({width, height, rows}, newWidth, newHeight) {
 // Make sure a table has at least the given width and height. Return
 // true if something was changed.
 function growTable(tr, map, table, start, width, height, mapFrom) {
-  let schema = tr.doc.type.schema, types = tableNodeTypes(schema), empty
+  let schema = tr.doc.type.schema, types = tableNodeTypes(schema), empty, emptyHead
   if (width > map.width) {
-    empty = types.cell.createAndFill()
     for (let row = 0, rowEnd = 0; row < map.height; row++) {
-      rowEnd += table.child(row).nodeSize
-      let cells = []
-      for (let i = map.width; i < width; i++) cells.push(empty)
+      let rowNode = table.child(row)
+      rowEnd += rowNode.nodeSize
+      let cells = [], add
+      if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell)
+        add = empty || (empty = types.cell.createAndFill())
+      else
+        add = emptyHead || (emptyHead = types.header_cell.createAndFill())
+      for (let i = map.width; i < width; i++) cells.push(add)
       tr.insert(tr.mapping.slice(mapFrom).map(rowEnd - 1 + start), cells)
     }
   }
   if (height > map.height) {
-    empty = empty || types.cell.createAndFill()
     let cells = []
-    for (let i = 0; i < Math.max(map.width, width); i++) cells.push(empty)
+    for (let i = 0, start = (map.height - 1) * map.width; i < Math.max(map.width, width); i++) {
+      let header = i >= map.width ? false :
+          table.nodeAt(map.map[start + i]).type == types.header_cell
+      cells.push(header
+                 ? (emptyHead || (emptyHead = types.header_cell.createAndFill()))
+                 : (empty || (empty = types.cell.createAndFill())))
+    }
+
     let emptyRow = types.row.create(null, Fragment.from(cells)), rows = []
     for (let i = map.height; i < height; i++) rows.push(emptyRow)
     tr.insert(tr.mapping.slice(mapFrom).map(start + table.nodeSize - 2), rows)
   }
-  return !!empty
+  return !!(empty || emptyHead)
 }
 
 // Make sure the given line (left, top) to (right, top) doesn't cross

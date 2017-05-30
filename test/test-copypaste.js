@@ -2,7 +2,7 @@ const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 const {Fragment} = require("prosemirror-model")
 
-const {doc, table, p, tr, td, cEmpty, c11, c, cAnchor, eq} = require("./build")
+const {doc, table, p, tr, td, cEmpty, c11, h11, hEmpty, c, cAnchor, eq} = require("./build")
 const {cellAround} = require("../src/util")
 const {TableMap} = require("../src/tablemap")
 const {pastedCells, insertCells, clipCells} = require("../src/copypaste")
@@ -101,6 +101,12 @@ describe("insertCells", () => {
      test(table(tr(cAnchor)),
           table(tr(td(p("<a>foo")), cEmpty), tr(c(2, 1), "<b>")),
           table(tr(td(p("foo")), cEmpty), tr(c(2, 1)))))
+
+  it("preserves headers while growing a table", () =>
+     test(table(tr(h11, h11, h11), tr(h11, c11, c11), tr(h11, c11, cAnchor)),
+          table(tr(td(p("<a>foo")), cEmpty), tr(c11, c11, "<b>")),
+          table(tr(h11, h11, h11, hEmpty), tr(h11, c11, c11, cEmpty),
+                tr(h11, c11, td(p("foo")), cEmpty), tr(hEmpty, cEmpty, c11, c11))))
 
   it("will split interfering rowspan cells", () =>
      test(table(tr(c11, c(1, 4), c11), tr(cAnchor, c11), tr(c11, c11), tr(c11, c11)),
