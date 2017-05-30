@@ -65,7 +65,7 @@ function tableNodes(options) {
       tableRole: "table",
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
-      toDOM(node) { return ["table", ["tbody", 0]] }
+      toDOM() { return ["table", ["tbody", 0]] }
     },
     table_row: {
       content: "(table_cell | table_header)*",

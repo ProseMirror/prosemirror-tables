@@ -36,6 +36,7 @@ e.h = function(colspan, rowspan) {
   return e.th({colspan, rowspan}, e.p("x"))
 }
 e.h11 = e.h(1, 1)
+e.hEmpty = e.th(e.p())
 e.hCursor = e.th(e.p("x<cursor>"))
 
 e.eq = function(a, b) { return a.eq(b) }

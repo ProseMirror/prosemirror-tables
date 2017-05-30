@@ -1,7 +1,7 @@
 const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
-const {doc, table, tr, p, td, c, c11, h11, hCursor, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
+const {doc, table, tr, p, td, c, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
        mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../src/commands")
 
@@ -63,6 +63,21 @@ describe("addColumnAfter", () => {
           addColumnAfter,
           table(tr(c11, cEmpty, c11), tr(c11, cEmpty, c11))))
 
+  it("preserves header rows", () =>
+     test(table(tr(h11, h11), tr(c11, cCursor)),
+          addColumnAfter,
+          table(tr(h11, h11, hEmpty), tr(c11, c11, cEmpty))))
+
+  it("uses column after as reference when header column before", () =>
+     test(table(tr(h11, h11), tr(hCursor, c11)),
+          addColumnAfter,
+          table(tr(h11, hEmpty, h11), tr(h11, cEmpty, c11))))
+
+  it("creates regular cells when only next to a header column", () =>
+     test(table(tr(c11, h11), tr(c11, hCursor)),
+          addColumnAfter,
+          table(tr(c11, h11, cEmpty), tr(c11, h11, cEmpty))))
+
   it("does nothing outside of a table", () =>
      test(doc(p("foo<cursor>")),
           addColumnAfter,
@@ -89,6 +104,11 @@ describe("addColumnBefore", () => {
      test(table(tr(c11, cHead, c11), tr(c11, c11, cAnchor)),
           addColumnBefore,
           table(tr(c11, cEmpty, c11, c11), tr(c11, cEmpty, c11, c11))))
+
+  it("preserves header rows", () =>
+     test(table(tr(h11, h11), tr(cCursor, c11)),
+          addColumnBefore,
+          table(tr(hEmpty, h11, h11), tr(cEmpty, c11, c11))))
 })
 
 describe("deleteColumn", () => {
@@ -158,6 +178,21 @@ describe("addRowAfter", () => {
      test(table(tr(cHead, c11, c11), tr(c11, cAnchor, c11), tr(c(3, 1))),
           addRowAfter,
           table(tr(c11, c11, c11), tr(c11, c11, c11), tr(cEmpty, cEmpty, cEmpty), tr(c(3, 1)))))
+
+  it("preserves header columns", () =>
+     test(table(tr(c11, hCursor), tr(c11, h11)),
+          addRowAfter,
+          table(tr(c11, h11), tr(cEmpty, hEmpty), tr(c11, h11))))
+
+  it("uses next row as reference when row before is a header", () =>
+     test(table(tr(h11, hCursor), tr(c11, h11)),
+          addRowAfter,
+          table(tr(h11, h11), tr(cEmpty, hEmpty), tr(c11, h11))))
+
+  it("creates regular cells when no reference row is available", () =>
+     test(table(tr(h11, hCursor)),
+          addRowAfter,
+          table(tr(h11, h11), tr(cEmpty, cEmpty))))
 })
 
 describe("addRowBefore", () => {
@@ -175,6 +210,11 @@ describe("addRowBefore", () => {
      test(table(tr(c11, c(2, 1)), tr(cAnchor, c11, c11), tr(c11, cHead, c11)),
           addRowBefore,
           table(tr(c11, c(2, 1)), tr(cEmpty, cEmpty, cEmpty), tr(c11, c11, c11), tr(c11, c11, c11))))
+
+  it("preserves header columns", () =>
+     test(table(tr(hCursor, c11), tr(h11, c11)),
+          addRowBefore,
+          table(tr(hEmpty, cEmpty), tr(h11, c11), tr(h11, c11))))
 })
 
 describe("deleteRow", () => {

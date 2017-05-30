@@ -25,8 +25,20 @@ function selectedRect(state) {
   return rect
 }
 
+function columnIsHeader(map, table, col) {
+  let headerCell = tableNodeTypes(table.type.schema).header_cell
+  for (let row = 0; row < map.height; row++)
+    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+      return false
+  return true
+}
+
 // Add a column at the given position in a table.
 function addColumn(tr, {map, tableStart, table}, col) {
+  let refColumn = col > 0 ? -1 : 0
+  if (columnIsHeader(map, table, col + refColumn))
+    refColumn = col == 0 || col == map.width ? null : 0
+
   for (let row = 0; row < map.height; row++) {
     let index = row * map.width + col
     // If this position falls inside a col-spanning cell
@@ -37,8 +49,10 @@ function addColumn(tr, {map, tableStart, table}, col) {
       // Skip ahead if rowspan > 1
       row += cell.attrs.rowspan - 1
     } else {
+      let type = refColumn == null ? tableNodeTypes(table.type.schema).cell
+          : table.nodeAt(map.map[index + refColumn]).type
       let pos = map.positionAt(row, col, table)
-      tr.insert(tr.mapping.map(tableStart + pos), tableNodeTypes(table.type.schema).cell.createAndFill())
+      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill())
     }
   }
   return tr
@@ -103,10 +117,20 @@ function deleteColumn(state, dispatch) {
 }
 exports.deleteColumn = deleteColumn
 
+function rowIsHeader(map, table, row) {
+  let headerCell = tableNodeTypes(table.type.schema).header_cell
+  for (let col = 0; col < map.width; col++)
+    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+      return false
+  return true
+}
+
 function addRow(tr, {map, tableStart, table}, row) {
   let rowPos = tableStart
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
-  let cells = []
+  let cells = [], refRow = row > 0 ? -1 : 0
+  if (rowIsHeader(map, table, row + refRow))
+    refRow = row == 0 || row == map.height ? null : 0
   for (let col = 0, index = map.width * row; col < map.width; col++, index++) {
     // Covered by a rowspan cell
     if (row > 0 && row < map.height && map.map[index] == map.map[index - map.width]) {
@@ -114,7 +138,9 @@ function addRow(tr, {map, tableStart, table}, row) {
       tr.setNodeType(tableStart + pos, null, setAttr(attrs, "rowspan", attrs.rowspan + 1))
       col += attrs.colspan - 1
     } else {
-      cells.push(tableNodeTypes(table.type.schema).cell.createAndFill())
+      let type = refRow == null ? tableNodeTypes(table.type.schema).cell
+          : table.nodeAt(map.map[index + refRow * map.width]).type
+      cells.push(type.createAndFill())
     }
   }
   tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells))
