@@ -84,7 +84,7 @@ function tableNodes(options) {
     table_header: {
       content: options.cellContent,
       attrs: cellAttrs,
-      tableRole: "cell",
+      tableRole: "header_cell",
       isolating: true,
       parseDOM: [{tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) { return ["th", setCellAttrs(node, extraAttrs), 0] }
@@ -92,3 +92,16 @@ function tableNodes(options) {
   }
 }
 exports.tableNodes = tableNodes
+
+function tableNodeTypes(schema) {
+  let result = schema.cached.tableNodeTypes
+  if (!result) {
+    result = schema.cached.tableNodeTypes = {}
+    for (let name in schema.nodes) {
+      let type = schema.nodes[name], role = type.spec.tableRole
+      if (role) result[role] = type
+    }
+  }
+  return result
+}
+exports.tableNodeTypes = tableNodeTypes

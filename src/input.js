@@ -10,6 +10,7 @@ const {key, nextCell, cellAround, inSameTable,
 const {CellSelection} = require("./cellselection")
 const {TableMap} = require("./tablemap")
 const {pastedCells, fitSlice, clipCells, insertCells} = require("./copypaste")
+const {tableNodeTypes} = require("./schema")
 
 exports.handleKeyDown = keydownHandler({
   "ArrowLeft": arrow("horiz", -1),
@@ -71,7 +72,7 @@ function deleteCellSelection(state, dispatch) {
   let sel = state.selection
   if (!(sel instanceof CellSelection)) return false
   if (dispatch) {
-    let tr = state.tr, baseContent = state.schema.nodes.table_cell.createAndFill().content
+    let tr = state.tr, baseContent = tableNodeTypes(state.schema).cell.createAndFill().content
     sel.forEachCell((cell, pos) => {
       if (!cell.content.eq(baseContent))
         tr.replace(tr.mapping.map(pos + 1), tr.mapping.map(pos + cell.nodeSize - 1),
@@ -93,7 +94,7 @@ exports.handlePaste = function(view, _, slice) {
   if (!isInTable(view.state)) return false
   let cells = pastedCells(slice), sel = view.state.selection
   if (sel instanceof CellSelection) {
-    if (!cells) cells = {width: 1, height: 1, rows: [Fragment.from(fitSlice(view.state.schema.nodes.table_cell, slice))]}
+    if (!cells) cells = {width: 1, height: 1, rows: [Fragment.from(fitSlice(tableNodeTypes(view.state.schema).cell, slice))]}
     let table = sel.$anchorCell.node(-1), start = sel.$anchorCell.start(-1)
     let rect = TableMap.get(table).rectBetween(sel.$anchorCell.pos - start, sel.$headCell.pos - start)
     cells = clipCells(cells, rect.right - rect.left, rect.bottom - rect.top)
@@ -176,7 +177,7 @@ function atEndOfCell(view, axis, dir) {
   for (let d = $head.depth - 1; d >= 0; d--) {
     let parent = $head.node(d), index = dir < 0 ? $head.index(d) : $head.indexAfter(d)
     if (index != (dir < 0 ? 0 : parent.childCount)) return null
-    if (parent.type.spec.tableRole == "cell") {
+    if (parent.type.spec.tableRole == "cell" || parent.type.spec.tableRole == "header_cell") {
       let cellPos = $head.before(d)
       let dirStr = axis == "vert" ? (dir > 0 ? "down" : "up") : (dir > 0 ? "right" : "left")
       return view.endOfTextblock(dirStr) ? cellPos : null

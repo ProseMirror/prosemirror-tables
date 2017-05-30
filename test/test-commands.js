@@ -1,9 +1,9 @@
 const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
-const {doc, table, tr, p, td, c, c11, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
+const {doc, table, tr, p, td, c, c11, h11, hCursor, cEmpty, cCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, setTableHeader} = require("../src/commands")
+       mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../src/commands")
 
 function test(doc, command, result) {
   let state = EditorState.create({doc, selection: selectionFor(doc)})
@@ -307,29 +307,36 @@ describe("setCellAttr", () => {
           table(tr(c11, cAttr, cAttr), tr(c(2, 1), cAttr), tr(c11, c11, c11))))
 })
 
-describe("setTableHeader", () => {
-  it("does nothing when it would be a no-op", () =>
-     test(doc(table(tr(cCursor))),
-          setTableHeader("left", false),
-          null))
+describe("toggleHeaderRow", () => {
+  it("turns a non-header row into header", () =>
+     test(doc(table(tr(cCursor, c11), tr(c11, c11))),
+          toggleHeaderRow,
+          doc(table(tr(h11, h11), tr(c11, c11)))))
 
-  it("can set an initial table header", () =>
-     test(doc(table(tr(cCursor))),
-          setTableHeader("left", true),
-          doc(table({header: "left"}, tr(c11)))))
+  it("turns a header row into regular cells", () =>
+     test(doc(table(tr(hCursor, h11), tr(c11, c11))),
+          toggleHeaderRow,
+          doc(table(tr(c11, c11), tr(c11, c11)))))
 
-  it("can set a second table header", () =>
-     test(doc(table({header: "top"}, tr(cCursor))),
-          setTableHeader("left", true),
-          doc(table({header: "both"}, tr(c11)))))
+  it("turns a partial header row into regular cells", () =>
+     test(doc(table(tr(cCursor, h11), tr(c11, c11))),
+          toggleHeaderRow,
+          doc(table(tr(c11, c11), tr(c11, c11)))))
+})
 
-  it("can remove a single header", () =>
-     test(doc(table({header: "top"}, tr(cCursor))),
-          setTableHeader("top", false),
-          doc(table(tr(c11)))))
+describe("toggleHeaderColumn", () => {
+  it("turns a non-header column into header", () =>
+     test(doc(table(tr(cCursor, c11), tr(c11, c11))),
+          toggleHeaderColumn,
+          doc(table(tr(h11, c11), tr(h11, c11)))))
 
-  it("can remove one of two headers", () =>
-     test(doc(table({header: "both"}, tr(cCursor))),
-          setTableHeader("top", false),
-          doc(table({header: "left"}, tr(c11)))))
+  it("turns a header column into regular cells", () =>
+     test(doc(table(tr(hCursor, h11), tr(h11, c11))),
+          toggleHeaderColumn,
+          doc(table(tr(c11, h11), tr(c11, c11)))))
+
+  it("turns a partial header column into regular cells", () =>
+     test(doc(table(tr(hCursor, c11), tr(c11, c11))),
+          toggleHeaderColumn,
+          doc(table(tr(c11, c11), tr(c11, c11)))))
 })

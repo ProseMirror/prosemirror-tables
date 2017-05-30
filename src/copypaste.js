@@ -16,6 +16,7 @@ const {Transform} = require("prosemirror-transform")
 const {setAttr} = require("./util")
 const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
+const {tableNodeTypes} = require("./schema")
 
 // Utilities to help with copying and pasting table cells
 
@@ -37,11 +38,11 @@ exports.pastedCells = function(slice) {
       let cells = content.child(i).content
       let left = i ? 0 : Math.max(0, openStart - 1)
       let right = i < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1)
-      if (left || right) cells = fitSlice(schema.nodes.table_row, new Slice(cells, left, right)).content
+      if (left || right) cells = fitSlice(tableNodeTypes(schema).row, new Slice(cells, left, right)).content
       rows.push(cells)
     }
-  } else if (role == "cell") {
-    rows.push(openStart || openEnd ? fitSlice(schema.nodes.table_row, new Slice(content, openStart, openEnd)).content : content)
+  } else if (role == "cell" || role == "header_cell") {
+    rows.push(openStart || openEnd ? fitSlice(tableNodeTypes(schema).row, new Slice(content, openStart, openEnd)).content : content)
   } else {
     return null
   }
@@ -66,7 +67,7 @@ function ensureRectangular(schema, rows) {
   for (let r = 0; r < widths.length; r++) {
     if (r >= rows.length) rows.push(Fragment.empty)
     if (widths[r] < width) {
-      let empty = schema.nodes.table_cell.createAndFill(), cells = []
+      let empty = tableNodeTypes(schema).cell.createAndFill(), cells = []
       for (let i = widths[r]; i < width; i++) cells.push(empty)
       rows[r] = rows[r].append(Fragment.from(cells))
     }
@@ -126,9 +127,9 @@ exports.clipCells = function({width, height, rows}, newWidth, newHeight) {
 // Make sure a table has at least the given width and height. Return
 // true if something was changed.
 function growTable(tr, map, table, start, width, height, mapFrom) {
-  let schema = tr.doc.type.schema, empty
+  let schema = tr.doc.type.schema, types = tableNodeTypes(schema), empty
   if (width > map.width) {
-    empty = schema.nodes.table_cell.createAndFill()
+    empty = types.cell.createAndFill()
     for (let row = 0, rowEnd = 0; row < map.height; row++) {
       rowEnd += table.child(row).nodeSize
       let cells = []
@@ -137,10 +138,10 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
     }
   }
   if (height > map.height) {
-    empty = empty || schema.nodes.table_cell.createAndFill()
+    empty = empty || types.cell.createAndFill()
     let cells = []
     for (let i = 0; i < Math.max(map.width, width); i++) cells.push(empty)
-    let emptyRow = schema.nodes.table_row.create(null, Fragment.from(cells)), rows = []
+    let emptyRow = types.row.create(null, Fragment.from(cells)), rows = []
     for (let i = map.height; i < height; i++) rows.push(emptyRow)
     tr.insert(tr.mapping.slice(mapFrom).map(start + table.nodeSize - 2), rows)
   }

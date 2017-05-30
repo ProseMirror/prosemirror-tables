@@ -5,6 +5,7 @@
 
 const {TableMap} = require("./tablemap")
 const {setAttr} = require("./util")
+const {tableNodeTypes} = require("./schema")
 
 // Helper for iterating through the nodes in a document that changed
 // compared to the given previous document. Useful for avoiding
@@ -84,7 +85,7 @@ let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
     if (add > 0) {
       let nodes = []
       for (let j = 0; j < add; j++)
-        nodes.push(state.schema.nodes.table_cell.createAndFill())
+        nodes.push(tableNodeTypes(state.schema).cell.createAndFill())
       let side = (i == 0 || first == i - 1) && last == i ? pos + 1 : end - 1
       tr.insert(tr.mapping.map(side), nodes)
     }

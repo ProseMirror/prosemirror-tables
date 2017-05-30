@@ -20,7 +20,7 @@ let e = module.exports = require("prosemirror-test-builder/dist/build")(schema, 
   p: {nodeType: "paragraph"},
   tr: {nodeType: "table_row"},
   td: {nodeType: "table_cell"},
-  th: {nodeType: "table_heading"}
+  th: {nodeType: "table_header"}
 })
 
 e.c = function(colspan, rowspan) {
@@ -31,6 +31,12 @@ e.cEmpty = e.td(e.p())
 e.cCursor = e.td(e.p("x<cursor>"))
 e.cAnchor = e.td(e.p("x<anchor>"))
 e.cHead = e.td(e.p("x<head>"))
+
+e.h = function(colspan, rowspan) {
+  return e.th({colspan, rowspan}, e.p("x"))
+}
+e.h11 = e.h(1, 1)
+e.hCursor = e.th(e.p("x<cursor>"))
 
 e.eq = function(a, b) { return a.eq(b) }
 

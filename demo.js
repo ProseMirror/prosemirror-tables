@@ -8,7 +8,8 @@ import {exampleSetup, buildMenuItems}  from "prosemirror-example-setup"
 import {MenuItem, Dropdown}  from "prosemirror-menu"
 
 import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-        mergeCells, splitCell, setCellAttr, setTableHeader, goToNextCell, deleteTable}  from "./src/commands"
+        mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell,
+        goToNextCell, deleteTable}  from "./src/commands"
 import {tableEditing, tableNodes}  from "./src"
 
 let schema = new Schema({
@@ -38,10 +39,9 @@ let tableMenu = [
   item("Delete table", deleteTable),
   item("Merge cells", mergeCells),
   item("Split cell", splitCell),
-  item("Remove left header", setTableHeader("left", false)),
-  item("Add left header", setTableHeader("left", true)),
-  item("Remove top header", setTableHeader("top", false)),
-  item("Add top header", setTableHeader("top", true)),
+  item("Toggle header column", toggleHeaderColumn),
+  item("Toggle header row", toggleHeaderRow),
+  item("Toggle header cells", toggleHeaderCell),
   item("Make cell green", setCellAttr("background", "#dfd")),
   item("Make cell not-green", setCellAttr("background", null))
 ]

@@ -129,12 +129,14 @@ Returns a command that sets the given attribute to the given value,
 and is only available when the currently selected cell doesn't
 already have that attribute set to that value.
 
-**`setTableHeader`**`(side: union<"left", "top">, on: bool) → (EditorState, dispatch: ?(tr: Transaction)) → bool`  
-Returns a comand to en- or disable the top or left heading for a
-table. Table headers are implemented with an attribute on the table
-node, as opposed to using different cell types, in order to support
-having the headers strictly ad the top and/or left, without running
-into consistency issues.
+**`toggleHeaderRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+Toggle the selected row or rows between header cells and normal cells.
+
+**`toggleHeaderColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+Toggle the selected column or columns between header cells and normal cells.
+
+**`toggleHeaderCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+Toggle the selected cells between header cells and normal cells.
 
 **`goToNextCell`**`(direction: number) → (EditorState, dispatch: ?(tr: Transaction)) → bool`  
 Returns a command for selecting the next (direction=1) or previous

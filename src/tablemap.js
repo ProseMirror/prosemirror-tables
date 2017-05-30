@@ -37,6 +37,7 @@ class Rect {
     this.left = left; this.top = top; this.right = right; this.bottom = bottom
   }
 }
+exports.Rect = Rect
 
 class TableMap {
   constructor(width, height, map, problems) {

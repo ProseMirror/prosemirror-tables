@@ -236,7 +236,7 @@ function isCellBoundarySelection({$from, $to}) {
 exports.normalizeSelection = function(state, tr) {
   let sel = (tr || state).selection, doc = (tr || state).doc, normalize, role
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
-    if (role == "cell") {
+    if (role == "cell" || role == "header_cell") {
       normalize = CellSelection.create(doc, sel.from)
     } else if (role == "row") {
       let $cell = doc.resolve(sel.from + 1)

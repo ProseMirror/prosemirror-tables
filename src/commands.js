@@ -3,9 +3,10 @@
 const {TextSelection} = require("prosemirror-state")
 const {Fragment} = require("prosemirror-model")
 
-const {TableMap} = require("./tablemap")
+const {TableMap, Rect} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
 const {setAttr, moveCellForward, isInTable, selectionCell} = require("./util")
+const {tableNodeTypes} = require("./schema")
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
@@ -37,7 +38,7 @@ function addColumn(tr, {map, tableStart, table}, col) {
       row += cell.attrs.rowspan - 1
     } else {
       let pos = map.positionAt(row, col, table)
-      tr.insert(tr.mapping.map(tableStart + pos), table.type.schema.nodes.table_cell.createAndFill())
+      tr.insert(tr.mapping.map(tableStart + pos), tableNodeTypes(table.type.schema).cell.createAndFill())
     }
   }
   return tr
@@ -113,10 +114,10 @@ function addRow(tr, {map, tableStart, table}, row) {
       tr.setNodeType(tableStart + pos, null, setAttr(attrs, "rowspan", attrs.rowspan + 1))
       col += attrs.colspan - 1
     } else {
-      cells.push(table.type.schema.nodes.table_cell.createAndFill())
+      cells.push(tableNodeTypes(table.type.schema).cell.createAndFill())
     }
   }
-  tr.insert(rowPos, table.type.schema.nodes.table_row.create(null, cells))
+  tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells))
   return tr
 }
 
@@ -261,7 +262,7 @@ function splitCell(state, dispatch) {
   if (dispatch) {
     let attrs = setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1)
     let rect = selectedRect(state), tr = state.tr
-    let newCell = state.schema.nodes.table_cell.createAndFill(attrs)
+    let newCell = tableNodeTypes(state.schema).cell.createAndFill(attrs)
     let lastCell
     for (let row = 0; row < rect.bottom; row++) {
       if (row >= rect.top) {
@@ -307,23 +308,43 @@ function setCellAttr(name, value) {
 }
 exports.setCellAttr = setCellAttr
 
-// :: (union<"left", "top">, bool) → (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Returns a comand to en- or disable the top or left heading for a
-// table.
-function setTableHeader(side, value) {
+function toggleHeader(type) {
   return function(state, dispatch) {
     if (!isInTable(state)) return false
-    let $cell = selectionCell(state), table = $cell.node(-1)
-    let attr = table.attrs.header, on = attr == "both" || attr == side
-    if (on == !!value) return false
     if (dispatch) {
-      let newAttr = value ? (attr ? "both" : side) : (attr == "both" ? (side == "left" ? "top" : "left") : null)
-      dispatch(state.tr.setNodeType($cell.before(-1), null, setAttr(table.attrs, "header", newAttr)))
+      let types = tableNodeTypes(state.schema)
+      let rect = selectedRect(state), tr = state.tr
+      let cells = rect.map.cellsInRect(type == "column" ? new Rect(rect.left, 0, rect.right, rect.map.height) :
+                                       type == "row" ? new Rect(0, rect.top, rect.map.width, rect.bottom) : rect)
+      let headers = []
+      for (let i = 0; i < cells.length; i++) {
+        let cell = rect.table.nodeAt(cells[i])
+        if (cell.type == types.header_cell) headers.push(cells[i])
+      }
+      if (headers.length) { // Remove headers
+        for (let i = 0; i < headers.length; i++)
+          tr.setNodeType(rect.tableStart + headers[i], types.cell)
+      } else { // Add headers
+        for (let i = 0; i < cells.length; i++)
+          tr.setNodeType(rect.tableStart + cells[i], types.header_cell)
+      }
+      dispatch(tr)
     }
     return true
   }
 }
-exports.setTableHeader = setTableHeader
+
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Toggles whether the selected row contains header cells.
+exports.toggleHeaderRow = toggleHeader("row")
+
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Toggles whether the selected column contains header cells.
+exports.toggleHeaderColumn = toggleHeader("column")
+
+// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Toggles whether the selected cells are header cells.
+exports.toggleHeaderCell = toggleHeader("cell")
 
 function findNextCell($cell, dir) {
   if (dir < 0) {
