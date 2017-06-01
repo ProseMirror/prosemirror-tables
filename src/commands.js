@@ -342,18 +342,12 @@ function toggleHeader(type) {
       let rect = selectedRect(state), tr = state.tr
       let cells = rect.map.cellsInRect(type == "column" ? new Rect(rect.left, 0, rect.right, rect.map.height) :
                                        type == "row" ? new Rect(0, rect.top, rect.map.width, rect.bottom) : rect)
-      let headers = []
-      for (let i = 0; i < cells.length; i++) {
-        let cell = rect.table.nodeAt(cells[i])
-        if (cell.type == types.header_cell) headers.push(cells[i])
-      }
-      if (headers.length) { // Remove headers
-        for (let i = 0; i < headers.length; i++)
-          tr.setNodeType(rect.tableStart + headers[i], types.cell)
-      } else { // Add headers
-        for (let i = 0; i < cells.length; i++)
-          tr.setNodeType(rect.tableStart + cells[i], types.header_cell)
-      }
+      let nodes = cells.map(pos => rect.table.nodeAt(pos))
+      for (let i = 0; i < cells.length; i++) // Remove headers, if any
+        if (nodes[i].type == types.header_cell)
+          tr.setNodeType(rect.tableStart + cells[i], types.cell, nodes[i].attrs)
+      if (tr.steps.length == 0) for (let i = 0; i < cells.length; i++) // No headers removed, add instead
+        tr.setNodeType(rect.tableStart + cells[i], types.header_cell, nodes[i].attrs)
       dispatch(tr)
     }
     return true

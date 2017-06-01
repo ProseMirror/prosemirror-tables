@@ -1,7 +1,7 @@
 const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
-const {doc, table, tr, p, td, c, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
+const {doc, table, tr, p, td, c, h, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
        mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../src/commands")
 
@@ -362,6 +362,11 @@ describe("toggleHeaderRow", () => {
      test(doc(table(tr(cCursor, h11), tr(c11, c11))),
           toggleHeaderRow,
           doc(table(tr(c11, c11), tr(c11, c11)))))
+
+  it("leaves cell spans intact", () =>
+     test(doc(table(tr(cCursor, c(2, 2)), tr(c11), tr(c11, c11, c11))),
+          toggleHeaderRow,
+          doc(table(tr(h11, h(2, 2)), tr(c11), tr(c11, c11, c11)))))
 })
 
 describe("toggleHeaderColumn", () => {
