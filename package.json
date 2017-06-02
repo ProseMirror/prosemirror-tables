@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Proof-of-concept for rowspan/colspan tables in ProseMirror",
   "main": "src/index.js",
+  "license": "MIT",
   "dependencies": {
     "prosemirror-keymap": "^0.21.0",
     "prosemirror-model": "^0.21.0",
