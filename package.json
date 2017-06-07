@@ -1,7 +1,7 @@
 {
-  "name": "table-prototype",
+  "name": "prosemirror-tables",
   "version": "0.0.1",
-  "description": "Proof-of-concept for rowspan/colspan tables in ProseMirror",
+  "description": "ProseMirror's rowspan/colspan tables component",
   "main": "src/index.js",
   "license": "MIT",
   "dependencies": {
