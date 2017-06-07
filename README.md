@@ -7,7 +7,7 @@ invariants on such tables, and a number of commands to work with
 tables.
 
 The top-level directory contains a `demo.js` and `index.html`, which
-can be built with `npm run build` to show a simple demo of how the
+can be built with `npm run build_demo` to show a simple demo of how the
 module can be used.
 
 ## Documentation
@@ -26,24 +26,24 @@ a a schema.
 
 The following options are recognized:
 
- * **`tableGroup`**`: ?string`  
+ * **`tableGroup`**`: ?string`
    A group name (something like `"block"`) to ad dto the table
    node type.
 
- * **`cellContent`**`: string`  
+ * **`cellContent`**`: string`
    The content expression for table cells.
 
- * **`cellAttributes`**`: Object`  
+ * **`cellAttributes`**`: Object`
    Additional attributes to add to cells. Maps attribute names to
    objects with the following properties:
 
-   * **`default`**`: any`  
+   * **`default`**`: any`
      The attribute's default value.
 
-   * **`getFromDOM`**`: ?(dom.Node) → any`  
+   * **`getFromDOM`**`: ?(dom.Node) → any`
      A function to read the attribute's value from a DOM node.
 
-   * **`setDOMAttr`**`: ?(value: any, attrs: Object)>`  
+   * **`setDOMAttr`**`: ?(value: any, attrs: Object)>`
      A function to add the attribute's value to an attribute
      object that's used to render the cell's DOM.
 
@@ -66,30 +66,30 @@ A cell selection is identified by its anchor and head cells, and all
 cells whose start falls within the rectangle spanned by those cells
 are considered selected.
 
- * **`$anchorCell`**`: ResolvedPos`  
+ * **`$anchorCell`**`: ResolvedPos`
    A resolved position pointing _in front of_ the anchor cell (the one
    that doesn't move when extending the selection).
 
- * **`$headCell`**`: ResolvedPos`  
+ * **`$headCell`**`: ResolvedPos`
    A resolved position pointing in front of the head cell (the one
    moves when extending the selection).
 
- * **`constructor`**`($anchorCell: ResolvedPos, $headCell: ResolvedPos)`  
+ * **`constructor`**`($anchorCell: ResolvedPos, $headCell: ResolvedPos)`
    Constructs a cell selection instance between the two given cells.
 
- * **`isRowSelection`**`() → bool`  
+ * **`isRowSelection`**`() → bool`
    True if this selection goes all the way from the left to the
    right of the table.
 
- * **`isColSelection`**`() → bool`  
+ * **`isColSelection`**`() → bool`
    True if this selection goes all the way from the top to the
    bottom of the table.
 
- * `static `**`rowSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos) → CellSelection`  
+ * `static `**`rowSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos) → CellSelection`
    Returns the smallest row selection that covers the given anchor
    and head cell.
 
- * `static `**`colSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos) → CellSelection`  
+ * `static `**`colSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos) → CellSelection`
    Returns the smallest column selection that covers the given anchor
    and head cell.
 
@@ -98,49 +98,49 @@ are considered selected.
 The following commands can be used to make table-editing functionality
 available to users.
 
-**`addColumnBefore`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`addColumnBefore`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Add an empty column before the selected column.
 
-**`addColumnAfter`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`addColumnAfter`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Add an empty column after the selected column.
 
-**`deleteColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`deleteColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Delete the selected column or columns.
 
-**`addRowBefore`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`addRowBefore`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Add an empty row before the selected row.
 
-**`addRowAfter`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`addRowAfter`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Add an empty row after the selected row.
 
-**`deleteRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`deleteRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Delete the selected row or rows.
 
-**`mergeCells`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`mergeCells`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Merge the selected cells into a single cell. Only available when the
 selected cells' outline forms a rectangle.
 
-**`splitCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`splitCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Split a selected cell, whose rowpan or colspan is greater than one,
 into smaller cells.
 
-**`setCellAttr`**`(attr: string, value: any) → (EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`setCellAttr`**`(attr: string, value: any) → (EditorState, dispatch: ?(tr: Transaction)) → bool`
 Returns a command that sets the given attribute to the given value,
 and is only available when the currently selected cell doesn't
 already have that attribute set to that value.
 
-**`toggleHeaderRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`toggleHeaderRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Toggle the selected row or rows between header cells and normal cells.
 
-**`toggleHeaderColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`toggleHeaderColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Toggle the selected column or columns between header cells and normal cells.
 
-**`toggleHeaderCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`toggleHeaderCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Toggle the selected cells between header cells and normal cells.
 
-**`goToNextCell`**`(direction: number) → (EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`goToNextCell`**`(direction: number) → (EditorState, dispatch: ?(tr: Transaction)) → bool`
 Returns a command for selecting the next (direction=1) or previous
 (direction=-1) cell in a table.
 
-**`deleteTable`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`  
+**`deleteTable`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
 Deletes the table around the selection, if any.
