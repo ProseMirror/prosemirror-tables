@@ -4,6 +4,10 @@
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/prosemirror/prosemirror-tables.git"
+  },
   "dependencies": {
     "prosemirror-keymap": "^0.21.0",
     "prosemirror-model": "^0.21.0",
