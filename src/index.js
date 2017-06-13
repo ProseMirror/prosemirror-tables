@@ -12,6 +12,7 @@ const {drawCellSelection, CellSelection, normalizeSelection} = require("./cellse
 const {fixTables} = require("./fixtables")
 const {tableNodes} = require("./schema")
 const commands = require("./commands")
+const {TableMap} = require("./tablemap")
 
 exports.tableEditing = function() {
   return new Plugin({
@@ -55,6 +56,7 @@ exports.tableEditing = function() {
   })
 }
 
+exports.TableMap = TableMap;
 exports.tableNodes = tableNodes
 exports.CellSelection = CellSelection
 for (let name in commands) exports[name] = commands[name]
