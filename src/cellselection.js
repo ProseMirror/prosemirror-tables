@@ -38,9 +38,9 @@ class CellSelection extends Selection {
     let $headCell = doc.resolve(mapping.map(this.$headCell.pos))
     if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell)) {
       let tableChanged = this.$anchorCell.node(-1) != $anchorCell.node(-1)
-      if (tableChanged && this.isColSelection())
+      if (tableChanged && this.isRowSelection())
         return CellSelection.colSelection($anchorCell, $headCell)
-      else if (tableChanged && this.isRowSelection())
+      else if (tableChanged && this.isColSelection())
         return CellSelection.rowSelection($anchorCell, $headCell)
       else
         return new CellSelection($anchorCell, $headCell)
@@ -102,9 +102,9 @@ class CellSelection extends Selection {
   }
 
   // :: () → bool
-  // True if this selection goes all the way from the left to the
-  // right of the table.
-  isRowSelection() {
+  // True if this selection goes all the way from the top to the
+  // bottom of the table.
+  isColSelection() {
     let anchorTop = this.$anchorCell.index(-1), headTop = this.$headCell.index(-1)
     if (Math.min(anchorTop, headTop) > 0) return false
     let anchorBot = anchorTop + this.$anchorCell.nodeAfter.attrs.rowspan,
@@ -134,9 +134,9 @@ class CellSelection extends Selection {
   }
 
   // :: () → bool
-  // True if this selection goes all the way from the top to the
-  // bottom of the table.
-  isColSelection() {
+  // True if this selection goes all the way from the left to the
+  // right of the table.
+  isRowSelection() {
     let map = TableMap.get(this.$anchorCell.node(-1)), start = this.$anchorCell.start(-1)
     let anchorLeft = map.colCount(this.$anchorCell.pos - start),
         headLeft = map.colCount(this.$headCell.pos - start)
