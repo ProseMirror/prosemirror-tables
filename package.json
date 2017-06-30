@@ -19,21 +19,21 @@
     }
   ],
   "dependencies": {
-    "prosemirror-keymap": "^0.21.0",
-    "prosemirror-model": "^0.21.0",
-    "prosemirror-state": "^0.21.0",
-    "prosemirror-transform": "^0.21.0",
-    "prosemirror-view": "^0.21.0"
+    "prosemirror-keymap": "^0.22.0",
+    "prosemirror-model": "^0.22.0",
+    "prosemirror-state": "^0.22.0",
+    "prosemirror-transform": "^0.22.0",
+    "prosemirror-view": "^0.22.0"
   },
   "devDependencies": {
     "buble": "^0.15.2",
     "ist": "^1.0.1",
     "mocha": "^3.4.2",
-    "prosemirror-commands": "^0.21.0",
-    "prosemirror-example-setup": "^0.21.0",
-    "prosemirror-menu": "^0.21.0",
-    "prosemirror-schema-basic": "^0.21.0",
-    "prosemirror-test-builder": "^0.21.0",
+    "prosemirror-commands": "^0.22.0",
+    "prosemirror-example-setup": "^0.22.0",
+    "prosemirror-menu": "^0.22.0",
+    "prosemirror-schema-basic": "^0.22.0",
+    "prosemirror-test-builder": "^0.22.0",
     "rimraf": "^2.6.1",
     "rollup": "^0.41.0",
     "rollup-plugin-buble": "^0.15.0",
