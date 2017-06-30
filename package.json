@@ -45,7 +45,7 @@
     "test": "mocha test/test-*.js",
     "build_demo": "rollup -c",
     "build": "rimraf dist && buble -i src -o dist",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "watch": "rollup -w -c"
   }
 }
