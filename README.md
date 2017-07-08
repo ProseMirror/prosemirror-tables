@@ -27,7 +27,7 @@ a a schema.
 The following options are recognized:
 
  * **`tableGroup`**`: ?string`
-   A group name (something like `"block"`) to ad dto the table
+   A group name (something like `"block"`) to add to the table
    node type.
 
  * **`cellContent`**`: string`
