@@ -90,6 +90,15 @@ exports.handleTripleClick = function(view, pos) {
   return true
 }
 
+exports.handleDrop = function (view, event, slice, moved) {
+  const html = event.dataTransfer && event.dataTransfer.getData('text/html')
+  // cancel dragging of table cells
+  if (html && html.indexOf('<table>') > -1) {
+    return true
+  }
+  return false
+};
+
 exports.handlePaste = function(view, _, slice) {
   if (!isInTable(view.state)) return false
   let cells = pastedCells(slice), sel = view.state.selection
@@ -150,6 +159,7 @@ exports.handleMouseDown = function(view, startEvent) {
   function stop() {
     view.root.removeEventListener("mouseup", stop)
     view.root.removeEventListener("mousemove", move)
+    view.root.removeEventListener("drop", drop)
     if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
   }
 
@@ -165,8 +175,18 @@ exports.handleMouseDown = function(view, startEvent) {
     }
     if ($anchor) setCellSelection($anchor, event)
   }
+  function drop (event) {
+    const html = event.dataTransfer && event.dataTransfer.getData('text/html')
+    // cancel dragging of table cells
+    if (html && html.indexOf('<table>') > -1) {
+      view.root.removeEventListener("mouseup", stop)
+      view.root.removeEventListener("mousemove", move)
+      return false;
+    }
+  }
   view.root.addEventListener("mouseup", stop)
   view.root.addEventListener("mousemove", move)
+  view.root.addEventListener("drop", drop)
 }
 
 // Check whether the cursor is at the end of a cell (so that further
