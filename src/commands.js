@@ -391,7 +391,7 @@ function findNextCell($cell, dir) {
 // (direction=-1) cell in a table.
 function goToNextCell(direction) {
   return function(state, dispatch) {
-    if (!isInTable(state) || state.selection instanceof CellSelection) return false
+    if (!isInTable(state)) return false
     let cell = findNextCell(selectionCell(state), direction)
     if (cell == null) return
     if (dispatch) {

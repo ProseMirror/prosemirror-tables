@@ -21,6 +21,9 @@ exports.isInTable = function(state) {
 exports.selectionCell = function(state) {
   let sel = state.selection
   if (sel instanceof NodeSelection && sel.$from.parent.type.spec.tableRole == "row") return sel.$from
+  if (sel.$anchorCell) {
+    return sel.$anchorCell.pos > sel.$headCell.pos ? sel.$anchorCell : sel.$headCell;
+  }
   return sel.$anchorCell || exports.cellAround(sel.$head)
 }
 
