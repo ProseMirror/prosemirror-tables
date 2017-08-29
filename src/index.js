@@ -61,4 +61,5 @@ exports.tableEditing = function() {
 exports.TableMap = TableMap;
 exports.tableNodes = tableNodes
 exports.CellSelection = CellSelection
+exports.handlePaste = handlePaste;
 for (let name in commands) exports[name] = commands[name]
