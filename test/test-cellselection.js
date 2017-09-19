@@ -69,4 +69,8 @@ describe("CellSelection.content", () => {
   it("cuts off cells sticking out vertically", () =>
      ist(selectionFor(table(tr(c11, c(1, 4), c(1, 2)), tr(cAnchor), tr(c(1, 2), cHead), tr(c11))).content(),
          slice(table(tr(c11, td({rowspan: 2}, p()), cEmpty), tr(c11, c11))), eq))
+
+  it("preserves column widths", () =>
+     ist(selectionFor(table(tr(c11, cAnchor, c11), tr(td({colspan: 3, colwidth: [100, 200, 300]}, p("x"))), tr(c11, cHead, c11))).content(),
+         slice(table(tr(c11), tr(td({colwidth: [200]}, p())), tr(c11))), eq))
 })

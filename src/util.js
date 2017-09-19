@@ -53,9 +53,28 @@ exports.nextCell = function($pos, axis, dir) {
   return moved == null ? null : $pos.node(0).resolve(start + moved)
 }
 
-exports.setAttr = function(attrs, name, value) {
+let setAttr = exports.setAttr = function(attrs, name, value) {
   let result = {}
   for (let prop in attrs) result[prop] = attrs[prop]
   result[name] = value
+  return result
+}
+
+exports.rmColSpan = function(attrs, pos, n=1) {
+  let result = setAttr(attrs, "colspan", attrs.colspan - n)
+  if (result.colwidth) {
+    result.colwidth = result.colwidth.slice()
+    result.colwidth.splice(pos, n)
+    if (!result.colwidth.some(w => w > 0)) result.colwidth = null
+  }
+  return result
+}
+
+exports.addColSpan = function(attrs, pos, n=1) {
+  let result = setAttr(attrs, "colspan", attrs.colspan + n)
+  if (result.colwidth) {
+    result.colwidth = result.colwidth.slice()
+    for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0)
+  }
   return result
 }

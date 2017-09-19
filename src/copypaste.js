@@ -13,7 +13,7 @@
 const {Slice, Fragment} = require("prosemirror-model")
 const {Transform} = require("prosemirror-transform")
 
-const {setAttr} = require("./util")
+const {setAttr, rmColSpan} = require("./util")
 const {TableMap} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
 const {tableNodeTypes} = require("./schema")
@@ -93,7 +93,7 @@ exports.clipCells = function({width, height, rows}, newWidth, newHeight) {
       for (let col = added[row] || 0, i = 0; col < newWidth; i++) {
         let cell = frag.child(i % frag.childCount)
         if (col + cell.attrs.colspan > newWidth)
-          cell = cell.type.create(setAttr(cell.attrs, "colspan", newWidth - col), cell.content)
+          cell = cell.type.create(rmColSpan(cell.attrs, cell.attrs.colspan, col + cell.attrs.colspan - newWidth), cell.content)
         cells.push(cell)
         col += cell.attrs.colspan
         for (let j = 1; j < cell.attrs.rowspan; j++)
@@ -191,9 +191,8 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
       found = true
       let cell = table.nodeAt(pos), cellLeft = map.colCount(pos)
       let updatePos = tr.mapping.slice(mapFrom).map(pos + start)
-      tr.setNodeType(updatePos, null, setAttr(cell.attrs, "colspan", left - cellLeft))
-      tr.insert(updatePos + cell.nodeSize,
-                cell.type.createAndFill(setAttr(cell.attrs, "colspan", (cellLeft + cell.attrs.colspan) - left)))
+      tr.setNodeType(updatePos, null, rmColSpan(cell.attrs, left - cellLeft, cell.attrs.colspan - (left - cellLeft)))
+      tr.insert(updatePos + cell.nodeSize, cell.type.createAndFill(rmColSpan(cell.attrs, 0, left - cellLeft)))
       row += cell.attrs.rowspan - 1
     }
   }

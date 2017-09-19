@@ -1,9 +1,13 @@
 // Helper for creating a schema that supports tables.
 
 function getCellAttrs(dom, extraAttrs) {
+  let widthAttr = dom.getAttribute("data-colwidth")
+  let widths = widthAttr && /^\d+(,\d+)*$/.test(widthAttr) ? widthAttr.split(",").map(s => Number(s)) : null
+  let colspan = Number(dom.getAttribute("colspan") || 1)
   let result = {
-    colspan: Number(dom.getAttribute("colspan") || 1),
-    rowspan: Number(dom.getAttribute("rowspan") || 1)
+    colspan,
+    rowspan: Number(dom.getAttribute("rowspan") || 1),
+    colwidth: widths && widths.length == colspan ? widths : null
   }
   for (let prop in extraAttrs) {
     let getter = extraAttrs[prop].getFromDOM
@@ -17,6 +21,8 @@ function setCellAttrs(node, extraAttrs) {
   let attrs = {}
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan
+  if (node.attrs.colwidth)
+    attrs["data-colwidth"] = node.attrs.colwidth.join(",")
   for (let prop in extraAttrs) {
     let setter = extraAttrs[prop].setDOMAttr
     if (setter) setter(node.attrs[prop], attrs)
@@ -58,7 +64,8 @@ function tableNodes(options) {
   let extraAttrs = options.cellAttributes || {}
   let cellAttrs = {
     colspan: {default: 1},
-    rowspan: {default: 1}
+    rowspan: {default: 1},
+    colwidth: {default: null}
   }
   for (let prop in extraAttrs)
     cellAttrs[prop] = {default: extraAttrs[prop].default}
@@ -69,7 +76,7 @@ function tableNodes(options) {
       tableRole: "table",
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
-      toDOM() { return ["table", ["tbody", 0]] }
+      toDOM(node) { return ["div", {class: "tableWrapper"}, ["table", colGroup(node), ["tbody", 0]]] }
     },
     table_row: {
       content: "(table_cell | table_header)*",
@@ -96,6 +103,17 @@ function tableNodes(options) {
   }
 }
 exports.tableNodes = tableNodes
+
+const col0 = ["col"]
+function colGroup(node) {
+  let group = ["colgroup"]
+  node.firstChild.forEach(node => {
+    let w = node.attrs.colwidth
+    for (let i = 0; i < node.attrs.colspan; i++)
+      group.push(w && w[i] ? ["col", {style: `width: ${w[i]}px`}] : col0)
+  })
+  return group
+}
 
 function tableNodeTypes(schema) {
   let result = schema.cached.tableNodeTypes

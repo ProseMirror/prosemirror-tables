@@ -1,3 +1,6 @@
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+}
 .ProseMirror table {
   border-collapse: collapse;
   table-layout: fixed;

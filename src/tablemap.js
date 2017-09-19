@@ -207,3 +207,26 @@ function findWidth(table) {
   }
   return width
 }
+
+function findBadColWidths(map, colWidths, table) {
+  if (!map.problems) map.problems = []
+  for (let i = 0, seen = []; i < map.map.length; i++) {
+    let pos = map.map[i]
+    if (seen.indexOf(pos) > -1) continue
+    seen.push(pos)
+    let node = table.nodeAt(pos), updated = null
+    for (let j = 0; j < node.attrs.colspan; j++) {
+      let col = (i + j) % map.width, colWidth = colWidths[col * 2]
+      if (colWidth != null && (!node.attrs.colwidth || node.attrs.colwidth[j] != colWidth))
+        (updated || (updated = widthArray(node.attrs)))[j] = colWidth
+      if (updated) map.problems.unshift({type: "colwidth mismatch", pos, colwidth: updated})
+    }
+  }
+}
+
+function widthArray(attrs) {
+  if (attrs.colwidth) return attrs.colwidth.slice()
+  let result = []
+  for (let i = 0; i < attrs.colspan; i++) result.push(0)
+  return result
+}
