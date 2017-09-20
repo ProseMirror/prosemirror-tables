@@ -16,7 +16,7 @@ let schema = new Schema({
   marks: baseSchema.spec.marks
 })
 
-let e = module.exports = require("prosemirror-test-builder/dist/build")(schema, {
+let e = module.exports = require("prosemirror-test-builder").builders(schema, {
   p: {nodeType: "paragraph"},
   tr: {nodeType: "table_row"},
   td: {nodeType: "table_cell"},
