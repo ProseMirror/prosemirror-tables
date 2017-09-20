@@ -149,7 +149,7 @@ exports.TableMap = TableMap
 function computeMap(table) {
   if (table.type.spec.tableRole != "table") throw new RangeError("Not a table node: " + table.type.name)
   let width = findWidth(table), height = table.childCount
-  let map = [], mapPos = 0, problems = null
+  let map = [], mapPos = 0, problems = null, colWidths = []
   for (let i = 0, e = width * height; i < e; i++) map[i] = 0
 
   for (let row = 0, pos = 0; row < height; row++) {
@@ -158,7 +158,7 @@ function computeMap(table) {
     for (let i = 0;; i++) {
       while (mapPos < map.length && map[mapPos] != 0) mapPos++
       if (i == rowNode.childCount) break
-      let cellNode = rowNode.child(i), {colspan, rowspan} = cellNode.attrs
+      let cellNode = rowNode.child(i), {colspan, rowspan, colwidth} = cellNode.attrs
       for (let h = 0; h < rowspan; h++) {
         if (h + row >= height) {
           (problems || (problems = [])).push({type: "overlong_rowspan", pos, n: rowspan - h})
@@ -170,6 +170,16 @@ function computeMap(table) {
             map[start + w] = pos
           else
             (problems || (problems = [])).push({type: "collision", row, pos, n: colspan - w})
+          let colW = colwidth && colwidth[w]
+          if (colW) {
+            let widthIndex = ((start + w) % width) * 2, prev = colWidths[widthIndex]
+            if (prev == null || (prev != colW && colWidths[widthIndex + 1] == 1)) {
+              colWidths[widthIndex] = colW
+              colWidths[widthIndex + 1] = 1
+            } else if (prev == colW) {
+              colWidths[widthIndex + 1]++
+            }
+          }
         }
       }
       mapPos += colspan
@@ -181,7 +191,16 @@ function computeMap(table) {
     pos++
   }
 
-  return new TableMap(width, height, map, problems)
+  let tableMap = new TableMap(width, height, map, problems), badWidths = false
+
+  // For columns that have defined widths, but whose widths disagree
+  // between rows, fix up the cells whose width doesn't match the
+  // computed one.
+  for (let i = 0; !badWidths && i < colWidths.length; i += 2)
+    if (colWidths[i] != null && colWidths[i + 1] < height) badWidths = true
+  if (badWidths) findBadColWidths(tableMap, colWidths, table)
+
+  return tableMap
 }
 
 function findWidth(table) {

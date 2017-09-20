@@ -69,6 +69,9 @@ let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
     } else if (prob.type == "overlong_rowspan") {
       let cell = table.nodeAt(prob.pos)
       tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - prob.n))
+    } else if (prob.type == "colwidth mismatch") {
+      let cell = table.nodeAt(prob.pos)
+      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "colwidth", prob.colwidth))
     }
   }
   let first, last
