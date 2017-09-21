@@ -237,13 +237,13 @@ function findBadColWidths(map, colWidths, table) {
     for (let j = 0; j < node.attrs.colspan; j++) {
       let col = (i + j) % map.width, colWidth = colWidths[col * 2]
       if (colWidth != null && (!node.attrs.colwidth || node.attrs.colwidth[j] != colWidth))
-        (updated || (updated = widthArray(node.attrs)))[j] = colWidth
-      if (updated) map.problems.unshift({type: "colwidth mismatch", pos, colwidth: updated})
+        (updated || (updated = freshColWidth(node.attrs)))[j] = colWidth
     }
+    if (updated) map.problems.unshift({type: "colwidth mismatch", pos, colwidth: updated})
   }
 }
 
-function widthArray(attrs) {
+function freshColWidth(attrs) {
   if (attrs.colwidth) return attrs.colwidth.slice()
   let result = []
   for (let i = 0; i < attrs.colspan; i++) result.push(0)
