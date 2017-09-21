@@ -13,6 +13,8 @@ const {fixTables} = require("./fixtables")
 const {tableNodes} = require("./schema")
 const commands = require("./commands")
 const {TableMap} = require("./tablemap")
+const {tableNodeTypes} = require("./schema")
+const {TableView} = require("./tableview")
 
 // :: () → Plugin
 //
@@ -26,7 +28,9 @@ const {TableMap} = require("./tablemap")
 // rather broadly, and other plugins, like the gap cursor or the
 // column-width dragging plugin, might want to get a turn first to
 // perform more specific behavior.
-function tableEditing() {
+function tableEditing({schema, cellMinWidth=50}) {
+  let tableType = tableNodeTypes(schema).table
+
   return new Plugin({
     key,
 
@@ -61,7 +65,9 @@ function tableEditing() {
 
       handlePaste,
 
-      handleDrop
+      handleDrop,
+
+      nodeViews: {[tableType.name](node) { return new TableView(node, cellMinWidth) }}
     },
 
     appendTransaction(_, oldState, state) {

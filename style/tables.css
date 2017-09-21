@@ -9,6 +9,7 @@
 .ProseMirror td, .ProseMirror th {
   vertical-align: top;
   box-sizing: border-box;
+  min-width: 50px;
 }
 /* Give selected cells a blue overlay */
 .ProseMirror .selectedCell {

@@ -76,7 +76,7 @@ function tableNodes(options) {
       tableRole: "table",
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
-      toDOM(node) { return ["div", {class: "tableWrapper"}, ["table", colGroup(node), ["tbody", 0]]] }
+      toDOM() { return ["table", ["tbody", 0]] }
     },
     table_row: {
       content: "(table_cell | table_header)*",
@@ -103,17 +103,6 @@ function tableNodes(options) {
   }
 }
 exports.tableNodes = tableNodes
-
-const col0 = ["col"]
-function colGroup(node) {
-  let group = ["colgroup"]
-  node.firstChild.forEach(node => {
-    let w = node.attrs.colwidth
-    for (let i = 0; i < node.attrs.colspan; i++)
-      group.push(w && w[i] ? ["col", {style: `width: ${w[i]}px`}] : col0)
-  })
-  return group
-}
 
 function tableNodeTypes(schema) {
   let result = schema.cached.tableNodeTypes
