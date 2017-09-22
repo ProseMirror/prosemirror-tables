@@ -39,14 +39,18 @@ class Rect {
 }
 exports.Rect = Rect
 
+// ::- A table map describes the structore of a given table. To avoid
+// recomputing them all the time, they are cached per table node. To
+// be able to do that, positions saved in the map are relative to the
+// start of the table, rather than the start of the document.
 class TableMap {
   constructor(width, height, map, problems) {
-    // The width of the table
+    // :: number The width of the table
     this.width = width
-    // Its height
+    // :: number The table's height
     this.height = height
-    // A width * height array with the start position of the cell
-    // covering that part of the table in each slot
+    // :: [number] A width * height array with the start position of
+    // the cell covering that part of the table in each slot
     this.map = map
     // An optional array of problems (cell overlap or non-rectangular
     // shape) for the table, used by the table normalizer.

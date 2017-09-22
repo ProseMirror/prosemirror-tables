@@ -356,15 +356,18 @@ function toggleHeader(type) {
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected row contains header cells.
-exports.toggleHeaderRow = toggleHeader("row")
+let toggleHeaderRow = toggleHeader("row")
+exports.toggleHeaderRow = toggleHeaderRow
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected column contains header cells.
-exports.toggleHeaderColumn = toggleHeader("column")
+let toggleHeaderColumn = toggleHeader("column")
+exports.toggleHeaderColumn = toggleHeaderColumn
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected cells are header cells.
-exports.toggleHeaderCell = toggleHeader("cell")
+let toggleHeaderCell = toggleHeader("cell")
+exports.toggleHeaderCell = toggleHeaderCell
 
 function findNextCell($cell, dir) {
   if (dir < 0) {
