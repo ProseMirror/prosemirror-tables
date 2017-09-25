@@ -20,7 +20,7 @@ const {tableNodeTypes} = require("./schema")
 
 // Utilities to help with copying and pasting table cells
 
-// :: (Slice) → ?{width: number, height: number, rows: [Fragment]}
+// : (Slice) → ?{width: number, height: number, rows: [Fragment]}
 // Get a rectangular area of cells from a slice, or null if the outer
 // nodes of the slice aren't table cells or rows.
 exports.pastedCells = function(slice) {
@@ -49,7 +49,7 @@ exports.pastedCells = function(slice) {
   return ensureRectangular(schema, rows)
 }
 
-// :: [Fragment] → {width: number, height: number, rows: [Fragment]}
+// : [Fragment] → {width: number, height: number, rows: [Fragment]}
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
 function ensureRectangular(schema, rows) {
@@ -81,7 +81,7 @@ let fitSlice = exports.fitSlice = function(nodeType, slice) {
   return tr.doc
 }
 
-// :: ({width: number, height: number, rows: [Fragment]}, number, number) → {width: number, height: number, rows: [Fragment]}
+// : ({width: number, height: number, rows: [Fragment]}, number, number) → {width: number, height: number, rows: [Fragment]}
 // Clip or extend (repeat) the given set of cells to cover the given
 // width and height. Will clip rowspan/colspan cells at the edges when
 // they stick out.

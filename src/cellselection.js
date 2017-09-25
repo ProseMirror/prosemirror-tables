@@ -10,6 +10,11 @@ const {Fragment, Slice} = require("prosemirror-model")
 const {inSameTable, pointsAtCell, setAttr} = require("./util")
 const {TableMap} = require("./tablemap")
 
+// ::- A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
+// subclass that represents a cell selection spanning part of a table.
+// With the plugin enabled, these will be created when the user
+// selects across cells, and will be drawn by giving selected cells a
+// `selectedCell` CSS class.
 class CellSelection extends Selection {
   // :: (ResolvedPos, ?ResolvedPos)
   // A table selection is identified by its anchor and head cells. The
@@ -29,7 +34,13 @@ class CellSelection extends Selection {
       return new SelectionRange(doc.resolve(from), doc.resolve(from + cell.content.size))
     })
     super(ranges[0].$from, ranges[0].$to, ranges)
+    // :: ResolvedPos
+    // A resolved position pointing _in front of_ the anchor cell (the one
+    // that doesn't move when extending the selection).
     this.$anchorCell = $anchorCell
+    // :: ResolvedPos
+    // A resolved position pointing in front of the head cell (the one
+    // moves when extending the selection).
     this.$headCell = $headCell
   }
 

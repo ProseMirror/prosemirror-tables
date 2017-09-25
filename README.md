@@ -16,131 +16,212 @@ The module's main file exports everything you need to work with it.
 The first thing you'll probably want to do is create a table-enabled
 schema. That's what `tableNodes` is for:
 
-**`tableNodes`**`(nodes: OrderedMap, options: Object) → OrderedMap`
+ * **`tableNodes`**`(options: Object) → Object`\
+   This function creates a set of [node
+   specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
+   `table`, `table_row`, and `table_cell` nodes types as used by this
+   module. The result can then be added to the set of nodes when
+   creating a a schema.
 
-This function creates a set of [node
-specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
-`table`, `table_row`, and `table_cell` nodes types as used by this
-module. The result can then be added to the set of nodes when creating
-a a schema.
+    * **`options`**`: Object`\
+      The following options are understood:
 
-The following options are recognized:
+       * **`tableGroup`**`: ?string`\
+         A group name (something like `"block"`) to add to the table
+         node type.
 
- * **`tableGroup`**`: ?string`
-   A group name (something like `"block"`) to add to the table
-   node type.
+       * **`cellContent`**`: string`\
+         The content expression for table cells.
 
- * **`cellContent`**`: string`
-   The content expression for table cells.
+       * **`cellAttributes`**`: Object`\
+         Additional attributes to add to cells. Maps attribute names to
+         objects with the following properties:
 
- * **`cellAttributes`**`: Object`
-   Additional attributes to add to cells. Maps attribute names to
-   objects with the following properties:
+          * **`default`**`: any`\
+            The attribute's default value.
 
-   * **`default`**`: any`
-     The attribute's default value.
+          * **`getFromDOM`**`: ?fn(dom.Node) → any`\
+            A function to read the attribute's value from a DOM node.
 
-   * **`getFromDOM`**`: ?(dom.Node) → any`
-     A function to read the attribute's value from a DOM node.
+          * **`setDOMAttr`**`: ?fn(value: any, attrs: Object)`\
+            >
+            A function to add the attribute's value to an attribute
+            object that's used to render the cell's DOM.
 
-   * **`setDOMAttr`**`: ?(value: any, attrs: Object)>`
-     A function to add the attribute's value to an attribute
-     object that's used to render the cell's DOM.
 
-**`tableEditing`**`() → Plugin`
+ * **`tableEditing`**`() → Plugin`\
+   Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
+   that, when added to an editor, enables cell-selection, handles
+   cell-based copy/paste, and makes sure tables stay well-formed (each
+   row has the same width, and cells don't overlap).
 
-Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
-that, when added to an editor, enables cell-selection, handles
-cell-based copy/paste, and makes sure tables stay well-formed (each
-row has the same width, and cells don't overlap).
+   You should probably put this plugin near the end of your array of
+   plugins, since it handles mouse and arrow key events in tables
+   rather broadly, and other plugins, like the gap cursor or the
+   column-width dragging plugin, might want to get a turn first to
+   perform more specific behavior.
 
-**`CellSelection`** class
+
+### class CellSelection extends Selection
 
 A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
 subclass that represents a cell selection spanning part of a table.
-With the plugin enabled, these will be created when the user selects
-across cells, and will be drawn by giving selected cells a
+With the plugin enabled, these will be created when the user
+selects across cells, and will be drawn by giving selected cells a
 `selectedCell` CSS class.
 
-A cell selection is identified by its anchor and head cells, and all
-cells whose start falls within the rectangle spanned by those cells
-are considered selected.
+ * `new `**`CellSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos = $anchorCell)`\
+   A table selection is identified by its anchor and head cells. The
+   positions given to this constructor should point _before_ two
+   cells in the same table. They may be the same, to select a single
+   cell.
 
- * **`$anchorCell`**`: ResolvedPos`
+ * **`$anchorCell`**`: ResolvedPos`\
    A resolved position pointing _in front of_ the anchor cell (the one
    that doesn't move when extending the selection).
 
- * **`$headCell`**`: ResolvedPos`
+ * **`$headCell`**`: ResolvedPos`\
    A resolved position pointing in front of the head cell (the one
    moves when extending the selection).
 
- * **`constructor`**`($anchorCell: ResolvedPos, $headCell: ResolvedPos)`
-   Constructs a cell selection instance between the two given cells.
+ * **`content`**`() → Slice`\
+   Returns a rectangular slice of table rows containing the selected
+   cells.
 
- * **`isRowSelection`**`() → bool`
-   True if this selection goes all the way from the left to the
-   right of the table.
-
- * **`isColSelection`**`() → bool`
+ * **`isColSelection`**`() → bool`\
    True if this selection goes all the way from the top to the
    bottom of the table.
 
- * `static `**`rowSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos) → CellSelection`
+ * **`isRowSelection`**`() → bool`\
+   True if this selection goes all the way from the left to the
+   right of the table.
+
+ * `static `**`rowSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos = $anchorCell) → CellSelection`\
    Returns the smallest row selection that covers the given anchor
    and head cell.
 
- * `static `**`colSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos) → CellSelection`
+ * `static `**`colSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos = $anchorCell) → CellSelection`\
    Returns the smallest column selection that covers the given anchor
    and head cell.
+
+ * `static `**`create`**`(doc: Node, anchorCell: number, headCell: ?number = anchorCell) → CellSelection`
+
 
 ### Commands
 
 The following commands can be used to make table-editing functionality
 available to users.
 
-**`addColumnBefore`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Add an empty column before the selected column.
+ * **`addColumnBefore`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Command to add a column before the column with the selection.
 
-**`addColumnAfter`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Add an empty column after the selected column.
 
-**`deleteColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Delete the selected column or columns.
+ * **`addColumnAfter`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Command to add a column after the column with the selection.
 
-**`addRowBefore`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Add an empty row before the selected row.
 
-**`addRowAfter`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Add an empty row after the selected row.
+ * **`deleteColumn`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Command function that removes the selected columns from a table.
 
-**`deleteRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Delete the selected row or rows.
 
-**`mergeCells`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Merge the selected cells into a single cell. Only available when the
-selected cells' outline forms a rectangle.
+ * **`addRowBefore`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Add a table row before the selection.
 
-**`splitCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Split a selected cell, whose rowpan or colspan is greater than one,
-into smaller cells.
 
-**`setCellAttr`**`(attr: string, value: any) → (EditorState, dispatch: ?(tr: Transaction)) → bool`
-Returns a command that sets the given attribute to the given value,
-and is only available when the currently selected cell doesn't
-already have that attribute set to that value.
+ * **`addRowAfter`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Add a table row after the selection.
 
-**`toggleHeaderRow`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Toggle the selected row or rows between header cells and normal cells.
 
-**`toggleHeaderColumn`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Toggle the selected column or columns between header cells and normal cells.
+ * **`deleteRow`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Remove the selected rows from a table.
 
-**`toggleHeaderCell`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Toggle the selected cells between header cells and normal cells.
 
-**`goToNextCell`**`(direction: number) → (EditorState, dispatch: ?(tr: Transaction)) → bool`
-Returns a command for selecting the next (direction=1) or previous
-(direction=-1) cell in a table.
+ * **`mergeCells`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Merge the selected cells into a single cell. Only available when
+   the selected cells' outline forms a rectangle.
 
-**`deleteTable`**`(EditorState, dispatch: ?(tr: Transaction)) → bool`
-Deletes the table around the selection, if any.
+
+ * **`splitCell`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Split a selected cell, whose rowpan or colspan is greater than one,
+   into smaller cells.
+
+
+ * **`setCellAttr`**`(name: string, value: any) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Returns a command that sets the given attribute to the given value,
+   and is only available when the currently selected cell doesn't
+   already have that attribute set to that value.
+
+
+ * **`toggleHeaderRow`**`(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Toggles whether the selected row contains header cells.
+
+
+ * **`toggleHeaderColumn`**`(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Toggles whether the selected column contains header cells.
+
+
+ * **`toggleHeaderCell`**`(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Toggles whether the selected cells are header cells.
+
+
+ * **`goToNextCell`**`(direction: number) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Returns a command for selecting the next (direction=1) or previous
+   (direction=-1) cell in a table.
+
+
+ * **`deleteTable`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Deletes the table around the selection, if any.
+
+
+### Utilities
+
+ * **`fixTables`**`(state: EditorState, oldState: ?EditorState) → ?Transaction`\
+   Inspect all tables in the given state's document and return a
+   transaction that fixes them, if necessary. If `oldState` was
+   provided, that is assumed to hold a previous, known-good state,
+   which will be used to avoid re-scanning unchanged parts of the
+   document.
+
+
+### class TableMap
+
+A table map describes the structore of a given table. To avoid
+recomputing them all the time, they are cached per table node. To
+be able to do that, positions saved in the map are relative to the
+start of the table, rather than the start of the document.
+
+ * **`width`**`: number`\
+   The width of the table
+
+ * **`height`**`: number`\
+   The table's height
+
+ * **`map`**`: [number]`\
+   A width * height array with the start position of
+   the cell covering that part of the table in each slot
+
+ * **`findCell`**`(pos: number) → Rect`\
+   Find the dimensions of the cell at the given position.
+
+ * **`colCount`**`(pos: number) → number`\
+   Find the left side of the cell at the given position.
+
+ * **`nextCell`**`(pos: number, axis: string, dir: number) → ?number`\
+   Find the next cell in the given direction, starting from the cell
+   at `pos`, if any.
+
+ * **`rectBetween`**`(a: number, b: number) → Rect`\
+   Get the rectangle spanning the two given cells.
+
+ * **`cellsInRect`**`(rect: Rect) → [number]`\
+   Return the position of all cells that have the top left corner in
+   the given rectangle.
+
+ * **`positionAt`**`(row: number, col: number, table: Node) → number`\
+   Return the position at which the cell at the given row and column
+   starts, or would start, if a cell started there.
+
+ * `static `**`get`**`(table: Node) → TableMap`\
+   Find the table map for the given table node.
+
+

@@ -25,8 +25,12 @@ function setCellAttrs(node, extraAttrs) {
 }
 
 // :: (Object) → Object
-// Create a set of node specs for `table`, `table_row`, and
-// `table_cell` nodes as used by this module.
+//
+// This function creates a set of [node
+// specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
+// `table`, `table_row`, and `table_cell` nodes types as used by this
+// module. The result can then be added to the set of nodes when
+// creating a a schema.
 //
 //   options::- The following options are understood:
 //

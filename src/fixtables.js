@@ -36,7 +36,7 @@ function changedDescendants(old, cur, offset, f) {
 // provided, that is assumed to hold a previous, known-good state,
 // which will be used to avoid re-scanning unchanged parts of the
 // document.
-exports.fixTables = function(state, oldState) {
+function fixTables(state, oldState) {
   let tr, check = (node, pos) => {
     if (node.type.spec.tableRole == "table") tr = fixTable(state, node, pos, tr)
   }
@@ -44,8 +44,9 @@ exports.fixTables = function(state, oldState) {
   else if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, check)
   return tr
 }
+exports.fixTables = fixTables
 
-// :: (EditorState, Node, number, ?Transaction) → ?Transaction
+// : (EditorState, Node, number, ?Transaction) → ?Transaction
 // Fix the given table, if necessary. Will append to the transaction
 // it was given, if non-null, or create a new one if necessary.
 let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
