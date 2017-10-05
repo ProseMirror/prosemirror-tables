@@ -4,7 +4,7 @@
 // reported by `TableMap`.
 
 const {TableMap} = require("./tablemap")
-const {setAttr} = require("./util")
+const {setAttr, rmColSpan} = require("./util")
 const {tableNodeTypes} = require("./schema")
 
 // Helper for iterating through the nodes in a document that changed
@@ -52,7 +52,7 @@ exports.fixTables = fixTables
 let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
   let map = TableMap.get(table)
   if (!map.problems) return tr
-  if (!tr) tr = state.tr
+  if (!tr) tr = state.tr.setMeta("addToHistory", false)
 
   // Track which rows we must add cells to, so that we can adjust that
   // when fixing collisions.
@@ -63,12 +63,15 @@ let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
     if (prob.type == "collision") {
       let cell = table.nodeAt(prob.pos)
       for (let j = 0; j < cell.attrs.rowspan; j++) mustAdd[prob.row + j] += prob.n
-      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "colspan", cell.attrs.colspan - prob.n))
+      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, rmColSpan(cell.attrs, cell.attrs.colspan - prob.n, prob.n))
     } else if (prob.type == "missing") {
       mustAdd[prob.row] += prob.n
     } else if (prob.type == "overlong_rowspan") {
       let cell = table.nodeAt(prob.pos)
       tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - prob.n))
+    } else if (prob.type == "colwidth mismatch") {
+      let cell = table.nodeAt(prob.pos)
+      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "colwidth", prob.colwidth))
     }
   }
   let first, last

@@ -82,6 +82,11 @@ describe("addColumnAfter", () => {
      test(doc(p("foo<cursor>")),
           addColumnAfter,
           null))
+
+  it("preserves column widths", () =>
+     test(table(tr(cAnchor, c11), tr(td({colspan: 2, colwidth: [100, 200]}, p("a")))),
+          addColumnAfter,
+          table(tr(cAnchor, cEmpty, c11), tr(td({colspan: 3, colwidth: [100, 0, 200]}, p("a"))))))
 })
 
 describe("addColumnBefore", () => {
@@ -151,6 +156,16 @@ describe("deleteColumn", () => {
      test(table(tr(c(1, 2), cAnchor, c11), tr(c11, cEmpty), tr(cHead, c11, c11)),
           deleteColumn,
           table(tr(c11), tr(cEmpty), tr(c11))))
+
+  it("leaves column widths intact", () =>
+     test(table(tr(c11, cAnchor, c11), tr(td({colspan: 3, colwidth: [100, 200, 300]}, p("y")))),
+          deleteColumn,
+          table(tr(c11, c11), tr(td({colspan: 2, colwidth: [100, 300]}, p("y"))))))
+
+  it("resets column width when all zeroes", () =>
+     test(table(tr(c11, cAnchor, c11), tr(td({colspan: 3, colwidth: [0, 200, 0]}, p("y")))),
+          deleteColumn,
+          table(tr(c11, c11), tr(td({colspan: 2}, p("y"))))))
 })
 
 describe("addRowAfter", () => {
@@ -294,6 +309,11 @@ describe("mergeCells", () => {
      test(table(tr(c11, cAnchor, c(1, 2), cEmpty, c11), tr(c11, cEmpty, cHead, c11)),
           mergeCells,
           table(tr(c11, td({rowspan: 2, colspan: 3}, p("x"), p("x"), p("x")), c11), tr(c11, c11))))
+
+  it("keeps the column width of the first col", () =>
+     test(table(tr(td({colwidth: [100]}, p("x<anchor>")), c11), tr(c11, cHead)),
+          mergeCells,
+          table(tr(td({colspan: 2, rowspan: 2, colwidth: [100, 0]}, p("x"), p("x"), p("x"), p("x"))), tr())))
 })
 
 describe("splitCell", () => {
@@ -326,6 +346,11 @@ describe("splitCell", () => {
      test(table(tr(c(4, 1)), tr(c11, td({rowspan: 2, colspan: 2}, p("foo<anchor>")), c11), tr(c11, c11)),
           splitCell,
           table(tr(c(4, 1)), tr(c11, td(p("foo")), cEmpty, c11), tr(c11, cEmpty, cEmpty, c11))))
+
+  it("distributes column widths", () =>
+     test(table(tr(td({colspan: 3, colwidth: [100, 0, 200]}, p("a<anchor>")))),
+          splitCell,
+          table(tr(td({colwidth: [100]}, p("a")), cEmpty, td({colwidth: [200]}, p())))))
 })
 
 describe("setCellAttr", () => {

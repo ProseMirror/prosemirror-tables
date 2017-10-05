@@ -7,7 +7,8 @@ const {Selection, TextSelection, NodeSelection, SelectionRange} = require("prose
 const {Decoration, DecorationSet} = require("prosemirror-view")
 const {Fragment, Slice} = require("prosemirror-model")
 
-const {inSameTable, pointsAtCell, setAttr} = require("./util")
+
+const {inSameTable, pointsAtCell, setAttr, rmColSpan} = require("./util")
 const {TableMap} = require("./tablemap")
 
 // ::- A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
@@ -73,8 +74,11 @@ class CellSelection extends Selection {
         if (seen.indexOf(pos) == -1) {
           seen.push(pos)
           let cellRect = map.findCell(pos), cell = table.nodeAt(pos)
-          if (cellRect.left < rect.left || cellRect.right > rect.right) {
-            let attrs = setAttr(cell.attrs, "colspan", Math.min(cellRect.right, rect.right) - Math.max(cellRect.left, rect.left))
+          let extraLeft = rect.left - cellRect.left, extraRight = cellRect.right - rect.right
+          if (extraLeft > 0 || extraRight > 0) {
+            let attrs = cell.attrs
+            if (extraLeft > 0) attrs = rmColSpan(attrs, 0, extraLeft)
+            if (extraRight > 0) attrs = rmColSpan(attrs, attrs.colspan - extraRight, extraRight)
             if (cellRect.left < rect.left) cell = cell.type.createAndFill(attrs)
             else cell = cell.type.create(attrs, cell.content)
           }

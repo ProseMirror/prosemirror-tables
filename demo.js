@@ -10,7 +10,7 @@ import {MenuItem, Dropdown}  from "prosemirror-menu"
 import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
         mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell,
         goToNextCell, deleteTable}  from "./src/commands"
-import {tableEditing, tableNodes}  from "./src"
+import {tableEditing, columnResizing, tableNodes, fixTables}  from "./src"
 
 let schema = new Schema({
   nodes: baseSchema.spec.nodes.append(tableNodes({
@@ -49,12 +49,15 @@ menu.splice(2, 0, [new Dropdown(tableMenu, {label: "Table"})])
 
 let doc = DOMParser.fromSchema(schema).parse(document.querySelector("#content"))
 let state = EditorState.create({doc, plugins: exampleSetup({schema, menuContent: menu}).concat(
+  columnResizing(),
   tableEditing(),
   keymap({
     "Tab": goToNextCell(1),
     "Shift-Tab": goToNextCell(-1)
   })
 )})
+let fix = fixTables(state)
+if (fix) state = state.apply(fix)
 
 window.view = new EditorView(document.querySelector("#editor"), {state})
 

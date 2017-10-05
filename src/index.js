@@ -74,5 +74,8 @@ exports.tableEditing = tableEditing
 exports.TableMap = TableMap;
 exports.tableNodes = tableNodes
 exports.CellSelection = CellSelection
-exports.handlePaste = handlePaste;
+exports.fixTables = fixTables
+exports.handlePaste = handlePaste
 for (let name in commands) exports[name] = commands[name]
+
+exports.columnResizing = require("./columnresizing").columnResizing

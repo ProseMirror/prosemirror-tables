@@ -5,7 +5,7 @@ const {Fragment} = require("prosemirror-model")
 
 const {TableMap, Rect} = require("./tablemap")
 const {CellSelection} = require("./cellselection")
-const {setAttr, moveCellForward, isInTable, selectionCell} = require("./util")
+const {setAttr, addColSpan, rmColSpan, moveCellForward, isInTable, selectionCell} = require("./util")
 const {tableNodeTypes} = require("./schema")
 
 // Helper to get the selected rectangle in a table, if any. Adds table
@@ -45,7 +45,7 @@ function addColumn(tr, {map, tableStart, table}, col) {
     if (col > 0 && col < map.width && map.map[index - 1] == map.map[index]) {
       let pos = map.map[index], cell = table.nodeAt(pos)
       tr.setNodeType(tr.mapping.map(tableStart + pos), null,
-                     setAttr(cell.attrs, "colspan", cell.attrs.colspan + 1))
+                     addColSpan(cell.attrs, col - map.colCount(pos)))
       // Skip ahead if rowspan > 1
       row += cell.attrs.rowspan - 1
     } else {
@@ -89,7 +89,7 @@ function removeColumn(tr, {map, table, tableStart}, col) {
     // If this is part of a col-spanning cell
     if ((col > 0 && map.map[index - 1] == pos) || (col < map.width - 1 && map.map[index + 1] == pos)) {
       tr.setNodeType(tr.mapping.slice(mapStart).map(tableStart + pos), null,
-                     setAttr(cell.attrs, "colspan", cell.attrs.colspan - 1))
+                     rmColSpan(cell.attrs, col - map.colCount(pos)))
     } else {
       let start = tr.mapping.slice(mapStart).map(tableStart + pos)
       tr.delete(start, start + cell.nodeSize)
@@ -263,7 +263,7 @@ function mergeCells(state, dispatch) {
       }
     }
     tr.setNodeType(mergedPos + rect.tableStart, null,
-                   setAttr(setAttr(mergedCell.attrs, "colspan", rect.right - rect.left),
+                   setAttr(addColSpan(mergedCell.attrs, mergedCell.attrs.colspan, (rect.right - rect.left) - mergedCell.attrs.colspan),
                            "rowspan", rect.bottom - rect.top))
     if (content.size) {
       let end = mergedPos + 1 + mergedCell.content.size
@@ -286,21 +286,24 @@ function splitCell(state, dispatch) {
   let cellNode = sel.$anchorCell.nodeAfter
   if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) return false
   if (dispatch) {
-    let attrs = setAttr(setAttr(cellNode.attrs, "colspan", 1), "rowspan", 1)
+    let baseAttrs = cellNode.attrs, attrs = [], colwidth = baseAttrs.colwidth
+    if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, "rowspan", 1)
+    if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, "colspan", 1)
     let rect = selectedRect(state), tr = state.tr
-    let newCell = tableNodeTypes(state.schema).cell.createAndFill(attrs)
-    let lastCell
+    for (let i = 0; i < rect.right - rect.left; i++)
+      attrs.push(colwidth ? setAttr(baseAttrs, "colwidth", colwidth && colwidth[i] ? [colwidth[i]] : null) : baseAttrs)
+    let lastCell, cellType = tableNodeTypes(state.schema).cell
     for (let row = 0; row < rect.bottom; row++) {
       if (row >= rect.top) {
         let pos = rect.map.positionAt(row, rect.left, rect.table)
         if (row == rect.top) pos += cellNode.nodeSize
-        for (let col = rect.left; col < rect.right; col++) {
+        for (let col = rect.left, i = 0; col < rect.right; col++, i++) {
           if (col == rect.left && row == rect.top) continue
-          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), newCell)
+          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), cellType.createAndFill(attrs[i]))
         }
       }
     }
-    tr.setNodeType(sel.$anchorCell.pos, null, attrs)
+    tr.setNodeType(sel.$anchorCell.pos, null, attrs[0])
     tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
                                       lastCell && tr.doc.resolve(lastCell)))
     dispatch(tr)

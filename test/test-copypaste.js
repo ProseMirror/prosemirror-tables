@@ -117,4 +117,9 @@ describe("insertCells", () => {
      test(table(tr(c11, cAnchor, c11), tr(c(2, 1), c11), tr(c11, c(2, 1))),
           table("<a>", tr(cEmpty), tr(cEmpty), tr(cEmpty), "<b>"),
           table(tr(c11, cEmpty, c11), tr(c11, cEmpty, c11), tr(c11, cEmpty, cEmpty))))
+
+  it("preserves widths when splitting", () =>
+     test(table(tr(c11, cAnchor, c11), tr(td({colspan: 3, colwidth: [100, 200, 300]}, p("x")))),
+          table("<a>", tr(cEmpty), tr(cEmpty), "<b>"),
+          table(tr(c11, cEmpty, c11), tr(td({colwidth: [100]}, p("x")), cEmpty, td({colwidth: [300]}, p())))))
 })
