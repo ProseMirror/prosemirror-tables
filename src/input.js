@@ -149,6 +149,7 @@ exports.handleMouseDown = function(view, startEvent) {
   // Stop listening to mouse motion events.
   function stop() {
     view.root.removeEventListener("mouseup", stop)
+    view.root.removeEventListener("dragstart", stop)
     view.root.removeEventListener("mousemove", move)
     if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
   }
@@ -166,6 +167,7 @@ exports.handleMouseDown = function(view, startEvent) {
     if ($anchor) setCellSelection($anchor, event)
   }
   view.root.addEventListener("mouseup", stop)
+  view.root.addEventListener("dragstart", stop)
   view.root.addEventListener("mousemove", move)
 }
 
