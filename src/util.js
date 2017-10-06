@@ -20,11 +20,21 @@ export function isInTable(state) {
 
 export function selectionCell(state) {
   let sel = state.selection
-  if (sel instanceof NodeSelection && sel.$from.parent.type.spec.tableRole == "row") return sel.$from
   if (sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos ? sel.$anchorCell : sel.$headCell;
   }
-  return sel.$anchorCell || cellAround(sel.$head)
+  return sel.$anchorCell || cellAround(sel.$head) || cellNear(sel.$head)
+}
+
+function cellNear($pos) {
+  for (let after = $pos.nodeAfter, pos = $pos.pos; after; after = after.firstChild, pos++) {
+    let role = after.type.spec.tableRole
+    if (role == "cell" || role == "header_cell") return $pos.doc.resolve(pos)
+  }
+  for (let before = $pos.nodeBefore, pos = $pos.pos; before; before = before.lastChild, pos--) {
+    let role = after.type.spec.tableRole
+    if (role == "cell" || role == "header_cell") return $pos.doc.resolve(pos - before.nodeSize)
+  }
 }
 
 export function pointsAtCell($pos) {
