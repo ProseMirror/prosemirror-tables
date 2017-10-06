@@ -162,7 +162,7 @@ function updateColumnWidth(view, cell, width) {
     if (attrs.colwidth && attrs.colwidth[index] == width) continue
     let colwidth = attrs.colwidth ? attrs.colwidth.slice() : zeroes(attrs.colspan)
     colwidth[index] = width
-    tr.setNodeType(start + pos, null, setAttr(attrs, "colwidth", colwidth))
+    tr.setNodeMarkup(start + pos, null, setAttr(attrs, "colwidth", colwidth))
   }
   if (tr.docChanged) view.dispatch(tr)
 }

@@ -170,7 +170,7 @@ function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
       found = true
       let cell = table.nodeAt(pos)
       let {top: cellTop, left: cellLeft} = map.findCell(pos)
-      tr.setNodeType(tr.mapping.slice(mapFrom).map(pos + start), null, setAttr(cell.attrs, "rowspan", top - cellTop))
+      tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + start), null, setAttr(cell.attrs, "rowspan", top - cellTop))
       tr.insert(tr.mapping.slice(mapFrom).map(map.positionAt(top, cellLeft, table)),
                 cell.type.createAndFill(setAttr(cell.attrs, "rowspan", (cellTop + cell.attrs.rowspan) - top)))
       col += cell.attrs.colspan - 1
@@ -191,7 +191,7 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
       found = true
       let cell = table.nodeAt(pos), cellLeft = map.colCount(pos)
       let updatePos = tr.mapping.slice(mapFrom).map(pos + start)
-      tr.setNodeType(updatePos, null, rmColSpan(cell.attrs, left - cellLeft, cell.attrs.colspan - (left - cellLeft)))
+      tr.setNodeMarkup(updatePos, null, rmColSpan(cell.attrs, left - cellLeft, cell.attrs.colspan - (left - cellLeft)))
       tr.insert(updatePos + cell.nodeSize, cell.type.createAndFill(rmColSpan(cell.attrs, 0, left - cellLeft)))
       row += cell.attrs.rowspan - 1
     }

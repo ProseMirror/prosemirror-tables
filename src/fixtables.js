@@ -62,15 +62,15 @@ export function fixTable(state, table, tablePos, tr) {
     if (prob.type == "collision") {
       let cell = table.nodeAt(prob.pos)
       for (let j = 0; j < cell.attrs.rowspan; j++) mustAdd[prob.row + j] += prob.n
-      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, rmColSpan(cell.attrs, cell.attrs.colspan - prob.n, prob.n))
+      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, rmColSpan(cell.attrs, cell.attrs.colspan - prob.n, prob.n))
     } else if (prob.type == "missing") {
       mustAdd[prob.row] += prob.n
     } else if (prob.type == "overlong_rowspan") {
       let cell = table.nodeAt(prob.pos)
-      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - prob.n))
+      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - prob.n))
     } else if (prob.type == "colwidth mismatch") {
       let cell = table.nodeAt(prob.pos)
-      tr.setNodeType(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "colwidth", prob.colwidth))
+      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, setAttr(cell.attrs, "colwidth", prob.colwidth))
     }
   }
   let first, last

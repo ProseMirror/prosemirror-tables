@@ -44,8 +44,8 @@ function addColumn(tr, {map, tableStart, table}, col) {
     // If this position falls inside a col-spanning cell
     if (col > 0 && col < map.width && map.map[index - 1] == map.map[index]) {
       let pos = map.map[index], cell = table.nodeAt(pos)
-      tr.setNodeType(tr.mapping.map(tableStart + pos), null,
-                     addColSpan(cell.attrs, col - map.colCount(pos)))
+      tr.setNodeMarkup(tr.mapping.map(tableStart + pos), null,
+                       addColSpan(cell.attrs, col - map.colCount(pos)))
       // Skip ahead if rowspan > 1
       row += cell.attrs.rowspan - 1
     } else {
@@ -86,8 +86,8 @@ function removeColumn(tr, {map, table, tableStart}, col) {
     let index = row * map.width + col, pos = map.map[index], cell = table.nodeAt(pos)
     // If this is part of a col-spanning cell
     if ((col > 0 && map.map[index - 1] == pos) || (col < map.width - 1 && map.map[index + 1] == pos)) {
-      tr.setNodeType(tr.mapping.slice(mapStart).map(tableStart + pos), null,
-                     rmColSpan(cell.attrs, col - map.colCount(pos)))
+      tr.setNodeMarkup(tr.mapping.slice(mapStart).map(tableStart + pos), null,
+                       rmColSpan(cell.attrs, col - map.colCount(pos)))
     } else {
       let start = tr.mapping.slice(mapStart).map(tableStart + pos)
       tr.delete(start, start + cell.nodeSize)
@@ -132,7 +132,7 @@ function addRow(tr, {map, tableStart, table}, row) {
     // Covered by a rowspan cell
     if (row > 0 && row < map.height && map.map[index] == map.map[index - map.width]) {
       let pos = map.map[index], attrs = table.nodeAt(pos).attrs
-      tr.setNodeType(tableStart + pos, null, setAttr(attrs, "rowspan", attrs.rowspan + 1))
+      tr.setNodeMarkup(tableStart + pos, null, setAttr(attrs, "rowspan", attrs.rowspan + 1))
       col += attrs.colspan - 1
     } else {
       let type = refRow == null ? tableNodeTypes(table.type.schema).cell
@@ -179,7 +179,7 @@ function removeRow(tr, {map, table, tableStart}, row) {
     if (row > 0 && pos == map.map[index - map.width]) {
       // If this cell starts in the row above, simply reduce its rowspan
       let attrs = table.nodeAt(pos).attrs
-      tr.setNodeType(tr.mapping.slice(mapFrom).map(pos + tableStart), null, setAttr(attrs, "rowspan", attrs.rowspan - 1))
+      tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + tableStart), null, setAttr(attrs, "rowspan", attrs.rowspan - 1))
       col += attrs.colspan - 1
     } else if (row < map.width && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
@@ -256,9 +256,9 @@ export function mergeCells(state, dispatch) {
         }
       }
     }
-    tr.setNodeType(mergedPos + rect.tableStart, null,
-                   setAttr(addColSpan(mergedCell.attrs, mergedCell.attrs.colspan, (rect.right - rect.left) - mergedCell.attrs.colspan),
-                           "rowspan", rect.bottom - rect.top))
+    tr.setNodeMarkup(mergedPos + rect.tableStart, null,
+                     setAttr(addColSpan(mergedCell.attrs, mergedCell.attrs.colspan, (rect.right - rect.left) - mergedCell.attrs.colspan),
+                             "rowspan", rect.bottom - rect.top))
     if (content.size) {
       let end = mergedPos + 1 + mergedCell.content.size
       let start = isEmpty(mergedCell) ? mergedPos + 1 : end
@@ -296,7 +296,7 @@ export function splitCell(state, dispatch) {
         }
       }
     }
-    tr.setNodeType(sel.$anchorCell.pos, null, attrs[0])
+    tr.setNodeMarkup(sel.$anchorCell.pos, null, attrs[0])
     tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
                                       lastCell && tr.doc.resolve(lastCell)))
     dispatch(tr)
@@ -318,10 +318,10 @@ export function setCellAttr(name, value) {
       if (state.selection instanceof CellSelection)
         state.selection.forEachCell((node, pos) => {
           if (node.attrs[name] !== value)
-            tr.setNodeType(pos, null, setAttr(node.attrs, name, value))
+            tr.setNodeMarkup(pos, null, setAttr(node.attrs, name, value))
         })
       else
-        tr.setNodeType($cell.pos, null, setAttr($cell.nodeAfter.attrs, name, value))
+        tr.setNodeMarkup($cell.pos, null, setAttr($cell.nodeAfter.attrs, name, value))
       dispatch(tr)
     }
     return true
@@ -339,9 +339,9 @@ function toggleHeader(type) {
       let nodes = cells.map(pos => rect.table.nodeAt(pos))
       for (let i = 0; i < cells.length; i++) // Remove headers, if any
         if (nodes[i].type == types.header_cell)
-          tr.setNodeType(rect.tableStart + cells[i], types.cell, nodes[i].attrs)
+          tr.setNodeMarkup(rect.tableStart + cells[i], types.cell, nodes[i].attrs)
       if (tr.steps.length == 0) for (let i = 0; i < cells.length; i++) // No headers removed, add instead
-        tr.setNodeType(rect.tableStart + cells[i], types.header_cell, nodes[i].attrs)
+        tr.setNodeMarkup(rect.tableStart + cells[i], types.header_cell, nodes[i].attrs)
       dispatch(tr)
     }
     return true
