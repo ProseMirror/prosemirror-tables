@@ -3,9 +3,8 @@ const {EditorState} = require("prosemirror-state")
 const {Fragment} = require("prosemirror-model")
 
 const {doc, table, p, tr, td, cEmpty, c11, h11, hEmpty, c, cAnchor, eq} = require("./build")
-const {cellAround} = require("../src/util")
-const {TableMap} = require("../src/tablemap")
-const {pastedCells, insertCells, clipCells} = require("../src/copypaste")
+const {cellAround, TableMap, __pastedCells: pastedCells,
+       __insertCells: insertCells, __clipCells: clipCells} = require("../dist/")
 
 describe("pastedCells", () => {
   function test(slice, width, height, content) {

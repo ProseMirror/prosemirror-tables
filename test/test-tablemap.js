@@ -1,7 +1,7 @@
 const ist = require("ist")
 
 const {table, tr, c, c11} = require("./build")
-const {TableMap} = require("../src/tablemap")
+const {TableMap} = require("../dist/")
 
 function eqRect(a, b) {
   return a.left == b.left && a.right == b.right && a.top == b.top && a.bottom == b.bottom

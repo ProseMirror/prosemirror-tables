@@ -1,18 +1,18 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
-const {Slice, Fragment} = require("prosemirror-model")
-const {Selection, TextSelection} = require("prosemirror-state")
-const {keydownHandler} = require("prosemirror-keymap")
+import {Slice, Fragment} from "prosemirror-model"
+import {Selection, TextSelection} from "prosemirror-state"
+import {keydownHandler} from "prosemirror-keymap"
 
-const {key, nextCell, cellAround, inSameTable,
-       isInTable, selectionCell} = require("./util")
-const {CellSelection} = require("./cellselection")
-const {TableMap} = require("./tablemap")
-const {pastedCells, fitSlice, clipCells, insertCells} = require("./copypaste")
-const {tableNodeTypes} = require("./schema")
+import {key, nextCell, cellAround, inSameTable,
+        isInTable, selectionCell} from "./util"
+import {CellSelection} from "./cellselection"
+import {TableMap} from "./tablemap"
+import {pastedCells, fitSlice, clipCells, insertCells} from "./copypaste"
+import {tableNodeTypes} from "./schema"
 
-exports.handleKeyDown = keydownHandler({
+export const handleKeyDown = keydownHandler({
   "ArrowLeft": arrow("horiz", -1),
   "ArrowRight": arrow("horiz", 1),
   "ArrowUp": arrow("vert", -1),
@@ -83,14 +83,14 @@ function deleteCellSelection(state, dispatch) {
   return true
 }
 
-exports.handleTripleClick = function(view, pos) {
+export function handleTripleClick(view, pos) {
   let doc = view.state.doc, $cell = cellAround(doc.resolve(pos))
   if (!$cell) return false
   view.dispatch(view.state.tr.setSelection(new CellSelection($cell)))
   return true
 }
 
-exports.handlePaste = function(view, _, slice) {
+export function handlePaste(view, _, slice) {
   if (!isInTable(view.state)) return false
   let cells = pastedCells(slice), sel = view.state.selection
   if (sel instanceof CellSelection) {
@@ -109,7 +109,7 @@ exports.handlePaste = function(view, _, slice) {
   }
 }
 
-exports.handleMouseDown = function(view, startEvent) {
+export function handleMouseDown(view, startEvent) {
   if (startEvent.ctrlKey || startEvent.metaKey) return
 
   let startDOMCell = domInCell(view, startEvent.target), $anchor

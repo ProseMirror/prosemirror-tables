@@ -3,7 +3,7 @@ const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, p, td, c, h, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../src/commands")
+       mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../dist/")
 
 function test(doc, command, result) {
   let state = EditorState.create({doc, selection: selectionFor(doc)})

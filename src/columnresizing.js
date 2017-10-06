@@ -1,13 +1,13 @@
-const {Plugin, PluginKey} = require("prosemirror-state")
-const {Decoration, DecorationSet} = require("prosemirror-view")
-const {cellAround, pointsAtCell, setAttr} = require("./util")
-const {TableMap} = require("./tablemap")
-const {TableView, updateColumns} = require("./tableview")
-const {tableNodeTypes} = require("./schema")
+import {Plugin, PluginKey} from "prosemirror-state"
+import {Decoration, DecorationSet} from "prosemirror-view"
+import {cellAround, pointsAtCell, setAttr} from "./util"
+import {TableMap} from "./tablemap"
+import {TableView, updateColumns} from "./tableview"
+import {tableNodeTypes} from "./schema"
 
 const key = new PluginKey("tableColumnResizing")
 
-exports.columnResizing = function({handleWidth=5, cellMinWidth=25} = {}) {
+export function columnResizing({handleWidth=5, cellMinWidth=25} = {}) {
   let plugin = new Plugin({
     key,
     state: {

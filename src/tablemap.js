@@ -32,18 +32,17 @@ if (typeof WeakMap != "undefined") {
   }
 }
 
-class Rect {
+export class Rect {
   constructor(left, top, right, bottom) {
     this.left = left; this.top = top; this.right = right; this.bottom = bottom
   }
 }
-exports.Rect = Rect
 
 // ::- A table map describes the structore of a given table. To avoid
 // recomputing them all the time, they are cached per table node. To
 // be able to do that, positions saved in the map are relative to the
 // start of the table, rather than the start of the document.
-class TableMap {
+export class TableMap {
   constructor(width, height, map, problems) {
     // :: number The width of the table
     this.width = width
@@ -143,7 +142,6 @@ class TableMap {
     return readFromCache(table) || addToCache(table, computeMap(table))
   }
 }
-exports.TableMap = TableMap
 
 // Compute a table map.
 function computeMap(table) {

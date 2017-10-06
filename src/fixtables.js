@@ -3,9 +3,9 @@
 // rowspans) and that each row has the same width. Uses the problems
 // reported by `TableMap`.
 
-const {TableMap} = require("./tablemap")
-const {setAttr, rmColSpan} = require("./util")
-const {tableNodeTypes} = require("./schema")
+import {TableMap} from "./tablemap"
+import {setAttr, rmColSpan} from "./util"
+import {tableNodeTypes} from "./schema"
 
 // Helper for iterating through the nodes in a document that changed
 // compared to the given previous document. Useful for avoiding
@@ -36,7 +36,7 @@ function changedDescendants(old, cur, offset, f) {
 // provided, that is assumed to hold a previous, known-good state,
 // which will be used to avoid re-scanning unchanged parts of the
 // document.
-function fixTables(state, oldState) {
+export function fixTables(state, oldState) {
   let tr, check = (node, pos) => {
     if (node.type.spec.tableRole == "table") tr = fixTable(state, node, pos, tr)
   }
@@ -44,12 +44,11 @@ function fixTables(state, oldState) {
   else if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, check)
   return tr
 }
-exports.fixTables = fixTables
 
 // : (EditorState, Node, number, ?Transaction) → ?Transaction
 // Fix the given table, if necessary. Will append to the transaction
 // it was given, if non-null, or create a new one if necessary.
-let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
+export function fixTable(state, table, tablePos, tr) {
   let map = TableMap.get(table)
   if (!map.problems) return tr
   if (!tr) tr = state.tr.setMeta("addToHistory", false)
