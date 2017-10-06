@@ -57,7 +57,7 @@ let state = EditorState.create({doc, plugins: exampleSetup({schema, menuContent:
   })
 )})
 let fix = fixTables(state)
-if (fix) state = state.apply(fix)
+if (fix) state = state.apply(fix.setMeta("addToHistory", false))
 
 window.view = new EditorView(document.querySelector("#editor"), {state})
 
