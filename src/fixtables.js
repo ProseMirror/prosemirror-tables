@@ -52,7 +52,7 @@ exports.fixTables = fixTables
 let fixTable = exports.fixTable = function(state, table, tablePos, tr) {
   let map = TableMap.get(table)
   if (!map.problems) return tr
-  if (!tr) tr = state.tr.setMeta("addToHistory", false)
+  if (!tr) tr = state.tr
 
   // Track which rows we must add cells to, so that we can adjust that
   // when fixing collisions.
