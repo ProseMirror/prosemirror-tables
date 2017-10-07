@@ -88,27 +88,27 @@ function handleMouseLeave(view) {
 
 function handleMouseDown(view, event, cellMinWidth) {
   let pluginState = key.getState(view.state)
-  if (pluginState.activeHandle > -1 && !pluginState.dragging) {
-    let cell = view.state.doc.nodeAt(pluginState.activeHandle)
-    let width = currentColWidth(view, pluginState.activeHandle, cell.attrs)
-    view.dispatch(view.state.tr.setMeta(key, {setDragging: {startX: event.clientX, startWidth: width}}))
+  if (pluginState.activeHandle == -1 || pluginState.dragging) return false
 
-    function finish(event) {
-      window.removeEventListener("mouseup", finish)
-      window.removeEventListener("mousemove", move)
-      let pluginState = key.getState(view.state)
-      if (pluginState.dragging) {
-        updateColumnWidth(view, pluginState.activeHandle, draggedWidth(pluginState.dragging, event, cellMinWidth))
-        view.dispatch(view.state.tr.setMeta(key, {setDragging: null}))
-      }
+  let cell = view.state.doc.nodeAt(pluginState.activeHandle)
+  let width = currentColWidth(view, pluginState.activeHandle, cell.attrs)
+  view.dispatch(view.state.tr.setMeta(key, {setDragging: {startX: event.clientX, startWidth: width}}))
+
+  function finish(event) {
+    window.removeEventListener("mouseup", finish)
+    window.removeEventListener("mousemove", move)
+    let pluginState = key.getState(view.state)
+    if (pluginState.dragging) {
+      updateColumnWidth(view, pluginState.activeHandle, draggedWidth(pluginState.dragging, event, cellMinWidth))
+      view.dispatch(view.state.tr.setMeta(key, {setDragging: null}))
     }
-    function move(event) { if (!event.which) finish(event) }
-
-    window.addEventListener("mouseup", finish)
-    window.addEventListener("mousemove", move)
-    event.preventDefault()
-    return true
   }
+  function move(event) { if (!event.which) finish(event) }
+
+  window.addEventListener("mouseup", finish)
+  window.addEventListener("mousemove", move)
+  event.preventDefault()
+  return true
 }
 
 function currentColWidth(view, cellPos, {colspan, colwidth}) {
