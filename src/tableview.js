@@ -1,4 +1,4 @@
-class TableView {
+export class TableView {
   constructor(node, cellMinWidth) {
     this.node = node
     this.cellMinWidth = cellMinWidth
@@ -21,9 +21,8 @@ class TableView {
     return record.type == "attributes" && (record.target == this.table || this.colgroup.contains(record.target))
   }
 }
-exports.TableView = TableView
 
-function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrideValue) {
+export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrideValue) {
   let totalWidth = 0, fixedWidth = true
   let nextDOM = colgroup.firstChild, row = node.firstChild
   for (let i = 0, col = 0; i < row.childCount; i++) {
@@ -56,4 +55,3 @@ function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrid
     table.style.minWidth = totalWidth + "px"
   }
 }
-exports.updateColumns = updateColumns

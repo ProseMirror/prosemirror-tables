@@ -4,15 +4,12 @@
 // transaction, the shapes of tables are normalized to be rectangular
 // and not contain overlapping cells.
 
-const {Plugin} = require("prosemirror-state")
+import {Plugin} from "prosemirror-state"
 
-const {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} = require("./input")
-const {key} = require("./util")
-const {drawCellSelection, CellSelection, normalizeSelection} = require("./cellselection")
-const {fixTables} = require("./fixtables")
-const {tableNodes} = require("./schema")
-const commands = require("./commands")
-const {TableMap} = require("./tablemap")
+import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
+import {key, cellAround} from "./util"
+import {drawCellSelection, normalizeSelection} from "./cellselection"
+import {fixTables} from "./fixtables"
 
 // :: () → Plugin
 //
@@ -26,7 +23,7 @@ const {TableMap} = require("./tablemap")
 // rather broadly, and other plugins, like the gap cursor or the
 // column-width dragging plugin, might want to get a turn first to
 // perform more specific behavior.
-function tableEditing() {
+export function tableEditing() {
   return new Plugin({
     key,
 
@@ -67,13 +64,12 @@ function tableEditing() {
     }
   })
 }
-exports.tableEditing = tableEditing
 
-exports.TableMap = TableMap;
-exports.tableNodes = tableNodes
-exports.CellSelection = CellSelection
-exports.fixTables = fixTables
-exports.handlePaste = handlePaste
-for (let name in commands) exports[name] = commands[name]
-
-exports.columnResizing = require("./columnresizing").columnResizing
+export {fixTables, handlePaste, cellAround}
+export {tableNodes} from "./schema"
+export {CellSelection} from "./cellselection"
+export {TableMap} from "./tablemap"
+export {addColumnBefore, addColumnAfter, deleteColumn, addRowBefore, addRowAfter, deleteRow, mergeCells, splitCell,
+        setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, goToNextCell, deleteTable} from "./commands"
+export {columnResizing} from "./columnresizing"
+export {pastedCells as __pastedCells, insertCells as __insertCells, clipCells as __clipCells} from "./copypaste"

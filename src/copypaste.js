@@ -10,20 +10,20 @@
 // clipped to the selection's rectangle, optionally repeating the
 // pasted cells when they are smaller than the selection.
 
-const {Slice, Fragment} = require("prosemirror-model")
-const {Transform} = require("prosemirror-transform")
+import {Slice, Fragment} from "prosemirror-model"
+import {Transform} from "prosemirror-transform"
 
-const {setAttr, rmColSpan} = require("./util")
-const {TableMap} = require("./tablemap")
-const {CellSelection} = require("./cellselection")
-const {tableNodeTypes} = require("./schema")
+import {setAttr, rmColSpan} from "./util"
+import {TableMap} from "./tablemap"
+import {CellSelection} from "./cellselection"
+import {tableNodeTypes} from "./schema"
 
 // Utilities to help with copying and pasting table cells
 
 // : (Slice) → ?{width: number, height: number, rows: [Fragment]}
 // Get a rectangular area of cells from a slice, or null if the outer
 // nodes of the slice aren't table cells or rows.
-exports.pastedCells = function(slice) {
+export function pastedCells(slice) {
   if (!slice.size) return null
   let {content, openStart, openEnd} = slice
   while (content.childCount == 1 && (openStart > 0 && openEnd > 0 || content.firstChild.type.spec.tableRole == "table")) {
@@ -75,7 +75,7 @@ function ensureRectangular(schema, rows) {
   return {height: rows.length, width, rows}
 }
 
-let fitSlice = exports.fitSlice = function(nodeType, slice) {
+export function fitSlice(nodeType, slice) {
   let node = nodeType.createAndFill()
   let tr = new Transform(node).replace(0, node.content.size, slice)
   return tr.doc
@@ -85,7 +85,7 @@ let fitSlice = exports.fitSlice = function(nodeType, slice) {
 // Clip or extend (repeat) the given set of cells to cover the given
 // width and height. Will clip rowspan/colspan cells at the edges when
 // they stick out.
-exports.clipCells = function({width, height, rows}, newWidth, newHeight) {
+export function clipCells({width, height, rows}, newWidth, newHeight) {
   if (width != newWidth) {
     let added = [], newRows = []
     for (let row = 0; row < rows.length; row++) {
@@ -201,7 +201,7 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
 
 // Insert the given set of cells (as returned by `pastedCells`) into a
 // table, at the position pointed at by rect.
-exports.insertCells = function(state, dispatch, tableStart, rect, cells) {
+export function insertCells(state, dispatch, tableStart, rect, cells) {
   let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc, map = TableMap.get(table)
   let {top, left} = rect
   let right = left + cells.width, bottom = top + cells.height

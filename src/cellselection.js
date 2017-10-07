@@ -3,20 +3,20 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
-const {Selection, TextSelection, NodeSelection, SelectionRange} = require("prosemirror-state")
-const {Decoration, DecorationSet} = require("prosemirror-view")
-const {Fragment, Slice} = require("prosemirror-model")
+import {Selection, TextSelection, NodeSelection, SelectionRange} from "prosemirror-state"
+import {Decoration, DecorationSet} from "prosemirror-view"
+import {Fragment, Slice} from "prosemirror-model"
 
 
-const {inSameTable, pointsAtCell, setAttr, rmColSpan} = require("./util")
-const {TableMap} = require("./tablemap")
+import {inSameTable, pointsAtCell, setAttr, rmColSpan} from "./util"
+import {TableMap} from "./tablemap"
 
 // ::- A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
 // subclass that represents a cell selection spanning part of a table.
 // With the plugin enabled, these will be created when the user
 // selects across cells, and will be drawn by giving selected cells a
 // `selectedCell` CSS class.
-class CellSelection extends Selection {
+export class CellSelection extends Selection {
   // :: (ResolvedPos, ?ResolvedPos)
   // A table selection is identified by its anchor and head cells. The
   // positions given to this constructor should point _before_ two
@@ -202,7 +202,6 @@ class CellSelection extends Selection {
 
   getBookmark() { return new CellBookmark(this.$anchorCell.pos, this.$headCell.pos) }
 }
-exports.CellSelection = CellSelection
 
 CellSelection.prototype.visible = false
 
@@ -229,7 +228,7 @@ class CellBookmark {
   }
 }
 
-exports.drawCellSelection = function(state) {
+export function drawCellSelection(state) {
   if (!(state.selection instanceof CellSelection)) return null
   let cells = []
   state.selection.forEachCell((node, pos) => {
@@ -248,7 +247,7 @@ function isCellBoundarySelection({$from, $to}) {
   return afterFrom == beforeTo && /row|table/.test($from.node(depth).type.spec.tableRole)
 }
 
-exports.normalizeSelection = function(state, tr) {
+export function normalizeSelection(state, tr) {
   let sel = (tr || state).selection, doc = (tr || state).doc, normalize, role
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
     if (role == "cell" || role == "header_cell") {

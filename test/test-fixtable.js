@@ -2,7 +2,7 @@ const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, td, p, c, c11, cEmpty, eq} = require("./build")
-const {fixTables} = require("../src/fixtables")
+const {fixTables} = require("../dist/")
 
 let cw100 = td({colwidth: [100]}, p("x")), cw200 = td({colwidth: [200]}, p("x"))
 

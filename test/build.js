@@ -1,9 +1,7 @@
 const {Schema} = require("prosemirror-model")
 const {TextSelection, NodeSelection} = require("prosemirror-state")
 const {schema: baseSchema} = require("prosemirror-schema-basic")
-const {tableNodes} = require("../src/schema")
-const {cellAround} = require("../src/util")
-const {CellSelection} = require("../src/cellselection")
+const {tableNodes, cellAround, CellSelection} = require("../dist/")
 
 let schema = new Schema({
   nodes: baseSchema.spec.nodes.append(tableNodes({

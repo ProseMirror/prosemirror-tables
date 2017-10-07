@@ -3,8 +3,7 @@ const {EditorState} = require("prosemirror-state")
 const {Slice} = require("prosemirror-model")
 
 const {doc, table, tr, p, td, cEmpty, c11, cAnchor, cHead, c, eq, selectionFor} = require("./build")
-const {CellSelection} = require("../src/cellselection")
-const {addRowBefore, addRowAfter, addColumnBefore, addColumnAfter} = require("../src/commands")
+const {CellSelection, addRowBefore, addRowAfter, addColumnBefore, addColumnAfter} = require("../dist/")
 
 let t = doc(table(tr(/* 2*/ cEmpty, /* 6*/ cEmpty, /*10*/ cEmpty),
                   tr(/*16*/ cEmpty, /*20*/ cEmpty, /*24*/ cEmpty),

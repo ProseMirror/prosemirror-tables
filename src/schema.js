@@ -60,7 +60,7 @@ function setCellAttrs(node, extraAttrs) {
 //       setDOMAttr:: ?(value: any, attrs: Object)>
 //       A function to add the attribute's value to an attribute
 //       object that's used to render the cell's DOM.
-function tableNodes(options) {
+export function tableNodes(options) {
   let extraAttrs = options.cellAttributes || {}
   let cellAttrs = {
     colspan: {default: 1},
@@ -102,9 +102,8 @@ function tableNodes(options) {
     }
   }
 }
-exports.tableNodes = tableNodes
 
-function tableNodeTypes(schema) {
+export function tableNodeTypes(schema) {
   let result = schema.cached.tableNodeTypes
   if (!result) {
     result = schema.cached.tableNodeTypes = {}
@@ -115,4 +114,3 @@ function tableNodeTypes(schema) {
   }
   return result
 }
-exports.tableNodeTypes = tableNodeTypes
