@@ -74,6 +74,7 @@ export function tableNodes(options) {
     table: {
       content: "table_row+",
       tableRole: "table",
+      isolating: true,
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
       toDOM() { return ["table", ["tbody", 0]] },
