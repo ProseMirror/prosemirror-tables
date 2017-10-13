@@ -77,15 +77,13 @@ export function tableNodes(options) {
       isolating: true,
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
-      toDOM() { return ["table", ["tbody", 0]] },
-      allowGapCursor: false
+      toDOM() { return ["table", ["tbody", 0]] }
     },
     table_row: {
       content: "(table_cell | table_header)*",
       tableRole: "row",
       parseDOM: [{tag: "tr"}],
-      toDOM() { return ["tr", 0] },
-      allowGapCursor: false
+      toDOM() { return ["tr", 0] }
     },
     table_cell: {
       content: options.cellContent,
