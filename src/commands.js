@@ -410,9 +410,9 @@ export function deleteTable(state, dispatch) {
   return false
 }
 
-// :: (number, number, ?Object) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// :: (?number, ?number, ?Object) → (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Creates a table with specified size and attrs, then focus to first cell.
-export function createTable(row, col, cellAttrs = {}) {
+export function createTable(row = 1, col = 1, cellAttrs = {}) {
   return function(state, dispatch) {
     const { tr, schema } = state
     const tableType = schema.nodes.table
