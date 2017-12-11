@@ -57,7 +57,7 @@ function setCellAttrs(node, extraAttrs) {
 //       getFromDOM:: ?(dom.Node) → any
 //       A function to read the attribute's value from a DOM node.
 //
-//       setDOMAttr:: ?(value: any, attrs: Object)>
+//       setDOMAttr:: ?(value: any, attrs: Object)
 //       A function to add the attribute's value to an attribute
 //       object that's used to render the cell's DOM.
 export function tableNodes(options) {
