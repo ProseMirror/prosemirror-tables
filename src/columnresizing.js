@@ -56,9 +56,9 @@ class ResizeState {
     if (action && action.setDragging !== undefined)
       return new ResizeState(state.activeHandle, action.setDragging)
     if (state.activeHandle > -1 && tr.docChanged) {
-      let $handle = tr.doc.resolve(tr.mapping.map(state.activeHandle, -1))
-      if (!pointsAtCell($handle)) $handle = null
-      state = new ResizeState($handle.pos, state.dragging)
+      let handle = tr.mapping.map(state.activeHandle, -1)
+      if (!pointsAtCell(tr.doc.resolve(handle))) handle = null
+      state = new ResizeState(handle, state.dragging)
     }
     return state
   }
