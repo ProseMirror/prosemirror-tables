@@ -23,7 +23,7 @@ export function selectionCell(state) {
   if (sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos ? sel.$anchorCell : sel.$headCell;
   }
-  return sel.$anchorCell || cellAround(sel.$head) || cellNear(sel.$head)
+  return cellAround(sel.$head) || cellNear(sel.$head)
 }
 
 function cellNear($pos) {
