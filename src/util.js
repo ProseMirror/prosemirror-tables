@@ -1,6 +1,6 @@
 // Various helper function for working with tables
 
-import {PluginKey, NodeSelection} from "prosemirror-state"
+import {PluginKey} from "prosemirror-state"
 
 import {TableMap} from "./tablemap"
 
