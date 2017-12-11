@@ -27,7 +27,8 @@ export function selectionCell(state) {
 }
 
 function cellNear($pos) {
-  for (let after = $pos.nodeAfter, pos = $pos.pos; after; after = after.firstChild, pos++) {
+  let after;
+  for (after = $pos.nodeAfter, pos = $pos.pos; after; after = after.firstChild, pos++) {
     let role = after.type.spec.tableRole
     if (role == "cell" || role == "header_cell") return $pos.doc.resolve(pos)
   }
