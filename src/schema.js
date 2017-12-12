@@ -47,7 +47,7 @@ function setCellAttrs(node, extraAttrs) {
 //     cellContent:: string
 //     The content expression for table cells.
 //
-//     cellAttributes:: Object
+//     cellAttributes:: ?Object
 //     Additional attributes to add to cells. Maps attribute names to
 //     objects with the following properties:
 //
