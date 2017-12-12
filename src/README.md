@@ -55,6 +55,8 @@ available to users.
 
 @deleteTable
 
+@createTable
+
 ### Utilities
 
 @fixTables
