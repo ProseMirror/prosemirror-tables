@@ -32,7 +32,7 @@ function cellNear($pos) {
     if (role == "cell" || role == "header_cell") return $pos.doc.resolve(pos)
   }
   for (let before = $pos.nodeBefore, pos = $pos.pos; before; before = before.lastChild, pos--) {
-    let role = after.type.spec.tableRole
+    let role = before.type.spec.tableRole
     if (role == "cell" || role == "header_cell") return $pos.doc.resolve(pos - before.nodeSize)
   }
 }
