@@ -49,7 +49,7 @@ export function pastedCells(slice) {
   return ensureRectangular(schema, rows)
 }
 
-// : [Fragment] → {width: number, height: number, rows: [Fragment]}
+// : (Schema, [Fragment]) → {width: number, height: number, rows: [Fragment]}
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
 function ensureRectangular(schema, rows) {
