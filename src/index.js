@@ -7,7 +7,7 @@
 import {Plugin} from "prosemirror-state"
 
 import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
-import {key, cellAround} from "./util"
+import {key, cellAround, inSameTable} from "./util"
 import {drawCellSelection, normalizeSelection} from "./cellselection"
 import {fixTables} from "./fixtables"
 
@@ -65,11 +65,11 @@ export function tableEditing() {
   })
 }
 
-export {fixTables, handlePaste, cellAround}
+export {fixTables, handlePaste, cellAround, inSameTable}
 export {tableNodes} from "./schema"
 export {CellSelection} from "./cellselection"
 export {TableMap} from "./tablemap"
-export {addColumnBefore, addColumnAfter, deleteColumn, addRowBefore, addRowAfter, deleteRow, mergeCells, splitCell,
+export {addColumn, addColumnBefore, addColumnAfter, deleteColumn, addRow, addRowBefore, addRowAfter, deleteRow, mergeCells, splitCell,
         setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, goToNextCell, deleteTable} from "./commands"
 export {columnResizing} from "./columnresizing"
 export {pastedCells as __pastedCells, insertCells as __insertCells, clipCells as __clipCells} from "./copypaste"
