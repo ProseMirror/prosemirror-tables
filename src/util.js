@@ -22,6 +22,8 @@ export function selectionCell(state) {
   let sel = state.selection
   if (sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos ? sel.$anchorCell : sel.$headCell;
+  } else if (sel.node && sel.node.type.spec.tableRole == "cell") {
+    return sel.$anchor
   }
   return cellAround(sel.$head) || cellNear(sel.$head)
 }
