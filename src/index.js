@@ -66,7 +66,7 @@ export function tableEditing() {
 }
 
 export {fixTables, handlePaste}
-export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell} from "./utils";
+export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell} from "./util";
 export {tableNodes} from "./schema"
 export {CellSelection} from "./cellselection"
 export {TableMap} from "./tablemap"
