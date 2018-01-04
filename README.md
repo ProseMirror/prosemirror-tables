@@ -33,7 +33,7 @@ schema. That's what `tableNodes` is for:
        * **`cellContent`**`: string`\
          The content expression for table cells.
 
-       * **`cellAttributes`**`: Object`\
+       * **`cellAttributes`**`: ?Object`\
          Additional attributes to add to cells. Maps attribute names to
          objects with the following properties:
 
@@ -44,7 +44,6 @@ schema. That's what `tableNodes` is for:
             A function to read the attribute's value from a DOM node.
 
           * **`setDOMAttr`**`: ?fn(value: any, attrs: Object)`\
-            >
             A function to add the attribute's value to an attribute
             object that's used to render the cell's DOM.
 
