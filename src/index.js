@@ -65,11 +65,11 @@ export function tableEditing() {
   })
 }
 
-export {fixTables, handlePaste, cellAround, inSameTable}
+export {fixTables, handlePaste}
+export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell} from "./util";
 export {tableNodes} from "./schema"
 export {CellSelection} from "./cellselection"
 export {TableMap} from "./tablemap"
-export {addColumn, addColumnBefore, addColumnAfter, deleteColumn, addRow, addRowBefore, addRowAfter, deleteRow, mergeCells, splitCell,
-        setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, goToNextCell, deleteTable} from "./commands"
+export * from "./commands"
 export {columnResizing} from "./columnresizing"
 export {pastedCells as __pastedCells, insertCells as __insertCells, clipCells as __clipCells} from "./copypaste"
