@@ -7,7 +7,7 @@
 import {Plugin} from "prosemirror-state"
 
 import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
-import {key, cellAround, inSameTable} from "./util"
+import {key} from "./util"
 import {drawCellSelection, normalizeSelection} from "./cellselection"
 import {fixTables} from "./fixtables"
 
