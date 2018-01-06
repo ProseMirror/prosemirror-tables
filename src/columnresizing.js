@@ -5,7 +5,7 @@ import {TableMap} from "./tablemap"
 import {TableView, updateColumns} from "./tableview"
 import {tableNodeTypes} from "./schema"
 
-const key = new PluginKey("tableColumnResizing")
+export const key = new PluginKey("tableColumnResizing")
 
 export function columnResizing({handleWidth=5, cellMinWidth=25} = {}) {
   let plugin = new Plugin({
