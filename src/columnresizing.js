@@ -7,13 +7,13 @@ import {tableNodeTypes} from "./schema"
 
 export const key = new PluginKey("tableColumnResizing")
 
-export function columnResizing({handleWidth=5, cellMinWidth=25} = {}) {
+export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = TableView } = {}) {
   let plugin = new Plugin({
     key,
     state: {
       init(_, state) {
         this.spec.props.nodeViews[tableNodeTypes(state.schema).table.name] =
-          node => new TableView(node, cellMinWidth)
+          node => new View(node, cellMinWidth)
         return new ResizeState(-1, false)
       },
       apply(tr, prev) {
