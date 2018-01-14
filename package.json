@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-tables",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
   "style": "style/tables.css",
