@@ -34,7 +34,7 @@ function columnIsHeader(map, table, col) {
 }
 
 // Add a column at the given position in a table.
-function addColumn(tr, {map, tableStart, table}, col) {
+export function addColumn(tr, {map, tableStart, table}, col) {
   let refColumn = col > 0 ? -1 : 0
   if (columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0
@@ -122,7 +122,7 @@ function rowIsHeader(map, table, row) {
   return true
 }
 
-function addRow(tr, {map, tableStart, table}, row) {
+export function addRow(tr, {map, tableStart, table}, row) {
   let rowPos = tableStart
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
   let cells = [], refRow = row > 0 ? -1 : 0
