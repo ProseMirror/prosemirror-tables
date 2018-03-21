@@ -166,7 +166,7 @@ export function addRowAfter(state, dispatch) {
   return true
 }
 
-function removeRow(tr, {map, table, tableStart}, row) {
+export function removeRow(tr, {map, table, tableStart}, row) {
   let rowPos = 0
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize
   let nextRow = rowPos + table.child(row).nodeSize
