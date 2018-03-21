@@ -80,7 +80,7 @@ export function addColumnAfter(state, dispatch) {
   return true
 }
 
-function removeColumn(tr, {map, table, tableStart}, col) {
+export function removeColumn(tr, {map, table, tableStart}, col) {
   let mapStart = tr.mapping.maps.length
   for (let row = 0; row < map.height;) {
     let index = row * map.width + col, pos = map.map[index], cell = table.nodeAt(pos)
