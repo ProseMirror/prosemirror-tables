@@ -11,23 +11,28 @@ import {CellSelection} from "./cellselection"
 import {TableMap} from "./tablemap"
 import {pastedCells, fitSlice, clipCells, insertCells} from "./copypaste"
 import {tableNodeTypes} from "./schema"
+import {deleteRow, deleteColumn} from "./commands"
 
-export const handleKeyDown = keydownHandler({
-  "ArrowLeft": arrow("horiz", -1),
-  "ArrowRight": arrow("horiz", 1),
-  "ArrowUp": arrow("vert", -1),
-  "ArrowDown": arrow("vert", 1),
+export function handleKeyDown(options) {
+  let deleteCellSel = deleteCellSelection(options)
 
-  "Shift-ArrowLeft": shiftArrow("horiz", -1),
-  "Shift-ArrowRight": shiftArrow("horiz", 1),
-  "Shift-ArrowUp": shiftArrow("vert", -1),
-  "Shift-ArrowDown": shiftArrow("vert", 1),
+  return keydownHandler({
+    "ArrowLeft": arrow("horiz", -1),
+    "ArrowRight": arrow("horiz", 1),
+    "ArrowUp": arrow("vert", -1),
+    "ArrowDown": arrow("vert", 1),
 
-  "Backspace": deleteCellSelection,
-  "Mod-Backspace": deleteCellSelection,
-  "Delete": deleteCellSelection,
-  "Mod-Delete": deleteCellSelection
-})
+    "Shift-ArrowLeft": shiftArrow("horiz", -1),
+    "Shift-ArrowRight": shiftArrow("horiz", 1),
+    "Shift-ArrowUp": shiftArrow("vert", -1),
+    "Shift-ArrowDown": shiftArrow("vert", 1),
+
+    "Backspace": deleteCellSel,
+    "Mod-Backspace": deleteCellSel,
+    "Delete": deleteCellSel,
+    "Mod-Delete": deleteCellSel
+  })
+}
 
 function arrow(axis, dir) {
   return (state, dispatch, view) => {
@@ -68,19 +73,25 @@ function shiftArrow(axis, dir) {
   }
 }
 
-function deleteCellSelection(state, dispatch) {
-  let sel = state.selection
-  if (!(sel instanceof CellSelection)) return false
-  if (dispatch) {
-    let tr = state.tr, baseContent = tableNodeTypes(state.schema).cell.createAndFill().content
-    sel.forEachCell((cell, pos) => {
-      if (!cell.content.eq(baseContent))
-        tr.replace(tr.mapping.map(pos + 1), tr.mapping.map(pos + cell.nodeSize - 1),
-                   new Slice(baseContent, 0, 0))
-    })
-    if (tr.docChanged) dispatch(tr)
+function deleteCellSelection(options) {
+  return function(state, dispatch) {
+    let sel = state.selection
+    if (!(sel instanceof CellSelection)) return false
+    if (dispatch) {
+      if (options.deleteRowsAndColumns || true) {
+        if (sel.isRowSelection()) return deleteColumn(state, dispatch)
+        else if (sel.isColSelection()) return deleteRow(state, dispatch)
+      }
+      let tr = state.tr, baseContent = tableNodeTypes(state.schema).cell.createAndFill().content
+      sel.forEachCell((cell, pos) => {
+        if (!cell.content.eq(baseContent))
+          tr.replace(tr.mapping.map(pos + 1), tr.mapping.map(pos + cell.nodeSize - 1),
+                     new Slice(baseContent, 0, 0))
+      })
+      if (tr.docChanged) dispatch(tr)
+    }
+    return true
   }
-  return true
 }
 
 export function handleTripleClick(view, pos) {

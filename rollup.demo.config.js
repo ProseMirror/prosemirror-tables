@@ -17,7 +17,7 @@ export default {
     }),
 
     commonJS({
-      include: '**',
+      include: '../**',
       sourceMap: false
     })
   ]
