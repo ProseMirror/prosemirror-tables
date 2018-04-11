@@ -48,14 +48,14 @@ let tableMenu = [
 menu.splice(2, 0, [new Dropdown(tableMenu, {label: "Table"})])
 
 let doc = DOMParser.fromSchema(schema).parse(document.querySelector("#content"))
-let state = EditorState.create({doc, plugins: exampleSetup({schema, menuContent: menu}).concat(
+let state = EditorState.create({doc, plugins: [
   columnResizing(),
   tableEditing(),
   keymap({
     "Tab": goToNextCell(1),
     "Shift-Tab": goToNextCell(-1)
   })
-)})
+].concat(exampleSetup({schema, menuContent: menu}))})
 let fix = fixTables(state)
 if (fix) state = state.apply(fix.setMeta("addToHistory", false))
 
