@@ -51,9 +51,9 @@ export class CellSelection extends Selection {
     if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell)) {
       let tableChanged = this.$anchorCell.node(-1) != $anchorCell.node(-1)
       if (tableChanged && this.isRowSelection())
-        return CellSelection.colSelection($anchorCell, $headCell)
-      else if (tableChanged && this.isColSelection())
         return CellSelection.rowSelection($anchorCell, $headCell)
+      else if (tableChanged && this.isColSelection())
+        return CellSelection.colSelection($anchorCell, $headCell)
       else
         return new CellSelection($anchorCell, $headCell)
     }
@@ -128,9 +128,9 @@ export class CellSelection extends Selection {
   }
 
   // :: (ResolvedPos, ?ResolvedPos) → CellSelection
-  // Returns the smallest row selection that covers the given anchor
+  // Returns the smallest column selection that covers the given anchor
   // and head cell.
-  static rowSelection($anchorCell, $headCell = $anchorCell) {
+  static colSelection($anchorCell, $headCell = $anchorCell) {
     let map = TableMap.get($anchorCell.node(-1)), start = $anchorCell.start(-1)
     let anchorRect = map.findCell($anchorCell.pos - start), headRect = map.findCell($headCell.pos - start)
     let doc = $anchorCell.node(0)
@@ -167,9 +167,9 @@ export class CellSelection extends Selection {
   }
 
   // :: (ResolvedPos, ?ResolvedPos) → CellSelection
-  // Returns the smallest column selection that covers the given anchor
+  // Returns the smallest row selection that covers the given anchor
   // and head cell.
-  static colSelection($anchorCell, $headCell = $anchorCell) {
+  static rowSelection($anchorCell, $headCell = $anchorCell) {
     let map = TableMap.get($anchorCell.node(-1)), start = $anchorCell.start(-1)
     let anchorRect = map.findCell($anchorCell.pos - start), headRect = map.findCell($headCell.pos - start)
     let doc = $anchorCell.node(0)
