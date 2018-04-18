@@ -34,26 +34,29 @@ export function handleKeyDown(options) {
   })
 }
 
+function maybeSetSelection(state, dispatch, selection) {
+  if (selection.eq(state.selection)) return false
+  if (dispatch) dispatch(state.tr.setSelection(selection))
+  return true
+}
+
 function arrow(axis, dir) {
   return (state, dispatch, view) => {
     let sel = state.selection
     if (sel instanceof CellSelection) {
-      dispatch(state.tr.setSelection(Selection.near(sel.$headCell, dir)))
-      return true
+      return maybeSetSelection(state, dispatch, Selection.near(sel.$headCell, dir))
     }
     if (axis != "horiz" && !sel.empty) return false
     let end = atEndOfCell(view, axis, dir)
     if (end == null) return false
     if (axis == "horiz") {
-      dispatch(state.tr.setSelection(Selection.near(state.doc.resolve(sel.head + dir), dir)))
-      return true
+      return maybeSetSelection(state, dispatch, Selection.near(state.doc.resolve(sel.head + dir), dir))
     } else {
       let $cell = state.doc.resolve(end), $next = nextCell($cell, axis, dir), newSel
       if ($next) newSel = Selection.near($next, 1)
       else if (dir < 0) newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1)
       else newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1)
-      dispatch(state.tr.setSelection(newSel))
-      return true
+      return maybeSetSelection(state, dispatch, newSel)
     }
   }
 }
@@ -68,8 +71,7 @@ function shiftArrow(axis, dir) {
     }
     let $head = nextCell(sel.$headCell, axis, dir)
     if (!$head) return false
-    if (dispatch) dispatch(state.tr.setSelection(new CellSelection(sel.$anchorCell, $head)))
-    return true
+    return maybeSetSelection(state, dispatch, new CellSelection(sel.$anchorCell, $head))
   }
 }
 
