@@ -23,7 +23,7 @@ import {fixTables} from "./fixtables"
 // rather broadly, and other plugins, like the gap cursor or the
 // column-width dragging plugin, might want to get a turn first to
 // perform more specific behavior.
-export function tableEditing(options = {}) {
+export function tableEditing() {
   return new Plugin({
     key,
 
@@ -54,7 +54,7 @@ export function tableEditing(options = {}) {
 
       handleTripleClick,
 
-      handleKeyDown: handleKeyDown(options.deleteRowsAndColumns),
+      handleKeyDown,
 
       handlePaste
     },
