@@ -6,9 +6,18 @@ in such a table, a plugin to manage such selections and enforce
 invariants on such tables, and a number of commands to work with
 tables.
 
-The top-level directory contains a `demo.js` and `index.html`, which
-can be built with `npm run build_demo` to show a simple demo of how the
-module can be used.
+## Getting started 
+
+To see a demo comprised of **index.html** and **demo.js** running in a browser, follow these steps:
+
+```
+git clone git@github.com:ProseMirror/prosemirror-tables.git
+cd prosemirror-tables
+npm install
+npm run build_demo
+```
+
+Then open **index.html** with your browser. 
 
 ## Documentation
 
