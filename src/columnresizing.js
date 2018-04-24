@@ -67,9 +67,7 @@ class ResizeState {
 function handleMouseMove(view, event, handleWidth, cellMinWidth) {
   let pluginState = key.getState(view.state)
 
-  if (pluginState.dragging) {
-    displayColumnWidth(view, pluginState.activeHandle, draggedWidth(pluginState.dragging, event, cellMinWidth), cellMinWidth)
-  } else {
+  if (!pluginState.dragging) {
     let target = domCellAround(event.target), cell = -1
     if (target) {
       let {left, right} = target.getBoundingClientRect()
@@ -83,7 +81,8 @@ function handleMouseMove(view, event, handleWidth, cellMinWidth) {
 }
 
 function handleMouseLeave(view) {
-  if (key.getState(view.state).activeHandle > -1) updateHandle(view, -1)
+  let pluginState = key.getState(view.state)
+  if (pluginState.activeHandle > -1 && !pluginState.dragging) updateHandle(view, -1)
 }
 
 function handleMouseDown(view, event, cellMinWidth) {
@@ -103,7 +102,12 @@ function handleMouseDown(view, event, cellMinWidth) {
       view.dispatch(view.state.tr.setMeta(key, {setDragging: null}))
     }
   }
-  function move(event) { if (!event.which) finish(event) }
+  function move(event) {
+    if (!event.which) return finish(event)
+    let pluginState = key.getState(view.state)
+    let dragged = draggedWidth(pluginState.dragging, event, cellMinWidth)
+    displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth)
+  }
 
   window.addEventListener("mouseup", finish)
   window.addEventListener("mousemove", move)
