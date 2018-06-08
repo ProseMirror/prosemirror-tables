@@ -12,6 +12,12 @@ export function cellAround($pos) {
   return null
 }
 
+export function cellWrapping($pos) {
+  for (var d = $pos.depth - 1; d > 0; d--)
+    if ($pos.node(d).type.spec.tableRole == "cell") return $pos.node(d)
+  return null
+}
+
 export function isInTable(state) {
   let $head = state.selection.$head
   for (let d = $head.depth; d > 0; d--) if ($head.node(d).type.spec.tableRole == "row") return true
