@@ -317,10 +317,15 @@ describe("mergeCells", () => {
 })
 
 describe("splitCell", () => {
-  it("does nothing when there isn't a cell selection", () =>
+  it("does nothing when cursor is inside of a cell with attributes colspan = 1 and rowspan = 1", () =>
      test(table(tr(cCursor, c11)),
           splitCell,
           null))
+
+  it("can split when col-spanning cell with cursor", () =>
+     test(table(tr(td({colspan: 2}, p("foo<cursor>")), c11)),
+           splitCell,
+           table(tr(td(p("foo")), cEmpty, c11))))
 
   it("does nothing for a multi-cell selection", () =>
      test(table(tr(cAnchor, cHead, c11)),

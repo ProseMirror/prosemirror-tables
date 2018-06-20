@@ -7,6 +7,7 @@ import {TableMap, Rect} from "./tablemap"
 import {CellSelection} from "./cellselection"
 import {setAttr, addColSpan, rmColSpan, moveCellForward, isInTable, selectionCell} from "./util"
 import {tableNodeTypes} from "./schema"
+import {cellWrapping, cellAround} from './util'
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
@@ -275,9 +276,17 @@ export function mergeCells(state, dispatch) {
 // into smaller cells.
 export function splitCell(state, dispatch) {
   let sel = state.selection
-  if (!(sel instanceof CellSelection) || sel.$anchorCell.pos != sel.$headCell.pos) return false
-  let cellNode = sel.$anchorCell.nodeAfter
-  if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) return false
+  let cellNode, cellPos
+  if (!(sel instanceof CellSelection)) {
+    cellNode = cellWrapping(sel.$from)
+    if (!cellNode) return false
+    cellPos = cellAround(sel.$from).pos
+  } else {
+    if (sel.$anchorCell.pos != sel.$headCell.pos) return false
+    cellNode = sel.$anchorCell.nodeAfter
+    cellPos = sel.$anchorCell.pos
+  }
+  if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {return false}
   if (dispatch) {
     let baseAttrs = cellNode.attrs, attrs = [], colwidth = baseAttrs.colwidth
     if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, "rowspan", 1)
@@ -296,9 +305,10 @@ export function splitCell(state, dispatch) {
         }
       }
     }
-    tr.setNodeMarkup(sel.$anchorCell.pos, null, attrs[0])
-    tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
-                                      lastCell && tr.doc.resolve(lastCell)))
+    tr.setNodeMarkup(cellPos, null, attrs[0])
+    if (sel instanceof CellSelection)
+      tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
+                                        lastCell && tr.doc.resolve(lastCell)))
     dispatch(tr)
   }
   return true
