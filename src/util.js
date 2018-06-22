@@ -13,8 +13,10 @@ export function cellAround($pos) {
 }
 
 export function cellWrapping($pos) {
-  for (var d = $pos.depth - 1; d > 0; d--)
-    if ($pos.node(d).type.spec.tableRole == "cell") return $pos.node(d)
+  for (let d = $pos.depth - 1; d > 0; d--) {
+    const role = $pos.node(d).type.spec.tableRole;
+    if (role === "cell" || role === 'header_cell') return $pos.node(d)
+  }
   return null
 }
 
