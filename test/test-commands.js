@@ -1,7 +1,7 @@
 const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
-const {doc, table, tr, p, td, c, h, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
+const {doc, table, tr, p, td, th, c, h, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
        mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../dist/")
 
@@ -326,6 +326,11 @@ describe("splitCell", () => {
      test(table(tr(td({colspan: 2}, p("foo<cursor>")), c11)),
            splitCell,
            table(tr(td(p("foo")), cEmpty, c11))))
+
+  it("can split when col-spanning header-cell with cursor", () =>
+     test(table(tr(th({colspan: 2}, p("foo<cursor>")))),
+           splitCell,
+           table(tr(th(p("foo")), hEmpty))))
 
   it("does nothing for a multi-cell selection", () =>
      test(table(tr(cAnchor, cHead, c11)),

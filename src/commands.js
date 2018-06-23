@@ -294,7 +294,7 @@ export function splitCell(state, dispatch) {
     let rect = selectedRect(state), tr = state.tr
     for (let i = 0; i < rect.right - rect.left; i++)
       attrs.push(colwidth ? setAttr(baseAttrs, "colwidth", colwidth && colwidth[i] ? [colwidth[i]] : null) : baseAttrs)
-    let lastCell, cellType = tableNodeTypes(state.schema).cell
+    let lastCell, cellType = tableNodeTypes(state.schema)[cellNode.type.spec.tableRole];
     for (let row = 0; row < rect.bottom; row++) {
       if (row >= rect.top) {
         let pos = rect.map.positionAt(row, rect.left, rect.table)
