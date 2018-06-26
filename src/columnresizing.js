@@ -7,7 +7,7 @@ import {tableNodeTypes} from "./schema"
 
 export const key = new PluginKey("tableColumnResizing")
 
-export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = TableView } = {}) {
+export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = TableView, lastColumnResizable = true } = {}) {
   let plugin = new Plugin({
     key,
     state: {
@@ -27,7 +27,7 @@ export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = Tabl
       },
 
       handleDOMEvents: {
-        mousemove(view, event) { handleMouseMove(view, event, handleWidth, cellMinWidth) },
+        mousemove(view, event) { handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResizable) },
         mouseleave(view) { handleMouseLeave(view) },
         mousedown(view, event) { handleMouseDown(view, event, cellMinWidth) }
       },
@@ -64,7 +64,7 @@ class ResizeState {
   }
 }
 
-function handleMouseMove(view, event, handleWidth, cellMinWidth) {
+function handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResizable) {
   let pluginState = key.getState(view.state)
 
   if (!pluginState.dragging) {
@@ -76,7 +76,20 @@ function handleMouseMove(view, event, handleWidth, cellMinWidth) {
       else if (right - event.clientX <= handleWidth)
         cell = edgeCell(view, event, "right")
     }
-    if (cell != pluginState.activeHandle) updateHandle(view, cell)
+
+    if (cell != pluginState.activeHandle) {
+      if (!lastColumnResizable && cell !== -1) {
+        let $cell = view.state.doc.resolve(cell)
+        let table = $cell.node(-1), map = TableMap.get(table), start = $cell.start(-1)
+        let col = map.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1
+
+        if (col == map.width - 1) {
+          return
+        }
+      }
+
+      updateHandle(view, cell)
+    }
   }
 }
 
