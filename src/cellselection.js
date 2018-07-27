@@ -92,7 +92,9 @@ export class CellSelection extends Selection {
       }
       rows.push(table.child(row).copy(Fragment.from(rowContent)))
     }
-    return new Slice(Fragment.from(rows), 1, 1)
+
+    const fragment = this.isColSelection() && this.isRowSelection() ? table : rows;
+    return new Slice(Fragment.from(fragment), 1, 1)
   }
 
   replace(tr, content = Slice.empty) {
