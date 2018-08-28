@@ -6,6 +6,16 @@ in such a table, a plugin to manage such selections and enforce
 invariants on such tables, and a number of commands to work with
 tables.
 
+Note that Firefox will, by default, add various kinds of controls to
+editable tables, even though those don't work in ProseMirror. The only
+way to turn these off is globally, which you might want to do with the
+following code:
+
+```javascript
+document.execCommand("enableObjectResizing", false, "false")
+document.execCommand("enableInlineTableEditing", false, "false")
+```
+
 ## Getting started 
 
 To see a demo comprised of **index.html** and **demo.js** running in a browser, follow these steps:
