@@ -191,6 +191,10 @@ available to users.
    Deletes the table around the selection, if any.
 
 
+ * **`createTable`**`(row: ?number = 1, col: ?number = 1, cellAttrs: ?Object = {}) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Creates a table with specified size and attrs, then focus to first cell.
+
+
 ### Utilities
 
  * **`fixTables`**`(state: EditorState, oldState: ?EditorState) → ?Transaction`\

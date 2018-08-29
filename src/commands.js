@@ -419,3 +419,26 @@ export function deleteTable(state, dispatch) {
   }
   return false
 }
+
+// :: (?number, ?number, ?Object) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Creates a table with specified size and attrs, then focus to first cell.
+export function createTable(row = 1, col = 1, cellAttrs = {}) {
+  return function(state, dispatch) {
+    const { tr, schema } = state
+    const tableType = schema.nodes.table
+    const rowType = schema.nodes.table_row
+    const cellType = schema.nodes.table_cell
+    const cellNode = cellType.createAndFill(cellAttrs)
+    const cells = []
+    for (let i = 0; i < col; i++) cells.push(cellNode)
+    const rowNode = rowType.create(null, Fragment.from(cells))
+    const rows = []
+    for (let i = 0; i < row; i++) rows.push(rowNode)
+    const tableNode = tableType.create(null, Fragment.from(rows))
+    const newSelection = TextSelection.create(tr.doc, transaction.mapping.maps[0].ranges[0] + 1)
+    if (dispatch) {
+      dispatch(tr.replaceSelectionWith(tableNode).setSelection(newSelection).scrollIntoView())
+    }
+    return true
+  }
+}
