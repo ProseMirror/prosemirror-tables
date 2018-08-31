@@ -147,7 +147,8 @@ function domCellAround(target) {
 }
 
 function edgeCell(view, event, side) {
-  let {pos} = view.posAtCoords({left: event.clientX, top: event.clientY})
+  const buffer = side == 'right' ? -5 : 5; // Fixes finicky bug where posAtCoords could return wrong pos.
+  let {pos} = view.posAtCoords({left: event.clientX + buffer, top: event.clientY})
   let $cell = cellAround(view.state.doc.resolve(pos))
   if (!$cell) return -1
   if (side == "right") return $cell.pos
