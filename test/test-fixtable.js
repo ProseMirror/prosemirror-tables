@@ -1,7 +1,7 @@
 const ist = require("ist")
 const {EditorState} = require("prosemirror-state")
 
-const {doc, table, tr, td, p, c, c11, cEmpty, eq} = require("./build")
+const {doc, table, tr, td, p, c, c11, cEmpty, h11, hEmpty, eq} = require("./build")
 const {fixTables} = require("../dist/")
 
 let cw100 = td({colwidth: [100]}, p("x")), cw200 = td({colwidth: [200]}, p("x"))
@@ -61,4 +61,12 @@ describe("fixTable", () => {
     ist(fix(table(tr(cw100, cw100, cw100), tr(cw200, cw200, cw100), tr(cw100, cw200, cw200))),
         table(tr(cw100, cw200, cw100), tr(cw100, cw200, cw100), tr(cw100, cw200, cw100)), eq)
   })
+
+  it('respects table role when inserting a cell', () => {
+    ist(
+      fix(table(tr(h11), tr(c11, c11), tr(c(3, 1)))),
+      table(tr(h11, hEmpty, hEmpty), tr(cEmpty, c11, c11), tr(c(3, 1))),
+      eq
+    );
+  });
 })

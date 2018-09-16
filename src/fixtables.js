@@ -83,12 +83,17 @@ export function fixTable(state, table, tablePos, tr) {
   // was taken out of the table, add cells at the start of the row
   // after the bite. Otherwise add them at the end).
   for (let i = 0, pos = tablePos + 1; i < map.height; i++) {
-    let end = pos + table.child(i).nodeSize
+    let row = table.child(i)
+    let end = pos + row.nodeSize
     let add = mustAdd[i]
     if (add > 0) {
+      let tableNodeType = 'cell';
+      if (row.firstChild) {
+        tableNodeType = row.firstChild.type.spec.tableRole
+      }
       let nodes = []
       for (let j = 0; j < add; j++)
-        nodes.push(tableNodeTypes(state.schema).cell.createAndFill())
+        nodes.push(tableNodeTypes(state.schema)[tableNodeType].createAndFill())
       let side = (i == 0 || first == i - 1) && last == i ? pos + 1 : end - 1
       tr.insert(tr.mapping.map(side), nodes)
     }
