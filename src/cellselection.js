@@ -257,6 +257,7 @@ function isTextSelectionAcrossCells({$from, $to}) {
     let node = $from.node(i);
     if (node.type.spec.tableRole === 'cell' || node.type.spec.tableRole === 'header_cell') {
       fromCellBoundaryNode = node;
+      break;
     }
   }
 
@@ -264,6 +265,7 @@ function isTextSelectionAcrossCells({$from, $to}) {
     let node = $to.node(i);
     if (node.type.spec.tableRole === 'cell' || node.type.spec.tableRole === 'header_cell') {
       toCellBoundaryNode = node;
+      break;
     }
   }
 
