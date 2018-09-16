@@ -249,6 +249,29 @@ function isCellBoundarySelection({$from, $to}) {
   return afterFrom == beforeTo && /row|table/.test($from.node(depth).type.spec.tableRole)
 }
 
+function isTextSelectionAcrossCells({$from, $to}) {
+  let fromCellBoundaryNode;
+  let toCellBoundaryNode;
+
+  for (let i = $from.depth; i > 0; i--) {
+    let node = $from.node(i);
+    if (node.type.spec.tableRole === 'cell' || node.type.spec.tableRole === 'header_cell') {
+      fromCellBoundaryNode = node;
+      break;
+    }
+  }
+
+  for (let i = $to.depth; i > 0; i--) {
+    let node = $to.node(i);
+    if (node.type.spec.tableRole === 'cell' || node.type.spec.tableRole === 'header_cell') {
+      toCellBoundaryNode = node;
+      break;
+    }
+  }
+
+  return fromCellBoundaryNode !== toCellBoundaryNode && $to.parentOffset === 0
+}
+
 export function normalizeSelection(state, tr) {
   let sel = (tr || state).selection, doc = (tr || state).doc, normalize, role
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
@@ -264,6 +287,8 @@ export function normalizeSelection(state, tr) {
     }
   } else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) {
     normalize = TextSelection.create(doc, sel.from)
+  } else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) {
+    normalize = TextSelection.create(doc, sel.$from.start(), sel.$from.end());
   }
   if (normalize)
     (tr || (tr = state.tr)).setSelection(normalize)
