@@ -10,7 +10,7 @@ import {MenuItem, Dropdown}  from "prosemirror-menu"
 import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
         mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell,
         goToNextCell, deleteTable}  from "./src/commands"
-import {tableEditing, columnResizing, tableNodes, fixTables}  from "./src"
+import {tableEditing, columnResizing, tableNodes, fixTables, decorationTest}  from "./src"
 
 let schema = new Schema({
   nodes: baseSchema.spec.nodes.append(tableNodes({
@@ -54,7 +54,8 @@ let state = EditorState.create({doc, plugins: [
   keymap({
     "Tab": goToNextCell(1),
     "Shift-Tab": goToNextCell(-1)
-  })
+  }),
+  decorationTest(),
 ].concat(exampleSetup({schema, menuContent: menu}))})
 let fix = fixTables(state)
 if (fix) state = state.apply(fix.setMeta("addToHistory", false))

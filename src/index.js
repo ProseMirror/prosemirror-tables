@@ -4,8 +4,8 @@
 // transaction, the shapes of tables are normalized to be rectangular
 // and not contain overlapping cells.
 
-import {Plugin} from "prosemirror-state"
-
+import {Plugin, PluginKey} from "prosemirror-state"
+import {DecorationSet, Decoration} from "prosemirror-view"
 import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
 import {key} from "./util"
 import {drawCellSelection, normalizeSelection} from "./cellselection"
@@ -62,6 +62,44 @@ export function tableEditing() {
     appendTransaction(_, oldState, state) {
       return normalizeSelection(state, fixTables(state, oldState))
     }
+  })
+}
+
+const decoKey = new PluginKey("decorationTest");
+
+export function decorationTest() {
+  return new Plugin({
+    key: decoKey,
+
+    state: {
+      init(config) {
+        const { doc } = config;
+        const deco = document.createElement('span');
+        deco.innerHTML = '🔥';
+        deco.className = `telepointer`;
+        const decorationSet = DecorationSet.create(doc, [Decoration.widget(14, deco)]);
+        return {
+          decorationSet
+        }
+      },
+      apply(tr, pluginState) {
+        let { decorationSet } = pluginState;
+        if (tr.docChanged) {
+          decorationSet = decorationSet.map(tr.mapping, tr.doc, {
+            onRemove: function (spec) {
+              alert('onRemove!');
+            }
+          });
+          console.log('~decorationSet after deleting first column~', decorationSet.find());
+          return { decorationSet };
+        }
+        return pluginState;
+      }
+    },
+
+    props: {
+      decorations: (state) => decoKey.getState(state).decorationSet,
+    },
   })
 }
 
