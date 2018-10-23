@@ -7,7 +7,7 @@ import {tableNodeTypes} from "./schema"
 
 export const key = new PluginKey("tableColumnResizing")
 
-export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = TableView, lastColumnResizable = true } = {}) {
+export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = TableView, lastColumnResizable = true, updateColumnsOnResize = updateColumns } = {}) {
   let plugin = new Plugin({
     key,
     state: {
@@ -29,7 +29,7 @@ export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = Tabl
       handleDOMEvents: {
         mousemove(view, event) { handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResizable) },
         mouseleave(view) { handleMouseLeave(view) },
-        mousedown(view, event) { handleMouseDown(view, event, cellMinWidth) }
+        mousedown(view, event) { handleMouseDown(view, event, cellMinWidth, updateColumnsOnResize) }
       },
 
       decorations(state) {
@@ -98,7 +98,7 @@ function handleMouseLeave(view) {
   if (pluginState.activeHandle > -1 && !pluginState.dragging) updateHandle(view, -1)
 }
 
-function handleMouseDown(view, event, cellMinWidth) {
+function handleMouseDown(view, event, cellMinWidth, updateColumnsOnResize) {
   let pluginState = key.getState(view.state)
   if (pluginState.activeHandle == -1 || pluginState.dragging) return false
 
@@ -119,7 +119,7 @@ function handleMouseDown(view, event, cellMinWidth) {
     if (!event.which) return finish(event)
     let pluginState = key.getState(view.state)
     let dragged = draggedWidth(pluginState.dragging, event, cellMinWidth)
-    displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth)
+    displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth, updateColumnsOnResize)
   }
 
   window.addEventListener("mouseup", finish)
@@ -185,13 +185,13 @@ function updateColumnWidth(view, cell, width) {
   if (tr.docChanged) view.dispatch(tr)
 }
 
-function displayColumnWidth(view, cell, width, cellMinWidth) {
+function displayColumnWidth(view, cell, width, cellMinWidth, updateColumnsOnResize) {
   let $cell = view.state.doc.resolve(cell)
   let table = $cell.node(-1), start = $cell.start(-1)
   let col = TableMap.get(table).colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1
   let dom = view.domAtPos($cell.start(-1)).node
   while (dom.nodeName != "TABLE") dom = dom.parentNode
-  updateColumns(table, dom.firstChild, dom, cellMinWidth, col, width)
+  updateColumnsOnResize(table, dom.firstChild, dom, cellMinWidth, col, width)
 }
 
 function zeroes(n) {
