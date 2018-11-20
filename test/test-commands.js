@@ -311,18 +311,9 @@ describe("mergeCells", () => {
           table(tr(c11, td({rowspan: 2, colspan: 3}, p("x"), p("x"), p("x")), c11), tr(c11, c11))))
 
   it("keeps the column width of the first col", () =>
-     test(doc(table(tr(td({colwidth: [100]}, p("x<anchor>")), c11), tr(c11, cHead))),
+     test(table(tr(td({colwidth: [100]}, p("x<anchor>")), c11), tr(c11, cHead)),
           mergeCells,
-          doc(table(tr(td({colspan: 2, rowspan: 2, colwidth: [100, 0]}, p("x"), p("x"), p("x"), p("x")))))
-          ))
-
-  it("can merge multiple rows", () =>
-    test(
-        doc(table(tr(cEmpty, cEmpty), tr(cAnchor, c11), tr(c11, cHead))),
-        mergeCells,
-        doc(table(tr(cEmpty, cEmpty), tr(td({ colspan: 2, rowspan: 2 }, p("x"), p("x"), p("x"), p("x")))))
-    )
-  )
+          table(tr(td({colspan: 2, rowspan: 2, colwidth: [100, 0]}, p("x"), p("x"), p("x"), p("x"))), tr())))
 })
 
 describe("splitCell", () => {

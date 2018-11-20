@@ -257,17 +257,6 @@ export function mergeCells(state, dispatch) {
         }
       }
     }
-    // empty rows cleanup
-    let pos = rect.tableStart
-    let table = tr.doc.nodeAt(Math.max(pos - 1, 0))
-    for (let i = 0; i < table.childCount; i++) {
-      let row = table.child(i)
-      if (!row.childCount) {
-        let rowPos = tr.mapping.map(pos)
-        tr.delete(rowPos, rowPos + row.nodeSize)
-      }
-      pos += row.nodeSize
-    }
     tr.setNodeMarkup(mergedPos + rect.tableStart, null,
                      setAttr(addColSpan(mergedCell.attrs, mergedCell.attrs.colspan, (rect.right - rect.left) - mergedCell.attrs.colspan),
                              "rowspan", rect.bottom - rect.top))
