@@ -1,21 +1,21 @@
 const ist = require("ist")
-const {EditorState} = require("prosemirror-state")
+const {EditorState, NodeSelection} = require("prosemirror-state")
 const {Slice} = require("prosemirror-model")
 
 const {doc, table, tr, p, td, cEmpty, c11, cAnchor, cHead, c, eq, selectionFor} = require("./build")
-const {CellSelection, addRowBefore, addRowAfter, addColumnBefore, addColumnAfter} = require("../dist/")
-
-let t = doc(table(tr(/* 2*/ cEmpty, /* 6*/ cEmpty, /*10*/ cEmpty),
-                  tr(/*16*/ cEmpty, /*20*/ cEmpty, /*24*/ cEmpty),
-                  tr(/*30*/ cEmpty, /*34*/ cEmpty, /*36*/ cEmpty)))
-
-function run(anchor, head, command) {
-  let state = EditorState.create({doc: t, selection: CellSelection.create(t, anchor, head)})
-  command(state, tr => state = state.apply(tr))
-  return state
-}
+const {CellSelection, addRowBefore, addRowAfter, addColumnBefore, addColumnAfter, tableEditing} = require("../dist/")
 
 describe("CellSelection", () => {
+  let t = doc(table(tr(/* 2*/ cEmpty, /* 6*/ cEmpty, /*10*/ cEmpty),
+                    tr(/*16*/ cEmpty, /*20*/ cEmpty, /*24*/ cEmpty),
+                    tr(/*30*/ cEmpty, /*34*/ cEmpty, /*36*/ cEmpty)))
+
+  function run(anchor, head, command) {
+    let state = EditorState.create({doc: t, selection: CellSelection.create(t, anchor, head)})
+    command(state, tr => state = state.apply(tr))
+    return state
+  }
+
   it("will put its head/anchor around the head cell", () => {
     let s = CellSelection.create(t, 2, 24)
     ist(s.anchor, 25)
@@ -72,4 +72,32 @@ describe("CellSelection.content", () => {
   it("preserves column widths", () =>
      ist(selectionFor(table(tr(c11, cAnchor, c11), tr(td({colspan: 3, colwidth: [100, 200, 300]}, p("x"))), tr(c11, cHead, c11))).content(),
          slice(table(tr(c11), tr(td({colwidth: [200]}, p())), tr(c11))), eq))
+})
+
+describe("normalizeSelection", () => {
+  let t = doc(table(tr(/* 2*/ c11, /* 7*/ c11, /*12*/ c11),
+                    tr(/*19*/ c11, /*24*/ c11, /*29*/ c11),
+                    tr(/*36*/ c11, /*41*/ c11, /*46*/ c11)))
+
+  function normalize(selection, {allowTableNodeSelection = false} = {}) {
+    let state = EditorState.create({doc: t, selection, plugins: [tableEditing({allowTableNodeSelection})]})
+    return state.apply(state.tr).selection
+  }
+  
+  it("converts a table node selection into a selection of all cells in the table", () => {
+    ist(normalize(NodeSelection.create(t, 0)), CellSelection.create(t, 2, 46), eq)
+  })
+
+  it("retains a table node selection if the allowTableNodeSelection option is true", () => {
+    ist(normalize(NodeSelection.create(t, 0), {allowTableNodeSelection: true}), NodeSelection.create(t, 0), eq)
+  })
+
+  it("converts a row node selection into a cell selection", () => {
+    ist(normalize(NodeSelection.create(t, 1)), CellSelection.create(t, 2, 12), eq)
+  })
+
+  it("converts a cell node selection into a cell selection", () => {
+    ist(normalize(NodeSelection.create(t, 2)), CellSelection.create(t, 2, 2), eq)
+  })
+
 })

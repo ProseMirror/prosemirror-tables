@@ -23,7 +23,7 @@ import {fixTables} from "./fixtables"
 // rather broadly, and other plugins, like the gap cursor or the
 // column-width dragging plugin, might want to get a turn first to
 // perform more specific behavior.
-export function tableEditing() {
+export function tableEditing({ allowTableNodeSelection = false } = {}) {
   return new Plugin({
     key,
 
@@ -60,7 +60,7 @@ export function tableEditing() {
     },
 
     appendTransaction(_, oldState, state) {
-      return normalizeSelection(state, fixTables(state, oldState))
+      return normalizeSelection(state, fixTables(state, oldState), allowTableNodeSelection)
     }
   })
 }

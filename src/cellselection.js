@@ -272,7 +272,7 @@ function isTextSelectionAcrossCells({$from, $to}) {
   return fromCellBoundaryNode !== toCellBoundaryNode && $to.parentOffset === 0
 }
 
-export function normalizeSelection(state, tr) {
+export function normalizeSelection(state, tr, allowTableNodeSelection) {
   let sel = (tr || state).selection, doc = (tr || state).doc, normalize, role
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
     if (role == "cell" || role == "header_cell") {
@@ -280,7 +280,7 @@ export function normalizeSelection(state, tr) {
     } else if (role == "row") {
       let $cell = doc.resolve(sel.from + 1)
       normalize = CellSelection.rowSelection($cell, $cell)
-    } else {
+    } else if (!allowTableNodeSelection) {
       let map = TableMap.get(sel.node), start = sel.from + 1
       let lastCell = start + map.map[map.width * map.height - 1]
       normalize = CellSelection.create(doc, start + 1, lastCell)

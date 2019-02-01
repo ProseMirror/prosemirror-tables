@@ -67,7 +67,7 @@ schema. That's what `tableNodes` is for:
             object that's used to render the cell's DOM.
 
 
- * **`tableEditing`**`() → Plugin`\
+ * **`tableEditing`**`({allowTableNodeSelection: false}) → Plugin`\
    Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
    that, when added to an editor, enables cell-selection, handles
    cell-based copy/paste, and makes sure tables stay well-formed (each
