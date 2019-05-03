@@ -182,6 +182,11 @@ available to users.
    Toggles whether the selected cells are header cells.
 
 
+ * **`toggleHeader`**`(type: string, options: ?{useDeprecatedLogic: bool}) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Toggles row|column header cells in a table always on the first row|column
+   to use the old, not support anymore, logic pass useDeprecatedLogic as true
+
+
  * **`goToNextCell`**`(direction: number) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
    Returns a command for selecting the next (direction=1) or previous
    (direction=-1) cell in a table.

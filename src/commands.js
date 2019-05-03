@@ -338,7 +338,7 @@ export function setCellAttr(name, value) {
   }
 }
 
-function toggleHeader(type) {
+function deprecated_toggleHeader(type) {
   return function(state, dispatch) {
     if (!isInTable(state)) return false
     if (dispatch) {
@@ -358,17 +358,77 @@ function toggleHeader(type) {
   }
 }
 
+function isHeaderEnabledByType(type, rect, types) {
+  // Get cell positions for first row or first column
+  const cellPositions = rect.map.cellsInRect({
+    left: 0,
+    top: 0,
+    right: type == "row" ? rect.map.width : 1,
+    bottom: type == "column" ? rect.map.height : 1,
+  })
+  const map = rect.map
+
+  for (let i = 0; i < cellPositions.length; i++) {
+    const cell = rect.table.nodeAt(cellPositions[i])
+    if (cell && cell.type !== types.header_cell) {
+      return false
+    }
+  }
+
+  return true
+}
+
+// :: (string, ?{ useDeprecatedLogic: bool }) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Toggles row|column header cells in a table always on the first row|column
+// to use the old, not support anymore, logic pass useDeprecatedLogic as true
+export function toggleHeader(type, options) {
+  options = options || { useDeprecatedLogic: false }
+
+  if (options.useDeprecatedLogic)
+    return deprecated_toggleHeader(type)
+
+  return function(state, dispatch) {
+    if (!isInTable(state)) return false
+    if (dispatch) {
+      let types = tableNodeTypes(state.schema)
+      let rect = selectedRect(state), tr = state.tr
+      let isHeaderEnabled = type === "column" ? isHeaderEnabledByType("row", rect, types) :
+                            type === "row"    ? isHeaderEnabledByType("column", rect, types) : false
+
+      let selectionStartsAt = isHeaderEnabled ? 1 : 0
+
+      let cellsRect = type == "column" ? new Rect(0, selectionStartsAt, 1, rect.map.height) :
+                      type == "row" ? new Rect(selectionStartsAt, 0, rect.map.width, 1) : rect
+
+      let newType = type == "column" ? isHeaderEnabledByType("column", rect, types) ? types.cell : types.header_cell :
+                    type == "row" ? isHeaderEnabledByType("row", rect, types) ? types.cell : types.header_cell : types.cell
+
+      rect.map.cellsInRect(cellsRect).forEach(relativeCellPos => {
+        const cellPos = relativeCellPos + rect.tableStart
+        const cell = tr.doc.nodeAt(cellPos)
+
+        if (cell) {
+          tr.setNodeMarkup(cellPos, newType, cell.attrs)
+        }
+      })
+
+      dispatch(tr)
+    }
+    return true
+  }
+}
+
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected row contains header cells.
-export let toggleHeaderRow = toggleHeader("row")
+export let toggleHeaderRow = toggleHeader("row", { useDeprecatedLogic: true })
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected column contains header cells.
-export let toggleHeaderColumn = toggleHeader("column")
+export let toggleHeaderColumn = toggleHeader("column", { useDeprecatedLogic: true })
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected cells are header cells.
-export let toggleHeaderCell = toggleHeader("cell")
+export let toggleHeaderCell = toggleHeader("cell", { useDeprecatedLogic: true })
 
 function findNextCell($cell, dir) {
   if (dir < 0) {
