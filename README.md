@@ -183,8 +183,8 @@ available to users.
 
 
  * **`toggleHeader`**`(type: string, options: ?{useDeprecatedLogic: bool}) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
-   Toggles row|column header cells in a table always on the first row|column
-   to use the old, not support anymore, logic pass useDeprecatedLogic as true
+   Toggles between row/column header and normal cells (Only applies to first row/column).
+   For deprecated behavior pass useDeprecatedLogic in options with true.
 
 
  * **`goToNextCell`**`(direction: number) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\

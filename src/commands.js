@@ -378,8 +378,8 @@ function isHeaderEnabledByType(type, rect, types) {
 }
 
 // :: (string, ?{ useDeprecatedLogic: bool }) → (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Toggles row|column header cells in a table always on the first row|column
-// to use the old, not support anymore, logic pass useDeprecatedLogic as true
+// Toggles between row/column header and normal cells (Only applies to first row/column).
+// For deprecated behavior pass useDeprecatedLogic in options with true.
 export function toggleHeader(type, options) {
   options = options || { useDeprecatedLogic: false }
 
