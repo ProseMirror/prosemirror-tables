@@ -366,7 +366,6 @@ function isHeaderEnabledByType(type, rect, types) {
     right: type == "row" ? rect.map.width : 1,
     bottom: type == "column" ? rect.map.height : 1,
   })
-  const map = rect.map
 
   for (let i = 0; i < cellPositions.length; i++) {
     const cell = rect.table.nodeAt(cellPositions[i])
