@@ -51,6 +51,8 @@ available to users.
 
 @toggleHeaderCell
 
+@toggleHeader
+
 @goToNextCell
 
 @deleteTable
