@@ -241,12 +241,12 @@ export function mergeCells(state, dispatch) {
   let rect = selectedRect(state), {map} = rect
   if (cellsOverlapRectangle(map, rect)) return false
   if (dispatch) {
-    let tr = state.tr, seen = [], content = Fragment.empty, mergedPos, mergedCell
+    let tr = state.tr, seen = {}, content = Fragment.empty, mergedPos, mergedCell
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
         let cellPos = map.map[row * map.width + col], cell = rect.table.nodeAt(cellPos)
-        if (seen.indexOf(cellPos) > -1) continue
-        seen.push(cellPos)
+        if (seen[cellPos]) continue
+        seen[cellPos] = true
         if (mergedPos == null) {
           mergedPos = cellPos
           mergedCell = cell

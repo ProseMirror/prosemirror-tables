@@ -106,12 +106,12 @@ export class TableMap {
   // Return the position of all cells that have the top left corner in
   // the given rectangle.
   cellsInRect(rect) {
-    let result = [], seen = []
+    let result = [], seen = {}
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
         let index = row * this.width + col, pos = this.map[index]
-        if (seen.indexOf(pos) > -1) continue
-        seen.push(pos)
+        if (seen[pos]) continue
+        seen[pos] = true
         if ((col != rect.left || !col || this.map[index - 1] != pos) &&
             (row != rect.top || !row || this.map[index - this.width] != pos))
           result.push(pos)
@@ -227,10 +227,10 @@ function findWidth(table) {
 
 function findBadColWidths(map, colWidths, table) {
   if (!map.problems) map.problems = []
-  for (let i = 0, seen = []; i < map.map.length; i++) {
+  for (let i = 0, seen = {}; i < map.map.length; i++) {
     let pos = map.map[i]
-    if (seen.indexOf(pos) > -1) continue
-    seen.push(pos)
+    if (seen[pos]) continue
+    seen[pos] = true
     let node = table.nodeAt(pos), updated = null
     for (let j = 0; j < node.attrs.colspan; j++) {
       let col = (i + j) % map.width, colWidth = colWidths[col * 2]

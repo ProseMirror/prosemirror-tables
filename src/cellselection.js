@@ -66,13 +66,13 @@ export class CellSelection extends Selection {
   content() {
     let table = this.$anchorCell.node(-1), map = TableMap.get(table), start = this.$anchorCell.start(-1)
     let rect = map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start)
-    let seen = [], rows = []
+    let seen = {}, rows = []
     for (let row = rect.top; row < rect.bottom; row++) {
       let rowContent = []
       for (let index = row * map.width + rect.left, col = rect.left; col < rect.right; col++, index++) {
         let pos = map.map[index]
-        if (seen.indexOf(pos) == -1) {
-          seen.push(pos)
+        if (!seen[pos]) {
+          seen[pos] = true
           let cellRect = map.findCell(pos), cell = table.nodeAt(pos)
           let extraLeft = rect.left - cellRect.left, extraRight = cellRect.right - rect.right
           if (extraLeft > 0 || extraRight > 0) {
