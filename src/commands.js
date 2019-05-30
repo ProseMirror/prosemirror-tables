@@ -388,33 +388,34 @@ export function toggleHeader(type, options) {
 
   return function(state, dispatch) {
     if (!isInTable(state)) return false
+
+    let types = tableNodeTypes(state.schema)
+    let rect = selectedRect(state), tr = state.tr
+
+    let isHeaderRowEnabled = isHeaderEnabledByType("row", rect, types)
+    let isHeaderColumnEnabled = isHeaderEnabledByType("column", rect, types)
+
+    let isHeaderEnabled = type === "column" ? isHeaderRowEnabled :
+      type === "row"    ? isHeaderColumnEnabled : false
+
+    let selectionStartsAt = isHeaderEnabled ? 1 : 0
+
+    let cellsRect = type == "column" ? new Rect(0, selectionStartsAt, 1, rect.map.height) :
+      type == "row" ? new Rect(selectionStartsAt, 0, rect.map.width, 1) : rect
+
+    let newType = type == "column" ? isHeaderColumnEnabled ? types.cell : types.header_cell :
+      type == "row" ? isHeaderRowEnabled ? types.cell : types.header_cell : types.cell
+
+    rect.map.cellsInRect(cellsRect).forEach(relativeCellPos => {
+      const cellPos = relativeCellPos + rect.tableStart
+      const cell = tr.doc.nodeAt(cellPos)
+
+      if (cell) {
+        tr.setNodeMarkup(cellPos, newType, cell.attrs)
+      }
+    })
+
     if (dispatch) {
-      let types = tableNodeTypes(state.schema)
-      let rect = selectedRect(state), tr = state.tr
-
-      let isHeaderRowEnabled = isHeaderEnabledByType("row", rect, types)
-      let isHeaderColumnEnabled = isHeaderEnabledByType("column", rect, types)
-
-      let isHeaderEnabled = type === "column" ? isHeaderRowEnabled :
-                            type === "row"    ? isHeaderColumnEnabled : false
-
-      let selectionStartsAt = isHeaderEnabled ? 1 : 0
-
-      let cellsRect = type == "column" ? new Rect(0, selectionStartsAt, 1, rect.map.height) :
-                      type == "row" ? new Rect(selectionStartsAt, 0, rect.map.width, 1) : rect
-
-      let newType = type == "column" ? isHeaderColumnEnabled ? types.cell : types.header_cell :
-                    type == "row" ? isHeaderRowEnabled ? types.cell : types.header_cell : types.cell
-
-      rect.map.cellsInRect(cellsRect).forEach(relativeCellPos => {
-        const cellPos = relativeCellPos + rect.tableStart
-        const cell = tr.doc.nodeAt(cellPos)
-
-        if (cell) {
-          tr.setNodeMarkup(cellPos, newType, cell.attrs)
-        }
-      })
-
       dispatch(tr)
     }
     return true
