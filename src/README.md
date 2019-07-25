@@ -43,6 +43,8 @@ available to users.
 
 @splitCell
 
+@splitCellWithType
+
 @setCellAttr
 
 @toggleHeaderRow
