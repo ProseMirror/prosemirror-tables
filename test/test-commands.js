@@ -3,7 +3,7 @@ const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, p, td, th, c, h, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, toggleHeader, toggleHeaderRow, toggleHeaderColumn} = require("../dist/")
+       mergeCells, splitCell, splitCellWithType, setCellAttr, toggleHeader, toggleHeaderRow, toggleHeaderColumn} = require("../dist/")
 
 function test(doc, command, result) {
   let state = EditorState.create({doc, selection: selectionFor(doc)})
@@ -361,6 +361,24 @@ describe("splitCell", () => {
      test(table(tr(td({colspan: 3, colwidth: [100, 0, 200]}, p("a<anchor>")))),
           splitCell,
           table(tr(td({colwidth: [100]}, p("a")), cEmpty, td({colwidth: [200]}, p())))))
+
+  describe("with custom cell type", () => {
+     function createGetCellType(state) {
+          return ({ row }) => {
+               if(row === 0) {
+                    return state.schema.nodes.table_header
+               }
+          return state.schema.nodes.table_cell
+          }
+     }
+
+     const splitCellWithOnlyHeaderInColumnZero = (state, dispatch) => splitCellWithType(createGetCellType(state))(state, dispatch);
+
+     it("can split a row-spanning header cell into a header and normal cell ", () =>
+          test(table(tr(c11, td({rowspan: 2}, p("foo<anchor>")), c11), tr(c11, c11)),
+               splitCellWithOnlyHeaderInColumnZero,
+               table(tr(c11, th(p("foo")), c11), tr(c11, cEmpty, c11))))
+  })
 })
 
 describe("setCellAttr", () => {

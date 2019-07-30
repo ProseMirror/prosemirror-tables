@@ -270,48 +270,59 @@ export function mergeCells(state, dispatch) {
   }
   return true
 }
-
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Split a selected cell, whose rowpan or colspan is greater than one,
-// into smaller cells.
+// into smaller cells. Use the first cell type for the new cells.
 export function splitCell(state, dispatch) {
-  let sel = state.selection
-  let cellNode, cellPos
-  if (!(sel instanceof CellSelection)) {
-    cellNode = cellWrapping(sel.$from)
-    if (!cellNode) return false
-    cellPos = cellAround(sel.$from).pos
-  } else {
-    if (sel.$anchorCell.pos != sel.$headCell.pos) return false
-    cellNode = sel.$anchorCell.nodeAfter
-    cellPos = sel.$anchorCell.pos
-  }
-  if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {return false}
-  if (dispatch) {
-    let baseAttrs = cellNode.attrs, attrs = [], colwidth = baseAttrs.colwidth
-    if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, "rowspan", 1)
-    if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, "colspan", 1)
-    let rect = selectedRect(state), tr = state.tr
-    for (let i = 0; i < rect.right - rect.left; i++)
-      attrs.push(colwidth ? setAttr(baseAttrs, "colwidth", colwidth && colwidth[i] ? [colwidth[i]] : null) : baseAttrs)
-    let lastCell, cellType = tableNodeTypes(state.schema)[cellNode.type.spec.tableRole];
-    for (let row = 0; row < rect.bottom; row++) {
-      if (row >= rect.top) {
+  const nodeTypes = tableNodeTypes(state.schema);
+  return splitCellWithType(({
+    node,
+  }) => {
+    return nodeTypes[node.type.spec.tableRole]
+  })(state, dispatch)
+}
+
+// :: (getCellType: ({ row: number, col: number, node: Node}) → NodeType) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Split a selected cell, whose rowpan or colspan is greater than one,
+// into smaller cells with the cell type (th, td) returned by getType function.
+export function splitCellWithType(getCellType) {
+  return (state, dispatch) => {
+    let sel = state.selection
+    let cellNode, cellPos
+    if (!(sel instanceof CellSelection)) {
+      cellNode = cellWrapping(sel.$from)
+      if (!cellNode) return false
+      cellPos = cellAround(sel.$from).pos
+    } else {
+      if (sel.$anchorCell.pos != sel.$headCell.pos) return false
+      cellNode = sel.$anchorCell.nodeAfter
+      cellPos = sel.$anchorCell.pos
+    }
+    if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {return false}
+    if (dispatch) {
+      let baseAttrs = cellNode.attrs, attrs = [], colwidth = baseAttrs.colwidth
+      if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, "rowspan", 1)
+      if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, "colspan", 1)
+      let rect = selectedRect(state), tr = state.tr
+      for (let i = 0; i < rect.right - rect.left; i++)
+        attrs.push(colwidth ? setAttr(baseAttrs, "colwidth", colwidth && colwidth[i] ? [colwidth[i]] : null) : baseAttrs)
+      let lastCell;
+      for (let row = rect.top; row < rect.bottom; row++) {
         let pos = rect.map.positionAt(row, rect.left, rect.table)
         if (row == rect.top) pos += cellNode.nodeSize
         for (let col = rect.left, i = 0; col < rect.right; col++, i++) {
           if (col == rect.left && row == rect.top) continue
-          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), cellType.createAndFill(attrs[i]))
+          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), getCellType({ node: cellNode, row, col}).createAndFill(attrs[i]))
         }
       }
+      tr.setNodeMarkup(cellPos, getCellType({ node: cellNode, row: rect.top, col: rect.left}), attrs[0])
+      if (sel instanceof CellSelection)
+        tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
+                                          lastCell && tr.doc.resolve(lastCell)))
+      dispatch(tr)
     }
-    tr.setNodeMarkup(cellPos, null, attrs[0])
-    if (sel instanceof CellSelection)
-      tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
-                                        lastCell && tr.doc.resolve(lastCell)))
-    dispatch(tr)
+    return true
   }
-  return true
 }
 
 // :: (string, any) → (EditorState, dispatch: ?(tr: Transaction)) → bool

@@ -6,28 +6,9 @@ in such a table, a plugin to manage such selections and enforce
 invariants on such tables, and a number of commands to work with
 tables.
 
-Note that Firefox will, by default, add various kinds of controls to
-editable tables, even though those don't work in ProseMirror. The only
-way to turn these off is globally, which you might want to do with the
-following code:
-
-```javascript
-document.execCommand("enableObjectResizing", false, "false")
-document.execCommand("enableInlineTableEditing", false, "false")
-```
-
-## Getting started 
-
-To see a demo comprised of **index.html** and **demo.js** running in a browser, follow these steps:
-
-```
-git clone git@github.com:ProseMirror/prosemirror-tables.git
-cd prosemirror-tables
-npm install
-npm run build_demo
-```
-
-Then open **index.html** with your browser. 
+The top-level directory contains a `demo.js` and `index.html`, which
+can be built with `npm run build_demo` to show a simple demo of how the
+module can be used.
 
 ## Documentation
 
@@ -67,7 +48,7 @@ schema. That's what `tableNodes` is for:
             object that's used to render the cell's DOM.
 
 
- * **`tableEditing`**`({allowTableNodeSelection: false}) → Plugin`\
+ * **`tableEditing`**`() → Plugin`\
    Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
    that, when added to an editor, enables cell-selection, handles
    cell-based copy/paste, and makes sure tables stay well-formed (each
@@ -114,12 +95,12 @@ selects across cells, and will be drawn by giving selected cells a
    True if this selection goes all the way from the left to the
    right of the table.
 
- * `static `**`rowSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos = $anchorCell) → CellSelection`\
-   Returns the smallest row selection that covers the given anchor
-   and head cell.
-
  * `static `**`colSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos = $anchorCell) → CellSelection`\
    Returns the smallest column selection that covers the given anchor
+   and head cell.
+
+ * `static `**`rowSelection`**`($anchorCell: ResolvedPos, $headCell: ?ResolvedPos = $anchorCell) → CellSelection`\
+   Returns the smallest row selection that covers the given anchor
    and head cell.
 
  * `static `**`create`**`(doc: Node, anchorCell: number, headCell: ?number = anchorCell) → CellSelection`
@@ -161,7 +142,12 @@ available to users.
 
  * **`splitCell`**`(state: EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
    Split a selected cell, whose rowpan or colspan is greater than one,
-   into smaller cells.
+   into smaller cells. Use the first cell type for the new cells.
+
+
+ * **`splitCellWithType`**`(getType: fn({row: number, col: number, node: Node}) → NodeType) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Split a selected cell, whose rowpan or colspan is greater than one,
+   into smaller cells with the cell type (th, td) returned by getType function.
 
 
  * **`setCellAttr`**`(name: string, value: any) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
@@ -184,7 +170,7 @@ available to users.
 
  * **`toggleHeader`**`(type: string, options: ?{useDeprecatedLogic: bool}) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
    Toggles between row/column header and normal cells (Only applies to first row/column).
-   For deprecated behavior pass useDeprecatedLogic in options with true.
+   For deprecated behavior pass `useDeprecatedLogic` in options with true.
 
 
  * **`goToNextCell`**`(direction: number) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
