@@ -5,8 +5,23 @@
 //                 Patrick Simmelbauer <https://github.com/patsimm>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.3
-import { EditorState, Plugin, SelectionRange, Transaction, PluginKey } from 'prosemirror-state';
-import { Node as ProsemirrorNode, NodeSpec, Slice, ResolvedPos, Schema, NodeType } from 'prosemirror-model';
+import {
+  EditorState,
+  Plugin,
+  SelectionRange,
+  Transaction,
+  PluginKey,
+  Selection
+} from 'prosemirror-state';
+import {
+  Node as ProsemirrorNode,
+  NodeSpec,
+  Slice,
+  ResolvedPos,
+  Schema,
+  NodeType
+} from 'prosemirror-model';
+import { Mappable } from 'prosemirror-transform';
 import { NodeView } from 'prosemirror-view';
 
 export interface TableEditingOptions {
@@ -59,14 +74,14 @@ export class CellSelection<S extends Schema = any> {
   empty: boolean;
   ranges: Array<SelectionRange<S>>;
 
-  map(doc: ProsemirrorNode<S>, mapping: any): any;
+  map(doc: ProsemirrorNode<S>, mapping: Mappable): any;
   content(): Slice<S>;
   replace(tr: Transaction<S>, content: Slice<S>): void;
   replaceWith(tr: Transaction<S>, node: ProsemirrorNode<S>): void;
   forEachCell(f: (node: ProsemirrorNode<S>, pos: number) => void): void;
   isRowSelection(): boolean;
   isColSelection(): boolean;
-  eq(other: any): boolean;
+  eq(other: Selection<S>): boolean;
   toJSON(): CellSelectionJSON;
   getBookmark(): { anchor: number; head: number };
 
@@ -145,10 +160,7 @@ export function toggleHeaderRow<S extends Schema = any>(
 export function toggleHeader<S extends Schema = any>(
   type: 'column' | 'row',
   options?: { useDeprecatedLogic?: boolean }
-): (
-  state: EditorState<S>,
-  dispatch?: (tr: Transaction<S>) => void
-) => boolean;
+): (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void) => boolean;
 
 export function setCellAttr<S extends Schema = any>(
   name: string,
@@ -159,6 +171,16 @@ export function splitCell<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
+
+export interface GetCellTypeOptions {
+  node: ProsemirrorNode;
+  row: number;
+  col: number;
+}
+
+export function splitCellWithType<S extends Schema = any>(
+  getCellType: (options: GetCellTypeOptions) => NodeType<S>
+): (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void) => boolean;
 
 export function mergeCells<S extends Schema = any>(
   state: EditorState<S>,
@@ -212,7 +234,9 @@ export function updateColumnsOnResize(
   overrideValue?: number
 ): void;
 
-export function cellAround<S extends Schema = any>(pos: ResolvedPos<S>): ResolvedPos<S> | null;
+export function cellAround<S extends Schema = any>(
+  pos: ResolvedPos<S>
+): ResolvedPos<S> | null;
 
 export function isInTable(state: EditorState): boolean;
 
@@ -220,7 +244,9 @@ export function selectionCell<S extends Schema = any>(
   state: EditorState<S>
 ): ResolvedPos<S> | null | undefined;
 
-export function moveCellForward<S extends Schema = any>(pos: ResolvedPos<S>): ResolvedPos<S>;
+export function moveCellForward<S extends Schema = any>(
+  pos: ResolvedPos<S>
+): ResolvedPos<S>;
 
 export function inSameTable<S extends Schema = any>(
   $a: ResolvedPos<S>,
