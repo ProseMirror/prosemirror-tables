@@ -13,7 +13,7 @@ export function cellAround($pos) {
 }
 
 export function cellWrapping($pos) {
-  for (let d = $pos.depth - 1; d > 0; d--) {
+  for (let d = $pos.depth; d > 0; d--) { // Sometimes the cell can be in the same depth.
     const role = $pos.node(d).type.spec.tableRole;
     if (role === "cell" || role === 'header_cell') return $pos.node(d)
   }
