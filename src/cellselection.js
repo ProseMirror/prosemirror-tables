@@ -94,6 +94,12 @@ export class CellSelection extends Selection {
     }
 
     const fragment = this.isColSelection() && this.isRowSelection() ? table : rows;
+
+    if(true) {
+      const newTable  = table.type.createAndFill(table.attrs, rows);
+      return new Slice(Fragment.from(newTable), 1, 1)
+    }
+
     return new Slice(Fragment.from(fragment), 1, 1)
   }
 
