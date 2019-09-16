@@ -6,6 +6,7 @@
 import {TableMap} from "./tablemap"
 import {setAttr, rmColSpan} from "./util"
 import {tableNodeTypes} from "./schema"
+import {key} from "./util"
 
 // Helper for iterating through the nodes in a document that changed
 // compared to the given previous document. Useful for avoiding
@@ -99,5 +100,5 @@ export function fixTable(state, table, tablePos, tr) {
     }
     pos = end
   }
-  return tr
+  return tr.setMeta(key, { fixTables: true })
 }
