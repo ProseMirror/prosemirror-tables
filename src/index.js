@@ -9,7 +9,7 @@ import {Plugin} from "prosemirror-state"
 import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
 import {key as tableEditingKey} from "./util"
 import {drawCellSelection, normalizeSelection} from "./cellselection"
-import {fixTables} from "./fixtables"
+import {fixTables, fixTablesKey} from "./fixtables"
 
 // :: () → Plugin
 //
@@ -65,7 +65,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
   })
 }
 
-export {fixTables, handlePaste}
+export {fixTables, handlePaste, fixTablesKey}
 export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell} from "./util";
 export {tableNodes} from "./schema"
 export {CellSelection} from "./cellselection"

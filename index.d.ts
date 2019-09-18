@@ -226,6 +226,7 @@ export function columnResizing<S extends Schema = any>(props: {
 export const columnResizingPluginKey: PluginKey;
 
 export const tableEditingKey: PluginKey;
+export const fixTablesKey: PluginKey;
 
 export function updateColumnsOnResize(
   node: ProsemirrorNode,
