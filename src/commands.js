@@ -241,12 +241,12 @@ export function mergeCells(state, dispatch) {
   let rect = selectedRect(state), {map} = rect
   if (cellsOverlapRectangle(map, rect)) return false
   if (dispatch) {
-    let tr = state.tr, seen = [], content = Fragment.empty, mergedPos, mergedCell
+    let tr = state.tr, seen = {}, content = Fragment.empty, mergedPos, mergedCell
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
         let cellPos = map.map[row * map.width + col], cell = rect.table.nodeAt(cellPos)
-        if (seen.indexOf(cellPos) > -1) continue
-        seen.push(cellPos)
+        if (seen[cellPos]) continue
+        seen[cellPos] = true
         if (mergedPos == null) {
           mergedPos = cellPos
           mergedCell = cell
@@ -270,48 +270,59 @@ export function mergeCells(state, dispatch) {
   }
   return true
 }
-
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Split a selected cell, whose rowpan or colspan is greater than one,
-// into smaller cells.
+// into smaller cells. Use the first cell type for the new cells.
 export function splitCell(state, dispatch) {
-  let sel = state.selection
-  let cellNode, cellPos
-  if (!(sel instanceof CellSelection)) {
-    cellNode = cellWrapping(sel.$from)
-    if (!cellNode) return false
-    cellPos = cellAround(sel.$from).pos
-  } else {
-    if (sel.$anchorCell.pos != sel.$headCell.pos) return false
-    cellNode = sel.$anchorCell.nodeAfter
-    cellPos = sel.$anchorCell.pos
-  }
-  if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {return false}
-  if (dispatch) {
-    let baseAttrs = cellNode.attrs, attrs = [], colwidth = baseAttrs.colwidth
-    if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, "rowspan", 1)
-    if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, "colspan", 1)
-    let rect = selectedRect(state), tr = state.tr
-    for (let i = 0; i < rect.right - rect.left; i++)
-      attrs.push(colwidth ? setAttr(baseAttrs, "colwidth", colwidth && colwidth[i] ? [colwidth[i]] : null) : baseAttrs)
-    let lastCell, cellType = tableNodeTypes(state.schema)[cellNode.type.spec.tableRole];
-    for (let row = 0; row < rect.bottom; row++) {
-      if (row >= rect.top) {
+  const nodeTypes = tableNodeTypes(state.schema);
+  return splitCellWithType(({
+    node,
+  }) => {
+    return nodeTypes[node.type.spec.tableRole]
+  })(state, dispatch)
+}
+
+// :: (getCellType: ({ row: number, col: number, node: Node}) → NodeType) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Split a selected cell, whose rowpan or colspan is greater than one,
+// into smaller cells with the cell type (th, td) returned by getType function.
+export function splitCellWithType(getCellType) {
+  return (state, dispatch) => {
+    let sel = state.selection
+    let cellNode, cellPos
+    if (!(sel instanceof CellSelection)) {
+      cellNode = cellWrapping(sel.$from)
+      if (!cellNode) return false
+      cellPos = cellAround(sel.$from).pos
+    } else {
+      if (sel.$anchorCell.pos != sel.$headCell.pos) return false
+      cellNode = sel.$anchorCell.nodeAfter
+      cellPos = sel.$anchorCell.pos
+    }
+    if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {return false}
+    if (dispatch) {
+      let baseAttrs = cellNode.attrs, attrs = [], colwidth = baseAttrs.colwidth
+      if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, "rowspan", 1)
+      if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, "colspan", 1)
+      let rect = selectedRect(state), tr = state.tr
+      for (let i = 0; i < rect.right - rect.left; i++)
+        attrs.push(colwidth ? setAttr(baseAttrs, "colwidth", colwidth && colwidth[i] ? [colwidth[i]] : null) : baseAttrs)
+      let lastCell;
+      for (let row = rect.top; row < rect.bottom; row++) {
         let pos = rect.map.positionAt(row, rect.left, rect.table)
         if (row == rect.top) pos += cellNode.nodeSize
         for (let col = rect.left, i = 0; col < rect.right; col++, i++) {
           if (col == rect.left && row == rect.top) continue
-          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), cellType.createAndFill(attrs[i]))
+          tr.insert(lastCell = tr.mapping.map(pos + rect.tableStart, 1), getCellType({ node: cellNode, row, col}).createAndFill(attrs[i]))
         }
       }
+      tr.setNodeMarkup(cellPos, getCellType({ node: cellNode, row: rect.top, col: rect.left}), attrs[0])
+      if (sel instanceof CellSelection)
+        tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
+                                          lastCell && tr.doc.resolve(lastCell)))
+      dispatch(tr)
     }
-    tr.setNodeMarkup(cellPos, null, attrs[0])
-    if (sel instanceof CellSelection)
-      tr.setSelection(new CellSelection(tr.doc.resolve(sel.$anchorCell.pos),
-                                        lastCell && tr.doc.resolve(lastCell)))
-    dispatch(tr)
+    return true
   }
-  return true
 }
 
 // :: (string, any) → (EditorState, dispatch: ?(tr: Transaction)) → bool
@@ -338,7 +349,7 @@ export function setCellAttr(name, value) {
   }
 }
 
-function toggleHeader(type) {
+function deprecated_toggleHeader(type) {
   return function(state, dispatch) {
     if (!isInTable(state)) return false
     if (dispatch) {
@@ -358,17 +369,80 @@ function toggleHeader(type) {
   }
 }
 
+function isHeaderEnabledByType(type, rect, types) {
+  // Get cell positions for first row or first column
+  const cellPositions = rect.map.cellsInRect({
+    left: 0,
+    top: 0,
+    right: type == "row" ? rect.map.width : 1,
+    bottom: type == "column" ? rect.map.height : 1,
+  })
+
+  for (let i = 0; i < cellPositions.length; i++) {
+    const cell = rect.table.nodeAt(cellPositions[i])
+    if (cell && cell.type !== types.header_cell) {
+      return false
+    }
+  }
+
+  return true
+}
+
+// :: (string, ?{ useDeprecatedLogic: bool }) → (EditorState, dispatch: ?(tr: Transaction)) → bool
+// Toggles between row/column header and normal cells (Only applies to first row/column).
+// For deprecated behavior pass `useDeprecatedLogic` in options with true.
+export function toggleHeader(type, options) {
+  options = options || { useDeprecatedLogic: false }
+
+  if (options.useDeprecatedLogic)
+    return deprecated_toggleHeader(type)
+
+  return function(state, dispatch) {
+    if (!isInTable(state)) return false
+    if (dispatch) {
+      let types = tableNodeTypes(state.schema)
+      let rect = selectedRect(state), tr = state.tr
+
+      let isHeaderRowEnabled = isHeaderEnabledByType("row", rect, types)
+      let isHeaderColumnEnabled = isHeaderEnabledByType("column", rect, types)
+
+      let isHeaderEnabled = type === "column" ? isHeaderRowEnabled :
+                            type === "row"    ? isHeaderColumnEnabled : false
+
+      let selectionStartsAt = isHeaderEnabled ? 1 : 0
+
+      let cellsRect = type == "column" ? new Rect(0, selectionStartsAt, 1, rect.map.height) :
+                      type == "row" ? new Rect(selectionStartsAt, 0, rect.map.width, 1) : rect
+
+      let newType = type == "column" ? isHeaderColumnEnabled ? types.cell : types.header_cell :
+                    type == "row" ? isHeaderRowEnabled ? types.cell : types.header_cell : types.cell
+
+      rect.map.cellsInRect(cellsRect).forEach(relativeCellPos => {
+        const cellPos = relativeCellPos + rect.tableStart
+        const cell = tr.doc.nodeAt(cellPos)
+
+        if (cell) {
+          tr.setNodeMarkup(cellPos, newType, cell.attrs)
+        }
+      })
+
+      dispatch(tr)
+    }
+    return true
+  }
+}
+
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected row contains header cells.
-export let toggleHeaderRow = toggleHeader("row")
+export let toggleHeaderRow = toggleHeader("row", { useDeprecatedLogic: true })
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected column contains header cells.
-export let toggleHeaderColumn = toggleHeader("column")
+export let toggleHeaderColumn = toggleHeader("column", { useDeprecatedLogic: true })
 
 // :: (EditorState, dispatch: ?(tr: Transaction)) → bool
 // Toggles whether the selected cells are header cells.
-export let toggleHeaderCell = toggleHeader("cell")
+export let toggleHeaderCell = toggleHeader("cell", { useDeprecatedLogic: true })
 
 function findNextCell($cell, dir) {
   if (dir < 0) {

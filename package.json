@@ -1,9 +1,10 @@
 {
   "name": "prosemirror-tables",
-  "version": "0.7.11",
+  "version": "0.9.5",
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
   "style": "style/tables.css",
+  "typings": "./index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -27,6 +28,9 @@
     "prosemirror-view": "^1.0.0"
   },
   "devDependencies": {
+    "@types/prosemirror-model": "^1.7.0",
+    "@types/prosemirror-state": "^1.2.0",
+    "builddocs": "^0.3.0",
     "ist": "^1.0.1",
     "mocha": "^3.4.2",
     "prosemirror-commands": "^1.0.0",
@@ -38,7 +42,8 @@
     "rollup-plugin-buble": "^0.19.0",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
-    "builddocs": "^0.3.0"
+    "typescript": "^3.5.3",
+    "typings-tester": "^0.3.2"
   },
   "scripts": {
     "test": "mocha test/test-*.js",

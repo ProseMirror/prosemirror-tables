@@ -3,7 +3,7 @@ const {EditorState} = require("prosemirror-state")
 
 const {doc, table, tr, p, td, th, c, h, c11, h11, cEmpty, hEmpty, cCursor, hCursor, cHead, cAnchor, eq, selectionFor} = require("./build")
 const {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-       mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn} = require("../dist/")
+       mergeCells, splitCell, splitCellWithType, setCellAttr, toggleHeader, toggleHeaderRow, toggleHeaderColumn} = require("../dist/")
 
 function test(doc, command, result) {
   let state = EditorState.create({doc, selection: selectionFor(doc)})
@@ -361,6 +361,24 @@ describe("splitCell", () => {
      test(table(tr(td({colspan: 3, colwidth: [100, 0, 200]}, p("a<anchor>")))),
           splitCell,
           table(tr(td({colwidth: [100]}, p("a")), cEmpty, td({colwidth: [200]}, p())))))
+
+  describe("with custom cell type", () => {
+     function createGetCellType(state) {
+          return ({ row }) => {
+               if(row === 0) {
+                    return state.schema.nodes.table_header
+               }
+          return state.schema.nodes.table_cell
+          }
+     }
+
+     const splitCellWithOnlyHeaderInColumnZero = (state, dispatch) => splitCellWithType(createGetCellType(state))(state, dispatch);
+
+     it("can split a row-spanning header cell into a header and normal cell ", () =>
+          test(table(tr(c11, td({rowspan: 2}, p("foo<anchor>")), c11), tr(c11, c11)),
+               splitCellWithOnlyHeaderInColumnZero,
+               table(tr(c11, th(p("foo")), c11), tr(c11, cEmpty, c11))))
+  })
 })
 
 describe("setCellAttr", () => {
@@ -419,4 +437,28 @@ describe("toggleHeaderColumn", () => {
      test(doc(table(tr(hCursor, c11), tr(c11, c11))),
           toggleHeaderColumn,
           doc(table(tr(c11, c11), tr(c11, c11)))))
+})
+
+describe("toggleHeader", () => {
+  it("turns a header row with colspan and rowspan into a regular cell", () =>
+    test(doc(p('x'), table(tr(h(2, 1), h(1, 2)), tr(cCursor, c11), tr(c11, c11, c11))),
+         toggleHeader("row", { useDeprecateLogic: false }),
+         doc(p('x'), table(tr(c(2, 1), c(1, 2)), tr(cCursor, c11), tr(c11, c11, c11)))))
+
+  it("turns a header column with colspan and rowspan into a regular cell", () =>
+    test(doc(p('x'), table(tr(h(2, 1), h(1, 2)), tr(cCursor, c11), tr(c11, c11, c11))),
+         toggleHeader("column", { useDeprecateLogic: false }),
+         doc(p('x'), table(tr(h(2, 1), h(1, 2)), tr(h11, c11), tr(h11, c11, c11)))))
+
+  it("should keep first cell as header when the column header is enabled", () =>
+    test(doc(p('x'), table(tr(h11, c11), tr(hCursor, c11), tr(h11, c11))),
+         toggleHeader("row", { useDeprecateLogic: false }),
+         doc(p('x'), table(tr(h11, h11), tr(h11, c11), tr(h11, c11)))))
+
+  describe("new behavior", () => {
+    it("turns a header column into regular cells without override header row", () =>
+       test(doc(table(tr(hCursor, h11), tr(h11, c11))),
+            toggleHeader("column", { useDeprecateLogic: false }),
+            doc(table(tr(hCursor, h11), tr(c11, c11)))))
+  })
 })

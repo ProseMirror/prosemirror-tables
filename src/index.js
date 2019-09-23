@@ -7,9 +7,9 @@
 import {Plugin} from "prosemirror-state"
 
 import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
-import {key} from "./util"
+import {key as tableEditingKey} from "./util"
 import {drawCellSelection, normalizeSelection} from "./cellselection"
-import {fixTables} from "./fixtables"
+import {fixTables, fixTablesKey} from "./fixtables"
 
 // :: () → Plugin
 //
@@ -25,7 +25,7 @@ import {fixTables} from "./fixtables"
 // perform more specific behavior.
 export function tableEditing({ allowTableNodeSelection = false } = {}) {
   return new Plugin({
-    key,
+    key: tableEditingKey,
 
     // This piece of state is used to remember when a mouse-drag
     // cell-selection is happening, so that it can continue even as
@@ -33,7 +33,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
     state: {
       init() { return null },
       apply(tr, cur) {
-        let set = tr.getMeta(key)
+        let set = tr.getMeta(tableEditingKey)
         if (set != null) return set == -1 ? null : set
         if (cur == null || !tr.docChanged) return cur
         let {deleted, pos} = tr.mapping.mapResult(cur)
@@ -49,7 +49,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
       },
 
       createSelectionBetween(view) {
-        if (key.getState(view.state) != null) return view.state.selection
+        if (tableEditingKey.getState(view.state) != null) return view.state.selection
       },
 
       handleTripleClick,
@@ -65,11 +65,12 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
   })
 }
 
-export {fixTables, handlePaste}
+export {fixTables, handlePaste, fixTablesKey}
 export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell} from "./util";
 export {tableNodes} from "./schema"
 export {CellSelection} from "./cellselection"
 export {TableMap} from "./tablemap"
+export {tableEditingKey};
 export * from "./commands"
 export {columnResizing, key as columnResizingPluginKey} from "./columnresizing"
 export {updateColumns as updateColumnsOnResize} from "./tableview"

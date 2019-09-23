@@ -3,9 +3,13 @@
 // rowspans) and that each row has the same width. Uses the problems
 // reported by `TableMap`.
 
+import {PluginKey} from "prosemirror-state"
 import {TableMap} from "./tablemap"
 import {setAttr, rmColSpan} from "./util"
 import {tableNodeTypes} from "./schema"
+import {key} from "./util"
+
+export const fixTablesKey = new PluginKey("fix-tables")
 
 // Helper for iterating through the nodes in a document that changed
 // compared to the given previous document. Useful for avoiding
@@ -99,5 +103,5 @@ export function fixTable(state, table, tablePos, tr) {
     }
     pos = end
   }
-  return tr
+  return tr.setMeta(fixTablesKey, { fixTables: true })
 }
