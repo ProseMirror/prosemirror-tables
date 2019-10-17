@@ -218,6 +218,12 @@ export function addRowBefore<S extends Schema = any>(
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
 
+export function addRow<S extends Schema = any>(
+  transaction: Transaction,
+  rect: TableRect,
+  row: number
+): Transaction;
+
 export function deleteColumn<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
