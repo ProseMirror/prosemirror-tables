@@ -115,7 +115,7 @@ export function deleteColumn(state, dispatch) {
   return true
 }
 
-function rowIsHeader(map, table, row) {
+export function rowIsHeader(map, table, row) {
   let headerCell = tableNodeTypes(table.type.schema).header_cell
   for (let col = 0; col < map.width; col++)
     if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
