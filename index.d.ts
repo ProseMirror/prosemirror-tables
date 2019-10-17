@@ -239,6 +239,12 @@ export function addColumnBefore<S extends Schema = any>(
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
 
+export function addColumn<S extends Schema = any>(
+  transaction: Transaction,
+  rect: TableRect,
+  row: number
+): Transaction;
+
 export function columnResizing<S extends Schema = any>(props: {
   handleWidth?: number;
   cellMinWidth?: number;
