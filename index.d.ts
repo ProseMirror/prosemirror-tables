@@ -202,6 +202,12 @@ export function selectedRect<S extends Schema = any>(
   state: EditorState<S>
 ): TableRect;
 
+export function rowIsHeader<S extends Schema = any>(
+  map: TableMap,
+  table: Node,
+  row: number
+): boolean;
+
 export function addRowAfter<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
