@@ -12,7 +12,7 @@ import {cellWrapping, cellAround} from './util'
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
 // convenience.
-function selectedRect(state) {
+export function selectedRect(state) {
   let sel = state.selection, $pos = selectionCell(state)
   let table = $pos.node(-1), tableStart = $pos.start(-1), map = TableMap.get(table)
   let rect

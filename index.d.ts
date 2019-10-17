@@ -111,6 +111,12 @@ export interface Rect {
   bottom: number;
 }
 
+export interface TableRect extends Rect {
+  tableStart: number;
+  map: TableMap;
+  table: Node;
+}
+
 export class TableMap {
   width: number;
   height: number;
@@ -191,6 +197,10 @@ export function deleteRow<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
+
+export function selectedRect<S extends Schema = any>(
+  state: EditorState<S>
+): TableRect;
 
 export function addRowAfter<S extends Schema = any>(
   state: EditorState<S>,
