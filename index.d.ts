@@ -114,7 +114,7 @@ export interface Rect {
 export interface TableRect extends Rect {
   tableStart: number;
   map: TableMap;
-  table: Node;
+  table: ProsemirrorNode<S>;
 }
 
 export class TableMap {
@@ -204,7 +204,7 @@ export function selectedRect<S extends Schema = any>(
 
 export function rowIsHeader<S extends Schema = any>(
   map: TableMap,
-  table: Node,
+  table: ProsemirrorNode<S>,
   row: number
 ): boolean;
 
@@ -219,10 +219,10 @@ export function addRowBefore<S extends Schema = any>(
 ): boolean;
 
 export function addRow<S extends Schema = any>(
-  transaction: Transaction,
+  transaction: Transaction<S>,
   rect: TableRect,
   row: number
-): Transaction;
+): Transaction<S>;
 
 export function deleteColumn<S extends Schema = any>(
   state: EditorState<S>,
@@ -240,10 +240,10 @@ export function addColumnBefore<S extends Schema = any>(
 ): boolean;
 
 export function addColumn<S extends Schema = any>(
-  transaction: Transaction,
+  transaction: Transaction<S>,
   rect: TableRect,
   row: number
-): Transaction;
+): Transaction<S>;
 
 export function columnResizing<S extends Schema = any>(props: {
   handleWidth?: number;
