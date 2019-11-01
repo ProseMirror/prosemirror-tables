@@ -267,3 +267,8 @@ export function nextCell<S extends Schema = any>(
   axis: string,
   dir: number
 ): null | ResolvedPos<S>;
+
+export function fixTables<S extends Schema = any>(
+  state: EditorState<S>,
+  oldState?: EditorState<S>
+): null | Transaction<S>;
