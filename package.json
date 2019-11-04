@@ -46,6 +46,7 @@
     "typings-tester": "^0.3.2"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "test": "mocha test/test-*.js",
     "build_demo": "rollup -c rollup.demo.config.js",
     "watch_demo": "rollup -w -c rollup.demo.config.js",

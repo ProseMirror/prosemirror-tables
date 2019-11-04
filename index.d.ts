@@ -114,7 +114,7 @@ export interface Rect {
 export interface TableRect extends Rect {
   tableStart: number;
   map: TableMap;
-  table: ProsemirrorNode<S>;
+  table: ProsemirrorNode;
 }
 
 export class TableMap {
