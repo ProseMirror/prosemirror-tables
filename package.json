@@ -3,6 +3,7 @@
   "version": "0.9.5",
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
+  "module": "src/index.js",
   "style": "style/tables.css",
   "typings": "./index.d.ts",
   "license": "MIT",
