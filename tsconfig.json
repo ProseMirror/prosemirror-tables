@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "lib": ["es6", "dom"],
+    "baseUrl": "../",
+    "typeRoots": ["../"],
+    "types": [],
+    "noEmit": true
+  },
+  "files": ["index.d.ts", "test/typescript/prosemirror-tables.ts"]
+}
