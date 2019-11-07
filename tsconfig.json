@@ -7,5 +7,5 @@
     "types": [],
     "noEmit": true
   },
-  "files": ["index.d.ts", "index.test.ts"]
+  "files": ["index.d.ts", "test/typescript/prosemirror-tables.ts"]
 }
