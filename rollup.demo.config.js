@@ -1,4 +1,4 @@
-import buble from "rollup-plugin-buble"
+import buble from "@rollup/plugin-buble"
 import nodeResolve from "rollup-plugin-node-resolve"
 import commonJS from "rollup-plugin-commonjs"
 
