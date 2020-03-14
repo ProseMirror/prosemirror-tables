@@ -66,12 +66,12 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
 }
 
 export {fixTables, handlePaste, fixTablesKey}
-export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell} from "./util";
-export {tableNodes} from "./schema"
+export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell, setAttr, pointsAtCell} from "./util";
+export {tableNodes, tableNodeTypes} from "./schema"
 export {CellSelection} from "./cellselection"
 export {TableMap} from "./tablemap"
 export {tableEditingKey};
 export * from "./commands"
 export {columnResizing, key as columnResizingPluginKey} from "./columnresizing"
-export {updateColumns as updateColumnsOnResize} from "./tableview"
+export {updateColumns as updateColumnsOnResize, TableView} from "./tableview"
 export {pastedCells as __pastedCells, insertCells as __insertCells, clipCells as __clipCells} from "./copypaste"
