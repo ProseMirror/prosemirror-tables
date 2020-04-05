@@ -148,7 +148,9 @@ function domCellAround(target) {
 }
 
 function edgeCell(view, event, side) {
-  let {pos} = view.posAtCoords({left: event.clientX, top: event.clientY})
+  let found = view.posAtCoords({left: event.clientX, top: event.clientY})
+  if (!found) return -1
+  let {pos} = found
   let $cell = cellAround(view.state.doc.resolve(pos))
   if (!$cell) return -1
   if (side == "right") return $cell.pos
