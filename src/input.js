@@ -133,9 +133,9 @@ export function handleMouseDown(view, startEvent) {
 
   // Create and dispatch a cell selection between the given anchor and
   // the position under the mouse.
-  function setCellSelection($anchor, event) {
+  const setCellSelection = ($anchor, event) => {
     let $head = cellUnderMouse(view, event)
-    let starting = key.getState(view.state) == null
+    let starting = this.spec.key.getState(view.state) == null
     if (!$head || !inSameTable($anchor, $head)) {
       if (starting) $head = $anchor
       else return
@@ -143,21 +143,13 @@ export function handleMouseDown(view, startEvent) {
     let selection = new CellSelection($anchor, $head)
     if (starting || !view.state.selection.eq(selection)) {
       let tr = view.state.tr.setSelection(selection)
-      if (starting) tr.setMeta(key, $anchor.pos)
+      if (starting) tr.setMeta(this.spec.key, $anchor.pos)
       view.dispatch(tr)
     }
   }
 
-  // Stop listening to mouse motion events.
-  function stop() {
-    view.root.removeEventListener("mouseup", stop)
-    view.root.removeEventListener("dragstart", stop)
-    view.root.removeEventListener("mousemove", move)
-    if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
-  }
-
-  function move(event) {
-    let anchor = key.getState(view.state), $anchor
+  const move = (event) => {
+    let anchor = this.spec.key.getState(view.state), $anchor
     if (anchor != null) {
       // Continuing an existing cross-cell selection
       $anchor = view.state.doc.resolve(anchor)
@@ -168,6 +160,16 @@ export function handleMouseDown(view, startEvent) {
     }
     if ($anchor) setCellSelection($anchor, event)
   }
+
+  // Stop listening to mouse motion events.
+  const stop = () => {
+    view.root.removeEventListener("mouseup", stop)
+    view.root.removeEventListener("dragstart", stop)
+    view.root.removeEventListener("mousemove", move)
+    if (this.spec.key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(this.spec.key, -1))
+  }
+
+
   view.root.addEventListener("mouseup", stop)
   view.root.addEventListener("dragstart", stop)
   view.root.addEventListener("mousemove", move)
