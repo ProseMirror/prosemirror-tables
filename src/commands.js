@@ -12,7 +12,7 @@ import {
   columnIsHeader,
   isInTable,
   moveCellForward,
-  rmColSpan,
+  removeColSpan,
   selectionCell,
   setAttr
 } from "./util"
@@ -89,7 +89,7 @@ export function removeColumn(tr, {map, table, tableStart}, col) {
     // If this is part of a col-spanning cell
     if ((col > 0 && map.map[index - 1] == pos) || (col < map.width - 1 && map.map[index + 1] == pos)) {
       tr.setNodeMarkup(tr.mapping.slice(mapStart).map(tableStart + pos), null,
-                       rmColSpan(cell.attrs, col - map.colCount(pos)))
+                       removeColSpan(cell.attrs, col - map.colCount(pos)))
     } else {
       let start = tr.mapping.slice(mapStart).map(tableStart + pos)
       tr.delete(start, start + cell.nodeSize)

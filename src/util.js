@@ -81,7 +81,7 @@ export function setAttr(attrs, name, value) {
   return result
 }
 
-export function rmColSpan(attrs, pos, n=1) {
+export function removeColSpan(attrs, pos, n=1) {
   let result = setAttr(attrs, "colspan", attrs.colspan - n)
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice()

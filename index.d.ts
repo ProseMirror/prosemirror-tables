@@ -271,7 +271,7 @@ export function cellAround<S extends Schema = any>(
 
 export function isInTable(state: EditorState): boolean;
 
-export function rmColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
+export function removeColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
 export function addColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
 
 type TableRoles = 'table' | 'row' | 'cell' | 'header_cell';
