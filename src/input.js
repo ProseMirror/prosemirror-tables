@@ -114,23 +114,6 @@ export function handlePaste(view, _, slice) {
 export function handleMouseDown(view, startEvent) {
   if (startEvent.ctrlKey || startEvent.metaKey) return
 
-  let startDOMCell = domInCell(view, startEvent.target), $anchor
-  if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {
-    // Adding to an existing cell selection
-    setCellSelection(view.state.selection.$anchorCell, startEvent)
-    startEvent.preventDefault()
-  } else if (startEvent.shiftKey && startDOMCell &&
-             ($anchor = cellAround(view.state.selection.$anchor)) != null &&
-             cellUnderMouse(view, startEvent).pos != $anchor.pos) {
-    // Adding to a selection that starts in another cell (causing a
-    // cell selection to be created).
-    setCellSelection($anchor, startEvent)
-    startEvent.preventDefault()
-  } else if (!startDOMCell) {
-    // Not in a cell, let the default behavior happen.
-    return
-  }
-
   // Create and dispatch a cell selection between the given anchor and
   // the position under the mouse.
   const setCellSelection = ($anchor, event) => {
@@ -168,8 +151,22 @@ export function handleMouseDown(view, startEvent) {
     view.root.removeEventListener("mousemove", move)
     if (this.spec.key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(this.spec.key, -1))
   }
-
-
+  let startDOMCell = domInCell(view, startEvent.target), $anchor
+  if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {
+    // Adding to an existing cell selection
+    setCellSelection(view.state.selection.$anchorCell, startEvent)
+    startEvent.preventDefault()
+  } else if (startEvent.shiftKey && startDOMCell &&
+             ($anchor = cellAround(view.state.selection.$anchor)) != null &&
+             cellUnderMouse(view, startEvent).pos != $anchor.pos) {
+    // Adding to a selection that starts in another cell (causing a
+    // cell selection to be created).
+    setCellSelection($anchor, startEvent)
+    startEvent.preventDefault()
+  } else if (!startDOMCell) {
+    // Not in a cell, let the default behavior happen.
+    return
+  }
   view.root.addEventListener("mouseup", stop)
   view.root.addEventListener("dragstart", stop)
   view.root.addEventListener("mousemove", move)
