@@ -3,6 +3,7 @@
 import {PluginKey} from "prosemirror-state"
 
 import {TableMap} from "./tablemap"
+import {tableNodeTypes} from "./schema";
 
 export const key = new PluginKey("selectingCells")
 
@@ -97,4 +98,12 @@ export function addColSpan(attrs, pos, n=1) {
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0)
   }
   return result
+}
+
+export function columnIsHeader(map, table, col) {
+  let headerCell = tableNodeTypes(table.type.schema).header_cell
+  for (let row = 0; row < map.height; row++)
+    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+      return false
+  return true
 }

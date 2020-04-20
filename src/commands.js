@@ -3,11 +3,20 @@
 import {TextSelection} from "prosemirror-state"
 import {Fragment} from "prosemirror-model"
 
-import {TableMap, Rect} from "./tablemap"
+import {Rect, TableMap} from "./tablemap"
 import {CellSelection} from "./cellselection"
-import {setAttr, addColSpan, rmColSpan, moveCellForward, isInTable, selectionCell} from "./util"
+import {
+  addColSpan,
+  cellAround,
+  cellWrapping,
+  columnIsHeader,
+  isInTable,
+  moveCellForward,
+  rmColSpan,
+  selectionCell,
+  setAttr
+} from "./util"
 import {tableNodeTypes} from "./schema"
-import {cellWrapping, cellAround} from './util'
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
@@ -24,14 +33,6 @@ export function selectedRect(state) {
   rect.map = map
   rect.table = table
   return rect
-}
-
-function columnIsHeader(map, table, col) {
-  let headerCell = tableNodeTypes(table.type.schema).header_cell
-  for (let row = 0; row < map.height; row++)
-    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
-      return false
-  return true
 }
 
 // Add a column at the given position in a table.

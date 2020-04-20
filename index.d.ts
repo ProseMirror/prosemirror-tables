@@ -271,6 +271,14 @@ export function cellAround<S extends Schema = any>(
 
 export function isInTable(state: EditorState): boolean;
 
+export function rmColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
+export function addColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
+
+type TableRoles = 'table' | 'row' | 'cell' | 'header_cell';
+
+export function columnIsHeader(map: TableMap, table: ProsemirrorNode, col: number): boolean;
+export function tableNodeTypes(schema: Schema): Record<TableRoles, NodeType>;
+
 export function selectionCell<S extends Schema = any>(
   state: EditorState<S>
 ): ResolvedPos<S> | null | undefined;
