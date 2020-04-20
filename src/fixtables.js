@@ -5,7 +5,7 @@
 
 import {PluginKey} from "prosemirror-state"
 import {TableMap} from "./tablemap"
-import {setAttr, rmColSpan} from "./util"
+import {setAttr, removeColSpan} from "./util"
 import {tableNodeTypes} from "./schema"
 import {key} from "./util"
 
@@ -66,7 +66,7 @@ export function fixTable(state, table, tablePos, tr) {
     if (prob.type == "collision") {
       let cell = table.nodeAt(prob.pos)
       for (let j = 0; j < cell.attrs.rowspan; j++) mustAdd[prob.row + j] += prob.n
-      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, rmColSpan(cell.attrs, cell.attrs.colspan - prob.n, prob.n))
+      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, removeColSpan(cell.attrs, cell.attrs.colspan - prob.n, prob.n))
     } else if (prob.type == "missing") {
       mustAdd[prob.row] += prob.n
     } else if (prob.type == "overlong_rowspan") {

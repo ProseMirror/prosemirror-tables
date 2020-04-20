@@ -8,7 +8,7 @@ import {Decoration, DecorationSet} from "prosemirror-view"
 import {Fragment, Slice} from "prosemirror-model"
 
 
-import {inSameTable, pointsAtCell, setAttr, rmColSpan} from "./util"
+import {inSameTable, pointsAtCell, setAttr, removeColSpan} from "./util"
 import {TableMap} from "./tablemap"
 
 // ::- A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
@@ -77,8 +77,8 @@ export class CellSelection extends Selection {
           let extraLeft = rect.left - cellRect.left, extraRight = cellRect.right - rect.right
           if (extraLeft > 0 || extraRight > 0) {
             let attrs = cell.attrs
-            if (extraLeft > 0) attrs = rmColSpan(attrs, 0, extraLeft)
-            if (extraRight > 0) attrs = rmColSpan(attrs, attrs.colspan - extraRight, extraRight)
+            if (extraLeft > 0) attrs = removeColSpan(attrs, 0, extraLeft)
+            if (extraRight > 0) attrs = removeColSpan(attrs, attrs.colspan - extraRight, extraRight)
             if (cellRect.left < rect.left) cell = cell.type.createAndFill(attrs)
             else cell = cell.type.create(attrs, cell.content)
           }
