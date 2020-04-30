@@ -3,11 +3,20 @@
 import {TextSelection} from "prosemirror-state"
 import {Fragment} from "prosemirror-model"
 
-import {TableMap, Rect} from "./tablemap"
+import {Rect, TableMap} from "./tablemap"
 import {CellSelection} from "./cellselection"
-import {setAttr, addColSpan, rmColSpan, moveCellForward, isInTable, selectionCell} from "./util"
+import {
+  addColSpan,
+  cellAround,
+  cellWrapping,
+  columnIsHeader,
+  isInTable,
+  moveCellForward,
+  removeColSpan,
+  selectionCell,
+  setAttr
+} from "./util"
 import {tableNodeTypes} from "./schema"
-import {cellWrapping, cellAround} from './util'
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
@@ -24,14 +33,6 @@ export function selectedRect(state) {
   rect.map = map
   rect.table = table
   return rect
-}
-
-function columnIsHeader(map, table, col) {
-  let headerCell = tableNodeTypes(table.type.schema).header_cell
-  for (let row = 0; row < map.height; row++)
-    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
-      return false
-  return true
 }
 
 // Add a column at the given position in a table.
@@ -88,7 +89,7 @@ export function removeColumn(tr, {map, table, tableStart}, col) {
     // If this is part of a col-spanning cell
     if ((col > 0 && map.map[index - 1] == pos) || (col < map.width - 1 && map.map[index + 1] == pos)) {
       tr.setNodeMarkup(tr.mapping.slice(mapStart).map(tableStart + pos), null,
-                       rmColSpan(cell.attrs, col - map.colCount(pos)))
+                       removeColSpan(cell.attrs, col - map.colCount(pos)))
     } else {
       let start = tr.mapping.slice(mapStart).map(tableStart + pos)
       tr.delete(start, start + cell.nodeSize)
