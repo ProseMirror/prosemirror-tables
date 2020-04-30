@@ -13,7 +13,7 @@
 import {Slice, Fragment} from "prosemirror-model"
 import {Transform} from "prosemirror-transform"
 
-import {setAttr, rmColSpan} from "./util"
+import {setAttr, removeColSpan} from "./util"
 import {TableMap} from "./tablemap"
 import {CellSelection} from "./cellselection"
 import {tableNodeTypes} from "./schema"
@@ -93,7 +93,7 @@ export function clipCells({width, height, rows}, newWidth, newHeight) {
       for (let col = added[row] || 0, i = 0; col < newWidth; i++) {
         let cell = frag.child(i % frag.childCount)
         if (col + cell.attrs.colspan > newWidth)
-          cell = cell.type.create(rmColSpan(cell.attrs, cell.attrs.colspan, col + cell.attrs.colspan - newWidth), cell.content)
+          cell = cell.type.create(removeColSpan(cell.attrs, cell.attrs.colspan, col + cell.attrs.colspan - newWidth), cell.content)
         cells.push(cell)
         col += cell.attrs.colspan
         for (let j = 1; j < cell.attrs.rowspan; j++)
@@ -191,8 +191,8 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
       found = true
       let cell = table.nodeAt(pos), cellLeft = map.colCount(pos)
       let updatePos = tr.mapping.slice(mapFrom).map(pos + start)
-      tr.setNodeMarkup(updatePos, null, rmColSpan(cell.attrs, left - cellLeft, cell.attrs.colspan - (left - cellLeft)))
-      tr.insert(updatePos + cell.nodeSize, cell.type.createAndFill(rmColSpan(cell.attrs, 0, left - cellLeft)))
+      tr.setNodeMarkup(updatePos, null, removeColSpan(cell.attrs, left - cellLeft, cell.attrs.colspan - (left - cellLeft)))
+      tr.insert(updatePos + cell.nodeSize, cell.type.createAndFill(removeColSpan(cell.attrs, 0, left - cellLeft)))
       row += cell.attrs.rowspan - 1
     }
   }

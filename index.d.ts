@@ -111,6 +111,12 @@ export interface Rect {
   bottom: number;
 }
 
+export interface TableRect extends Rect {
+  tableStart: number;
+  map: TableMap;
+  table: ProsemirrorNode;
+}
+
 export class TableMap {
   width: number;
   height: number;
@@ -192,6 +198,16 @@ export function deleteRow<S extends Schema = any>(
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
 
+export function selectedRect<S extends Schema = any>(
+  state: EditorState<S>
+): TableRect;
+
+export function rowIsHeader<S extends Schema = any>(
+  map: TableMap,
+  table: ProsemirrorNode<S>,
+  row: number
+): boolean;
+
 export function addRowAfter<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
@@ -201,6 +217,12 @@ export function addRowBefore<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
+
+export function addRow<S extends Schema = any>(
+  transaction: Transaction<S>,
+  rect: TableRect,
+  row: number
+): Transaction<S>;
 
 export function deleteColumn<S extends Schema = any>(
   state: EditorState<S>,
@@ -216,6 +238,12 @@ export function addColumnBefore<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
+
+export function addColumn<S extends Schema = any>(
+  transaction: Transaction<S>,
+  rect: TableRect,
+  row: number
+): Transaction<S>;
 
 export function columnResizing<S extends Schema = any>(props: {
   handleWidth?: number;
@@ -243,6 +271,14 @@ export function cellAround<S extends Schema = any>(
 
 export function isInTable(state: EditorState): boolean;
 
+export function removeColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
+export function addColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
+
+type TableRoles = 'table' | 'row' | 'cell' | 'header_cell';
+
+export function columnIsHeader(map: TableMap, table: ProsemirrorNode, col: number): boolean;
+export function tableNodeTypes(schema: Schema): Record<TableRoles, NodeType>;
+
 export function selectionCell<S extends Schema = any>(
   state: EditorState<S>
 ): ResolvedPos<S> | null | undefined;
@@ -267,3 +303,8 @@ export function nextCell<S extends Schema = any>(
   axis: string,
   dir: number
 ): null | ResolvedPos<S>;
+
+export function fixTables<S extends Schema = any>(
+  state: EditorState<S>,
+  oldState?: EditorState<S>
+): null | Transaction<S>;
