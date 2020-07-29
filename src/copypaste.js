@@ -112,7 +112,7 @@ export function clipCells({width, height, rows}, newWidth, newHeight) {
       for (let j = 0; j < source.childCount; j++) {
         let cell = source.child(j)
         if (row + cell.attrs.rowspan > newHeight)
-          cell = cell.type.create(setAttr(cell.attrs, "rowspan", newHeight - cell.attrs.rowspan), cell.content)
+          cell = cell.type.create(setAttr(cell.attrs, "rowspan", Math.max(1, newHeight - cell.attrs.rowspan)), cell.content)
         cells.push(cell)
       }
       newRows.push(Fragment.from(cells))
