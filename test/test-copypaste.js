@@ -80,6 +80,10 @@ describe("clipCells", () => {
   it("clips off excess rowspan", () =>
      test(table("<a>", tr(c(2, 2), c11), tr(c11), "<b>"),
           2, 3, [[c(2, 2)], [], [c(2, 1)]]))
+
+  it("clips off excess rowspan when new table height is bigger than the current table height", () =>  
+     test(table("<a>", tr(c(1, 2), c(2, 1)), tr(c11, c11), "<b>"),
+          3, 1, [[c(1, 1), c(2, 1)]]))
 })
 
 describe("insertCells", () => {
