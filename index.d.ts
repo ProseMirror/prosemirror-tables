@@ -1,4 +1,4 @@
-// Type definitions for prosemirror-tables 0.8
+// Type definitions for prosemirror-tables 1.1
 // Project: https://github.com/ProseMirror/prosemirror-tables
 // Definitions by: Oscar Wallhult <https://github.com/superchu>
 //                 Eduard Shvedai <https://github.com/eshvedai>
@@ -58,7 +58,14 @@ export interface CellSelectionJSON {
   head: number;
 }
 
-export class CellSelection<S extends Schema = any> {
+export class CellBookmark<S extends Schema = any> {
+  constructor(anchor: number, head: number) 
+
+  map(mapping: Mappable): CellBookmark<S>;
+  resolve(doc: ProsemirrorNode<S>): CellSelection<S> | Selection<S>
+}
+
+export class CellSelection<S extends Schema = any> extends Selection<S> {
   constructor($anchorCell: ResolvedPos<S>, $headCell?: ResolvedPos<S>);
 
   from: number;
@@ -83,7 +90,7 @@ export class CellSelection<S extends Schema = any> {
   isColSelection(): boolean;
   eq(other: Selection<S>): boolean;
   toJSON(): CellSelectionJSON;
-  getBookmark(): { anchor: number; head: number };
+  getBookmark(): CellBookmark<S>;
 
   static colSelection<S extends Schema = any>(
     anchorCell: ResolvedPos<S>,
