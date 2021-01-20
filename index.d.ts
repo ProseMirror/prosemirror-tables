@@ -294,7 +294,7 @@ export function inSameTable<S extends Schema = any>(
 
 export function findCell(
   pos: ResolvedPos
-): { top: number; left: number; right: number; buttom: number };
+): { top: number; left: number; right: number; bottom: number };
 
 export function colCount(pos: ResolvedPos): number;
 
