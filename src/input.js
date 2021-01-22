@@ -114,6 +114,43 @@ export function handlePaste(view, _, slice) {
 export function handleMouseDown(view, startEvent) {
   if (startEvent.ctrlKey || startEvent.metaKey) return
 
+  // Create and dispatch a cell selection between the given anchor and
+  // the position under the mouse.
+  const setCellSelection = ($anchor, event) => {
+    let $head = cellUnderMouse(view, event)
+    let starting = this.spec.key.getState(view.state) == null
+    if (!$head || !inSameTable($anchor, $head)) {
+      if (starting) $head = $anchor
+      else return
+    }
+    let selection = new CellSelection($anchor, $head)
+    if (starting || !view.state.selection.eq(selection)) {
+      let tr = view.state.tr.setSelection(selection)
+      if (starting) tr.setMeta(this.spec.key, $anchor.pos)
+      view.dispatch(tr)
+    }
+  }
+
+  const move = (event) => {
+    let anchor = this.spec.key.getState(view.state), $anchor
+    if (anchor != null) {
+      // Continuing an existing cross-cell selection
+      $anchor = view.state.doc.resolve(anchor)
+    } else if (domInCell(view, event.target) != startDOMCell) {
+      // Moving out of the initial cell -- start a new cell selection
+      $anchor = cellUnderMouse(view, startEvent)
+      if (!$anchor) return stop()
+    }
+    if ($anchor) setCellSelection($anchor, event)
+  }
+
+  // Stop listening to mouse motion events.
+  const stop = () => {
+    view.root.removeEventListener("mouseup", stop)
+    view.root.removeEventListener("dragstart", stop)
+    view.root.removeEventListener("mousemove", move)
+    if (this.spec.key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(this.spec.key, -1))
+  }
   let startDOMCell = domInCell(view, startEvent.target), $anchor
   if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {
     // Adding to an existing cell selection
@@ -129,44 +166,6 @@ export function handleMouseDown(view, startEvent) {
   } else if (!startDOMCell) {
     // Not in a cell, let the default behavior happen.
     return
-  }
-
-  // Create and dispatch a cell selection between the given anchor and
-  // the position under the mouse.
-  function setCellSelection($anchor, event) {
-    let $head = cellUnderMouse(view, event)
-    let starting = key.getState(view.state) == null
-    if (!$head || !inSameTable($anchor, $head)) {
-      if (starting) $head = $anchor
-      else return
-    }
-    let selection = new CellSelection($anchor, $head)
-    if (starting || !view.state.selection.eq(selection)) {
-      let tr = view.state.tr.setSelection(selection)
-      if (starting) tr.setMeta(key, $anchor.pos)
-      view.dispatch(tr)
-    }
-  }
-
-  // Stop listening to mouse motion events.
-  function stop() {
-    view.root.removeEventListener("mouseup", stop)
-    view.root.removeEventListener("dragstart", stop)
-    view.root.removeEventListener("mousemove", move)
-    if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
-  }
-
-  function move(event) {
-    let anchor = key.getState(view.state), $anchor
-    if (anchor != null) {
-      // Continuing an existing cross-cell selection
-      $anchor = view.state.doc.resolve(anchor)
-    } else if (domInCell(view, event.target) != startDOMCell) {
-      // Moving out of the initial cell -- start a new cell selection
-      $anchor = cellUnderMouse(view, startEvent)
-      if (!$anchor) return stop()
-    }
-    if ($anchor) setCellSelection($anchor, event)
   }
   view.root.addEventListener("mouseup", stop)
   view.root.addEventListener("dragstart", stop)

@@ -33,7 +33,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
     state: {
       init() { return null },
       apply(tr, cur) {
-        let set = tr.getMeta(tableEditingKey)
+        let set = tr.getMeta(this.spec.key)
         if (set != null) return set == -1 ? null : set
         if (cur == null || !tr.docChanged) return cur
         let {deleted, pos} = tr.mapping.mapResult(cur)
@@ -49,7 +49,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
       },
 
       createSelectionBetween(view) {
-        if (tableEditingKey.getState(view.state) != null) return view.state.selection
+        if (this.spec.key.getState(view.state) != null) return view.state.selection
       },
 
       handleTripleClick,
