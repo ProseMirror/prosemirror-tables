@@ -141,8 +141,11 @@ function currentColWidth(view, cellPos, {colspan, colwidth}) {
   return domWidth / parts
 }
 
+// ie fix: classList property does not exist on svgs in internet explorer. therefore
+// we have to check the classList property first before calling the contains function
+// on the classList
 function domCellAround(target) {
-  while (target && target.nodeName != "TD" && target.nodeName != "TH")
+  while (target && target.classList && target.nodeName != "TD" && target.nodeName != "TH")
     target = target.classList.contains("ProseMirror") ? null : target.parentNode
   return target
 }
