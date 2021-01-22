@@ -213,7 +213,7 @@ function handleDecorations(state, cell) {
     // of the table to their right, and either the top of the table or
     // a different cell above them, add a decoration
     if ((col == map.width || map.map[index] != map.map[index + 1]) &&
-        (row == 0 || map.map[index - 1] != map.map[index - 1 - map.width])) {
+        (row == 0 || map.map[index] != map.map[index - map.width])) {
       let cellPos = map.map[index]
       let pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1
       let dom = document.createElement("div")
