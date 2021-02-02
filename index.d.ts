@@ -58,7 +58,7 @@ export interface CellSelectionJSON {
   head: number;
 }
 
-export class CellSelection<S extends Schema = any> {
+export class CellSelection<S extends Schema = any> extends Selection<S> {
   constructor($anchorCell: ResolvedPos<S>, $headCell?: ResolvedPos<S>);
 
   from: number;
@@ -83,7 +83,6 @@ export class CellSelection<S extends Schema = any> {
   isColSelection(): boolean;
   eq(other: Selection<S>): boolean;
   toJSON(): CellSelectionJSON;
-  getBookmark(): { anchor: number; head: number };
 
   static colSelection<S extends Schema = any>(
     anchorCell: ResolvedPos<S>,
