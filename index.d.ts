@@ -271,6 +271,8 @@ export function cellAround<S extends Schema = any>(
 
 export function isInTable(state: EditorState): boolean;
 
+export function pointsAtCell<S extends Schema = any>($pos: ResolvedPos<S>): false | null | ProsemirrorNode
+
 export function removeColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
 export function addColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
 
