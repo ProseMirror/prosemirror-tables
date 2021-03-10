@@ -183,6 +183,7 @@ export function removeRow(tr, {map, table, tableStart}, row) {
       let attrs = table.nodeAt(pos).attrs
       tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + tableStart), null, setAttr(attrs, "rowspan", attrs.rowspan - 1))
       col += attrs.colspan - 1
+      index += attrs.colspan - 1
     } else if (row < map.height && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
       let cell = table.nodeAt(pos)
@@ -190,6 +191,7 @@ export function removeRow(tr, {map, table, tableStart}, row) {
       let newPos = map.positionAt(row + 1, col, table)
       tr.insert(tr.mapping.slice(mapFrom).map(tableStart + newPos), copy)
       col += cell.attrs.colspan - 1
+      index += cell.attrs.colspan - 1
     }
   }
 }

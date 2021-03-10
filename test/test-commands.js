@@ -264,9 +264,14 @@ describe("deleteRow", () => {
           table(tr(c11, c11))))
 
   it("skips columns when adjusting rowspan", () =>
-     test(table(tr(cCursor, c(2, 2)), tr(c11)),
+     test(table(tr(cCursor, c(2, 2), c11), tr(c11, c11)),
           deleteRow,
-          table(tr(c11, c(2, 1)))))
+          table(tr(c11, c(2, 1), c11))))
+
+  it("skips columns when adjusting rowspan", () =>
+     test(table(tr(c11, c(2, 2), c11), tr(c11, cCursor)),
+          deleteRow,
+          table(tr(c11, c(2, 1), c11))))
 
   it("can delete a cell selection", () =>
      test(table(tr(cAnchor, c11), tr(c11, cEmpty)),
