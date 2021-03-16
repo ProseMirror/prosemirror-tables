@@ -68,7 +68,7 @@ describe("columnresizing", () => {
   // all borders are referenced to the right of the cells.
   // The (x, pos) indicate where the user is hovering and the resolved
   // position. The initial editor state is a document with just an empty
-  // table. All cells are empty exce
+  // table. All cells are empty.
   //
   //          border 1     border 2     border 3
   // |                                     |(1, 2)
