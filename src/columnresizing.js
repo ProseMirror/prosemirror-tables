@@ -205,7 +205,11 @@ function zeroes(n) {
 function handleDecorations(state, cell) {
   let decorations = []
   let $cell = state.doc.resolve(cell)
-  let table = $cell.node(-1), map = TableMap.get(table), start = $cell.start(-1)
+  let table = $cell.node(-1)
+  if (!table) {
+    return DecorationSet.create(state.doc, decorations)
+  }
+  let map = TableMap.get(table), start = $cell.start(-1)
   let col = map.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan
   for (let row = 0; row < map.height; row++) {
     let index = col + row * map.width - 1

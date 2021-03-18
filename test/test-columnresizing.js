@@ -1,6 +1,6 @@
 const ist = require("ist");
 const { columnResizing, columnResizingPluginKey } = require("../dist/");
-const { EditorState } = require("prosemirror-state");
+const { EditorState, NodeSelection } = require("prosemirror-state");
 const { doc, table, tr, td, cEmpty, p } = require("./build");
 
 describe("columnresizing", () => {
@@ -176,4 +176,34 @@ describe("columnresizing", () => {
       });
     });
   });
+  describe("table is deleted", () => {
+    let state = null;
+    let plugin = null;
+    let simpleTable = table(
+      tr(cEmpty, cEmpty),
+      tr(cEmpty, cEmpty),
+      tr(cEmpty, cEmpty)
+    );
+    beforeEach(() => {
+      const docWithSimpleTable = doc(simpleTable);
+      plugin = columnResizing();
+      state = EditorState.create({
+        doc: docWithSimpleTable,
+        plugins: [plugin],
+        selection: NodeSelection.create(docWithSimpleTable, 0)
+      });
+    });
+    afterEach(() => {
+      state = null;
+      plugin = null;
+    });
+    it("decorations are removed", () => {
+      let transaction = state.tr.deleteSelection().setMeta(columnResizingPluginKey, {
+        setHandle: 2,
+        setDragging: null,
+      });
+      let newState = state.apply(transaction);
+      ist(plugin.props.decorations(newState).find().length, 0);
+    })
+  })
 });
