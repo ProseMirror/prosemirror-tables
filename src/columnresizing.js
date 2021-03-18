@@ -207,7 +207,7 @@ function handleDecorations(state, cell) {
   let $cell = state.doc.resolve(cell)
   let table = $cell.node(-1)
   if (!table) {
-    return DecorationSet.create(state.doc, decorations)
+    return DecorationSet.empty
   }
   let map = TableMap.get(table), start = $cell.start(-1)
   let col = map.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan
