@@ -111,7 +111,11 @@ function handleMouseDown(view, event, cellMinWidth) {
     window.removeEventListener("mousemove", move)
     let pluginState = key.getState(view.state)
     if (pluginState.dragging) {
-      updateColumnWidth(view, pluginState.activeHandle, draggedWidth(pluginState.dragging, event, cellMinWidth))
+      // Don't trigger update column width if there's no movement. Otherwise we may kill a click
+      // event if one exists in a decoration near the blue bar.
+      if (pluginState.dragging.startX !== event.clientX) {
+        updateColumnWidth(view, pluginState.activeHandle, draggedWidth(pluginState.dragging, event, cellMinWidth))
+      }
       view.dispatch(view.state.tr.setMeta(key, {setDragging: null}))
     }
   }
