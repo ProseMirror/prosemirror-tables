@@ -18,7 +18,8 @@ let e = module.exports = require("prosemirror-test-builder").builders(schema, {
   p: {nodeType: "paragraph"},
   tr: {nodeType: "table_row"},
   td: {nodeType: "table_cell"},
-  th: {nodeType: "table_header"}
+  th: {nodeType: "table_header"},
+  hr: {nodeType: "horizontal_rule"},
 })
 
 e.c = function(colspan, rowspan) {
