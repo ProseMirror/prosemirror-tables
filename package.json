@@ -9,16 +9,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/prosemirror/prosemirror-tables.git"
+    "url": "git://github.com/skiff-org/prosemirror-tables.git"
   },
   "maintainers": [
     {
-      "name": "Eduard Shvedai",
-      "email": "eshvedai@atlassian.com"
+      "name": "Kevin Jasker",
+      "email": "kevin@barefootcoders.com"
     },
     {
-      "name": "Huanhuan Huang",
-      "email": "hhuang@atlassian.com"
+      "name": "Skiff Org",
+      "email": "prosemirror-tables@nightwatchapp.com"
     }
   ],
   "dependencies": {
