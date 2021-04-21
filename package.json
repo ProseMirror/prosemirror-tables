@@ -1,6 +1,6 @@
 {
-  "name": "prosemirror-tables",
-  "version": "1.1.1",
+  "name": "@skiff-org/prosemirror-tables",
+  "version": "1.1.2",
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -19,6 +19,14 @@
     {
       "name": "Skiff Org",
       "email": "prosemirror-tables@nightwatchapp.com"
+    },
+    {
+      "name": "Eduard Shvedai",
+      "email": "eshvedai@atlassian.com"
+    },
+    {
+      "name": "Huanhuan Huang",
+      "email": "hhuang@atlassian.com"
     }
   ],
   "dependencies": {
@@ -45,6 +53,9 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "typescript": "^3.7.2",
     "typings-tester": "^0.3.2"
+  },
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
