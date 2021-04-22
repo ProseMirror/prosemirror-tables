@@ -54,9 +54,6 @@
     "typescript": "^3.7.2",
     "typings-tester": "^0.3.2"
   },
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
-  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "mocha test/test-*.js",
