@@ -168,6 +168,24 @@ export function addRowAfter(state, dispatch) {
   return true
 }
 
+export function addBottomRow(state, dispatch) {
+  if (!isInTable(state)) return false
+  if (dispatch) {
+    let rect = selectedRect(state)
+    dispatch(addRow(state.tr, rect, rect.map.height))
+  }
+  return true
+}
+
+export function addRightColumn(state, dispatch) {
+  if (!isInTable(state)) return false
+  if (dispatch) {
+    let rect = selectedRect(state)
+    dispatch(addColumn(state.tr, rect, rect.map.width))
+  }
+  return true
+}
+
 export function removeRow(tr, {map, table, tableStart}, row) {
   let rowPos = 0
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize

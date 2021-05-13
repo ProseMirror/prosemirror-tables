@@ -230,13 +230,79 @@ class CellBookmark {
   }
 }
 
+function addDecoration(decoArray, classString, pos, nodeSize) {
+  decoArray.push(
+    Decoration.node(pos, pos + nodeSize, {
+      class: classString,
+    })
+  );
+}
+
 export function drawCellSelection(state) {
-  if (!(state.selection instanceof CellSelection)) return null
-  let cells = []
+  if (!(state.selection instanceof CellSelection)) return null;
+  const cells = [];
+
+  let selectionRect = state.selection.content().content;
+  let rowsNumber;
+  let cellsPerRow;
+  if (selectionRect.firstChild.type.name === "table") {
+    rowsNumber = selectionRect.firstChild.childCount;
+    cellsPerRow = selectionRect.content[0].content.content[0].content.content.reduce(
+      (cols, cell) => {
+        cols += Number(cell.attrs.colspan || 1);
+        return cols;
+      },
+      0
+    );
+  } else {
+    rowsNumber = selectionRect.childCount;
+    cellsPerRow = selectionRect.content[0].content.content.reduce(
+      (cols, cell) => {
+        cols += Number(cell.attrs.colspan || 1);
+        return cols;
+      },
+      0
+    );
+  }
+  const selectionMap = new Array(rowsNumber).fill(0);
+
+  let currentRow = 0;
+  let currentColumn = 0;
   state.selection.forEachCell((node, pos) => {
-    cells.push(Decoration.node(pos, pos + node.nodeSize, {class: "selectedCell"}))
-  })
-  return DecorationSet.create(state.doc, cells)
+    const inLastRow = currentRow + node.attrs.rowspan === rowsNumber;
+    const inFirstRow = currentRow === 0;
+    const firstInRow = selectionMap[currentRow] === 0;
+    const lastInRow = selectionMap[currentRow] === cellsPerRow - 1;
+
+    if (inLastRow)
+      addDecoration(cells, "selectionBottomBorder", pos, node.nodeSize);
+    if (inFirstRow)
+      addDecoration(cells, "selectionTopBorder", pos, node.nodeSize);
+    if (firstInRow)
+      addDecoration(cells, "selectionLeftBorder", pos, node.nodeSize);
+    if (lastInRow)
+      addDecoration(cells, "selectionRightBorder", pos, node.nodeSize);
+
+    for (let i = 0; i < node.attrs.rowspan; i++) {
+      selectionMap[currentRow + i] += node.attrs.colspan;
+    }
+
+    if (selectionMap[currentRow] === cellsPerRow) {
+      currentColumn = 0;
+      while (selectionMap[currentRow] === cellsPerRow) {
+        currentRow += 1;
+      }
+    } else {
+      currentColumn += node.attrs.colspan || 1;
+    }
+
+    cells.push(
+      Decoration.node(pos, pos + node.nodeSize, {
+        class: "selectedCell",
+      })
+    );
+  });
+  return DecorationSet.create(state.doc, cells);
 }
 
 function isCellBoundarySelection({$from, $to}) {

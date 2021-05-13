@@ -33,3 +33,22 @@
   background: rgba(200, 200, 255, 0.4);
   pointer-events: none;
 }
+
+
+.ProseMirror .selectedCell:before {
+  content: "";
+  display: block;
+  top: -2px;
+  bottom: -2px;
+  left: -2px;
+  right: -2px;
+  border: 0 solid var(--hp-color-selection, #0070e0);
+  position: absolute;
+  pointer-events: none;
+  z-index: 12;
+  background-color: rgba(var(--hp-color-selection-rgb, 0, 112, 224), .1);
+}
+
+.ProseMirror .selectedCell.selectionTopBorder:before {
+  border-top-width: 3px;
+}

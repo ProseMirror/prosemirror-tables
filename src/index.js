@@ -69,6 +69,7 @@ export {fixTables, handlePaste, fixTablesKey}
 export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell, setAttr, pointsAtCell, removeColSpan, addColSpan, columnIsHeader} from "./util";
 export {tableNodes, tableNodeTypes} from "./schema"
 export {CellSelection} from "./cellselection"
+export {columnHandles} from "./columnhandles"
 export {TableMap} from "./tablemap"
 export {tableEditingKey};
 export * from "./commands"

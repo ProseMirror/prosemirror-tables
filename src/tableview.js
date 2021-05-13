@@ -1,10 +1,30 @@
+const createElementWithClass = (element, className) => {
+  const newElement = document.createElement(element);
+  newElement.className = className
+  return newElement;
+} 
+
 export class TableView {
   constructor(node, cellMinWidth) {
     this.node = node
     this.cellMinWidth = cellMinWidth
-    this.dom = document.createElement("div")
-    this.dom.className = "tableWrapper"
-    this.table = this.dom.appendChild(document.createElement("table"))
+    this.dom = createElementWithClass('div', 'tableWrapper');
+    this.tableHandle = createElementWithClass('div', 'tableHandle');
+    this.tableHorizontalWrapper = createElementWithClass('div', 'tableHorizontalWrapper');
+    this.tableVerticalWrapper = createElementWithClass('div', 'tableVerticalWrapper');
+
+
+    this.dom.appendChild(this.tableHandle);
+    this.dom.appendChild(this.tableHorizontalWrapper);
+    this.tableHorizontalWrapper.appendChild(this.tableVerticalWrapper);
+
+
+    this.table = this.tableVerticalWrapper.appendChild(document.createElement("table"))
+    this.tableVerticalWrapper.appendChild(createElementWithClass('button', 'tableButton tableAddBottomRow'))
+    this.tableHorizontalWrapper.appendChild(createElementWithClass('button', 'tableButton tableAddRightColumn'))
+
+
+
     this.colgroup = this.table.appendChild(document.createElement("colgroup"))
     updateColumns(node, this.colgroup, this.table, cellMinWidth)
     this.contentDOM = this.table.appendChild(document.createElement("tbody"))
