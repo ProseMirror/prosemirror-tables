@@ -140,6 +140,11 @@ export function deleteTable<S extends Schema = any>(
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
 
+export function sortColumn<S extends Schema = any>(
+  state: EditorState<S>,
+  dispatch?: (tr: Transaction<S>) => void
+): boolean;
+
 export function goToNextCell<S extends Schema = any>(
   direction: number
 ): (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void) => boolean;

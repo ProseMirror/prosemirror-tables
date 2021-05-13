@@ -494,3 +494,22 @@ export function deleteTable(state, dispatch) {
   }
   return false
 }
+
+
+export function sortColumn(state, dispatch) {
+  if (!isInTable(state)) return false
+  if (dispatch) {
+    let rect = selectedRect(state)
+    let newRowsArray = rect.table.content.content.slice();
+    const { tr } = state;
+    const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+    newRowsArray = newRowsArray.sort((a,b) => {
+      const textA = a.content.content[0].textContent.replace(/[^a-zA-Z0-9]/g, '')
+      const textB = b.content.content[0].textContent.replace(/[^a-zA-Z0-9]/g, '')
+      return collator.compare(textA, textB)
+    })
+    tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, newRowsArray)
+    dispatch(tr)
+  }
+  return true
+}
