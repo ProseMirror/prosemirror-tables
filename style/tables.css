@@ -5,7 +5,7 @@
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 .ProseMirror td, .ProseMirror th {
   vertical-align: top;

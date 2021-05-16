@@ -1,11 +1,21 @@
+import {addBottomRow, addRightColumn} from "./commands"
 const createElementWithClass = (element, className) => {
   const newElement = document.createElement(element);
   newElement.className = className
   return newElement;
 } 
+const createAddCellsButton = (type, view) => {
+  const isRow = type === 'row'
+  const newElement = createElementWithClass('button', `tableButton ${isRow ? 'tableAddBottomRow' : 'tableAddRightColumn'}`);
+  newElement.innerHTML = '+'
+  newElement.onclick = () => {
+    (isRow ? addBottomRow : addRightColumn)(view.state, view.dispatch)
+  }
+  return newElement;
+} 
 
 export class TableView {
-  constructor(node, cellMinWidth) {
+  constructor(node, cellMinWidth, view) {
     this.node = node
     this.cellMinWidth = cellMinWidth
     this.dom = createElementWithClass('div', 'tableWrapper');
@@ -13,16 +23,16 @@ export class TableView {
     this.tableHorizontalWrapper = createElementWithClass('div', 'tableHorizontalWrapper');
     this.tableVerticalWrapper = createElementWithClass('div', 'tableVerticalWrapper');
 
-
     this.dom.appendChild(this.tableHandle);
     this.dom.appendChild(this.tableHorizontalWrapper);
     this.tableHorizontalWrapper.appendChild(this.tableVerticalWrapper);
 
-
     this.table = this.tableVerticalWrapper.appendChild(document.createElement("table"))
-    this.tableVerticalWrapper.appendChild(createElementWithClass('button', 'tableButton tableAddBottomRow'))
-    this.tableHorizontalWrapper.appendChild(createElementWithClass('button', 'tableButton tableAddRightColumn'))
-
+    setTimeout(() => {
+      this.updateMarkers()
+    },0)
+    this.tableVerticalWrapper.appendChild(createAddCellsButton('row', view));
+    this.tableHorizontalWrapper.appendChild(createAddCellsButton('column', view))
 
 
     this.colgroup = this.table.appendChild(document.createElement("colgroup"))
@@ -30,7 +40,16 @@ export class TableView {
     this.contentDOM = this.table.appendChild(document.createElement("tbody"))
   }
 
+  updateMarkers() {
+    const markers = this.table.querySelectorAll('.addAfterMarker')
+
+    markers.forEach((marker) => {
+      marker.style=`width: ${this.table.offsetWidth + 15}px`;
+    })
+  }
+
   update(node) {
+    this.updateMarkers()
     if (node.type != this.node.type) return false
     this.node = node
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth)
