@@ -41,10 +41,16 @@ export class TableView {
   }
 
   updateMarkers() {
-    const markers = this.table.querySelectorAll('.addAfterMarker')
+    const rowMarkers = this.table.querySelectorAll('.addRowAfterMarker')
 
-    markers.forEach((marker) => {
+    rowMarkers.forEach((marker) => {
       marker.style=`width: ${this.table.offsetWidth + 15}px`;
+    })
+
+    const colMarkers = this.table.querySelectorAll('.addColAfterMarker')
+
+    colMarkers.forEach((marker) => {
+      marker.style=`height: ${this.table.offsetHeight + 15}px`;
     })
   }
 

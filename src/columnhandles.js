@@ -4,7 +4,6 @@ import {selectionCell} from "./util"
 import {addRowBefore, addColumnBefore} from "./commands"
 import { CellSelection } from "./cellselection"
 
-
 export const key = new PluginKey("tableColumnHandles")
 
 const createElementWithClass = (element, className) => {
@@ -52,12 +51,12 @@ export class CellView {
       addRowBefore(view.state, view.dispatch)
     }
     addRowAfterContainer.appendChild(addAfterButton)
-    const addRowAfterMarker = createElementWithClass('div', 'addAfterMarker')
+    const addRowAfterMarker = createElementWithClass('div', 'addRowAfterMarker')
     addRowAfterContainer.appendChild(addRowAfterMarker)
     this.dom.appendChild(addRowAfterContainer)
 
     const table = this.dom
-    const marker = this.dom.querySelector('.addAfterMarker')
+    const marker = this.dom.querySelector('.addRowAfterMarker')
     marker.style=`width: ${table.offsetWidth + 15}px`;
   }
 
@@ -88,7 +87,7 @@ export class CellView {
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');
     addAfterButtonText.innerText = "+"
     addAfterButton.appendChild(addAfterButtonText)
-    addAfterButton.appendChild(createElementWithClass('div', 'addButtonContent'))
+    addAfterButton.appendChild(createElementWithClass('div', 'addColButtonContent'))
 
     addAfterButton.onclick = () => {
       addColumnBefore(view.state, view.dispatch)
