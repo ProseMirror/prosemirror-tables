@@ -301,6 +301,22 @@ export function drawCellSelection(state) {
         class: "selectedCell",
       })
     );
+
+    if(state.selection.isRowSelection()) {
+      cells.push(
+        Decoration.node(pos, pos + node.nodeSize, {
+          class: "inRowSelection",
+        })
+      );
+    }
+
+    if(state.selection.isColSelection()) {
+      cells.push(
+        Decoration.node(pos, pos + node.nodeSize, {
+          class: "inColSelection",
+        })
+      );
+    }
   });
   return DecorationSet.create(state.doc, cells);
 }

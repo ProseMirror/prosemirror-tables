@@ -1,8 +1,10 @@
 import {Plugin, PluginKey} from "prosemirror-state"
 import {Decoration, DecorationSet} from "prosemirror-view"
 import {selectionCell} from "./util"
-import {addRowBefore, addColumnBefore} from "./commands"
+import {addRowBefore, addColumnBefore, addRow} from "./commands"
 import { CellSelection } from "./cellselection"
+import { TableMap } from "./tablemap";
+import { TextSelection } from "prosemirror-state"
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -47,9 +49,8 @@ export class CellView {
     addAfterButton.appendChild(addAfterButtonText)
     addAfterButton.appendChild(createElementWithClass('div', 'addRowButtonContent'))
 
-    addAfterButton.onclick = () => {
-      addRowBefore(view.state, view.dispatch)
-    }
+    addAfterButton.onclick = () => this.addRowBeforeButton(view)
+
     addRowAfterContainer.appendChild(addAfterButton)
     const addRowAfterMarker = createElementWithClass('div', 'addRowAfterMarker')
     addRowAfterContainer.appendChild(addRowAfterMarker)
@@ -58,6 +59,30 @@ export class CellView {
     const table = this.dom
     const marker = this.dom.querySelector('.addRowAfterMarker')
     marker.style=`width: ${table.offsetWidth + 15}px`;
+  }
+
+  addRowBeforeButton(view) {
+    const resolvePos = view.state.doc.resolve(this.getPos())
+    const tableNode = resolvePos.node(-1);
+    const tableStart = resolvePos.start(-1)
+    const map = TableMap.get(tableNode);
+
+    const tableRect = {
+      tableStart,
+      map,
+      table: tableNode
+    }
+    debugger
+    const rowPos = this.getPos();
+    const rowIndex = map.map.indexOf(rowPos - tableStart);
+
+    if (rowIndex === -1) return;
+
+    const rowNumber = rowIndex / map.width;
+
+    const tr = addRow(view.state.tr, tableRect, rowNumber)
+    tr.setSelection(TextSelection.create(tr.doc, this.getPos() + 2))
+    view.dispatch(tr)
   }
 
   checkIfColHeader(view) {
@@ -112,6 +137,10 @@ export class CellView {
     this.node = node
 
     return true;
+  }
+
+  selectNode() {
+    console.log(this.view.state.selection.isRowSelection());
   }
 }
 

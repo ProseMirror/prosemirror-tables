@@ -1,3 +1,4 @@
+import { NodeSelection } from "prosemirror-state";
 import {addBottomRow, addRightColumn} from "./commands"
 const createElementWithClass = (element, className) => {
   const newElement = document.createElement(element);
@@ -15,13 +16,17 @@ const createAddCellsButton = (type, view) => {
 } 
 
 export class TableView {
-  constructor(node, cellMinWidth, view) {
+  constructor(node, cellMinWidth, view, getPos) {
     this.node = node
+    this.view = view;
+    this.getPos = getPos;
     this.cellMinWidth = cellMinWidth
     this.dom = createElementWithClass('div', 'tableWrapper');
     this.tableHandle = createElementWithClass('div', 'tableHandle');
     this.tableHorizontalWrapper = createElementWithClass('div', 'tableHorizontalWrapper');
     this.tableVerticalWrapper = createElementWithClass('div', 'tableVerticalWrapper');
+
+    this.tableHandle.onclick = () => this.selectTable()
 
     this.dom.appendChild(this.tableHandle);
     this.dom.appendChild(this.tableHorizontalWrapper);
@@ -33,7 +38,6 @@ export class TableView {
     },0)
     this.tableVerticalWrapper.appendChild(createAddCellsButton('row', view));
     this.tableHorizontalWrapper.appendChild(createAddCellsButton('column', view))
-
 
     this.colgroup = this.table.appendChild(document.createElement("colgroup"))
     updateColumns(node, this.colgroup, this.table, cellMinWidth)
@@ -52,6 +56,12 @@ export class TableView {
     colMarkers.forEach((marker) => {
       marker.style=`height: ${this.table.offsetHeight + 15}px`;
     })
+  }
+
+  selectTable() {
+    const { tr } = this.view.state;
+    tr.setSelection(NodeSelection.create(tr.doc, this.getPos()));
+    this.view.dispatch(tr)
   }
 
   update(node) {

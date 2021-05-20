@@ -13,7 +13,7 @@ export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = Tabl
     state: {
       init(_, state) {
         this.spec.props.nodeViews[tableNodeTypes(state.schema).table.name] =
-          (node, view) => new View(node, cellMinWidth, view)
+          (node, view, getPos) => new View(node, cellMinWidth, view, getPos)
         return new ResizeState(-1, false)
       },
       apply(tr, prev) {
