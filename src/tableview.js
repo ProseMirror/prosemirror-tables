@@ -73,7 +73,10 @@ export class TableView {
   }
 
   ignoreMutation(record) {
-    return record.type == "attributes" && (record.target == this.table || this.colgroup.contains(record.target))
+    console.log('tableView ignoreMutation', record)
+    return true
+    // TODO: Bring back and find when to ignore for rows re arrangement
+    // return record.type == "attributes" && (record.target == this.table || this.colgroup.contains(record.target))
   }
 }
 

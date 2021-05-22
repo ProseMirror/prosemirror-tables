@@ -5,6 +5,7 @@ import {addRowBefore, addColumnBefore, addRow} from "./commands"
 import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
 import { TextSelection } from "prosemirror-state"
+import { TableView } from './tableview'
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -37,6 +38,45 @@ export class CellView {
     rowHandleButton.addEventListener('click', () => {
       view.dispatch(view.state.tr.setSelection(CellSelection.rowSelection(view.state.doc.resolve(this.getPos()))))
     })
+
+    rowHandleButton.onmousedown = (e) => {
+      console.log('mouse down')
+      const tableWrapper = document.querySelector('.tableFocus')
+      tableWrapper.classList.add('rowRearrangement')
+      const tableRect = tableWrapper.querySelector('table').getBoundingClientRect();
+      const trRect = this.dom.parentElement.getBoundingClientRect();
+
+      const trGhost = createElementWithClass('div', 'tableRowGhost');
+      trGhost.style.position = 'absolute';
+      trGhost.style.width = `${trRect.width}px`;
+      trGhost.style.height = `${trRect.height}px`;
+      trGhost.style.background = '#0000ff2e';
+      trGhost.style.opacity = 0.5;
+      trGhost.style.pointerEvents = 'none';
+
+      tableWrapper.appendChild(trGhost);
+      const onmousemove = (e) => {
+        const middleTr = (trRect.height / 2);
+          let trGhostTop = e.clientY - tableRect.top - middleTr
+          if (e.clientY - middleTr < tableRect.top) {
+            trGhostTop = 0;
+          }
+          if (e.clientY + middleTr > tableRect.bottom) {
+            trGhostTop = tableRect.height - trRect.height
+          }
+          trGhost.style.top = `${trGhostTop}px`;
+      };
+      onmousemove(e);
+      document.body.onmousemove = onmousemove;
+      document.body.onmouseup = () => {
+        trGhost.remove();
+        tableWrapper.classList.remove('rowRearrangement')
+        document.body.onmousemove = document.body.onmouseup = null;
+      };
+
+      // Stop the editor from making selection
+      e.preventDefault();
+    };
 
     this.rowHandle = rowHandle.appendChild(rowHandleButton)
     this.dom.appendChild(rowHandle)
@@ -127,6 +167,13 @@ export class CellView {
     marker.style=`height: ${table.offsetHeight + 15}px`;
   }
 
+  ignoreMutation(record) {
+    if (record.type === 'attributes' && record.target.classList.contains('addRowAfterMarker')) {
+      return true
+    }
+    return false
+  }
+
   update(node,b,c) {
     if (node.type != this.node.type) return false;
     if (this.dom && !this.node.sameMarkup(node)) return false;
@@ -151,6 +198,7 @@ export function columnHandles({} = {}) {
     props: {
         nodeViews: {
           table_cell: (node, view, getPos) => new CellView(node, view, getPos),
+          table: (node, view, getPos) => new TableView(node, 200, view, getPos),
         },
         decorations(state) {
           const $pos = selectionCell(state)
