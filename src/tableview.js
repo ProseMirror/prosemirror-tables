@@ -73,10 +73,11 @@ export class TableView {
   }
 
   ignoreMutation(record) {
-    console.log('tableView ignoreMutation', record)
-    return true
-    // TODO: Bring back and find when to ignore for rows re arrangement
-    // return record.type == "attributes" && (record.target == this.table || this.colgroup.contains(record.target))
+    const isRowArrangement = record.target.className === 'tableRowGhost' || record.type === "childList"
+
+    return (record.type == "attributes" &&
+             (record.target == this.table || this.colgroup.contains(record.target) || record.target == this.dom))
+           || isRowArrangement
   }
 }
 

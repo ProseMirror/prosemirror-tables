@@ -1,11 +1,12 @@
 import {Plugin, PluginKey} from "prosemirror-state"
 import {Decoration, DecorationSet} from "prosemirror-view"
 import {selectionCell} from "./util"
-import {addRowBefore, addColumnBefore, addRow} from "./commands"
+import {addRowBefore, addColumnBefore, addRow, selectedRect} from "./commands"
 import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
 import { TextSelection } from "prosemirror-state"
 import { TableView } from './tableview'
+import { findParentNodeOfType } from "prosemirror-utils"
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -55,6 +56,7 @@ export class CellView {
       trGhost.style.pointerEvents = 'none';
 
       tableWrapper.appendChild(trGhost);
+      
       const onmousemove = (e) => {
         const middleTr = (trRect.height / 2);
           let trGhostTop = e.clientY - tableRect.top - middleTr
@@ -68,10 +70,42 @@ export class CellView {
       };
       onmousemove(e);
       document.body.onmousemove = onmousemove;
-      document.body.onmouseup = () => {
+      document.body.onmouseup = (e) => {
         trGhost.remove();
         tableWrapper.classList.remove('rowRearrangement')
         document.body.onmousemove = document.body.onmouseup = null;
+
+        const mousePos = this.view.posAtCoords({
+          left: e.clientX + 20,
+          top: e.clientY
+        })
+        if(!mousePos) return 
+
+        const rect = selectedRect(this.view.state);
+
+        const originRowPos = this.getPos();
+        const originCellIndex = rect.map.map.indexOf(originRowPos - rect.tableStart);
+
+        const {pos: insertRowPos} = findParentNodeOfType(this.view.state.schema.nodes.table_cell)
+          (TextSelection.create(this.view.state.doc, mousePos.pos)) || mousePos.inside;
+        const insertCellIndex = rect.map.map.indexOf(insertRowPos - rect.tableStart);
+
+        console.log(originCellIndex,insertCellIndex);
+        if (originCellIndex === -1 || insertCellIndex === -1) return;
+
+        const originRowNumber = originCellIndex / rect.map.width;
+        const insertRowNumber = insertCellIndex / rect.map.width;
+
+
+        const rowsSlice = rect.table.content.content.slice();
+        const [draggedRow] = rowsSlice.splice(originRowNumber, 1);
+
+        rowsSlice.splice(originRowNumber > insertRowNumber ? insertRowNumber : insertRowNumber - 1, 0, draggedRow)
+
+        const { tr } = this.view.state;
+        tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, rowsSlice)
+        this.view.dispatch(tr)        
+        
       };
 
       // Stop the editor from making selection
@@ -112,7 +146,7 @@ export class CellView {
       map,
       table: tableNode
     }
-    debugger
+
     const rowPos = this.getPos();
     const rowIndex = map.map.indexOf(rowPos - tableStart);
 
