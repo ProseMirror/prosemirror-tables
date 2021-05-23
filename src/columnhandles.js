@@ -1,7 +1,7 @@
-import {Plugin, PluginKey} from "prosemirror-state"
-import {Decoration, DecorationSet} from "prosemirror-view"
-import {selectionCell} from "./util"
-import {addRowBefore, addColumnBefore, addRow, selectedRect} from "./commands"
+import { Plugin, PluginKey } from "prosemirror-state"
+import { Decoration, DecorationSet } from "prosemirror-view"
+import { selectionCell } from "./util"
+import { addColumnBefore, addRow, selectedRect } from "./commands"
 import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
 import { TextSelection } from "prosemirror-state"
@@ -36,14 +36,13 @@ export class CellView {
     const buttonContent = createElementWithClass('span', 'buttonContent')
     rowHandleButton.appendChild(buttonContent);
     
-    rowHandleButton.addEventListener('click', () => {
+    rowHandleButton.addEventListener('mousedown', () => {
       view.dispatch(view.state.tr.setSelection(CellSelection.rowSelection(view.state.doc.resolve(this.getPos()))))
     })
 
     rowHandleButton.onmousedown = (e) => {
       console.log('mouse down')
       const tableWrapper = document.querySelector('.tableFocus')
-      tableWrapper.classList.add('rowRearrangement')
       const tableRect = tableWrapper.querySelector('table').getBoundingClientRect();
       const trRect = this.dom.parentElement.getBoundingClientRect();
 
@@ -55,9 +54,22 @@ export class CellView {
       trGhost.style.opacity = 0.5;
       trGhost.style.pointerEvents = 'none';
 
-      tableWrapper.appendChild(trGhost);
+      const originMousePos = this.view.posAtCoords({
+          left: e.clientX + 20,
+          top: e.clientY
+        })
+
+      const originCellPos = originMousePos.inside
+
+      let firstMove = true;
       
       const onmousemove = (e) => {
+        
+        if(firstMove) {
+          tableWrapper.appendChild(trGhost);
+          tableWrapper.classList.add('rowRearrangement')
+          firstMove = false
+        }
         const middleTr = (trRect.height / 2);
           let trGhostTop = e.clientY - tableRect.top - middleTr
           if (e.clientY - middleTr < tableRect.top) {
@@ -68,12 +80,14 @@ export class CellView {
           }
           trGhost.style.top = `${trGhostTop}px`;
       };
-      onmousemove(e);
+
       document.body.onmousemove = onmousemove;
       document.body.onmouseup = (e) => {
         trGhost.remove();
         tableWrapper.classList.remove('rowRearrangement')
         document.body.onmousemove = document.body.onmouseup = null;
+
+        const state =  this.view.state;
 
         const mousePos = this.view.posAtCoords({
           left: e.clientX + 20,
@@ -81,17 +95,18 @@ export class CellView {
         })
         if(!mousePos) return 
 
-        const rect = selectedRect(this.view.state);
+        const rect = selectedRect(state);
 
-        const originRowPos = this.getPos();
-        const originCellIndex = rect.map.map.indexOf(originRowPos - rect.tableStart);
+        let originCellIndex = rect.map.map.indexOf(originCellPos - rect.tableStart);
 
-        const {pos: insertRowPos} = findParentNodeOfType(this.view.state.schema.nodes.table_cell)
-          (TextSelection.create(this.view.state.doc, mousePos.pos)) || mousePos.inside;
+        if(originCellIndex === -1) {
+          originCellIndex = rect.map.map.indexOf(originCellPos - 1 - rect.tableStart);
+        }
+        const {pos: insertRowPos} = findParentNodeOfType(state.schema.nodes.table_cell)
+        (TextSelection.create(state.doc, mousePos.pos)) || mousePos.inside;
         const insertCellIndex = rect.map.map.indexOf(insertRowPos - rect.tableStart);
 
-        console.log(originCellIndex,insertCellIndex);
-        if (originCellIndex === -1 || insertCellIndex === -1) return;
+        if (originCellIndex === -1 || insertCellIndex === -1 || originCellIndex === insertCellIndex) return;
 
         const originRowNumber = originCellIndex / rect.map.width;
         const insertRowNumber = insertCellIndex / rect.map.width;
@@ -102,8 +117,9 @@ export class CellView {
 
         rowsSlice.splice(originRowNumber > insertRowNumber ? insertRowNumber : insertRowNumber - 1, 0, draggedRow)
 
-        const { tr } = this.view.state;
-        tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, rowsSlice)
+        const { tr } = state;
+        tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, rowsSlice);
+        tr.setSelection(TextSelection.create(state.doc, this.getPos()));
         this.view.dispatch(tr)        
         
       };
@@ -163,7 +179,7 @@ export class CellView {
     const resolvePos = view.state.doc.resolve(this.getPos());
     const rowStart = this.getPos() - resolvePos.parentOffset - 1;
     const rowResolvedPos = view.state.doc.resolve(rowStart);
-    
+
     if(rowResolvedPos.parentOffset !== 0 || this.colHandle) return;
     
     this.dom.classList.add("colHeader");
@@ -202,7 +218,9 @@ export class CellView {
   }
 
   ignoreMutation(record) {
-    if (record.type === 'attributes' && record.target.classList.contains('addRowAfterMarker')) {
+    if (record.type === 'attributes' && 
+        (record.target.classList.contains('addRowAfterMarker')) ||
+           record.target.classList.contains('addColAfterMarker')) {
       return true
     }
     return false
