@@ -9,6 +9,7 @@ const createAddCellsButton = (type, view) => {
   const isRow = type === 'row'
   const newElement = createElementWithClass('button', `tableButton ${isRow ? 'tableAddBottomRow' : 'tableAddRightColumn'}`);
   newElement.innerHTML = '+'
+  newElement.contentEditable = false;
   newElement.onclick = () => {
     (isRow ? addBottomRow : addRightColumn)(view.state, view.dispatch)
   }
