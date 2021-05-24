@@ -1,6 +1,8 @@
 import { TextSelection } from "prosemirror-state";
 import { selectedRect } from "../commands"
 import { findParentNodeOfType } from "prosemirror-utils"
+import { CellSelection } from "../cellselection";
+import { switchRows } from "./commands"
 
 
 const createElementWithClass = (element, className) => {
@@ -50,6 +52,8 @@ export class RowDragHandler  {
 
       this.body.onmousemove = (e) => this.onmousemove(e, trRect);
       this.body.onmouseup = (e) => this.onmouseup(e);
+
+      this.view.dispatch(this.view.state.tr.setSelection(CellSelection.rowSelection(this.view.state.doc.resolve(this.getPos()))))
 
       // Stop the editor from making selection
       e.preventDefault()
@@ -105,15 +109,7 @@ export class RowDragHandler  {
       const insertRowNumber = insertCellIndex / rect.map.width;
 
 
-      const rowsSlice = rect.table.content.content.slice();
-      const [draggedRow] = rowsSlice.splice(originRowNumber, 1);
-
-      rowsSlice.splice(originRowNumber > insertRowNumber ? insertRowNumber : insertRowNumber - 1, 0, draggedRow)
-
-      const { tr } = state;
-      tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, rowsSlice);
-      tr.setSelection(TextSelection.create(state.doc, this.getPos()));
-      this.view.dispatch(tr)     
+      switchRows(this.view, rect, originRowNumber, insertRowNumber, this.getPos())
     }
 }
 

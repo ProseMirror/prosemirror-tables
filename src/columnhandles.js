@@ -7,6 +7,7 @@ import { TableMap } from "./tablemap";
 import { TextSelection } from "prosemirror-state"
 import { TableView } from './tableview'
 import { RowDragHandler } from "./table-dragging/rowsdragging";
+import { ColDragHandler } from "./table-dragging/coldragging";
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -41,10 +42,6 @@ export class CellView {
     const rowHandleButton = createElementWithClass('button', 'tableRowHandleButton')
     const buttonContent = createElementWithClass('span', 'buttonContent')
     rowHandleButton.appendChild(buttonContent);
-    
-    rowHandleButton.addEventListener('mousedown', (e) => {
-      view.dispatch(view.state.tr.setSelection(CellSelection.rowSelection(resolvePos)))
-    })
 
     this.rowHandle = rowHandle.appendChild(rowHandleButton)
     this.dom.appendChild(rowHandle)
@@ -115,6 +112,8 @@ export class CellView {
 
     this.colHandle = colHandle.appendChild(colHandleButton)
     this.dom.appendChild(colHandle)
+
+    // this.colDragHandler = new ColDragHandler(this.view, this.colHandle, document.body, this.getPos, this.dom)
 
     const addColAfterContainer = createElementWithClass('div', 'addColAfterContainer')
 
