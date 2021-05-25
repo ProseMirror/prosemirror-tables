@@ -6,6 +6,8 @@ import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
 import { TableView } from './tableview'
 import { RowDragHandler } from "./table-dragging/rowsdragging";
+import { ColDragHandler } from "./table-dragging/colsdragging";
+
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -37,6 +39,7 @@ export class CellView {
     } 
 
     const rowHandle = createElementWithClass('div', 'tableRowHandle')
+    rowHandle.contentEditable = false;
     const rowHandleButton = createElementWithClass('button', 'tableRowHandleButton')
     const buttonContent = createElementWithClass('span', 'buttonContent')
     rowHandleButton.appendChild(buttonContent);
@@ -47,6 +50,7 @@ export class CellView {
     this.rowDragHandler = new RowDragHandler(this.view, this.rowHandle, document.body, this.getPos, this.dom)
 
     const addRowAfterContainer = createElementWithClass('div', 'addRowAfterContainer')
+    addRowAfterContainer.contentEditable = false;
 
     const addAfterButton = createElementWithClass('button', 'addAfterButton');
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');
@@ -86,10 +90,15 @@ export class CellView {
     })
 
     colHandle.appendChild(colHandleButton)
+    colHandle.contentEditable = false;
+
     this.colHandle = colHandle;
     this.dom.appendChild(colHandle)
 
+    this.colDragHandler = new ColDragHandler(this.view, this.colHandle, document.body, this.getPos, this.dom)
+
     const addColAfterContainer = createElementWithClass('div', 'addColAfterContainer')
+    addColAfterContainer.contentEditable = false;
 
     const addAfterButton = createElementWithClass('button', 'addAfterButton');
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');

@@ -87,11 +87,13 @@ export class TableView {
   }
 
   ignoreMutation(record) {
-    const isRowArrangement = record.target.className === 'tableRowGhost' || record.type === "childList"
+    const isCellsArrangement = record.target.className === 'tableRowGhost' ||
+      record.target.className === 'tableColGhost' ||
+      record.type === "childList"
 
     return (record.type == "attributes" &&
              (record.target == this.table || this.colgroup.contains(record.target) || record.target == this.dom))
-           || isRowArrangement
+           || isCellsArrangement
   }
 }
 
