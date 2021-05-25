@@ -1,13 +1,11 @@
 import { Plugin, PluginKey } from "prosemirror-state"
 import { Decoration, DecorationSet } from "prosemirror-view"
 import { selectionCell } from "./util"
-import { addColumnBefore, addRow, selectedRect } from "./commands"
+import { addColumnBefore, addRowBeforeButton } from "./commands"
 import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
-import { TextSelection } from "prosemirror-state"
 import { TableView } from './tableview'
 import { RowDragHandler } from "./table-dragging/rowsdragging";
-import { ColDragHandler } from "./table-dragging/coldragging";
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -56,7 +54,7 @@ export class CellView {
     addAfterButton.appendChild(addAfterButtonText)
     addAfterButton.appendChild(createElementWithClass('div', 'addRowButtonContent'))
 
-    addAfterButton.onclick = () => this.addRowBeforeButton(view)
+    addAfterButton.onclick = () => addRowBeforeButton(view, this.getPos())
 
     addRowAfterContainer.appendChild(addAfterButton)
     const addRowAfterMarker = createElementWithClass('div', 'addRowAfterMarker')
@@ -68,35 +66,12 @@ export class CellView {
     marker.style=`width: ${table.offsetWidth + 15}px`;
   }
 
-  addRowBeforeButton(view) {
-    const resolvePos = view.state.doc.resolve(this.getPos())
-    const tableNode = resolvePos.node(-1);
-    const tableStart = resolvePos.start(-1)
-    const map = TableMap.get(tableNode);
-
-    const tableRect = {
-      tableStart,
-      map,
-      table: tableNode
-    }
-
-    const rowPos = this.getPos();
-    const rowIndex = map.map.indexOf(rowPos - tableStart);
-
-    if (rowIndex === -1) return;
-
-    const rowNumber = rowIndex / map.width;
-
-    const tr = addRow(view.state.tr, tableRect, rowNumber)
-    tr.setSelection(TextSelection.create(tr.doc, this.getPos() + 2))
-    view.dispatch(tr)
-  }
 
   checkIfColHeader(view) {
     const resolvePos = view.state.doc.resolve(this.getPos());
     const rowStart = this.getPos() - resolvePos.parentOffset - 1;
     const rowResolvedPos = view.state.doc.resolve(rowStart);
-
+    
     if(rowResolvedPos.parentOffset !== 0 || this.colHandle) return;
     
     this.dom.classList.add("colHeader");
@@ -110,10 +85,9 @@ export class CellView {
       view.dispatch(view.state.tr.setSelection(CellSelection.colSelection(view.state.doc.resolve(this.getPos()))))
     })
 
-    this.colHandle = colHandle.appendChild(colHandleButton)
+    colHandle.appendChild(colHandleButton)
+    this.colHandle = colHandle;
     this.dom.appendChild(colHandle)
-
-    // this.colDragHandler = new ColDragHandler(this.view, this.colHandle, document.body, this.getPos, this.dom)
 
     const addColAfterContainer = createElementWithClass('div', 'addColAfterContainer')
 
@@ -129,6 +103,7 @@ export class CellView {
     addColAfterContainer.appendChild(addAfterButton)
     const addColAfterMarker = createElementWithClass('div', 'addColAfterMarker')
     addColAfterContainer.appendChild(addColAfterMarker)
+    this.colMarker = addColAfterContainer;
     this.dom.appendChild(addColAfterContainer)
 
     const table = this.dom

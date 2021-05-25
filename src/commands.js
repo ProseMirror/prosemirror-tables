@@ -531,3 +531,27 @@ export function sortColumn(state, dispatch) {
   }
   return true
 }
+
+export const addRowBeforeButton = (view, pos) => {
+  const resolvePos = view.state.doc.resolve(pos)
+  const tableNode = resolvePos.node(-1);
+  const tableStart = resolvePos.start(-1)
+  const map = TableMap.get(tableNode);
+
+  const tableRect = {
+    tableStart,
+    map,
+    table: tableNode
+  }
+
+  const rowIndex = map.map.indexOf(pos - tableStart);
+
+  if (rowIndex === -1) return;
+
+  const rowNumber = rowIndex / map.width;
+
+  const tr = addRow(view.state.tr, tableRect, rowNumber)
+  tr.setSelection(TextSelection.create(tr.doc, pos + 2))
+  
+  view.dispatch(tr)
+}

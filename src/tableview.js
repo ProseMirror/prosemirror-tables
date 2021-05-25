@@ -27,7 +27,9 @@ export class TableView {
     this.tableHorizontalWrapper = createElementWithClass('div', 'tableHorizontalWrapper');
     this.tableVerticalWrapper = createElementWithClass('div', 'tableVerticalWrapper');
 
-    this.tableHandle.onclick = () => this.selectTable()
+    this.tableHandle.onclick = (e) => this.selectTable(e);
+    this.tableHandle.onmousedown = (e) => e.preventDefault();
+    this.tableHandle.contentEditable = false;
 
     this.dom.appendChild(this.tableHandle);
     this.dom.appendChild(this.tableHorizontalWrapper);
@@ -59,16 +61,22 @@ export class TableView {
     })
   }
 
-  selectTable() {
+  selectTable(e) {
     const { tr } = this.view.state;
     tr.setSelection(NodeSelection.create(tr.doc, this.getPos()));
     this.view.dispatch(tr)
+
+    e.preventDefault()
   }
 
   update(node) {
     this.updateMarkers()
     if (node.type != this.node.type) return false
+
+    // to handle first row insert
+    if(node.childCount !== this.node.childCount) return false;
     this.node = node
+
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth)
     return true
   }
