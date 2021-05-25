@@ -72,12 +72,17 @@ export class TableView {
   update(node) {
     this.updateMarkers()
     if (node.type != this.node.type) return false
-
+    
     // to handle first row insert
     if(node.childCount !== this.node.childCount) return false;
     this.node = node
-
+    
+    const oldColCount = this.colgroup.childElementCount;
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth)
+
+    // to handle first col insert
+    if(oldColCount !== this.colgroup.childElementCount) return false;
+
     return true
   }
 

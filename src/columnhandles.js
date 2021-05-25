@@ -1,7 +1,7 @@
 import { Plugin, PluginKey } from "prosemirror-state"
 import { Decoration, DecorationSet } from "prosemirror-view"
 import { selectionCell } from "./util"
-import { addColumnBefore, addRowBeforeButton } from "./commands"
+import { addColumnBefore, addRowBeforeButton, addColBeforeButton } from "./commands"
 import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
 import { TableView } from './tableview'
@@ -98,7 +98,7 @@ export class CellView {
     addAfterButton.appendChild(createElementWithClass('div', 'addColButtonContent'))
 
     addAfterButton.onclick = () => {
-      addColumnBefore(view.state, view.dispatch)
+      addColBeforeButton(view, this.getPos())
     }
     addColAfterContainer.appendChild(addAfterButton)
     const addColAfterMarker = createElementWithClass('div', 'addColAfterMarker')

@@ -533,24 +533,30 @@ export function sortColumn(state, dispatch) {
 }
 
 export const addRowBeforeButton = (view, pos) => {
-  const resolvePos = view.state.doc.resolve(pos)
-  const tableNode = resolvePos.node(-1);
-  const tableStart = resolvePos.start(-1)
-  const map = TableMap.get(tableNode);
+   const tableRect = selectedRect(view.state)
 
-  const tableRect = {
-    tableStart,
-    map,
-    table: tableNode
-  }
+  const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
 
-  const rowIndex = map.map.indexOf(pos - tableStart);
+  if (cellIndex === -1) return;
 
-  if (rowIndex === -1) return;
-
-  const rowNumber = rowIndex / map.width;
+  const rowNumber = cellIndex / tableRect.map.width;
 
   const tr = addRow(view.state.tr, tableRect, rowNumber)
+  tr.setSelection(TextSelection.create(tr.doc, pos + 2))
+  
+  view.dispatch(tr)
+}
+
+export const addColBeforeButton = (view, pos) => {
+  const tableRect = selectedRect(view.state)
+
+  const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
+
+  if (cellIndex === -1) return;
+
+  const colNumber = cellIndex % tableRect.map.width;
+  console.log(colNumber);
+  const tr = addColumn(view.state.tr, tableRect, colNumber)
   tr.setSelection(TextSelection.create(tr.doc, pos + 2))
   
   view.dispatch(tr)
