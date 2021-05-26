@@ -1,4 +1,5 @@
-import { deleteColumn, deleteRow, deleteTable } from "../commands";
+import { deleteColumn, deleteRow, deleteTable, selectedRect } from "../commands";
+import { CellSelection } from "../cellselection"
 
 export const getDeleteCommand = (state) => {
   const { map, tableStart } = selectedRect(state);
@@ -15,4 +16,14 @@ export const getDeleteCommand = (state) => {
   if(state.selection.isRowSelection()) return deleteRow
   if(state.selection.isColSelection()) return deleteColumn
 
+}
+
+export const changeCellsBackgroundColor = (state, dispatch, color) => {
+  if (!(state.selection instanceof CellSelection)) return
+
+  let { tr } = state;
+  state.selection.forEachCell((cell, pos) => {
+    tr.setNodeMarkup(pos, undefined, {background: color});
+  });
+  dispatch(tr)
 }

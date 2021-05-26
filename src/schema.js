@@ -17,12 +17,17 @@ function getCellAttrs(dom, extraAttrs) {
   return result
 }
 
-function setCellAttrs(node, extraAttrs) {
+export function setCellAttrs(node, extraAttrs) {
   let attrs = {}
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan
   if (node.attrs.colwidth)
     attrs["data-colwidth"] = node.attrs.colwidth.join(",")
+
+  // maybe find way to take it from  the `tableNode` configuration?
+  if(node.attrs.background) attrs.style = `${attrs.style || ""} background-color: ${node.attrs.background};`
+  if(node.attrs.borderColor) attrs.style = `${attrs.style || ""} border-color: ${node.attrs.borderColor};`
+
   for (let prop in extraAttrs) {
     let setter = extraAttrs[prop].setDOMAttr
     if (setter) setter(node.attrs[prop], attrs)
@@ -65,7 +70,7 @@ export function tableNodes(options) {
   let cellAttrs = {
     colspan: {default: 1},
     rowspan: {default: 1},
-    colwidth: {default: null}
+    colwidth: {default: null},
   }
   for (let prop in extraAttrs)
     cellAttrs[prop] = {default: extraAttrs[prop].default}

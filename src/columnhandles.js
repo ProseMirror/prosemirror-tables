@@ -1,13 +1,15 @@
 import { Plugin, PluginKey } from "prosemirror-state"
 import { Decoration, DecorationSet } from "prosemirror-view"
 import { selectionCell } from "./util"
-import { addColumnBefore, addRowBeforeButton, addColBeforeButton } from "./commands"
+import { addRowBeforeButton, addColBeforeButton, sortColumn } from "./commands"
 import { CellSelection } from "./cellselection"
 import { TableMap } from "./tablemap";
 import { TableView } from './tableview'
 import { RowDragHandler } from "./table-dragging/rowsdragging";
 import { ColDragHandler } from "./table-dragging/colsdragging";
-
+import { getColIndex } from "./util"
+import { setCellAttrs } from "./schema";
+ 
 
 export const key = new PluginKey("tableColumnHandles")
 
@@ -25,6 +27,8 @@ export class CellView {
     this.contentDOM = this.dom.appendChild(createElementWithClass('div', 'cellContent'))
     this.checkIfFirstCol(this.view);
     this.checkIfColHeader(this.view);
+
+    this.dom.style = `${setCellAttrs(node, {}).style}`
   }
 
   checkIfFirstCol(view) {
@@ -118,6 +122,14 @@ export class CellView {
     const table = this.dom
     const marker = this.dom.querySelector('.addColAfterMarker')
     marker.style=`height: ${table.offsetHeight + 15}px`;
+
+    // const sortButton = createElementWithClass('button', 'sortColButton');
+    // sortButton.contentEditable = false;
+    // sortButton.onclick = () => {
+    //   const colIndex = getColIndex(this.view, this.getPos() + 1); 
+    //   if (colIndex !== null) sortColumn(view, colIndex)
+    // }
+    // this.sortButton = this.dom.appendChild(sortButton);
   }
 
   ignoreMutation(record) {
@@ -137,6 +149,7 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.node = node
+    this.dom.style = `${setCellAttrs(node, {}).style}`
 
     return true;
   }

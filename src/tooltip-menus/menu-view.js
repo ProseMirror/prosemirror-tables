@@ -1,15 +1,10 @@
 import { generateMenuPopup, displayPopup, calculatePopupPosition } from "./utils";
 import { renderGrouped } from "prosemirror-menu";
-
-const EDITOR_LEFT_OFFSET = 250;
-const EDITOR_TOP_OFFSET = 180;
-
-
 class TablePopUpMenuView {
     constructor(items, view) {
         this.view= view;
         this.items = items;
-        this.popUpDOM = generateMenuPopup("table")
+        this.popUpDOM = generateMenuPopup()
 
         // the dom element that contains the popup - should be css relative
         this.popUpRelativeContainer = document.getElementsByClassName("czi-editor-frame-body")[0];
@@ -47,14 +42,6 @@ class TablePopUpMenuView {
 
         // find popup position
         const rect = calculatePopupPosition(view, this.popUpDOM);
-
-        if(!rect) {
-            this.popUpDOMv.style.display = 'none'
-            return
-        }
-
-        this.popUpDOM.style.left = `${rect.left - EDITOR_LEFT_OFFSET}px`;
-        this.popUpDOM.style.top = `${rect.top - EDITOR_TOP_OFFSET}px`;
 
         return
     }
