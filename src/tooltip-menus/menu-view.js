@@ -24,7 +24,9 @@ class TablePopUpMenuView {
 
         // disable menu update while selecting
         this.duringSelection = false;
-        this.view.dom.addEventListener("mousedown", () => this.duringSelection = true);
+        this.view.dom.addEventListener("mousedown", () => {
+            this.duringSelection = true
+        });
         this.view.dom.addEventListener("mouseup", () => {
             setTimeout(() => {
                 this.duringSelection = false;
@@ -41,9 +43,9 @@ class TablePopUpMenuView {
         this.updateMenuItems(view);
 
         // find popup position
-        const rect = calculatePopupPosition(view, this.popUpDOM);
+        calculatePopupPosition(view, this.popUpDOM);
 
-        return
+        return;
     }
 
     update(view) {
@@ -53,6 +55,7 @@ class TablePopUpMenuView {
                 this.popUpDOM.style.display = "none";
             }
         }
+
         if (!this.duringSelection) {
             this.updateMenu(view);
         }

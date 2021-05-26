@@ -3,6 +3,13 @@ import { CellSelection } from "../cellselection";
 const EDITOR_LEFT_OFFSET = 220;
 const EDITOR_TOP_OFFSET = 170;
 
+const createElementWithClass = (type, className) => {
+    const el= document.createElement(type);
+    el.className = className;
+
+    return el
+}
+
 export const enableDeleteItem = (view) => {
     const { selection: sel } = view.state;
 
@@ -22,6 +29,22 @@ export const generateMenuPopup = () => {
     return menuElement;
 };
 
+export const generateColorItemDOM = (color, activeColor) => {
+    const container = createElementWithClass("div", "colorItemContainer");
+    const button = createElementWithClass("button", "colorItemButton");
+    const indicator = createElementWithClass("div", "colorItemIndicator");
+
+    button.style.backgroundColor = color;
+
+    indicator.style.backgroundColor = color;
+    indicator.style.display = "none";
+
+    container.appendChild(button);
+    container.appendChild(indicator);
+
+    return container
+}
+
 export const generateMenuItemDOM = (type, className, text) => {
     const item = document.createElement(type);
     item.classList.add(className);
@@ -38,7 +61,7 @@ export const displayPopup = (view, popupDOM) => {
         return false;
     }
 
-    popupDOM.style.display = "flex";
+    setTimeout(() => popupDOM.style.display = "flex", 250)
 
     // if the popup cant find his parent don't show him
     if (!popupDOM.offsetParent) {
@@ -109,4 +132,22 @@ export const calculatePopupPosition = (view, popupDOM) => {
         tableContainerBox.width / 2 -
         menuHalf - EDITOR_LEFT_OFFSET}px`;
     }
+}
+
+export const getCellsBackgroundColor = (view) =>{
+    const { selection } = view.state;
+    if (!(selection instanceof CellSelection)) return null;
+    let color = null;
+
+    selection.forEachCell((cell, pos) => {
+        const { background } = cell.attrs;
+        if(!color) {
+            color = background;
+        } 
+        if(background !== color) {
+            color =  "transparent"
+        }
+    });
+
+    return color
 }

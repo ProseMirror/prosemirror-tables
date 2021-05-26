@@ -1,5 +1,9 @@
 import { Dropdown, MenuItem } from "prosemirror-menu";
-import { enableDeleteItem, generateMenuItemDOM } from "./utils";
+import { enableDeleteItem,
+    generateMenuItemDOM,
+    generateColorItemDOM,
+    getCellsBackgroundColor,
+ } from "./utils";
 import { getDeleteCommand, changeCellsBackgroundColor } from "./commands";
 
 export const deleteMenuItem = () => {
@@ -34,7 +38,10 @@ const cellBackgroundColorItem = (color) => {
   return new MenuItem({
     class: "CellColorItem",
     icon: {
-       dom: generateMenuItemDOM("button", "cellColorButton", color[0]),
+       dom: generateColorItemDOM(color),
+    },
+    active(view){
+      return getCellsBackgroundColor(view) === color
     },
     select() {
       return true;
@@ -42,8 +49,10 @@ const cellBackgroundColorItem = (color) => {
     enable(view) {
       return true;
     },
-    run(state, dispatch) {
-      changeCellsBackgroundColor(state, dispatch, color);
+    run(state, dispatch, view) {
+      if(getCellsBackgroundColor(view) !== color) {
+        changeCellsBackgroundColor(state, dispatch, color);
+      }
     },
   })
 }
