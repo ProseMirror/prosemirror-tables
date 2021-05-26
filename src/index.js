@@ -10,6 +10,7 @@ import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./
 import {key as tableEditingKey} from "./util"
 import {drawCellSelection, normalizeSelection} from "./cellselection"
 import {fixTables, fixTablesKey} from "./fixtables"
+import tablePopUpMenu, { tablePopUpMenuKey } from "./tooltip-menus/index"
 
 // :: () → Plugin
 //
@@ -76,3 +77,4 @@ export * from "./commands"
 export {columnResizing, key as columnResizingPluginKey} from "./columnresizing"
 export {updateColumns as updateColumnsOnResize, TableView} from "./tableview"
 export {pastedCells as __pastedCells, insertCells as __insertCells, clipCells as __clipCells} from "./copypaste"
+export {tablePopUpMenu, tablePopUpMenuKey}
