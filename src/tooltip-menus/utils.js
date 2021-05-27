@@ -31,10 +31,12 @@ export const generateMenuPopup = () => {
 
 export const generateColorItemDOM = (color) => {
     const container = createElementWithClass("div", "colorItemContainer");
-    const button = createElementWithClass("button", "colorItemButton");
+    const button = createElementWithClass(color === "transparent" ? "span" : "button", "colorItemButton");
     const indicator = createElementWithClass("div", "colorItemIndicator");
 
     button.style.backgroundColor = color;
+
+    if(color === "transparent") button.classList.add("default")
 
     indicator.style.backgroundColor = color;
     indicator.style.display = "none";
