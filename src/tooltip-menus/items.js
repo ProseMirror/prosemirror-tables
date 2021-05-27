@@ -1,6 +1,6 @@
 import { Dropdown, MenuItem } from "prosemirror-menu";
 import { enableDeleteItem,
-    generateMenuItemDOM,
+    createElementWithClass,
     generateColorItemDOM,
     getCellsBackgroundColor,
  } from "./utils";
@@ -10,7 +10,7 @@ export const deleteMenuItem = () => {
   return new MenuItem({
     class: "tablePopUpMenuItem",
     icon: {
-        dom: generateMenuItemDOM("button", "deleteMenuButton", "D"),
+        dom: createElementWithClass("span", "deleteMenuButton"),
     },
     select(view) {
       return enableDeleteItem(view);
@@ -61,7 +61,6 @@ export const cellBackgroundColorDropDown = () => {
   return new Dropdown(
       colors.map(color => cellBackgroundColorItem(color)),
     {
-      label: "C",
       class: "cellColorDropDown"
     }
   )

@@ -53,8 +53,6 @@ export class RowDragHandler  {
       this.body.onmousemove = (e) => this.onmousemove(e, trRect);
       this.body.onmouseup = (e) => this.onmouseup(e);
 
-      this.view.dispatch(this.view.state.tr.setSelection(CellSelection.rowSelection(this.view.state.doc.resolve(this.getPos()))))
-
       // Stop the editor from making selection
       e.preventDefault()
     }

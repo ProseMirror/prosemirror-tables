@@ -1,9 +1,9 @@
 import { CellSelection } from "../cellselection";
 
-const EDITOR_LEFT_OFFSET = 220;
-const EDITOR_TOP_OFFSET = 170;
+const EDITOR_LEFT_OFFSET = 224;
+const EDITOR_TOP_OFFSET = 130;
 
-const createElementWithClass = (type, className) => {
+export const createElementWithClass = (type, className) => {
     const el= document.createElement(type);
     el.className = className;
 
@@ -29,7 +29,7 @@ export const generateMenuPopup = () => {
     return menuElement;
 };
 
-export const generateColorItemDOM = (color, activeColor) => {
+export const generateColorItemDOM = (color) => {
     const container = createElementWithClass("div", "colorItemContainer");
     const button = createElementWithClass("button", "colorItemButton");
     const indicator = createElementWithClass("div", "colorItemIndicator");
@@ -45,15 +45,6 @@ export const generateColorItemDOM = (color, activeColor) => {
     return container
 }
 
-export const generateMenuItemDOM = (type, className, text) => {
-    const item = document.createElement(type);
-    item.classList.add(className);
-
-    if(text) item.innerText = text
-
-    return item;
-}
-
 export const displayPopup = (view, popupDOM) => {
     // if current selection is not CellSelection don't show menu
     if (!(view.state.selection instanceof CellSelection)) {
@@ -61,7 +52,13 @@ export const displayPopup = (view, popupDOM) => {
         return false;
     }
 
-    setTimeout(() => popupDOM.style.display = "flex", 250)
+    // if current selection is not row/col don't show menu
+    if (!(view.state.selection.isColSelection()) && !(view.state.selection.isRowSelection())) {
+        popupDOM.style.display = "none";
+        return false;
+    }
+
+    popupDOM.style.display = "flex"
 
     // if the popup cant find his parent don't show him
     if (!popupDOM.offsetParent) {
@@ -89,48 +86,41 @@ export const calculatePopupPosition = (view, popupDOM) => {
       ].getBoundingClientRect();
     }
 
-    // half the width of the menu
-    const box = popupDOM.getBoundingClientRect();
-    const menuHalf = box.width / 2;
-
-    // scroll offset
     const offsetParentBox = popupDOM.offsetParent.getBoundingClientRect();
 
-    popupDOM.style.left = `${
-      firstCellRect.left +
-      (lastCellRect.right - firstCellRect.left) / 2 -
-      menuHalf - EDITOR_LEFT_OFFSET}px`;
-    popupDOM.style.top = `${
-      lastCellRect.bottom + 5 - (offsetParentBox.top || 0)
-    }px`;
+    // scroll offset
+    const [ scrolledEl ] = document.getElementsByClassName("czi-editor-frame-body")
 
+    const cellCenter = firstCellRect.left + (lastCellRect.right - firstCellRect.left) / 2;
+
+    // ColSelection
     if (
       state.selection instanceof CellSelection &&
       state.selection.isColSelection()
     ) {
-      const { top } = view.coordsAtPos(state.selection.$anchorCell.pos);
-      popupDOM.style.top = `${top + 5 - (offsetParentBox.top || 0)}px`;
+        const { top } = view.coordsAtPos(state.selection.$anchorCell.pos);
+        popupDOM.style.top = `${top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)}px`;
+        popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
     }
 
+    // RowSelection
     if (
       state.selection instanceof CellSelection &&
       state.selection.isRowSelection()
     ) {
-      let tableContainer = selectedCells[0];
+        let tableContainer = selectedCells[0];
 
-      while (!tableContainer.classList.contains("tableWrapper")) {
-        if (tableContainer.parentElement) {
-          tableContainer = tableContainer.parentElement;
-        } else {
-          return;
+        while (!tableContainer.classList.contains("tableFocus")) {
+            if (tableContainer.parentElement) {
+            tableContainer = tableContainer.parentElement;
+            } else {
+            return;
+            }
         }
-      }
 
-      const tableContainerBox = tableContainer.getBoundingClientRect();
-      popupDOM.style.left = `${
-        tableContainerBox.left +
-        tableContainerBox.width / 2 -
-        menuHalf - EDITOR_LEFT_OFFSET}px`;
+        const tableContainerBox = tableContainer.getBoundingClientRect();
+        popupDOM.style.left = `${tableContainerBox.left + (tableContainerBox.width / 2) - EDITOR_LEFT_OFFSET}px`;
+        popupDOM.style.top = `${lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET}px`;
     }
 }
 

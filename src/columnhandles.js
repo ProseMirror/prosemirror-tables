@@ -51,6 +51,14 @@ export class CellView {
     this.rowHandle = rowHandle.appendChild(rowHandleButton)
     this.dom.appendChild(rowHandle)
 
+    this.rowHandle.onclick = () => {
+      this.view.dispatch(
+        this.view.state.tr.setSelection(
+          CellSelection.rowSelection(this.view.state.doc.resolve(this.getPos()))
+        )
+      )
+    }    
+
     this.rowDragHandler = new RowDragHandler(this.view, this.rowHandle, document.body, this.getPos, this.dom)
 
     const addRowAfterContainer = createElementWithClass('div', 'addRowAfterContainer')
