@@ -9,7 +9,7 @@ export const switchRows = (view, tableRect, originIndex, insertIndex, selPos, tr
 
     const newTr = tr || view.state.tr;
     newTr.replaceWith(tableRect.tableStart, tableRect.tableStart + tableRect.table.content.size, rowsSlice);
-    newTr.setSelection(TextSelection.create(view.state.doc, selPos));
+    newTr.setSelection(Selection.near(newTr.doc.resolve(selPos), 1));
 
     if(tr) {
         return newTr;

@@ -3,6 +3,7 @@ import { enableDeleteItem,
     createElementWithClass,
     generateColorItemDOM,
     getCellsBackgroundColor,
+    isFirstRowSelected
  } from "./utils";
 import { getDeleteCommand, changeCellsBackgroundColor } from "./commands";
 
@@ -43,10 +44,10 @@ const cellBackgroundColorItem = (color) => {
     active(view){
       return getCellsBackgroundColor(view) === color
     },
-    select() {
-      return true;
+    select(view) {
+      return !isFirstRowSelected(view);
     },
-    enable(view) {
+    enable() {
       return true;
     },
     run(state, dispatch, view) {

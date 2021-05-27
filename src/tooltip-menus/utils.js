@@ -143,3 +143,20 @@ export const getCellsBackgroundColor = (view) =>{
 
     return color
 }
+
+export const isFirstRowSelected = (view) => {
+    const { selection: sel } = view.state;
+    if(!(sel instanceof CellSelection)) return false;
+
+    let onlyFirstRow = true;
+
+    sel.forEachCell((cell, pos) => {
+        const resolvePos = view.state.doc.resolve(pos);
+        const rowStart = pos - resolvePos.parentOffset - 1;
+        const rowResolvedPos = view.state.doc.resolve(rowStart);
+    
+        onlyFirstRow = rowResolvedPos.parentOffset === 0 && onlyFirstRow;
+    })
+
+    return onlyFirstRow;
+}
