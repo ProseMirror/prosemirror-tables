@@ -1,9 +1,10 @@
 // Various helper function for working with tables
 
-import {PluginKey} from "prosemirror-state"
-
+import {PluginKey, TextSelection} from "prosemirror-state"
+import {findParentNodeOfType} from "prosemirror-utils"
 import {TableMap} from "./tablemap"
 import {tableNodeTypes} from "./schema";
+import { selectedRect } from "./commands";
 
 export const key = new PluginKey("selectingCells")
 
@@ -106,4 +107,17 @@ export function columnIsHeader(map, table, col) {
     if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
       return false
   return true
+}
+
+export function getColIndex(view, pos) {
+  const rect = selectedRect(view.state)
+  console.log(rect);
+  const {pos: insertRowPos} = findParentNodeOfType(view.state.schema.nodes.table_cell)
+    (TextSelection.create(view.state.doc, pos));
+
+  const insertCellIndex = rect.map.map.indexOf(insertRowPos - rect.tableStart);
+
+  if (insertCellIndex === -1) return null;
+  return insertCellIndex % rect.map.width;
+
 }
