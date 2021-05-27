@@ -26,11 +26,11 @@ export const deleteMenuItem = () => {
 }
 
 const colors = [
-  "black",
-  "grey",
-  "red",
-  "blue",
-  "green",
+  "rgb(255, 191, 181)",
+  "rgb(247, 204, 98)",
+  "rgb(181, 220, 175)",
+  "rgb(214, 232, 250)",
+  "rgb(216, 195, 255)",
   "transparent"
 ]
 
