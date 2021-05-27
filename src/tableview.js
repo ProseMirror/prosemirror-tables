@@ -22,7 +22,9 @@ export class TableView {
     this.view = view;
     this.getPos = getPos;
     this.cellMinWidth = cellMinWidth
-    this.dom = createElementWithClass('div', 'tableWrapper');
+    const tableScrollWrapper = createElementWithClass('div', 'tableScrollWrapper');
+    this.tableWrapper = tableScrollWrapper.appendChild(createElementWithClass('div', 'tableWrapper'));
+    this.dom = tableScrollWrapper;
     this.tableHandle = createElementWithClass('div', 'tableHandle');
     this.tableHorizontalWrapper = createElementWithClass('div', 'tableHorizontalWrapper');
     this.tableVerticalWrapper = createElementWithClass('div', 'tableVerticalWrapper');
@@ -31,8 +33,8 @@ export class TableView {
     this.tableHandle.onmousedown = (e) => e.preventDefault();
     this.tableHandle.contentEditable = false;
 
-    this.dom.appendChild(this.tableHandle);
-    this.dom.appendChild(this.tableHorizontalWrapper);
+    this.tableWrapper.appendChild(this.tableHandle);
+    this.tableWrapper.appendChild(this.tableHorizontalWrapper);
     this.tableHorizontalWrapper.appendChild(this.tableVerticalWrapper);
 
     this.table = this.tableVerticalWrapper.appendChild(document.createElement("table"))

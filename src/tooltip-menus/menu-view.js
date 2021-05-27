@@ -62,7 +62,20 @@ class TablePopUpMenuView {
     }
 
     destroy() {
-        console.log("destroy");
+        // handle menu closing
+        this.view.dom.removeEventListener("click", () => this.popUpDOM.style.display = "none");
+
+        // disable menu update while selecting
+        this.duringSelection = false;
+        this.view.dom.removeEventListener("mousedown", () => {
+            this.duringSelection = true
+        });
+        this.view.dom.removeEventListener("mouseup", () => {
+            setTimeout(() => {
+                this.duringSelection = false;
+                this.updateMenu(this.view);
+            }, 250)
+        })
     }
 }
 

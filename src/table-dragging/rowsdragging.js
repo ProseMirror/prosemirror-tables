@@ -58,12 +58,12 @@ export class RowDragHandler  {
     }
 
     onmousemove(e, trRect) {
-      this.tableWrapper = document.querySelector('.tableFocus')
+      this.tableWrapper = document.querySelector('.tableFocus').firstChild
       const tableRect = this.tableWrapper.querySelector('table').getBoundingClientRect();
 
       if(this.firstMove) {
         this.tableWrapper.appendChild(this.trGhost);
-        this.tableWrapper.classList.add('rowRearrangement')
+        this.tableWrapper.parentElement.classList.add('rowRearrangement')
         this.firstMove = false
       }
       const middleTr = (trRect.height / 2);
@@ -79,7 +79,7 @@ export class RowDragHandler  {
 
     onmouseup(e) {
       this.trGhost.remove();
-      if(this.tableWrapper) this.tableWrapper.classList.remove('rowRearrangement')
+      if(this.tableWrapper) this.tableWrapper.parentElement.classList.remove('rowRearrangement')
       this.body.onmousemove = this.body.onmouseup = null;
 
       const state =  this.view.state;

@@ -59,11 +59,11 @@ export class ColDragHandler  {
     }
 
     onmousemove(e, tableRect) {
-      this.tableWrapper = document.querySelector('.tableFocus')
+      this.tableWrapper = document.querySelector('.tableFocus').firstChild
 
       if(this.firstMove) {
         this.tableWrapper.appendChild(this.colGhost);
-        this.tableWrapper.classList.add('colRearrangement')
+        this.tableWrapper.parentElement.classList.add('colRearrangement')
         this.firstMove = false
       }
     
@@ -83,7 +83,7 @@ export class ColDragHandler  {
 
     onmouseup(e) {
       this.colGhost.remove();
-      if(this.tableWrapper) this.tableWrapper.classList.remove('colRearrangement')
+      if(this.tableWrapper) this.tableWrapper.parentElement.classList.remove('colRearrangement')
       this.body.onmousemove = this.body.onmouseup = null;
 
       const state =  this.view.state;
