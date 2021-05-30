@@ -1,6 +1,6 @@
 // This file defines a number of table-related commands.
 
-import {TextSelection} from "prosemirror-state"
+import {TextSelection, Selection} from "prosemirror-state"
 import {Fragment} from "prosemirror-model"
 
 import {Rect, TableMap} from "./tablemap"
@@ -541,9 +541,10 @@ export const addRowBeforeButton = (view, pos) => {
   const rowNumber = cellIndex / tableRect.map.width;
 
   const tr = addRow(view.state.tr, tableRect, rowNumber)
-  tr.setSelection(TextSelection.create(tr.doc, pos + 2))
+  tr.setSelection(Selection.near(tr.doc.resolve(pos)))
   
   view.dispatch(tr)
+  view.focus()
 }
 
 export const addColBeforeButton = (view, pos) => {
@@ -556,7 +557,9 @@ export const addColBeforeButton = (view, pos) => {
   const colNumber = cellIndex % tableRect.map.width;
   console.log(colNumber);
   const tr = addColumn(view.state.tr, tableRect, colNumber)
-  tr.setSelection(TextSelection.create(tr.doc, pos + 2))
-  
+  tr.setSelection(Selection.near(tr.doc.resolve(pos)))
+
   view.dispatch(tr)
+  view.focus()
+
 }

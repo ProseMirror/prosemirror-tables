@@ -7,7 +7,7 @@ import {tableNodeTypes} from "./schema"
 
 export const key = new PluginKey("tableColumnResizing")
 
-export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = TableView, lastColumnResizable = true } = {}) {
+export function columnResizing({ handleWidth = 5, cellMinWidth = 75, View = TableView, lastColumnResizable = true } = {}) {
   let plugin = new Plugin({
     key,
     state: {
@@ -69,6 +69,9 @@ function handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResiz
 
   if (!pluginState.dragging) {
     let target = domCellAround(event.target), cell = -1
+
+    if(event.buttons === 1) return;
+
     if (target) {
       let {left, right} = target.getBoundingClientRect()
       if (event.clientX - left <= handleWidth)
