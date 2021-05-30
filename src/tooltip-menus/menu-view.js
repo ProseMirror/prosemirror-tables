@@ -4,20 +4,35 @@ class TablePopUpMenuView {
     constructor(items, view) {
         this.view= view;
         this.items = items;
-        this.popUpDOM = generateMenuPopup()
+        this.popUpDOM = generateMenuPopup();
 
         // the dom element that contains the popup - should be css relative
         this.popUpRelativeContainer = document.getElementsByClassName("czi-editor-frame-body")[0];
 
+        // append popup to dom
+        this.popUpRelativeContainer.appendChild(this.popUpDOM);
+
+        // add event listeners to color in red before deleting rows/cols
+        this.popUpDOM.addEventListener("mouseover", (e) => {
+            if(e.target.className !== "deleteMenuButton") return;
+
+            const [ tableWrapper ] = document.getElementsByClassName("tableFocus");
+            tableWrapper.classList.add("markDeleteCells");
+        })
+
+        this.popUpDOM.addEventListener("mouseout", (e) => {
+            if(e.target.className !== "deleteMenuButton") return;
+
+            const [ tableWrapper ] = document.getElementsByClassName("tableFocus");
+            tableWrapper.classList.remove("markDeleteCells");
+        })
+        
         // render prosemirror menu to popUpDom
-        const { dom: itemsDOM, update: updateMenuItems } = renderGrouped(this.view, this.items);
+        const { dom: itemsDOM, update: updateMenuItems } = renderGrouped(this.view, this.items(this.popUpDOM));
+        if (itemsDOM) this.popUpDOM.appendChild(itemsDOM);
 
         // method to update menu items on view update
         this.updateMenuItems = updateMenuItems;
-
-        // append popup to dom
-        if (itemsDOM) this.popUpDOM.appendChild(itemsDOM);
-        this.popUpRelativeContainer.appendChild(this.popUpDOM);
 
         // handle menu closing
         this.view.dom.addEventListener("click", () => this.popUpDOM.style.display = "none");
