@@ -28,7 +28,7 @@ class TablePopUpMenuView {
         })
         
         // render prosemirror menu to popUpDom
-        const { dom: itemsDOM, update: updateMenuItems } = renderGrouped(this.view, this.items(this.popUpDOM));
+        const { dom: itemsDOM, update: updateMenuItems } = renderGrouped(this.view, items);
         if (itemsDOM) this.popUpDOM.appendChild(itemsDOM);
 
         // method to update menu items on view update
