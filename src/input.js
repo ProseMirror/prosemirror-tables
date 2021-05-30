@@ -140,7 +140,28 @@ export function handleMouseDown(view, startEvent) {
       if (starting) $head = $anchor
       else return
     }
-    let selection = new CellSelection($anchor, $head)
+    let selection;
+    if (view) {
+      const sel = view.state.selection;
+      if (
+        sel instanceof CellSelection &&
+        sel.isRowSelection() &&
+        event.shiftKey
+      ) {
+        selection = CellSelection.rowSelection(sel.$anchorCell, $head);
+      } else if (
+        sel instanceof CellSelection &&
+        sel.isColSelection() &&
+        event.shiftKey
+      ) {
+        selection = CellSelection.colSelection(sel.$anchorCell, $head);
+      } else {
+        selection = new CellSelection($anchor, $head);
+      }
+    } else {
+      selection = new CellSelection($anchor, $head);
+    }
+
     if (starting || !view.state.selection.eq(selection)) {
       let tr = view.state.tr.setSelection(selection)
       if (starting) tr.setMeta(key, $anchor.pos)

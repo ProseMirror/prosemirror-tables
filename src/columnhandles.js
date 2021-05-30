@@ -51,12 +51,18 @@ export class CellView {
     this.rowHandle = rowHandle.appendChild(rowHandleButton)
     this.dom.appendChild(rowHandle)
 
-    this.rowHandle.onclick = () => {
-      this.view.dispatch(
-        this.view.state.tr.setSelection(
-          CellSelection.rowSelection(this.view.state.doc.resolve(this.getPos()))
-        )
-      )
+    this.rowHandle.onclick = (e) => {
+      const { state } = view;
+      const sel = view.state.selection;
+      const { tr } = state;
+
+      if(sel instanceof CellSelection && sel.isRowSelection() && e.shiftKey) {
+        tr.setSelection(CellSelection.rowSelection(sel.$anchorCell, state.doc.resolve(this.getPos())))
+      } else {
+        tr.setSelection(CellSelection.rowSelection(state.doc.resolve(this.getPos())))
+      }
+
+      view.dispatch(tr)
     }    
 
     this.rowDragHandler = new RowDragHandler(this.view, this.rowHandle, document.body, this.getPos, this.dom)
@@ -97,8 +103,18 @@ export class CellView {
     const buttonContent = createElementWithClass('span', 'buttonContent')
     colHandleButton.appendChild(buttonContent);
     
-    colHandleButton.addEventListener('click', () => {
-      view.dispatch(view.state.tr.setSelection(CellSelection.colSelection(view.state.doc.resolve(this.getPos()))))
+    colHandleButton.addEventListener('click', (e) => {
+      const { state } = view;
+      const sel = view.state.selection;
+      const { tr } = state;
+
+      if(sel instanceof CellSelection && sel.isColSelection() && e.shiftKey) {
+        tr.setSelection(CellSelection.colSelection(sel.$anchorCell, state.doc.resolve(this.getPos())))
+      } else {
+        tr.setSelection(CellSelection.colSelection(state.doc.resolve(this.getPos())))
+      }
+
+      view.dispatch(tr)
     })
 
     colHandle.appendChild(colHandleButton)
