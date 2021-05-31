@@ -147,13 +147,17 @@ export class CellView {
     const marker = this.dom.querySelector('.addColAfterMarker')
     marker.style=`height: ${table.offsetHeight + 15}px`;
 
-    // const sortButton = createElementWithClass('button', 'sortColButton');
-    // sortButton.contentEditable = false;
-    // sortButton.onclick = () => {
-    //   const colIndex = getColIndex(this.view, this.getPos() + 1); 
-    //   if (colIndex !== null) sortColumn(view, colIndex)
-    // }
-    // this.sortButton = this.dom.appendChild(sortButton);
+    const sortButton = createElementWithClass('button', 'sortColButton');
+    sortButton.contentEditable = false;
+    sortButton.onclick = () => {
+      const colIndex = getColIndex(this.view, this.getPos()); 
+      if (colIndex !== null){
+        console.log(colIndex);
+        sortColumn(view, colIndex, this.getPos())
+      } 
+      view.focus()
+    }
+    this.sortButton = this.dom.appendChild(sortButton);
   }
 
   ignoreMutation(record) {

@@ -110,14 +110,16 @@ export function columnIsHeader(map, table, col) {
 }
 
 export function getColIndex(view, pos) {
-  const rect = selectedRect(view.state)
-  console.log(rect);
+  const resPos = view.state.doc.resolve(pos);
+  const tableStart = resPos.start(-1);
+  const map = TableMap.get(resPos.node(1));
   const {pos: insertRowPos} = findParentNodeOfType(view.state.schema.nodes.table_cell)
-    (TextSelection.create(view.state.doc, pos));
+    (TextSelection.create(view.state.doc, pos + 1));
 
-  const insertCellIndex = rect.map.map.indexOf(insertRowPos - rect.tableStart);
+  const insertCellIndex = map.map.indexOf(insertRowPos - tableStart);
 
   if (insertCellIndex === -1) return null;
-  return insertCellIndex % rect.map.width;
+
+  return insertCellIndex % map.width;
 
 }

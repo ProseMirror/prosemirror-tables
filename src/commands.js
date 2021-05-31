@@ -514,9 +514,13 @@ export function deleteTable(state, dispatch) {
 }
 
 
-export function sortColumn(view, colNumber) {
-  if (!isInTable(view.state)) return false
-  let rect = selectedRect(view.state)
+export function sortColumn(view, colNumber, pos) {
+  const resolvedPos = view.state.doc.resolve(pos);
+  const rect = {
+    tableStart: resolvedPos.start(-1),
+    table: resolvedPos.node(1),
+    map: TableMap.get(resolvedPos.node(1))
+  }
   let newRowsArray = rect.table.content.content.slice();
   const { tr } = view.state;
   const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
