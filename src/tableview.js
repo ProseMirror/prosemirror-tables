@@ -78,13 +78,15 @@ export class TableView {
     
     // to handle first row insert
     if(node.childCount !== this.node.childCount) return false;
-    this.node = node
     
     const oldColCount = this.colgroup.childElementCount;
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth)
-
+    
     // to handle first col insert
-    if(oldColCount !== this.colgroup.childElementCount) return false;
+    if (oldColCount !== this.colgroup.childElementCount) return false;
+    
+    if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) return false;
+    this.node = node
 
     return true
   }
@@ -132,4 +134,17 @@ export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, 
     table.style.width = ""
     table.style.minWidth = totalWidth + "px"
   }
+}
+
+const firstRowOrderChanged = (newRow, oldRow) => {
+  const newCells = newRow.content.content;
+  const oldCells = oldRow.content.content;
+
+  let rowChanged = false;
+
+  newCells.forEach((cell, index) => {
+    rowChanged = rowChanged || !cell.eq(oldCells[index])
+  })
+
+  return rowChanged
 }
