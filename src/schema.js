@@ -81,6 +81,9 @@ export function tableNodes(options) {
       tableRole: "table",
       isolating: true,
       group: options.tableGroup,
+      attrs: {
+        sort: { default: { col: null, dir: null } }
+      },
       parseDOM: [{tag: "table"}],
       toDOM() { return ["table", ["tbody", 0]] }
     },

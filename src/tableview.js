@@ -71,9 +71,10 @@ export class TableView {
     e.preventDefault()
   }
 
-  update(node) {
+  update(node, markers) {
     this.updateMarkers()
     if (node.type != this.node.type) return false
+    if (!this.node.sameMarkup(node)) return false
     
     // to handle first row insert
     if(node.childCount !== this.node.childCount) return false;

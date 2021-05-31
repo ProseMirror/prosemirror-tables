@@ -143,18 +143,26 @@ export class CellView {
     this.colMarker = addColAfterContainer;
     this.dom.appendChild(addColAfterContainer)
 
-    const table = this.dom
-    const marker = this.dom.querySelector('.addColAfterMarker')
-    marker.style=`height: ${table.offsetHeight + 15}px`;
-
     const sortButton = createElementWithClass('button', 'sortColButton');
     sortButton.contentEditable = false;
+
+    const tableAttrs = resolvePos.node(1).attrs;
+    const sortedCol = tableAttrs.sort.col;
+    const colIndex = getColIndex(this.view, this.getPos()); 
+
+    if(sortedCol === colIndex) {
+      sortButton.classList.add(tableAttrs.sort.dir === "down" ? "sortedDown" : "sortedUp")
+    }
+
     sortButton.onclick = () => {
-      const colIndex = getColIndex(this.view, this.getPos()); 
-      if (colIndex !== null){
-        console.log(colIndex);
-        sortColumn(view, colIndex, this.getPos())
-      } 
+      if (colIndex === null) return
+
+      if(sortedCol !== colIndex || tableAttrs.sort.dir === "up"){
+        sortColumn(view, colIndex, this.getPos(), 1)
+      } else {
+        sortColumn(view, colIndex, this.getPos(), -1)
+      }
+      
       view.focus()
     }
     this.sortButton = this.dom.appendChild(sortButton);

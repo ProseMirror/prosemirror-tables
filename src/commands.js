@@ -514,7 +514,7 @@ export function deleteTable(state, dispatch) {
 }
 
 
-export function sortColumn(view, colNumber, pos) {
+export function sortColumn(view, colNumber, pos, dir) {
   const resolvedPos = view.state.doc.resolve(pos);
   const rect = {
     tableStart: resolvedPos.start(-1),
@@ -527,9 +527,12 @@ export function sortColumn(view, colNumber, pos) {
   newRowsArray = newRowsArray.sort((a,b) => {
     const textA = a.content.content[colNumber].textContent.replace(/[^a-zA-Z0-9]/g, '')
     const textB = b.content.content[colNumber].textContent.replace(/[^a-zA-Z0-9]/g, '')
-    return collator.compare(textA, textB)
+    return dir * collator.compare(textA, textB)
   })
+
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, newRowsArray)
+  tr.setNodeMarkup(rect.tableStart - 1, rect.table.type, { sort: { col: colNumber, dir:  dir === 1 ? "down" : "up"} });
+
   view.dispatch(tr)
 
 return true
