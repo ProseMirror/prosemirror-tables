@@ -23,7 +23,7 @@ export const changeCellsBackgroundColor = (state, dispatch, color) => {
 
   let { tr } = state;
   state.selection.forEachCell((cell, pos) => {
-    tr.setNodeMarkup(pos, undefined, {background: color});
+    tr.setNodeMarkup(pos, undefined, Object.assign({}, cell.attrs, {background: color}));
   });
   dispatch(tr)
 }
