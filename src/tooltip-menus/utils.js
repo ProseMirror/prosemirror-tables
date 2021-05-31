@@ -148,6 +148,9 @@ export const isFirstRowSelected = (view) => {
     const { selection: sel } = view.state;
     if(!(sel instanceof CellSelection)) return false;
 
+    const tableAttrs = sel.$anchorCell.node(1).attrs;
+    if(!tableAttrs.headers) return false
+
     let onlyFirstRow = true;
 
     sel.forEachCell((cell, pos) => {

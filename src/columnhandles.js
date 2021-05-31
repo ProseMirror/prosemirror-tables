@@ -93,11 +93,11 @@ export class CellView {
     const resolvePos = view.state.doc.resolve(this.getPos());
     const rowStart = this.getPos() - resolvePos.parentOffset - 1;
     const rowResolvedPos = view.state.doc.resolve(rowStart);
+
+    const tableAttrs = resolvePos.node(1).attrs;
     
     if(rowResolvedPos.parentOffset !== 0 || this.colHandle) return;
     
-    this.dom.classList.add("colHeader");
-
     const colHandle = createElementWithClass('div', 'tableColHandle')
     const colHandleButton = createElementWithClass('button', 'tableColHandleButton')
     const buttonContent = createElementWithClass('span', 'buttonContent')
@@ -143,29 +143,33 @@ export class CellView {
     this.colMarker = addColAfterContainer;
     this.dom.appendChild(addColAfterContainer)
 
-    const sortButton = createElementWithClass('button', 'sortColButton');
-    sortButton.contentEditable = false;
+    if(tableAttrs.headers) {
+      this.dom.classList.add("colHeader");
 
-    const tableAttrs = resolvePos.node(1).attrs;
-    const sortedCol = tableAttrs.sort.col;
-    const colIndex = getColIndex(this.view, this.getPos()); 
+      const sortButton = createElementWithClass('button', 'sortColButton');
+      sortButton.contentEditable = false;
 
-    if(sortedCol === colIndex) {
-      sortButton.classList.add(tableAttrs.sort.dir === "down" ? "sortedDown" : "sortedUp")
-    }
+      const sortedCol = tableAttrs.sort.col;
+      const colIndex = getColIndex(this.view, this.getPos()); 
 
-    sortButton.onclick = () => {
-      if (colIndex === null) return
-
-      if(sortedCol !== colIndex || tableAttrs.sort.dir === "up"){
-        sortColumn(view, colIndex, this.getPos(), 1)
-      } else {
-        sortColumn(view, colIndex, this.getPos(), -1)
+      if(sortedCol === colIndex) {
+        sortButton.classList.add(tableAttrs.sort.dir === "down" ? "sortedDown" : "sortedUp")
       }
-      
-      view.focus()
+
+      sortButton.onclick = () => {
+        if (colIndex === null) return
+
+        if(sortedCol !== colIndex || tableAttrs.sort.dir === "up"){
+          sortColumn(view, colIndex, this.getPos(), 1)
+        } else {
+          sortColumn(view, colIndex, this.getPos(), -1)
+        }
+        
+        view.focus()
+      }
+      this.sortButton = this.dom.appendChild(sortButton);
     }
-    this.sortButton = this.dom.appendChild(sortButton);
+    
   }
 
   ignoreMutation(record) {

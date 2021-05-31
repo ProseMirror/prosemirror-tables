@@ -5,9 +5,27 @@ import { enableDeleteItem,
     getCellsBackgroundColor,
     isFirstRowSelected
  } from "./utils";
-import { getDeleteCommand, changeCellsBackgroundColor } from "./commands";
+import { getDeleteCommand, changeCellsBackgroundColor, toggleTableHeaders } from "./commands";
 
-export const deleteMenuItem = () => {
+const toggleHeader = () => {
+  return new MenuItem({
+    class: "tablePopUpMenuItem",
+    icon: {
+        dom: createElementWithClass("span", "toggleTableHeaderButton"),
+    },
+    select() {
+      return true;
+    },
+    enable() {
+      return true;
+    },
+    run(state, dispatch) {
+      toggleTableHeaders(state, dispatch)
+    },
+  });
+}
+
+const deleteMenuItem = () => {
   return new MenuItem({
     class: "tablePopUpMenuItem",
     icon: {
@@ -58,7 +76,7 @@ const cellBackgroundColorItem = (color) => {
   })
 }
 
-export const cellBackgroundColorDropDown = () => {
+const cellBackgroundColorDropDown = () => {
   return new Dropdown(
       colors.map(color => cellBackgroundColorItem(color)),
     {
@@ -68,6 +86,7 @@ export const cellBackgroundColorDropDown = () => {
 }
 
 export const popUpItems = [
+  [toggleHeader()],
   [cellBackgroundColorDropDown()],
   [deleteMenuItem()]
 ]

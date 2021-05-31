@@ -27,3 +27,12 @@ export const changeCellsBackgroundColor = (state, dispatch, color) => {
   });
   dispatch(tr)
 }
+
+export const toggleTableHeaders = (state, dispatch) => {
+  const rect = selectedRect(state);
+  const { tr } = state
+  tr.setNodeMarkup(rect.tableStart - 1 , rect.table.type, { headers: !rect.table.attrs.headers  })
+
+  dispatch(tr)
+  
+}
