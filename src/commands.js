@@ -521,7 +521,8 @@ export function sortColumn(view, colNumber, pos, dir) {
     table: resolvedPos.node(1),
     map: TableMap.get(resolvedPos.node(1))
   }
-  let newRowsArray = rect.table.content.content.slice();
+  const header = rect.table.content.content[0]
+  let newRowsArray = rect.table.content.content.slice(1);
   const { tr } = view.state;
   const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   newRowsArray = newRowsArray.sort((a,b) => {
@@ -530,7 +531,7 @@ export function sortColumn(view, colNumber, pos, dir) {
     return dir * collator.compare(textA, textB)
   })
 
-  tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, newRowsArray)
+  tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [header, ...newRowsArray])
   tr.setNodeMarkup(rect.tableStart - 1, rect.table.type, { sort: { col: colNumber, dir:  dir === 1 ? "down" : "up"} });
 
   view.dispatch(tr)
