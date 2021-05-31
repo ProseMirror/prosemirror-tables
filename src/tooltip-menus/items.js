@@ -3,7 +3,8 @@ import { enableDeleteItem,
     createElementWithClass,
     generateColorItemDOM,
     getCellsBackgroundColor,
-    isFirstRowSelected
+    isFirstRowSelected,
+    enableCellsColor
  } from "./utils";
 import { getDeleteCommand, changeCellsBackgroundColor, toggleTableHeaders } from "./commands";
 
@@ -13,11 +14,11 @@ const toggleHeader = () => {
     icon: {
         dom: createElementWithClass("span", "toggleTableHeaderButton"),
     },
-    select() {
-      return true;
+    select(view) {
+      return isFirstRowSelected(view);
     },
-    enable() {
-      return true;
+    enable(view) {
+      return isFirstRowSelected(view);
     },
     run(state, dispatch) {
       toggleTableHeaders(state, dispatch)
@@ -63,7 +64,7 @@ const cellBackgroundColorItem = (color) => {
       return getCellsBackgroundColor(view) === color
     },
     select(view) {
-      return !isFirstRowSelected(view);
+      return enableCellsColor(view);
     },
     enable() {
       return true;
