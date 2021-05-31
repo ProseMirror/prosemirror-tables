@@ -85,8 +85,16 @@ export class TableView {
     // to handle first col insert
     if (oldColCount !== this.colgroup.childElementCount) return false;
     
-    if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) return false;
-    this.node = node
+    if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))){
+      node.attrs.sort = {
+        col: null,
+        dir: null
+      }
+      this.node = node
+      return false;
+    } 
+
+    this.node = node;
 
     return true
   }
