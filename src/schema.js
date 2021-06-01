@@ -25,8 +25,8 @@ export function setCellAttrs(node, extraAttrs) {
     attrs["data-colwidth"] = node.attrs.colwidth.join(",")
 
   // maybe find way to take it from  the `tableNode` configuration?
-  if(node.attrs.background) attrs.style = `${attrs.style || ""} background-color: ${node.attrs.background};`
-  if(node.attrs.borderColor) attrs.style = `${attrs.style || ""} border-color: ${node.attrs.borderColor};`
+  if (node.attrs.background) attrs.style = `${attrs.style || ""} background-color: ${node.attrs.background};`
+  if (node.attrs.borderColor) attrs.style = `${attrs.style || ""} border-color: ${node.attrs.borderColor};`
 
   for (let prop in extraAttrs) {
     let setter = extraAttrs[prop].setDOMAttr

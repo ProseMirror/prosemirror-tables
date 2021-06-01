@@ -563,11 +563,39 @@ export const addColBeforeButton = (view, pos) => {
   if (cellIndex === -1) return;
 
   const colNumber = cellIndex % tableRect.map.width;
-  console.log(colNumber);
+
   const tr = addColumn(view.state.tr, tableRect, colNumber)
   tr.setSelection(Selection.near(tr.doc.resolve(pos)))
 
   view.dispatch(tr)
   view.focus()
 
+}
+
+export const selectRow = (e, view, pos) => {
+  const { state } = view;
+  const sel = view.state.selection;
+  const { tr } = state;
+
+  if(sel instanceof CellSelection && sel.isRowSelection() && e.shiftKey) {
+    tr.setSelection(CellSelection.rowSelection(sel.$anchorCell, state.doc.resolve(pos)))
+  } else {
+    tr.setSelection(CellSelection.rowSelection(state.doc.resolve(pos)))
+  }
+
+  view.dispatch(tr)
+}
+
+export const selectCol = (e, view, pos) => {
+  const { state } = view;
+  const sel = view.state.selection;
+  const { tr } = state;
+
+  if(sel instanceof CellSelection && sel.isColSelection() && e.shiftKey) {
+    tr.setSelection(CellSelection.colSelection(sel.$anchorCell, state.doc.resolve(pos)))
+  } else {
+    tr.setSelection(CellSelection.colSelection(state.doc.resolve(pos)))
+  }
+
+  view.dispatch(tr)
 }

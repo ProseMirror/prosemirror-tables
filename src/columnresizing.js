@@ -70,6 +70,7 @@ function handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResiz
   if (!pluginState.dragging) {
     let target = domCellAround(event.target), cell = -1
 
+    // disable column resizing while dragging or any other key is pressed
     if(event.buttons === 1) return;
 
     if (target) {

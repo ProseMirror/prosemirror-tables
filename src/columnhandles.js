@@ -1,23 +1,22 @@
 import { Plugin, PluginKey } from "prosemirror-state"
 import { Decoration, DecorationSet } from "prosemirror-view"
 import { selectionCell } from "./util"
-import { addRowBeforeButton, addColBeforeButton, sortColumn } from "./commands"
-import { CellSelection } from "./cellselection"
+import { addRowBeforeButton,
+  addColBeforeButton,
+  sortColumn,
+  selectRow,
+  selectCol
+} from "./commands"
 import { TableMap } from "./tablemap";
 import { TableView } from './tableview'
 import { RowDragHandler } from "./table-dragging/rowsdragging";
 import { ColDragHandler } from "./table-dragging/colsdragging";
-import { getColIndex } from "./util"
+import { getColIndex, createElementWithClass } from "./util"
 import { setCellAttrs } from "./schema";
  
 
 export const key = new PluginKey("tableColumnHandles")
 
-const createElementWithClass = (element, className) => {
-  const newElement = document.createElement(element);
-  newElement.className = className
-  return newElement;
-} 
 export class CellView {
   constructor(node, view, getPos) {
     this.getPos = getPos;
@@ -51,20 +50,7 @@ export class CellView {
     this.rowHandle = rowHandle.appendChild(rowHandleButton)
     this.dom.appendChild(rowHandle)
 
-    this.rowHandle.onclick = (e) => {
-      const { state } = view;
-      const sel = view.state.selection;
-      const { tr } = state;
-
-      if(sel instanceof CellSelection && sel.isRowSelection() && e.shiftKey) {
-        tr.setSelection(CellSelection.rowSelection(sel.$anchorCell, state.doc.resolve(this.getPos())))
-      } else {
-        tr.setSelection(CellSelection.rowSelection(state.doc.resolve(this.getPos())))
-      }
-
-      view.dispatch(tr)
-    }    
-
+    this.rowHandle.onclick = (e) => selectRow(e, view, this.getPos())
     this.rowDragHandler = new RowDragHandler(this.view, this.rowHandle, document.body, this.getPos, this.dom)
 
     const addRowAfterContainer = createElementWithClass('div', 'addRowAfterContainer')
@@ -82,10 +68,6 @@ export class CellView {
     const addRowAfterMarker = createElementWithClass('div', 'addRowAfterMarker')
     addRowAfterContainer.appendChild(addRowAfterMarker)
     this.dom.appendChild(addRowAfterContainer)
-
-    const table = this.dom
-    const marker = this.dom.querySelector('.addRowAfterMarker')
-    marker.style=`width: ${table.offsetWidth + 15}px`;
   }
 
 
@@ -94,8 +76,6 @@ export class CellView {
     const rowStart = this.getPos() - resolvePos.parentOffset - 1;
     const rowResolvedPos = view.state.doc.resolve(rowStart);
 
-    const tableAttrs = resolvePos.node(1).attrs;
-    
     if(rowResolvedPos.parentOffset !== 0 || this.colHandle) return;
     
     const colHandle = createElementWithClass('div', 'tableColHandle')
@@ -103,19 +83,7 @@ export class CellView {
     const buttonContent = createElementWithClass('span', 'buttonContent')
     colHandleButton.appendChild(buttonContent);
     
-    colHandleButton.addEventListener('click', (e) => {
-      const { state } = view;
-      const sel = view.state.selection;
-      const { tr } = state;
-
-      if(sel instanceof CellSelection && sel.isColSelection() && e.shiftKey) {
-        tr.setSelection(CellSelection.colSelection(sel.$anchorCell, state.doc.resolve(this.getPos())))
-      } else {
-        tr.setSelection(CellSelection.colSelection(state.doc.resolve(this.getPos())))
-      }
-
-      view.dispatch(tr)
-    })
+    colHandleButton.onclick =  (e) => selectCol(e, view, this.getPos())
 
     colHandle.appendChild(colHandleButton)
     colHandle.contentEditable = false;
@@ -142,13 +110,16 @@ export class CellView {
     addColAfterContainer.appendChild(addColAfterMarker)
     this.colMarker = addColAfterContainer;
     this.dom.appendChild(addColAfterContainer)
-
+    
+    const tableAttrs = resolvePos.node(1).attrs;
+    
+    // add sort and style only if headers allowed
     if(tableAttrs.headers) {
       this.dom.classList.add("colHeader");
-
+      
       const sortButton = createElementWithClass('button', 'sortColButton');
       sortButton.contentEditable = false;
-
+      
       const sortedCol = tableAttrs.sort.col;
       const colIndex = getColIndex(this.view, this.getPos()); 
 
@@ -211,7 +182,6 @@ export function columnHandles({} = {}) {
             // In case there's no cell
             return DecorationSet.empty
           }
-          // debugger;
           const tableNode = $pos.node(-1)
           const tableStart = $pos.start(-1) - 1;
           const decoration = Decoration.node(tableStart, tableStart + tableNode.nodeSize, {class: 'tableFocus'});

@@ -1,10 +1,7 @@
 import { NodeSelection } from "prosemirror-state";
 import {addBottomRow, addRightColumn} from "./commands"
-const createElementWithClass = (element, className) => {
-  const newElement = document.createElement(element);
-  newElement.className = className
-  return newElement;
-} 
+import { createElementWithClass } from "./util";
+
 const createAddCellsButton = (type, view) => {
   const isRow = type === 'row'
   const newElement = createElementWithClass('button', `tableButton ${isRow ? 'tableAddBottomRow' : 'tableAddRightColumn'}`);

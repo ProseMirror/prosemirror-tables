@@ -123,3 +123,10 @@ export function getColIndex(view, pos) {
   return insertCellIndex % map.width;
 
 }
+
+export const createElementWithClass = (type, className) => {
+  const el= document.createElement(type);
+  el.className = className;
+
+  return el
+}

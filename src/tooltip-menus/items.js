@@ -1,12 +1,12 @@
 import { Dropdown, MenuItem } from "prosemirror-menu";
 import { enableDeleteItem,
-    createElementWithClass,
     generateColorItemDOM,
     getCellsBackgroundColor,
     isFirstRowSelected,
     enableCellsColor
  } from "./utils";
 import { getDeleteCommand, changeCellsBackgroundColor, toggleTableHeaders } from "./commands";
+import { createElementWithClass } from "../util";
 
 const toggleHeader = () => {
   return new MenuItem({
@@ -70,7 +70,7 @@ const cellBackgroundColorItem = (color) => {
       return true;
     },
     run(state, dispatch, view) {
-      if(getCellsBackgroundColor(view) !== color) {
+      if(getCellsBackgroundColor(view) !== color || color === "transparent") {
         changeCellsBackgroundColor(state, dispatch, color);
       }
     },
