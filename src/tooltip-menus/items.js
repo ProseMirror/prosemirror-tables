@@ -1,18 +1,23 @@
-import { Dropdown, MenuItem } from "prosemirror-menu";
-import { enableDeleteItem,
-    generateColorItemDOM,
-    getCellsBackgroundColor,
-    isFirstRowSelected,
-    enableCellsColor
- } from "./utils";
-import { getDeleteCommand, changeCellsBackgroundColor, toggleTableHeaders } from "./commands";
-import { createElementWithClass } from "../util";
+import {Dropdown, MenuItem} from 'prosemirror-menu';
+import {
+  enableDeleteItem,
+  generateColorItemDOM,
+  getCellsBackgroundColor,
+  isFirstRowSelected,
+  enableCellsColor,
+} from './utils';
+import {
+  getDeleteCommand,
+  changeCellsBackgroundColor,
+  toggleTableHeaders,
+} from './commands';
+import {createElementWithClass} from '../util';
 
 const toggleHeader = () => {
   return new MenuItem({
-    class: "tablePopUpMenuItem",
+    class: 'tablePopUpMenuItem',
     icon: {
-        dom: createElementWithClass("span", "toggleTableHeaderButton"),
+      dom: createElementWithClass('span', 'toggleTableHeaderButton'),
     },
     select(view) {
       return isFirstRowSelected(view);
@@ -21,16 +26,16 @@ const toggleHeader = () => {
       return isFirstRowSelected(view);
     },
     run(state, dispatch) {
-      toggleTableHeaders(state, dispatch)
+      toggleTableHeaders(state, dispatch);
     },
   });
-}
+};
 
 const deleteMenuItem = () => {
   return new MenuItem({
-    class: "tablePopUpMenuItem",
+    class: 'tablePopUpMenuItem',
     icon: {
-        dom: createElementWithClass("span", "deleteMenuButton"),
+      dom: createElementWithClass('span', 'deleteMenuButton'),
     },
     select(view) {
       return enableDeleteItem(view);
@@ -40,28 +45,28 @@ const deleteMenuItem = () => {
     },
     run(state, dispatch) {
       const command = getDeleteCommand(state);
-      command(state, dispatch)
+      command(state, dispatch);
     },
   });
-}
+};
 
 const colors = [
-  "rgb(255, 191, 181)",
-  "rgb(247, 204, 98)",
-  "rgb(181, 220, 175)",
-  "rgb(214, 232, 250)",
-  "rgb(216, 195, 255)",
-  "transparent"
-]
+  'rgb(255, 191, 181)',
+  'rgb(247, 204, 98)',
+  'rgb(181, 220, 175)',
+  'rgb(214, 232, 250)',
+  'rgb(216, 195, 255)',
+  'transparent',
+];
 
 const cellBackgroundColorItem = (color) => {
   return new MenuItem({
-    class: "CellColorItem",
+    class: 'CellColorItem',
     icon: {
-       dom: generateColorItemDOM(color),
+      dom: generateColorItemDOM(color),
     },
-    active(view){
-      return getCellsBackgroundColor(view) === color
+    active(view) {
+      return getCellsBackgroundColor(view) === color;
     },
     select(view) {
       return enableCellsColor(view);
@@ -70,24 +75,24 @@ const cellBackgroundColorItem = (color) => {
       return true;
     },
     run(state, dispatch, view) {
-      if(getCellsBackgroundColor(view) !== color || color === "transparent") {
+      if (getCellsBackgroundColor(view) !== color || color === 'transparent') {
         changeCellsBackgroundColor(state, dispatch, color);
       }
     },
-  })
-}
+  });
+};
 
 const cellBackgroundColorDropDown = () => {
   return new Dropdown(
-      colors.map(color => cellBackgroundColorItem(color)),
+    colors.map((color) => cellBackgroundColorItem(color)),
     {
-      class: "cellColorDropDown"
+      class: 'cellColorDropDown',
     }
-  )
-}
+  );
+};
 
 export const popUpItems = [
   [toggleHeader()],
   [cellBackgroundColorDropDown()],
-  [deleteMenuItem()]
-]
+  [deleteMenuItem()],
+];

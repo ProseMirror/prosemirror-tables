@@ -176,7 +176,7 @@
 }
 
 .ProseMirror .selectedCell::before {
-  content: "";
+  content: '';
   display: block;
   top: -2px;
   bottom: -2px;
@@ -455,7 +455,7 @@
 
 .inRowSelection .tableRowHandle::before,
 .inColSelection .tableColHandle::before {
-  content: "";
+  content: '';
   display: block;
   top: -1px;
   bottom: -2px;
@@ -467,6 +467,10 @@
   pointer-events: none;
   z-index: 2;
   background-color: transparent;
+}
+
+.inColSelection .tableColHandle::before {
+  bottom: -1px;
 }
 
 .inRowSelection .tableRowHandle .buttonContent {
