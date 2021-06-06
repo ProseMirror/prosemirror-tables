@@ -96,3 +96,18 @@ export const popUpItems = [
   [cellBackgroundColorDropDown()],
   [deleteMenuItem()],
 ];
+
+export const tooltips = [
+  {
+    className: 'toggleTableHeaderButton',
+    text: 'Toggle Headers',
+  },
+  {
+    className: 'deleteMenuButton',
+    text: 'Delete Selection',
+  },
+  {
+    className: 'cellColorDropDown',
+    text: 'Color Selection',
+  },
+];

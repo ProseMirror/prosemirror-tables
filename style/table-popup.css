@@ -105,3 +105,37 @@
 .toggleTableHeaderButton {
   content: url(./svgs/table_header_toggle.svg);
 }
+
+.popup-tooltip {
+  position: absolute;
+  background: #1b2733;
+  top: -40px;
+  display: none;
+  border: 1px solid rgb(117, 116, 116);
+  border-radius: 3px;
+  padding: 4px;
+  font-size: small;
+  width: 100px;
+  left: -45px;
+}
+
+.popup-tooltip::after {
+  content: ' ';
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.tablePopUpMenuItem:hover .popup-tooltip,
+.ProseMirror-menu-dropdown-wrap:hover .popup-tooltip {
+  display: block;
+}
+
+.tablePopUpMenuItem,
+.ProseMirror-menu-dropdown-wrap {
+  position: relative;
+}

@@ -207,7 +207,6 @@ export function addBottomRow(state, dispatch) {
   if (dispatch) {
     const rect = selectedRect(state);
     const tr = addRow(state.tr, rect, rect.map.height);
-    tr.setSelection(Selection.near(tr.doc.resolve(tr.steps[0].from)));
     dispatch(tr);
   }
   return true;
@@ -218,7 +217,6 @@ export function addRightColumn(state, dispatch) {
   if (dispatch) {
     const rect = selectedRect(state);
     const tr = addColumn(state.tr, rect, rect.map.width);
-    tr.setSelection(Selection.near(tr.doc.resolve(tr.steps[0].from)));
     dispatch(tr);
   }
   return true;
@@ -743,7 +741,6 @@ export const addRowBeforeButton = (view, pos) => {
   const rowNumber = cellIndex / tableRect.map.width;
 
   const tr = addRow(view.state.tr, tableRect, rowNumber);
-  tr.setSelection(Selection.near(tr.doc.resolve(pos)));
 
   view.dispatch(tr);
   view.focus();
@@ -759,7 +756,6 @@ export const addColBeforeButton = (view, pos) => {
   const colNumber = cellIndex % tableRect.map.width;
 
   const tr = addColumn(view.state.tr, tableRect, colNumber);
-  tr.setSelection(Selection.near(tr.doc.resolve(pos)));
 
   view.dispatch(tr);
   view.focus();

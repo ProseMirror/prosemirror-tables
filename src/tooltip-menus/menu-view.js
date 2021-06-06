@@ -1,5 +1,11 @@
-import {generateMenuPopup, displayPopup, calculatePopupPosition} from './utils';
+import {
+  generateMenuPopup,
+  displayPopup,
+  calculatePopupPosition,
+  addTooltips,
+} from './utils';
 import {renderGrouped} from 'prosemirror-menu';
+import {tooltips} from './items';
 class TablePopUpMenuView {
   constructor(items, view) {
     this.view = view;
@@ -56,6 +62,9 @@ class TablePopUpMenuView {
         this.updateMenu(this.view);
       }, 250);
     });
+
+    // add tooltips
+    addTooltips(this.popUpDOM, tooltips);
   }
 
   updateMenu(view) {
