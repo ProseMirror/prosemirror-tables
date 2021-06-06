@@ -269,8 +269,9 @@ function zeroes(n) {
 function handleDecorations(state, cell) {
   const decorations = [];
   const $cell = state.doc.resolve(cell);
-  const table = $cell.node(-1),
-    map = TableMap.get(table),
+  const table = $cell.node(-1);
+  if (!table) return;
+  const map = TableMap.get(table),
     start = $cell.start(-1);
   const col = map.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan;
   for (let row = 0; row < map.height; row++) {
