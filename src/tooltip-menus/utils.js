@@ -107,6 +107,8 @@ export const calculatePopupPosition = (view, popupDOM) => {
       top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
     }px`;
     popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
+
+    return;
   }
 
   // RowSelection
@@ -132,7 +134,23 @@ export const calculatePopupPosition = (view, popupDOM) => {
     popupDOM.style.top = `${
       lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET
     }px`;
+
+    return;
   }
+
+  // if not col/row selection
+  // const leftBorder = firstCellRect.left;
+  // const rightBorder = lastCellRect.right;
+  // const selectionWidth = rightBorder - leftBorder;
+
+  // popupDOM.style.left = `${
+  //   leftBorder + selectionWidth / 2 - EDITOR_LEFT_OFFSET
+  // }px`;
+  // popupDOM.style.top = `${
+  //   lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET
+  // }px`;
+
+  // return;
 };
 
 export const getCellsBackgroundColor = (view) => {
@@ -178,4 +196,14 @@ export const enableCellsColor = (view) => {
   if (isFirstRowSelected(view)) return !tableAttrs.headers;
 
   return true;
+};
+
+export const addTooltips = (popupDOM, classes) => {
+  classes.forEach(({className, text}) => {
+    const [button] = popupDOM.getElementsByClassName(className);
+    const buttonContainer = button.parentElement;
+    const tooltip = createElementWithClass('span', 'popup-tooltip');
+    tooltip.innerText = text;
+    buttonContainer.appendChild(tooltip);
+  });
 };
