@@ -206,7 +206,9 @@ export function addBottomRow(state, dispatch) {
   if (!isInTable(state)) return false;
   if (dispatch) {
     const rect = selectedRect(state);
-    dispatch(addRow(state.tr, rect, rect.map.height));
+    const tr = addRow(state.tr, rect, rect.map.height);
+    tr.setSelection(Selection.near(tr.doc.resolve(tr.steps[0].from)));
+    dispatch(tr);
   }
   return true;
 }
@@ -215,7 +217,9 @@ export function addRightColumn(state, dispatch) {
   if (!isInTable(state)) return false;
   if (dispatch) {
     const rect = selectedRect(state);
-    dispatch(addColumn(state.tr, rect, rect.map.width));
+    const tr = addColumn(state.tr, rect, rect.map.width);
+    tr.setSelection(Selection.near(tr.doc.resolve(tr.steps[0].from)));
+    dispatch(tr);
   }
   return true;
 }
@@ -699,14 +703,18 @@ export function sortColumn(view, colNumber, pos, dir) {
     sensitivity: 'base',
   });
   newRowsArray = newRowsArray.sort((a, b) => {
-    const textA = a.content.content[colNumber].textContent.replace(
+    let textA = a.content.content[colNumber].textContent.replace(
       /[^a-zA-Z0-9]/g,
       ''
     );
-    const textB = b.content.content[colNumber].textContent.replace(
+    let textB = b.content.content[colNumber].textContent.replace(
       /[^a-zA-Z0-9]/g,
       ''
     );
+
+    textA = textA === '' ? Infinity : textA;
+    textB = textB === '' ? Infinity : textB;
+
     return dir * collator.compare(textA, textB);
   });
 
@@ -717,6 +725,8 @@ export function sortColumn(view, colNumber, pos, dir) {
   tr.setNodeMarkup(rect.tableStart - 1, rect.table.type, {
     sort: {col: colNumber, dir: dir === 1 ? 'down' : 'up'},
   });
+
+  tr.setSelection(Selection.near(tr.doc.resolve(pos)));
 
   view.dispatch(tr);
 

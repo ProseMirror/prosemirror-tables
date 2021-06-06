@@ -12,6 +12,7 @@ const createAddCellsButton = (type, view) => {
   newElement.contentEditable = false;
   newElement.onclick = () => {
     (isRow ? addBottomRow : addRightColumn)(view.state, view.dispatch);
+    view.focus();
   };
   return newElement;
 };
