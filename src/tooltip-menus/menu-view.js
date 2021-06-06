@@ -23,15 +23,15 @@ class TablePopUpMenuView {
     // add event listeners to color in red before deleting rows/cols
     this.popUpDOM.addEventListener('mouseover', (e) => {
       if (e.target.className !== 'deleteMenuButton') return;
-
       const [tableWrapper] = document.getElementsByClassName('tableFocus');
+      if (!tableWrapper) return;
       tableWrapper.classList.add('markDeleteCells');
     });
 
     this.popUpDOM.addEventListener('mouseout', (e) => {
       if (e.target.className !== 'deleteMenuButton') return;
-
       const [tableWrapper] = document.getElementsByClassName('tableFocus');
+      if (!tableWrapper) return;
       tableWrapper.classList.remove('markDeleteCells');
     });
 

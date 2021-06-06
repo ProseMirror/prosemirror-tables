@@ -102,7 +102,15 @@ export const calculatePopupPosition = (view, popupDOM) => {
     state.selection instanceof CellSelection &&
     state.selection.isColSelection()
   ) {
-    const {top} = view.coordsAtPos(state.selection.$anchorCell.pos);
+    let top;
+
+    // sometimes prose mirror switches anchor and head cells - fix it
+    if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
+      top = view.coordsAtPos(state.selection.$headCell.pos).top;
+    } else {
+      top = view.coordsAtPos(state.selection.$anchorCell.pos).top;
+    }
+
     popupDOM.style.top = `${
       top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
     }px`;
