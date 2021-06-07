@@ -57,7 +57,6 @@ export const selectionShadowPlugin = () => {
             )
           );
         }
-        console.log(decorations);
         return DecorationSet.create(newState.doc, decorations);
       },
     },

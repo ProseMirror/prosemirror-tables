@@ -30,7 +30,6 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.dom.style = `${setCellAttrs(node, {}).style}`;
-    this.node.attrs.id = ID();
   }
 
   checkIfFirstCol(view) {
@@ -43,6 +42,8 @@ export class CellView {
     if (colNumber !== 0 || this.rowHandle) {
       return;
     }
+
+    this.node.attrs.firstCol = true;
 
     const rowHandle = createElementWithClass('div', 'tableRowHandle');
     rowHandle.contentEditable = false;
@@ -97,6 +98,7 @@ export class CellView {
 
     if (rowResolvedPos.parentOffset !== 0 || this.colHandle) return;
 
+    this.node.attrs.firstRow = true;
     const colHandle = createElementWithClass('div', 'tableColHandle');
     const colHandleButton = createElementWithClass(
       'button',
@@ -232,7 +234,3 @@ export function columnHandles({} = {}) {
   });
   return plugin;
 }
-
-const ID = function () {
-  return '_' + Math.random().toString(36).substr(2, 9);
-};

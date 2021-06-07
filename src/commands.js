@@ -173,7 +173,7 @@ export function addRow(tr, {map, tableStart, table}, row) {
         refRow == null
           ? tableNodeTypes(table.type.schema).cell
           : table.nodeAt(map.map[index + refRow * map.width]).type;
-      cells.push(type.createAndFill());
+      cells.push(type.createAndFill({}));
     }
   }
   tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells));
