@@ -5,7 +5,6 @@ import {selectedRect} from './commands';
 import {getColIndex, getRowIndex} from './util';
 
 export const selectionShadowPlugin = () => {
-  console.log('here');
   return new Plugin({
     key: new PluginKey('selectionShadowPlugin'),
     state: {
@@ -23,14 +22,19 @@ export const selectionShadowPlugin = () => {
           $headCell: {pos: to},
         } = tr.selection;
 
+        
+        let anchorCol = getColIndex(newState, Math.min(from, to));
+        let headCol = getColIndex(newState, Math.max(from, to));
+        
         // sometimes prosemirror replaces head and anchor cells
-        let reverse = false;
-        if (from > to) reverse = true;
+        if(anchorCol > headCol) {
+          const temp = anchorCol;
+          anchorCol = headCol;
+          headCol = temp
+        }
 
-        const anchorCol = getColIndex(newState, !reverse ? from : to);
-        const headCol = getColIndex(newState, !reverse ? to : from);
-        const anchorRow = getRowIndex(newState, !reverse ? from : to);
-        const headRow = getRowIndex(newState, !reverse ? to : from);
+        const anchorRow = getRowIndex(newState, Math.min(from, to));
+        const headRow = getRowIndex(newState, Math.max(from, to));
 
         const {map, tableStart} = selectedRect(newState);
 
