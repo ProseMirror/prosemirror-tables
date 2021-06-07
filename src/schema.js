@@ -80,6 +80,7 @@ export function tableNodes(options) {
     colspan: {default: 1},
     rowspan: {default: 1},
     colwidth: {default: null},
+    id: {default: ''},
   };
   for (const prop in extraAttrs)
     cellAttrs[prop] = {default: extraAttrs[prop].default};

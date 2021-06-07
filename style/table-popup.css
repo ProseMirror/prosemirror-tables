@@ -111,7 +111,7 @@
   background: #1b2733;
   top: -40px;
   display: none;
-  border: 1px solid rgb(117, 116, 116);
+  border: 1px solid #c1c7cd;
   border-radius: 3px;
   padding: 4px;
   font-size: small;
@@ -127,7 +127,7 @@
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: black transparent transparent transparent;
+  border-color: #1b2733 transparent transparent transparent;
 }
 
 .tablePopUpMenuItem:hover .popup-tooltip,

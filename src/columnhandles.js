@@ -30,6 +30,7 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.dom.style = `${setCellAttrs(node, {}).style}`;
+    this.node.attrs.id = ID();
   }
 
   checkIfFirstCol(view) {
@@ -156,7 +157,7 @@ export class CellView {
       sortButton.contentEditable = false;
 
       const sortedCol = tableAttrs.sort.col;
-      const colIndex = getColIndex(this.view, this.getPos());
+      const colIndex = getColIndex(this.view.state, this.getPos());
 
       if (sortedCol === colIndex) {
         sortButton.classList.add(
@@ -231,3 +232,7 @@ export function columnHandles({} = {}) {
   });
   return plugin;
 }
+
+const ID = function () {
+  return '_' + Math.random().toString(36).substr(2, 9);
+};

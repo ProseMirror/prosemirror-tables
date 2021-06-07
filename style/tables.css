@@ -182,7 +182,8 @@
   bottom: -2px;
   left: -2px;
   right: -2px;
-  border: 0 solid #0070e0;
+  border: 0 solid;
+  border-color: #0070e0;
   position: absolute;
   pointer-events: none;
   z-index: 12;
@@ -534,4 +535,9 @@ td:hover .sortColButton {
 
 .sortColButton.sortedDown::after {
   content: url(./svgs/sorted_down.svg);
+}
+
+.selection-shadow-row .tableRowHandleButton,
+.selection-shadow-col .tableColHandleButton {
+  background-color: rgba(0, 112, 224, 0.2);
 }

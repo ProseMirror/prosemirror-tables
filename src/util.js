@@ -4,6 +4,7 @@ import {PluginKey, TextSelection} from 'prosemirror-state';
 import {findParentNodeOfType} from 'prosemirror-utils';
 import {TableMap} from './tablemap';
 import {tableNodeTypes} from './schema';
+import {selectedRect} from './commands';
 
 export const key = new PluginKey('selectingCells');
 
@@ -125,13 +126,13 @@ export function columnIsHeader(map, table, col) {
   return true;
 }
 
-export function getColIndex(view, pos) {
-  const resPos = view.state.doc.resolve(pos);
+export function getColIndex(state, pos) {
+  const resPos = state.doc.resolve(pos);
   const tableStart = resPos.start(-1);
   const map = TableMap.get(resPos.node(1));
   const {pos: insertRowPos} = findParentNodeOfType(
-    view.state.schema.nodes.table_cell
-  )(TextSelection.create(view.state.doc, pos + 1));
+    state.schema.nodes.table_cell
+  )(TextSelection.create(state.doc, pos + 1));
 
   const insertCellIndex = map.map.indexOf(insertRowPos - tableStart);
 
@@ -140,9 +141,23 @@ export function getColIndex(view, pos) {
   return insertCellIndex % map.width;
 }
 
-export const createElementWithClass = (type, className) => {
+export const createElementWithClass = (type, className, child) => {
   const el = document.createElement(type);
   el.className = className;
+  if (child) {
+    el.appendChild(child);
+  }
 
   return el;
+};
+
+export const getRowIndex = (state, pos) => {
+  const tableRect = selectedRect(state);
+  const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
+
+  if (cellIndex === -1) return null;
+
+  const rowNumber = Math.floor(cellIndex / tableRect.map.width);
+
+  return rowNumber;
 };
