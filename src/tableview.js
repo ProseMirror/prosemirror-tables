@@ -2,7 +2,7 @@ import {NodeSelection} from 'prosemirror-state';
 import {addBottomRow, addRightColumn} from './commands';
 import {createElementWithClass} from './util';
 
-const createAddCellsButton = (type, view) => {
+const createAddCellsButton = (type, view, pos) => {
   const isRow = type === 'row';
   const newElement = createElementWithClass(
     'button',
@@ -11,7 +11,7 @@ const createAddCellsButton = (type, view) => {
   newElement.innerHTML = '+';
   newElement.contentEditable = false;
   newElement.onclick = () => {
-    (isRow ? addBottomRow : addRightColumn)(view.state, view.dispatch);
+    (isRow ? addBottomRow : addRightColumn)(view.state, view.dispatch, pos);
     view.focus();
   };
   return newElement;
@@ -55,9 +55,11 @@ export class TableView {
     setTimeout(() => {
       this.updateMarkers();
     }, 0);
-    this.tableVerticalWrapper.appendChild(createAddCellsButton('row', view));
+    this.tableVerticalWrapper.appendChild(
+      createAddCellsButton('row', view, this.getPos() + 1)
+    );
     this.tableHorizontalWrapper.appendChild(
-      createAddCellsButton('column', view)
+      createAddCellsButton('column', view, this.getPos() + 1)
     );
 
     this.colgroup = this.table.appendChild(document.createElement('colgroup'));

@@ -541,3 +541,12 @@ td:hover .sortColButton {
 .selection-shadow-col .tableColHandleButton {
   background-color: rgba(0, 112, 224, 0.2);
 }
+
+.focusTableSelected table::before {
+  position: absolute;
+  content: '';
+  width: calc(100% - 5px);
+  height: calc(100% - 21px);
+  border: 3px solid #0070e0;
+  z-index: 10;
+}

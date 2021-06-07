@@ -15,7 +15,7 @@ export const selectionShadowPlugin = () => {
         if (!(tr.selection instanceof CellSelection))
           return DecorationSet.empty;
 
-        if (!tr.selectionSet) return value;
+        if (!tr.selectionSet) return value.map(tr.mapping, tr.doc);
 
         const {
           $anchorCell: {pos: from},

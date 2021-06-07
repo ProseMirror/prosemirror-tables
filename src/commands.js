@@ -202,20 +202,28 @@ export function addRowAfter(state, dispatch) {
   return true;
 }
 
-export function addBottomRow(state, dispatch) {
-  if (!isInTable(state)) return false;
+export function addBottomRow(state, dispatch, pos) {
   if (dispatch) {
-    const rect = selectedRect(state);
+    const resPos = state.doc.resolve(pos);
+    const rect = {
+      tableStart: pos,
+      table: resPos.node(1),
+      map: TableMap.get(resPos.node(1)),
+    };
     const tr = addRow(state.tr, rect, rect.map.height);
     dispatch(tr);
   }
   return true;
 }
 
-export function addRightColumn(state, dispatch) {
-  if (!isInTable(state)) return false;
+export function addRightColumn(state, dispatch, pos) {
   if (dispatch) {
-    const rect = selectedRect(state);
+    const resPos = state.doc.resolve(pos);
+    const rect = {
+      tableStart: pos,
+      table: resPos.node(1),
+      map: TableMap.get(resPos.node(1)),
+    };
     const tr = addColumn(state.tr, rect, rect.map.width);
     dispatch(tr);
   }
@@ -732,7 +740,12 @@ export function sortColumn(view, colNumber, pos, dir) {
 }
 
 export const addRowBeforeButton = (view, pos) => {
-  const tableRect = selectedRect(view.state);
+  const resPos = view.state.doc.resolve(pos);
+  const tableRect = {
+    tableStart: resPos.start(-1),
+    table: resPos.node(1),
+    map: TableMap.get(resPos.node(1)),
+  };
 
   const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
 
@@ -747,7 +760,12 @@ export const addRowBeforeButton = (view, pos) => {
 };
 
 export const addColBeforeButton = (view, pos) => {
-  const tableRect = selectedRect(view.state);
+  const resPos = view.state.doc.resolve(pos);
+  const tableRect = {
+    tableStart: resPos.start(-1),
+    table: resPos.node(1),
+    map: TableMap.get(resPos.node(1)),
+  };
 
   const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
 

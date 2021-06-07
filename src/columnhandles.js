@@ -14,6 +14,7 @@ import {RowDragHandler} from './table-dragging/rowsdragging';
 import {ColDragHandler} from './table-dragging/colsdragging';
 import {getColIndex, createElementWithClass} from './util';
 import {setCellAttrs} from './schema';
+import {CellSelection} from './cellselection';
 
 export const key = new PluginKey('tableColumnHandles');
 
@@ -216,19 +217,54 @@ export function columnHandles({} = {}) {
         table: (node, view, getPos) => new TableView(node, 200, view, getPos),
       },
       decorations(state) {
-        const $pos = selectionCell(state);
-        if (!$pos) {
-          // In case there's no cell
-          return DecorationSet.empty;
+        const sel = state.selection;
+
+        if (sel instanceof CellSelection) {
+          const $pos = selectionCell(state);
+          if (!$pos) {
+            // In case there's no cell
+            return DecorationSet.empty;
+          }
+          const tableNode = $pos.node(-1);
+          const tableStart = $pos.start(-1) - 1;
+          const decoration = Decoration.node(
+            tableStart,
+            tableStart + tableNode.nodeSize,
+            {class: 'tableFocus'}
+          );
+          return DecorationSet.create(state.doc, [decoration]);
         }
-        const tableNode = $pos.node(-1);
-        const tableStart = $pos.start(-1) - 1;
-        const decoration = Decoration.node(
-          tableStart,
-          tableStart + tableNode.nodeSize,
-          {class: 'tableFocus'}
-        );
-        return DecorationSet.create(state.doc, [decoration]);
+
+        const decorations = [];
+
+        state.doc.nodesBetween(sel.from, sel.to, (node, pos) => {
+          if (node.type.name === 'table') {
+            decorations.push(
+              Decoration.node(pos, pos + node.nodeSize, {class: 'tableFocus'})
+            );
+            if (sel.to - pos > node.nodeSize) {
+              decorations.push(
+                Decoration.node(pos, pos + node.nodeSize, {
+                  class: 'inColSelection',
+                })
+              );
+              decorations.push(
+                Decoration.node(pos, pos + node.nodeSize, {
+                  class: 'inRowSelection',
+                })
+              );
+              decorations.push(
+                Decoration.node(pos, pos + node.nodeSize, {
+                  class: 'focusTableSelected',
+                })
+              );
+            }
+            return false;
+          }
+          return true;
+        });
+
+        return DecorationSet.create(state.doc, decorations);
       },
     },
   });
