@@ -65,7 +65,7 @@ export function addColumn(tr, {map, tableStart, table}, col) {
           ? tableNodeTypes(table.type.schema).cell
           : table.nodeAt(map.map[index + refColumn]).type;
       const pos = map.positionAt(row, col, table);
-      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill());
+      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
     }
   }
   return tr;
