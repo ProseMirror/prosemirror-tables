@@ -22,15 +22,14 @@ export const selectionShadowPlugin = () => {
           $headCell: {pos: to},
         } = tr.selection;
 
-        
         let anchorCol = getColIndex(newState, Math.min(from, to));
         let headCol = getColIndex(newState, Math.max(from, to));
-        
+
         // sometimes prosemirror replaces head and anchor cells
-        if(anchorCol > headCol) {
+        if (anchorCol > headCol) {
           const temp = anchorCol;
           anchorCol = headCol;
-          headCol = temp
+          headCol = temp;
         }
 
         const anchorRow = getRowIndex(newState, Math.min(from, to));
