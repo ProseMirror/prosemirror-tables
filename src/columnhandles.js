@@ -31,20 +31,21 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.dom.style = `${setCellAttrs(node, {}).style}`;
+    // TODO: find a better way, for now give generated id for every cell - fixing the disappear first cell's handles bug
+    this.node.attrs.id = Math.random();
   }
 
   checkIfFirstCol(view) {
-    const resolvePos = view.state.doc.resolve(this.getPos());
+    const pos = this.getPos()
+    const resolvePos = view.state.doc.resolve(pos);
     const tableNode = resolvePos.node(-1);
     const tableMap = TableMap.get(tableNode);
 
-    const colNumber = tableMap.colCount(this.getPos() - resolvePos.start(-1));
+    const colNumber = tableMap.colCount(pos - resolvePos.start(-1));
 
     if (colNumber !== 0 || this.rowHandle) {
       return;
     }
-
-    this.node.attrs.firstCol = true;
 
     const rowHandle = createElementWithClass('div', 'tableRowHandle');
     rowHandle.contentEditable = false;
@@ -93,13 +94,13 @@ export class CellView {
   }
 
   checkIfColHeader(view) {
-    const resolvePos = view.state.doc.resolve(this.getPos());
-    const rowStart = this.getPos() - resolvePos.parentOffset - 1;
+    const pos = this.getPos();
+    const resolvePos = view.state.doc.resolve(pos);
+    const rowStart = pos - resolvePos.parentOffset - 1;
     const rowResolvedPos = view.state.doc.resolve(rowStart);
 
     if (rowResolvedPos.parentOffset !== 0 || this.colHandle) return;
 
-    this.node.attrs.firstRow = true;
     const colHandle = createElementWithClass('div', 'tableColHandle');
     const colHandleButton = createElementWithClass(
       'button',
@@ -160,7 +161,7 @@ export class CellView {
       sortButton.contentEditable = false;
 
       const sortedCol = tableAttrs.sort.col;
-      const colIndex = getColIndex(this.view.state, this.getPos());
+      const colIndex = getColIndex(this.view.state, pos);
 
       if (sortedCol === colIndex) {
         sortButton.classList.add(
