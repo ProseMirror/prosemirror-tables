@@ -6,6 +6,12 @@ import {
 } from './utils';
 import {renderGrouped} from 'prosemirror-menu';
 import {tooltips} from './items';
+
+/**
+ * class attached to the editor and update table tooltip on every view update.
+ * on each update executes updateMenu(view) - determine wether to show/hide the menu
+ * and where to place him according to the selection.
+ */
 class TablePopUpMenuView {
   constructor(items, view) {
     this.view = view;

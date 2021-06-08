@@ -145,20 +145,6 @@ export const calculatePopupPosition = (view, popupDOM) => {
 
     return;
   }
-
-  // if not col/row selection
-  // const leftBorder = firstCellRect.left;
-  // const rightBorder = lastCellRect.right;
-  // const selectionWidth = rightBorder - leftBorder;
-
-  // popupDOM.style.left = `${
-  //   leftBorder + selectionWidth / 2 - EDITOR_LEFT_OFFSET
-  // }px`;
-  // popupDOM.style.top = `${
-  //   lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET
-  // }px`;
-
-  // return;
 };
 
 export const getCellsBackgroundColor = (view) => {

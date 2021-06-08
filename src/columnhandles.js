@@ -36,7 +36,7 @@ export class CellView {
   }
 
   checkIfFirstCol(view) {
-    const pos = this.getPos()
+    const pos = this.getPos();
     const resolvePos = view.state.doc.resolve(pos);
     const tableNode = resolvePos.node(-1);
     const tableMap = TableMap.get(tableNode);
@@ -173,9 +173,9 @@ export class CellView {
         if (colIndex === null) return;
 
         if (sortedCol !== colIndex || tableAttrs.sort.dir === 'up') {
-          sortColumn(view, colIndex, this.getPos(), 1);
+          sortColumn(view, colIndex, this.getPos(), 1); // sort down
         } else {
-          sortColumn(view, colIndex, this.getPos(), -1);
+          sortColumn(view, colIndex, this.getPos(), -1); // sort up
         }
 
         view.focus();
