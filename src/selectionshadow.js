@@ -9,11 +9,11 @@ export const selectionShadowPlugin = () => {
     key: new PluginKey('selectionShadowPlugin'),
     state: {
       init() {
-        return DecorationSet.empty;
+        return null;
       },
       apply(tr, value, oldState, newState) {
         if (!(tr.selection instanceof CellSelection))
-          return DecorationSet.empty;
+          return null;
 
         if (!tr.selectionSet) return value.map(tr.mapping, tr.doc);
 

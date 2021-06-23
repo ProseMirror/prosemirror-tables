@@ -224,7 +224,7 @@ export function columnHandles({} = {}) {
           const $pos = selectionCell(state);
           if (!$pos) {
             // In case there's no cell
-            return DecorationSet.empty;
+            return null;
           }
           const tableNode = $pos.node(-1);
           const tableStart = $pos.start(-1) - 1;
@@ -264,6 +264,10 @@ export function columnHandles({} = {}) {
           }
           return true;
         });
+
+        if (!decorations.length) {
+          return null;
+        }
 
         return DecorationSet.create(state.doc, decorations);
       },
