@@ -38,7 +38,7 @@ export class Rect {
   }
 }
 
-// ::- A table map describes the structore of a given table. To avoid
+// ::- A table map describes the structure of a given table. To avoid
 // recomputing them all the time, they are cached per table node. To
 // be able to do that, positions saved in the map are relative to the
 // start of the table, rather than the start of the document.
