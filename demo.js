@@ -11,6 +11,7 @@ import {addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore
         mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell,
         goToNextCell, deleteTable}  from "./src/commands"
 import {tableEditing, columnResizing, tableNodes, fixTables}  from "./src"
+import {multiselect} from './src/multiselect';
 
 let schema = new Schema({
   nodes: baseSchema.spec.nodes.append(tableNodes({
@@ -49,6 +50,7 @@ menu.splice(2, 0, [new Dropdown(tableMenu, {label: "Table"})])
 
 let doc = DOMParser.fromSchema(schema).parse(document.querySelector("#content"))
 let state = EditorState.create({doc, plugins: [
+  multiselect(),
   columnResizing(),
   tableEditing(),
   keymap({

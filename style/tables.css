@@ -33,3 +33,7 @@
   background: rgba(200, 200, 255, 0.4);
   pointer-events: none;
 }
+
+.Prosemirror .multiselected {
+  background: rgba(200, 200, 255, 0.4);
+}
