@@ -134,8 +134,14 @@ export class TableMap {
 }
 
 export function tableEditing(options?: TableEditingOptions): Plugin;
+export function columnHandles(): Plugin;
 
 export function deleteTable<S extends Schema = any>(
+  state: EditorState<S>,
+  dispatch?: (tr: Transaction<S>) => void
+): boolean;
+
+export function sortColumn<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
