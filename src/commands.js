@@ -694,6 +694,10 @@ export function deleteTable(state, dispatch) {
   return false;
 }
 
+const anyNumberRegex = /^-?\d*\.?\d+$/
+const negativeNumberRegex = /^-\d*\.?\d+$/
+const nonLeadingDecimalNumberRegex = /^-?.\d+$/
+
 export function sortColumn(view, colNumber, pos, dir) {
   const resolvedPos = view.state.doc.resolve(pos);
   const rect = {
@@ -705,22 +709,36 @@ export function sortColumn(view, colNumber, pos, dir) {
   let newRowsArray = rect.table.content.content.slice(1);
   const {tr} = view.state;
   const collator = new Intl.Collator(undefined, {
-    numeric: true,
+        numeric: true,
     sensitivity: 'base',
   });
   newRowsArray = newRowsArray.sort((a, b) => {
-    let textA = a.content.content[colNumber].textContent.replace(
-      /[^a-zA-Z0-9]/g,
-      ''
-    );
-    let textB = b.content.content[colNumber].textContent.replace(
-      /[^a-zA-Z0-9]/g,
-      ''
-    );
 
+    let textA = a.content.content[colNumber].textContent
+    let textB = b.content.content[colNumber].textContent
+
+    // give first priority to numbers - so if only one content is numeric he will always be first
+    const aIsNumber = anyNumberRegex.test(textA);
+    const bIsNumber = anyNumberRegex.test(textB);
+
+    if(aIsNumber && !bIsNumber) return -1 * dir;
+    if(!aIsNumber && bIsNumber) return 1 * dir;
+
+    textA = aIsNumber && nonLeadingDecimalNumberRegex.test(textA) ? parseFloat(textA) : textA;
+    textB = bIsNumber && nonLeadingDecimalNumberRegex.test(textB) ? parseFloat(textB) : textB;
+
+    const aIsNegativeNumber = aIsNumber && negativeNumberRegex.test(textA)
+    const bIsNegativeNumber = bIsNumber && negativeNumberRegex.test(textB);
+
+    if(aIsNegativeNumber && !bIsNegativeNumber) return -1 * dir;
+    if(!aIsNegativeNumber && bIsNegativeNumber) return 1 * dir;
+
+    if(aIsNegativeNumber && bIsNegativeNumber) return dir * collator.compare(textA, textB) * -1;
+
+    // if not numeric values sort alphabetically
     textA = textA === '' ? Infinity : textA;
     textB = textB === '' ? Infinity : textB;
-
+    
     return dir * collator.compare(textA, textB);
   });
 
