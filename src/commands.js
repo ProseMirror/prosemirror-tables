@@ -714,8 +714,8 @@ export function sortColumn(view, colNumber, pos, dir) {
   });
   newRowsArray = newRowsArray.sort((a, b) => {
 
-    let textA = a.content.content[colNumber].textContent
-    let textB = b.content.content[colNumber].textContent
+    let textA = a.content.content[colNumber].textContent.trim()
+    let textB = b.content.content[colNumber].textContent.trim()
 
     // give first priority to numbers - so if only one content is numeric he will always be first
     const aIsNumber = anyNumberRegex.test(textA);
