@@ -735,10 +735,10 @@ export function sortColumn(view, colNumber, pos, dir) {
 
     if(aIsNegativeNumber && bIsNegativeNumber) return dir * collator.compare(textA, textB) * -1;
 
-    // if not numeric values sort alphabetically
     textA = textA === '' ? Infinity : textA;
     textB = textB === '' ? Infinity : textB;
     
+    // if not numeric values sort alphabetically
     return dir * collator.compare(textA, textB);
   });
 
