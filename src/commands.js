@@ -709,7 +709,7 @@ export function sortColumn(view, colNumber, pos, dir) {
   let newRowsArray = rect.table.content.content.slice(1);
   const {tr} = view.state;
   const collator = new Intl.Collator(undefined, {
-        numeric: true,
+    numeric: true,
     sensitivity: 'base',
   });
   newRowsArray = newRowsArray.sort((a, b) => {
