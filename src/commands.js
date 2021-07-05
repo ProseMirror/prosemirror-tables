@@ -714,28 +714,28 @@ export function sortColumn(view, colNumber, pos, dir) {
 
   newRowsArray = newRowsArray.sort((a, b) => {
 
-    let textA = a.content.content[colNumber].textContent.trim()
-    let textB = b.content.content[colNumber].textContent.trim()
+    let textA = a.content.content[colNumber].textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '')
+    let textB = b.content.content[colNumber].textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '')
 
     // give first priority to numbers - so if only one content is numeric he will always be first
-    const aIsNumber = anyNumberRegex.test(textA);
-    const bIsNumber = anyNumberRegex.test(textB);
+    const aIsNumber = parseFloat(`${textA.replace()}`);
+
+    const bIsNumber = parseFloat(`${textB}`);
+
+    console.log(aIsNumber, textA, bIsNumber, textB);
 
     if(aIsNumber && !bIsNumber) return -1 * dir;
     if(!aIsNumber && bIsNumber) return 1 * dir;
 
-    textA = aIsNumber ? parseFloat(textA) : textA;
-    textB = bIsNumber ? parseFloat(textB) : textB;
-
-    if(typeof textA === "number" && typeof textB === "number") return dir > 0 ? textA - textB : textB - textA;
-
-    const aIsNegativeNumber = aIsNumber && negativeNumberRegex.test(textA)
-    const bIsNegativeNumber = bIsNumber && negativeNumberRegex.test(textB);
-
+    const aIsNegativeNumber = aIsNumber && aIsNumber <= 0
+    const bIsNegativeNumber = bIsNumber && bIsNumber <= 0
+    
     if(aIsNegativeNumber && !bIsNegativeNumber) return -1 * dir;
     if(!aIsNegativeNumber && bIsNegativeNumber) return 1 * dir;
-
-    if(aIsNegativeNumber && bIsNegativeNumber) return dir * collator.compare(textA, textB) * -1;
+    
+    if(aIsNegativeNumber && bIsNegativeNumber) return dir > 0 ? textA - textB : textB - textA;
+    
+    if(aIsNumber && bIsNumber) return dir > 0 ? textA - textB : textB - textA;
 
     textA = textA === '' ? Infinity : textA;
     textB = textB === '' ? Infinity : textB;
