@@ -727,7 +727,7 @@ export function sortColumn(view, colNumber, pos, dir) {
     textA = aIsNumber ? parseFloat(textA) : textA;
     textB = bIsNumber ? parseFloat(textB) : textB;
 
-    if(typeof textA === "number" && typeof textB === "number") return textA - textB
+    if(typeof textA === "number" && typeof textB === "number") return dir > 0 ? textA - textB : textB - textA;
 
     const aIsNegativeNumber = aIsNumber && negativeNumberRegex.test(textA)
     const bIsNegativeNumber = bIsNumber && negativeNumberRegex.test(textB);
