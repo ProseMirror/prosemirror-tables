@@ -694,9 +694,6 @@ export function deleteTable(state, dispatch) {
   return false;
 }
 
-const anyNumberRegex = /^-?\d*\.?\d+$/
-const negativeNumberRegex = /^-\d*\.?\d+$/
-
 export function sortColumn(view, colNumber, pos, dir) {
   const resolvedPos = view.state.doc.resolve(pos);
   const rect = {
@@ -718,28 +715,34 @@ export function sortColumn(view, colNumber, pos, dir) {
     let textB = b.content.content[colNumber].textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '')
 
     // give first priority to numbers - so if only one content is numeric he will always be first
-    const aIsNumber = parseFloat(`${textA.replace()}`);
-
+    const aIsNumber = parseFloat(`${textA}`);
     const bIsNumber = parseFloat(`${textB}`);
 
-    if(aIsNumber && !bIsNumber) return -1 * dir;
-    if(!aIsNumber && bIsNumber) return 1 * dir;
+    // if(aIsNumber && !bIsNumber) return -1 * dir;
+    // if(!aIsNumber && bIsNumber) return 1 * dir;
 
-    const aIsNegativeNumber = aIsNumber && aIsNumber <= 0
-    const bIsNegativeNumber = bIsNumber && bIsNumber <= 0
+    // const aIsNegativeNumber = aIsNumber && aIsNumber < 0
+    // const bIsNegativeNumber = bIsNumber && bIsNumber < 0
     
-    if(aIsNegativeNumber && !bIsNegativeNumber) return -1 * dir;
-    if(!aIsNegativeNumber && bIsNegativeNumber) return 1 * dir;
+    // if(aIsNegativeNumber && !bIsNegativeNumber) return -1 * dir;
+    // if(!aIsNegativeNumber && bIsNegativeNumber) return 1 * dir;
     
-    if(aIsNegativeNumber && bIsNegativeNumber) return dir > 0 ? textA - textB : textB - textA;
+    // if(aIsNegativeNumber && bIsNegativeNumber) return dir > 0 ? textA - textB : textB - textA;
     
-    if(aIsNumber && bIsNumber) return dir > 0 ? textA - textB : textB - textA;
+    // if(aIsNumber && bIsNumber) return dir > 0 ? textA - textB : textB - textA;
+
+    console.log(aIsNumber, bIsNumber);
+    if (aIsNumber && bIsNumber) {
+      return dir > 0 ? aIsNumber - bIsNumber : bIsNumber - aIsNumber
+    }
+    // textA = aIsNumber === NaN ? textA : aIsNumber;
+    // textB = bIsNumber === NaN ? textB: bIsNumber;
 
     textA = textA === '' ? Infinity : textA;
     textB = textB === '' ? Infinity : textB;
     
     // if not numeric values sort alphabetically
-    return dir * collator.compare(textA, textB);
+    return dir * collator.compare(textA, textB) ;
   });
 
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [
