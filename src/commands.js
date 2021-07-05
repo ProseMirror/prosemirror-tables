@@ -710,39 +710,28 @@ export function sortColumn(view, colNumber, pos, dir) {
   });
 
   newRowsArray = newRowsArray.sort((a, b) => {
-
-    let textA = a.content.content[colNumber].textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '')
-    let textB = b.content.content[colNumber].textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '')
+    const textA = a.content.content[colNumber].textContent
+      .trim()
+      .replace(/[^a-zA-Z0-9\-\.]/g, '');
+    const textB = b.content.content[colNumber].textContent
+      .trim()
+      .replace(/[^a-zA-Z0-9\-\.]/g, '');
 
     // give first priority to numbers - so if only one content is numeric he will always be first
-    const aIsNumber = parseFloat(`${textA}`);
-    const bIsNumber = parseFloat(`${textB}`);
+    const aNumber = parseFloat(textA);
+    const bNumber = parseFloat(textB);
 
-    // if(aIsNumber && !bIsNumber) return -1 * dir;
-    // if(!aIsNumber && bIsNumber) return 1 * dir;
+    const aIsNotNumber = isNaN(aNumber);
+    const bIsNotNumber = isNaN(bNumber);
 
-    // const aIsNegativeNumber = aIsNumber && aIsNumber < 0
-    // const bIsNegativeNumber = bIsNumber && bIsNumber < 0
-    
-    // if(aIsNegativeNumber && !bIsNegativeNumber) return -1 * dir;
-    // if(!aIsNegativeNumber && bIsNegativeNumber) return 1 * dir;
-    
-    // if(aIsNegativeNumber && bIsNegativeNumber) return dir > 0 ? textA - textB : textB - textA;
-    
-    // if(aIsNumber && bIsNumber) return dir > 0 ? textA - textB : textB - textA;
-
-    console.log(aIsNumber, bIsNumber);
-    if (aIsNumber && bIsNumber) {
-      return dir > 0 ? aIsNumber - bIsNumber : bIsNumber - aIsNumber
+    if (aIsNotNumber && bIsNotNumber) {
+      // if not numeric values sort alphabetically
+      return dir * collator.compare(textA, textB);
     }
-    // textA = aIsNumber === NaN ? textA : aIsNumber;
-    // textB = bIsNumber === NaN ? textB: bIsNumber;
 
-    textA = textA === '' ? Infinity : textA;
-    textB = textB === '' ? Infinity : textB;
-    
-    // if not numeric values sort alphabetically
-    return dir * collator.compare(textA, textB) ;
+    if (!aIsNotNumber && bIsNotNumber) return -1 * dir;
+    if (aIsNotNumber && !bIsNotNumber) return 1 * dir;
+    return dir > 0 ? aNumber - bNumber : bNumber - aNumber;
   });
 
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [
