@@ -722,8 +722,6 @@ export function sortColumn(view, colNumber, pos, dir) {
 
     const bIsNumber = parseFloat(`${textB}`);
 
-    console.log(aIsNumber, textA, bIsNumber, textB);
-
     if(aIsNumber && !bIsNumber) return -1 * dir;
     if(!aIsNumber && bIsNumber) return 1 * dir;
 
