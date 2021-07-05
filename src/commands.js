@@ -696,7 +696,6 @@ export function deleteTable(state, dispatch) {
 
 const anyNumberRegex = /^-?\d*\.?\d+$/
 const negativeNumberRegex = /^-\d*\.?\d+$/
-const nonLeadingDecimalNumberRegex = /^-?.\d+$/
 
 export function sortColumn(view, colNumber, pos, dir) {
   const resolvedPos = view.state.doc.resolve(pos);
@@ -712,6 +711,7 @@ export function sortColumn(view, colNumber, pos, dir) {
     numeric: true,
     sensitivity: 'base',
   });
+
   newRowsArray = newRowsArray.sort((a, b) => {
 
     let textA = a.content.content[colNumber].textContent.trim()
@@ -724,8 +724,10 @@ export function sortColumn(view, colNumber, pos, dir) {
     if(aIsNumber && !bIsNumber) return -1 * dir;
     if(!aIsNumber && bIsNumber) return 1 * dir;
 
-    textA = aIsNumber && nonLeadingDecimalNumberRegex.test(textA) ? parseFloat(textA) : textA;
-    textB = bIsNumber && nonLeadingDecimalNumberRegex.test(textB) ? parseFloat(textB) : textB;
+    textA = aIsNumber ? parseFloat(textA) : textA;
+    textB = bIsNumber ? parseFloat(textB) : textB;
+
+    if(typeof textA === "number" && typeof textB === "number") return textA - textB
 
     const aIsNegativeNumber = aIsNumber && negativeNumberRegex.test(textA)
     const bIsNegativeNumber = bIsNumber && negativeNumberRegex.test(textB);
