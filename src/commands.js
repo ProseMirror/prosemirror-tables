@@ -68,6 +68,7 @@ export function addColumn(tr, {map, tableStart, table}, col) {
       tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
     }
   }
+  tr.setSelection(TextSelection.near(tr.doc.resolve(tableStart + map.map[col])))
   return tr;
 }
 
@@ -177,6 +178,7 @@ export function addRow(tr, {map, tableStart, table}, row) {
     }
   }
   tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells));
+  tr.setSelection(TextSelection.near(tr.doc.resolve(rowPos)))
   return tr;
 }
 
@@ -664,12 +666,15 @@ export function goToNextCell(direction) {
   return function (state, dispatch) {
     if (!isInTable(state)) return false;
     const cell = findNextCell(selectionCell(state), direction);
-    if (cell == null) return null;
+    if (cell == null && direction === 1) {
+      addRowAfter(state, dispatch);
+      return true;
+    }    
     if (dispatch) {
       const $cell = state.doc.resolve(cell);
       dispatch(
         state.tr
-          .setSelection(TextSelection.between($cell, moveCellForward($cell)))
+          .setSelection(TextSelection.near($cell, 1))
           .scrollIntoView()
       );
     }
