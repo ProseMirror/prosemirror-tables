@@ -18,6 +18,7 @@ import {TableMap} from './tablemap';
 import {pastedCells, fitSlice, clipCells, insertCells} from './copypaste';
 import {tableNodeTypes} from './schema';
 import { splitBlockKeepMarks } from 'prosemirror-commands';
+import {goToNextCell} from "./commands";
 
 export const handleKeyDown = keydownHandler({
   ArrowLeft: arrow('horiz', -1),
@@ -28,6 +29,9 @@ export const handleKeyDown = keydownHandler({
   Enter: arrow('vert', 1),
   "Shift-Enter": splitBlockKeepMarks,
   
+  Tab: goToNextCell(1),
+  "Shift-Tab": goToNextCell(-1),
+
   'Shift-ArrowLeft': shiftArrow('horiz', -1),
   'Shift-ArrowRight': shiftArrow('horiz', 1),
   'Shift-ArrowUp': shiftArrow('vert', -1),
