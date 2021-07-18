@@ -1,4 +1,4 @@
-import {NodeSelection,TextSelection} from 'prosemirror-state';
+import {NodeSelection} from 'prosemirror-state';
 import {addBottomRow, addRightColumn} from './commands';
 import {createElementWithClass} from './util';
 
