@@ -68,6 +68,7 @@ export function addColumn(tr, {map, tableStart, table}, col) {
       tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
     }
   }
+  tr.setSelection(TextSelection.near(tr.doc.resolve(tableStart + map.map[col])))
   return tr;
 }
 
@@ -177,6 +178,7 @@ export function addRow(tr, {map, tableStart, table}, row) {
     }
   }
   tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells));
+  tr.setSelection(TextSelection.near(tr.doc.resolve(rowPos)))
   return tr;
 }
 
@@ -664,12 +666,15 @@ export function goToNextCell(direction) {
   return function (state, dispatch) {
     if (!isInTable(state)) return false;
     const cell = findNextCell(selectionCell(state), direction);
-    if (cell == null) return null;
+    if (cell == null && direction === 1) {
+      addRowAfter(state, dispatch);
+      return true;
+    }    
     if (dispatch) {
       const $cell = state.doc.resolve(cell);
       dispatch(
         state.tr
-          .setSelection(TextSelection.between($cell, moveCellForward($cell)))
+          .setSelection(TextSelection.near($cell, 1))
           .scrollIntoView()
       );
     }
@@ -708,20 +713,30 @@ export function sortColumn(view, colNumber, pos, dir) {
     numeric: true,
     sensitivity: 'base',
   });
+
   newRowsArray = newRowsArray.sort((a, b) => {
-    let textA = a.content.content[colNumber].textContent.replace(
-      /[^a-zA-Z0-9]/g,
-      ''
-    );
-    let textB = b.content.content[colNumber].textContent.replace(
-      /[^a-zA-Z0-9]/g,
-      ''
-    );
+    const textA = a.content.content[colNumber].textContent
+      .trim()
+      .replace(/[^a-zA-Z0-9\-\.]/g, '');
+    const textB = b.content.content[colNumber].textContent
+      .trim()
+      .replace(/[^a-zA-Z0-9\-\.]/g, '');
 
-    textA = textA === '' ? Infinity : textA;
-    textB = textB === '' ? Infinity : textB;
+    // give first priority to numbers - so if only one content is numeric he will always be first
+    const aNumber = parseFloat(textA);
+    const bNumber = parseFloat(textB);
 
-    return dir * collator.compare(textA, textB);
+    const aIsNotNumber = isNaN(aNumber);
+    const bIsNotNumber = isNaN(bNumber);
+
+    if (aIsNotNumber && bIsNotNumber) {
+      // if not numeric values sort alphabetically
+      return dir * collator.compare(textA, textB);
+    }
+
+    if (!aIsNotNumber && bIsNotNumber) return -1 * dir;
+    if (aIsNotNumber && !bIsNotNumber) return 1 * dir;
+    return dir > 0 ? aNumber - bNumber : bNumber - aNumber;
   });
 
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [

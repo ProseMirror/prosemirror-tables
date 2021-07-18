@@ -17,12 +17,20 @@ import {CellSelection} from './cellselection';
 import {TableMap} from './tablemap';
 import {pastedCells, fitSlice, clipCells, insertCells} from './copypaste';
 import {tableNodeTypes} from './schema';
+import { splitBlockKeepMarks } from 'prosemirror-commands';
+import {goToNextCell} from "./commands";
 
 export const handleKeyDown = keydownHandler({
   ArrowLeft: arrow('horiz', -1),
   ArrowRight: arrow('horiz', 1),
   ArrowUp: arrow('vert', -1),
   ArrowDown: arrow('vert', 1),
+
+  Enter: arrow('vert', 1),
+  "Shift-Enter": splitBlockKeepMarks,
+  
+  Tab: goToNextCell(1),
+  "Shift-Tab": goToNextCell(-1),
 
   'Shift-ArrowLeft': shiftArrow('horiz', -1),
   'Shift-ArrowRight': shiftArrow('horiz', 1),
@@ -252,7 +260,7 @@ export function handleMouseDown(view, startEvent) {
 // Check whether the cursor is at the end of a cell (so that further
 // motion would move out of the cell)
 function atEndOfCell(view, axis, dir) {
-  if (!(view.state.selection instanceof TextSelection)) return null;
+  if (view.state.selection.toJSON().type !== "text") return null;
   const {$head} = view.state.selection;
   for (let d = $head.depth - 1; d >= 0; d--) {
     const parent = $head.node(d),
