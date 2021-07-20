@@ -1,0 +1,91 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module",
+    "allowImportExportEverywhere": false,
+    "codeFrame": true,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "react"
+  ],
+  "extends": [
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "react/jsx-sort-props": "error",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "consistent-return": "error",
+    "no-debugger": "error",
+    "no-invalid-regexp": "error",
+    "no-undef": "error",
+    "no-unused-expression": [
+      0,
+      "allow-fast-null-checks"
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "none",
+        "ignoreRestSiblings": false
+      }
+    ],
+    "no-var": "error",
+    "prefer-const": "error",
+    "semi": [
+      2,
+      "always"
+    ],
+    "strict": 0,
+    // max length at 250 characters, ignores comments
+    "max-len": [
+      "warn",
+      250,
+      {
+        "ignoreComments": true,
+        "ignoreTrailingComments": true
+      }
+    ]
+  },
+  "globals": {
+    "$ReadOnlyArray": false,
+    "Blob": false,
+    "Class": false,
+    "ClipboardEvent": false,
+    "Component": false,
+    "DataTransferItem": false,
+    "Document": true,
+    "DragEvent": true,
+    "Element": false,
+    "Event": false,
+    "EventTarget": false,
+    "File": false,
+    "FileReader": false,
+    "HTMLElement": false,
+    "HTMLLIElement": false,
+    "HTMLTableElement": false,
+    "Image": false,
+    "KeyboardEvent": false,
+    "Map": false,
+    "MouseEvent": false,
+    "MutationObserver": false,
+    "Promise": false,
+    "Set": false,
+    "SyntheticEvent": false,
+    "SyntheticInputEvent": false,
+    "SyntheticMouseEvent": false,
+    "cancelAnimationFrame": false,
+    "clearTimeout": false,
+    "console": false,
+    "document": false,
+    "requestAnimationFrame": false,
+    "setTimeout": false,
+    "window": false,
+    "Intl": false,
+    "WeakMap": false
+  }
+}

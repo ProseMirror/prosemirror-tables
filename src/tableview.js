@@ -92,48 +92,104 @@ export class TableView {
     e.preventDefault();
   }
 
-  update(node) {
-    if (node.type != this.node.type) return false
-    this.node = node
-    updateColumns(node, this.colgroup, this.table, this.cellMinWidth)
-    return true
+  update(node, markers) {
+    this.updateMarkers();
+    if (node.type != this.node.type) return false;
+    if (!this.node.sameMarkup(node)) return false;
+
+    // to handle first row insert
+    if (node.childCount !== this.node.childCount) return false;
+
+    const oldColCount = this.colgroup.childElementCount;
+    updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
+
+    // to handle first col insert
+    if (oldColCount !== this.colgroup.childElementCount) return false;
+
+    if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) {
+      node.attrs.sort = {
+        col: null,
+        dir: null,
+      };
+      this.node = node;
+      return false;
+    }
+
+    this.node = node;
+
+    return true;
   }
 
   ignoreMutation(record) {
-    return record.type == "attributes" && (record.target == this.table || this.colgroup.contains(record.target))
+    const isCellsArrangement =
+      record.target.className === 'tableRowGhost' ||
+      record.target.className === 'tableColGhost' ||
+      record.type === 'childList';
+
+    return (
+      (record.type == 'attributes' &&
+        (record.target == this.table ||
+          this.colgroup.contains(record.target) ||
+          record.target == this.dom)) ||
+      isCellsArrangement
+    );
   }
 }
 
-export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrideValue) {
-  let totalWidth = 0, fixedWidth = true
-  let nextDOM = colgroup.firstChild, row = node.firstChild
+export function updateColumns(
+  node,
+  colgroup,
+  table,
+  cellMinWidth,
+  overrideCol,
+  overrideValue
+) {
+  let totalWidth = 0,
+    fixedWidth = true;
+  let nextDOM = colgroup.firstChild;
+  const row = node.firstChild;
   for (let i = 0, col = 0; i < row.childCount; i++) {
-    let {colspan, colwidth} = row.child(i).attrs
+    const {colspan, colwidth} = row.child(i).attrs;
     for (let j = 0; j < colspan; j++, col++) {
-      let hasWidth = overrideCol == col ? overrideValue : colwidth && colwidth[j]
-      let cssWidth = hasWidth ? hasWidth + "px" : ""
-      totalWidth += hasWidth || cellMinWidth
-      if (!hasWidth) fixedWidth = false
+      const hasWidth =
+        overrideCol == col ? overrideValue : colwidth && colwidth[j];
+      const cssWidth = hasWidth ? hasWidth + 'px' : '';
+      totalWidth += hasWidth || cellMinWidth;
+      if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
-        colgroup.appendChild(document.createElement("col")).style.width = cssWidth
+        colgroup.appendChild(document.createElement('col')).style.width =
+          cssWidth;
       } else {
-        if (nextDOM.style.width != cssWidth) nextDOM.style.width = cssWidth
-        nextDOM = nextDOM.nextSibling
+        if (nextDOM.style.width != cssWidth) nextDOM.style.width = cssWidth;
+        nextDOM = nextDOM.nextSibling;
       }
     }
   }
 
   while (nextDOM) {
-    let after = nextDOM.nextSibling
-    nextDOM.parentNode.removeChild(nextDOM)
-    nextDOM = after
+    const after = nextDOM.nextSibling;
+    nextDOM.parentNode.removeChild(nextDOM);
+    nextDOM = after;
   }
 
   if (fixedWidth) {
-    table.style.width = totalWidth + "px"
-    table.style.minWidth = ""
+    table.style.width = totalWidth + 'px';
+    table.style.minWidth = '';
   } else {
-    table.style.width = ""
-    table.style.minWidth = totalWidth + "px"
+    table.style.width = '';
+    table.style.minWidth = totalWidth + 'px';
   }
 }
+
+const firstRowOrderChanged = (newRow, oldRow) => {
+  const newCells = newRow.content.content;
+  const oldCells = oldRow.content.content;
+
+  let rowChanged = false;
+
+  newCells.forEach((cell, index) => {
+    rowChanged = rowChanged || !cell.eq(oldCells[index]);
+  });
+
+  return rowChanged;
+};
