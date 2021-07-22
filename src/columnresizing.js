@@ -50,6 +50,9 @@ export function columnResizing({
         mousedown(view, event) {
           handleMouseDown(view, event, cellMinWidth);
         },
+        dblclick(view, event) {
+          handleDoubleClick(view, event, cellMinWidth);
+        },
       },
 
       decorations(state) {
@@ -291,4 +294,26 @@ function handleDecorations(state, cell) {
     }
   }
   return DecorationSet.create(state.doc, decorations);
+}
+
+// Resize column to minimum width without breaking lines on double click
+function handleDoubleClick(view, event, cellMinWidth) {
+  const pluginState = key.getState(view.state);
+  // Check if double-click was on resize handle
+  if (pluginState.activeHandle == -1 || pluginState.dragging) return false;
+
+  // TODO: Make the check on all the cells that include in the column it try to resize
+  const cellContent = document.querySelectorAll('.cellContent')[0];
+  // Change column width to min + add no line breaks css role
+  cellContent.style = `width: ${cellMinWidth}px;white-space: nowrap;`;
+  if (cellContent.scrollWidth > cellContent.offsetWidth) {
+    // Change the column width to the scrollWidth that in this case is the min width without breaks
+    updateColumnWidth(
+      view,
+      pluginState.activeHandle,
+      cellContent.scrollWidth + 30 + 10 // TODO: Add comment why we use this numbers (padding + sortIcon) maybe should be const
+    );
+  }
+
+  return true;
 }
