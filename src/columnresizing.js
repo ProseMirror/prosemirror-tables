@@ -310,48 +310,39 @@ function handleDoubleClick(view, event, cellMinWidth) {
   
   // get clicked table node.
   let table = event.target;
-  while(table.nodeName !== "TABLE") {
+  while(table.nodeName !== "TABLE" || table.nodeName === "BODY") {
     table = table.parentNode;
   }
 
+  if (table.nodeName === "BODY") return false
+
   const colIndex = getColIndex(view.state, resizeHandlePos);
   const tableRows = Array.from(table.querySelectorAll('tr'));
-  const cellsInCol = tableRows.map((row) => row.children[colIndex]);
+  const cellsInColumn = tableRows.map((row) => row.children[colIndex]);
 
-  let maxWidth = 0,
-    maxWidthWithOffset = 0;
+  let columnMaxWidth = 0;
 
-  cellsInCol.forEach((cell) => {
+  // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
+  cellsInColumn.forEach((cell) => {
     const [ cellContent ] = cell.getElementsByClassName("cellContent");
 
     // Change column width to min + add no line breaks css role
     cellContent.style = `width: ${cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH}px;white-space: nowrap;`;
 
-    const cellWidth = cellContent.offsetWidth;
     const cellScrollWidth = cellContent.scrollWidth;
 
-    if (cellScrollWidth > cellWidth && cellScrollWidth > maxWidth) {
-      maxWidthWithOffset = Math.max(cellScrollWidth, maxWidthWithOffset);
-    }
-
-    maxWidth = Math.max(maxWidth, cellWidth);
+    columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
   });
 
-  if (maxWidthWithOffset > maxWidth) {
-    // Change the column width to the widest scrollWidth.
-    updateColumnWidth(
-      view,
-      resizeHandlePos,
-      maxWidthWithOffset + SORT_BUTTON_WIDTH + CELL_PADDING
-    );
-  } else {
-    // Change the column width to the width of the widest cell.
-    updateColumnWidth(
-      view,
-      resizeHandlePos,
-      maxWidth
-    );
-  }
+  // columnMaxWidth is representing only the cell content (text) so we need to add the padding and the sort button
+  const cellTotalWidth = columnMaxWidth + SORT_BUTTON_WIDTH + CELL_PADDING
+
+  updateColumnWidth(
+    view,
+    resizeHandlePos,
+    Math.max(cellTotalWidth, cellMinWidth)
+  );
+  
 
   return true;
 }
