@@ -53,6 +53,7 @@ export class CellView {
       'button',
       'tableRowHandleButton'
     );
+    rowHandleButton.dataset.test = "test-row-handle"
     const buttonContent = createElementWithClass('span', 'buttonContent');
     rowHandleButton.appendChild(buttonContent);
 
@@ -75,6 +76,7 @@ export class CellView {
     addRowAfterContainer.contentEditable = false;
 
     const addAfterButton = createElementWithClass('button', 'addAfterButton');
+    addAfterButton.dataset.test = "test-add-row-after"
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');
     addAfterButtonText.innerText = '+';
     addAfterButton.appendChild(addAfterButtonText);
@@ -106,6 +108,7 @@ export class CellView {
       'button',
       'tableColHandleButton'
     );
+    colHandleButton.dataset.test = "test-column-handle"
     const buttonContent = createElementWithClass('span', 'buttonContent');
     colHandleButton.appendChild(buttonContent);
 
@@ -132,6 +135,7 @@ export class CellView {
     addColAfterContainer.contentEditable = false;
 
     const addAfterButton = createElementWithClass('button', 'addAfterButton');
+    addAfterButton.dataset.test = "test-add-column-after"
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');
     addAfterButtonText.innerText = '+';
     addAfterButton.appendChild(addAfterButtonText);
