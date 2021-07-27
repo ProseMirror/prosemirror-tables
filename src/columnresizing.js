@@ -290,7 +290,7 @@ function handleDecorations(state, cell) {
       const pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1;
       const dom = document.createElement('div');
       dom.className = 'column-resize-handle';
-      dom.dataset.test = 'test-column-resize-handle'
+      dom.dataset.test = 'test-column-resize-handle';
       decorations.push(Decoration.widget(pos, dom));
     }
   }
@@ -304,17 +304,17 @@ const SORT_BUTTON_WIDTH = 30;
 function handleDoubleClick(view, event, cellMinWidth) {
   const pluginState = key.getState(view.state);
   const resizeHandlePos = pluginState.activeHandle;
-  
+
   // Check if double-click was on resize handle
   if (resizeHandlePos === -1 || pluginState.dragging) return false;
-  
+
   // get clicked table node.
   let table = event.target;
-  while(table.nodeName !== "TABLE" || table.nodeName === "BODY") {
+  while (table.nodeName !== 'TABLE' || table.nodeName === 'BODY') {
     table = table.parentNode;
   }
 
-  if (table.nodeName === "BODY") return false
+  if (table.nodeName === 'BODY') return false;
 
   const colIndex = getColIndex(view.state, resizeHandlePos);
   const tableRows = Array.from(table.querySelectorAll('tr'));
@@ -324,10 +324,12 @@ function handleDoubleClick(view, event, cellMinWidth) {
 
   // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
   cellsInColumn.forEach((cell) => {
-    const [ cellContent ] = cell.getElementsByClassName("cellContent");
+    const [cellContent] = cell.getElementsByClassName('cellContent');
 
     // Change column width to min + add no line breaks css role
-    cellContent.style = `width: ${cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH}px;white-space: nowrap;`;
+    cellContent.style = `width: ${
+      cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH
+    }px;white-space: nowrap;`;
 
     const cellScrollWidth = cellContent.scrollWidth;
 
@@ -335,14 +337,13 @@ function handleDoubleClick(view, event, cellMinWidth) {
   });
 
   // columnMaxWidth is representing only the cell content (text) so we need to add the padding and the sort button
-  const cellTotalWidth = columnMaxWidth + SORT_BUTTON_WIDTH + CELL_PADDING
+  const cellTotalWidth = columnMaxWidth + SORT_BUTTON_WIDTH + CELL_PADDING;
 
   updateColumnWidth(
     view,
     resizeHandlePos,
     Math.max(cellTotalWidth, cellMinWidth)
   );
-  
 
   return true;
 }

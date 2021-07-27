@@ -24,14 +24,16 @@ class TablePopUpMenuView {
     )[0];
 
     // sometimes there is already an instance of the popup - TODO: understand why...
-    const existingPopUps = Array.from(document.getElementsByClassName("tablePopup"));
-    
-    if(existingPopUps.length > 0){
+    const existingPopUps = Array.from(
+      document.getElementsByClassName('tablePopup')
+    );
+
+    if (existingPopUps.length > 0) {
       existingPopUps.forEach((popup) => {
-        popup.remove()
-      })
+        popup.remove();
+      });
     }
-    
+
     // append popup to dom
     this.popUpRelativeContainer.appendChild(this.popUpDOM);
 

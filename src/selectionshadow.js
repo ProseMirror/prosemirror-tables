@@ -12,8 +12,7 @@ export const selectionShadowPlugin = () => {
         return null;
       },
       apply(tr, value, oldState, newState) {
-        if (!(tr.selection instanceof CellSelection))
-          return null;
+        if (!(tr.selection instanceof CellSelection)) return null;
 
         if (!tr.selectionSet) return value.map(tr.mapping, tr.doc);
 
