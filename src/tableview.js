@@ -35,6 +35,7 @@ export class TableView {
     this.dom.dataset.test = "test-table-wrapper";
 
     this.tableHandle = createElementWithClass('div', 'tableHandle');
+    this.tableHandle.dataset.test = "test-table-handle"
     this.tableHorizontalWrapper = createElementWithClass(
       'div',
       'tableHorizontalWrapper'

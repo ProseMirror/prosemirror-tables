@@ -76,6 +76,7 @@ export class CellView {
     addRowAfterContainer.contentEditable = false;
 
     const addAfterButton = createElementWithClass('button', 'addAfterButton');
+    addAfterButton.dataset.test = "test-add-row-after"
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');
     addAfterButtonText.innerText = '+';
     addAfterButton.appendChild(addAfterButtonText);
@@ -134,6 +135,7 @@ export class CellView {
     addColAfterContainer.contentEditable = false;
 
     const addAfterButton = createElementWithClass('button', 'addAfterButton');
+    addAfterButton.dataset.test = "test-add-column-after"
     const addAfterButtonText = createElementWithClass('span', 'addButtonText');
     addAfterButtonText.innerText = '+';
     addAfterButton.appendChild(addAfterButtonText);

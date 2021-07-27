@@ -141,11 +141,11 @@ export function getColIndex(state, pos) {
   return insertCellIndex % map.width;
 }
 
-export const createElementWithClass = (type, className, child) => {
+export const createElementWithClass = (type, className, datatest) => {
   const el = document.createElement(type);
   el.className = className;
-  if (child) {
-    el.appendChild(child);
+  if (datatest) {
+    el.dataset.test = datatest;
   }
 
   return el;
