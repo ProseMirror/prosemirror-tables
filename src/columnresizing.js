@@ -290,6 +290,7 @@ function handleDecorations(state, cell) {
       const pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1;
       const dom = document.createElement('div');
       dom.className = 'column-resize-handle';
+      dom.dataset.test = 'test-column-resize-handle'
       decorations.push(Decoration.widget(pos, dom));
     }
   }

@@ -162,6 +162,7 @@ export class CellView {
       this.dom.classList.add('colHeader');
 
       const sortButton = createElementWithClass('button', 'sortColButton');
+      sortButton.dataset.test = 'test-sort-button';
       sortButton.contentEditable = false;
 
       const sortedCol = tableAttrs.sort.col;
