@@ -1,6 +1,6 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
-import {cellAround, pointsAtCell, setAttr} from './util';
+import {cellAround, getColIndex, pointsAtCell, setAttr} from './util';
 import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
 import {tableNodeTypes} from './schema';
@@ -296,22 +296,59 @@ function handleDecorations(state, cell) {
   return DecorationSet.create(state.doc, decorations);
 }
 
+const CELL_PADDING = 10;
+const SORT_BUTTON_WIDTH = 30;
+
 // Resize column to minimum width without breaking lines on double click
 function handleDoubleClick(view, event, cellMinWidth) {
   const pluginState = key.getState(view.state);
+  const resizeHandlePos = pluginState.activeHandle;
+  
   // Check if double-click was on resize handle
-  if (pluginState.activeHandle == -1 || pluginState.dragging) return false;
+  if (resizeHandlePos === -1 || pluginState.dragging) return false;
+  
+  // get clicked table node.
+  let table = event.target;
+  while(table.nodeName !== "TABLE") {
+    table = table.parentNode;
+  }
 
-  // TODO: Make the check on all the cells that include in the column it try to resize
-  const cellContent = document.querySelectorAll('.cellContent')[0];
-  // Change column width to min + add no line breaks css role
-  cellContent.style = `width: ${cellMinWidth}px;white-space: nowrap;`;
-  if (cellContent.scrollWidth > cellContent.offsetWidth) {
-    // Change the column width to the scrollWidth that in this case is the min width without breaks
+  const colIndex = getColIndex(view.state, resizeHandlePos);
+  const tableRows = Array.from(table.querySelectorAll('tr'));
+  const cellsInCol = tableRows.map((row) => row.children[colIndex]);
+
+  let maxWidth = 0,
+    maxWidthWithOffset = 0;
+
+  cellsInCol.forEach((cell) => {
+    const [ cellContent ] = cell.getElementsByClassName("cellContent");
+
+    // Change column width to min + add no line breaks css role
+    cellContent.style = `width: ${cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH}px;white-space: nowrap;`;
+
+    const cellWidth = cellContent.offsetWidth;
+    const cellScrollWidth = cellContent.scrollWidth;
+
+    if (cellScrollWidth > cellWidth && cellScrollWidth > maxWidth) {
+      maxWidthWithOffset = Math.max(cellScrollWidth, maxWidthWithOffset);
+    }
+
+    maxWidth = Math.max(maxWidth, cellWidth);
+  });
+
+  if (maxWidthWithOffset > maxWidth) {
+    // Change the column width to the widest scrollWidth.
     updateColumnWidth(
       view,
-      pluginState.activeHandle,
-      cellContent.scrollWidth + 30 + 10 // TODO: Add comment why we use this numbers (padding + sortIcon) maybe should be const
+      resizeHandlePos,
+      maxWidthWithOffset + SORT_BUTTON_WIDTH + CELL_PADDING
+    );
+  } else {
+    // Change the column width to the width of the widest cell.
+    updateColumnWidth(
+      view,
+      resizeHandlePos,
+      maxWidth
     );
   }
 
