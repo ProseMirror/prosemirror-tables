@@ -290,13 +290,14 @@ function handleDecorations(state, cell) {
       const pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1;
       const dom = document.createElement('div');
       dom.className = 'column-resize-handle';
-      dom.dataset.test = 'test-column-resize-handle';
+      dom.dataset.test = 'column-resize-handle';
       decorations.push(Decoration.widget(pos, dom));
     }
   }
   return DecorationSet.create(state.doc, decorations);
 }
 
+// TODO: enable configuration from package params (like celMinWidth)
 const CELL_PADDING = 10;
 const SORT_BUTTON_WIDTH = 30;
 

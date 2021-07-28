@@ -20,7 +20,7 @@ const toggleHeader = () => {
       dom: createElementWithClass(
         'span',
         'toggleTableHeaderButton',
-        'test-toggle-header'
+        'toggle-header'
       ),
     },
     select(view) {
@@ -42,7 +42,7 @@ const deleteMenuItem = () => {
       dom: createElementWithClass(
         'span',
         'deleteMenuButton',
-        'test-table-delete'
+        'table-delete'
       ),
     },
     select(view) {

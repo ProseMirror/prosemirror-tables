@@ -32,7 +32,7 @@ export const generateColorItemDOM = (color) => {
   const indicator = createElementWithClass('div', 'colorItemIndicator');
 
   button.style.backgroundColor = color;
-  button.dataset.test = `test-color-button`;
+  button.dataset.test = `color-button`;
 
   if (color === 'transparent') button.classList.add('default');
 

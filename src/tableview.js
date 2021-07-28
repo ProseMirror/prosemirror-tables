@@ -9,7 +9,7 @@ const createAddCellsButton = (type, view, pos) => {
     `tableButton ${isRow ? 'tableAddBottomRow' : 'tableAddRightColumn'}`
   );
   newElement.innerHTML = '+';
-  newElement.dataset.test = `test-${
+  newElement.dataset.test = `${
     isRow ? 'tableAddBottomRow' : 'tableAddRightColumn'
   }`;
   newElement.contentEditable = false;
@@ -34,10 +34,10 @@ export class TableView {
       createElementWithClass('div', 'tableWrapper')
     );
     this.dom = tableScrollWrapper;
-    this.dom.dataset.test = 'test-table-wrapper';
+    this.dom.dataset.test = 'table-wrapper';
 
     this.tableHandle = createElementWithClass('div', 'tableHandle');
-    this.tableHandle.dataset.test = 'test-table-handle';
+    this.tableHandle.dataset.test = 'table-handle';
     this.tableHorizontalWrapper = createElementWithClass(
       'div',
       'tableHorizontalWrapper'
