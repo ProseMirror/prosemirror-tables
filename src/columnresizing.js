@@ -1,6 +1,6 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
 import {Decoration, DecorationSet} from 'prosemirror-view';
-import {cellAround, pointsAtCell, setAttr} from './util';
+import {cellAround, getColIndex, pointsAtCell, setAttr} from './util';
 import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
 import {tableNodeTypes} from './schema';
@@ -49,6 +49,9 @@ export function columnResizing({
         },
         mousedown(view, event) {
           handleMouseDown(view, event, cellMinWidth);
+        },
+        dblclick(view, event) {
+          handleDoubleClick(view, event, cellMinWidth);
         },
       },
 
@@ -287,8 +290,61 @@ function handleDecorations(state, cell) {
       const pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1;
       const dom = document.createElement('div');
       dom.className = 'column-resize-handle';
+      dom.dataset.test = 'column-resize-handle';
       decorations.push(Decoration.widget(pos, dom));
     }
   }
   return DecorationSet.create(state.doc, decorations);
+}
+
+// TODO: enable configuration from package params (like celMinWidth)
+const CELL_PADDING = 10;
+const SORT_BUTTON_WIDTH = 30;
+
+// Resize column to minimum width without breaking lines on double click
+function handleDoubleClick(view, event, cellMinWidth) {
+  const pluginState = key.getState(view.state);
+  const resizeHandlePos = pluginState.activeHandle;
+
+  // Check if double-click was on resize handle
+  if (resizeHandlePos === -1 || pluginState.dragging) return false;
+
+  // get clicked table node.
+  let table = event.target;
+  while (table.nodeName !== 'TABLE' || table.nodeName === 'BODY') {
+    table = table.parentNode;
+  }
+
+  if (table.nodeName === 'BODY') return false;
+
+  const colIndex = getColIndex(view.state, resizeHandlePos);
+  const tableRows = Array.from(table.querySelectorAll('tr'));
+  const cellsInColumn = tableRows.map((row) => row.children[colIndex]);
+
+  let columnMaxWidth = 0;
+
+  // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
+  cellsInColumn.forEach((cell) => {
+    const [cellContent] = cell.getElementsByClassName('cellContent');
+
+    // Change column width to min + add no line breaks css role
+    cellContent.style = `width: ${
+      cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH
+    }px;white-space: nowrap;`;
+
+    const cellScrollWidth = cellContent.scrollWidth;
+
+    columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
+  });
+
+  // columnMaxWidth is representing only the cell content (text) so we need to add the padding and the sort button
+  const cellTotalWidth = columnMaxWidth + SORT_BUTTON_WIDTH + CELL_PADDING;
+
+  updateColumnWidth(
+    view,
+    resizeHandlePos,
+    Math.max(cellTotalWidth, cellMinWidth)
+  );
+
+  return true;
 }

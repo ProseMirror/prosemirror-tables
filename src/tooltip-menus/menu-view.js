@@ -23,6 +23,17 @@ class TablePopUpMenuView {
       'czi-editor-frame-body'
     )[0];
 
+    // sometimes there is already an instance of the popup - TODO: understand why...
+    const existingPopUps = Array.from(
+      document.getElementsByClassName('tablePopup')
+    );
+
+    if (existingPopUps.length > 0) {
+      existingPopUps.forEach((popup) => {
+        popup.remove();
+      });
+    }
+
     // append popup to dom
     this.popUpRelativeContainer.appendChild(this.popUpDOM);
 
