@@ -1,33 +1,56 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
-import {Slice, Fragment} from "prosemirror-model"
-import {Selection, TextSelection} from "prosemirror-state"
-import {keydownHandler} from "prosemirror-keymap"
-
-import {key, nextCell, cellAround, inSameTable,
-        isInTable, selectionCell} from "./util"
-import {CellSelection} from "./cellselection"
-import {TableMap} from "./tablemap"
-import {pastedCells, fitSlice, clipCells, insertCells} from "./copypaste"
-import {tableNodeTypes} from "./schema"
+import {Slice, Fragment} from 'prosemirror-model';
+import {Selection, TextSelection} from 'prosemirror-state';
+import {keydownHandler} from 'prosemirror-keymap';
+import {
+  key,
+  nextCell,
+  cellAround,
+  inSameTable,
+  isInTable,
+  selectionCell,
+} from './util';
+import {CellSelection} from './cellselection';
+import {TableMap} from './tablemap';
+import {pastedCells, fitSlice, clipCells, insertCells} from './copypaste';
+import {tableNodeTypes} from './schema';
+import {splitBlockKeepMarks} from 'prosemirror-commands';
+import {goToNextCell} from './commands';
 
 export const handleKeyDown = keydownHandler({
-  "ArrowLeft": arrow("horiz", -1),
-  "ArrowRight": arrow("horiz", 1),
-  "ArrowUp": arrow("vert", -1),
-  "ArrowDown": arrow("vert", 1),
+  ArrowLeft: arrow('horiz', -1),
+  ArrowRight: arrow('horiz', 1),
+  ArrowUp: arrow('vert', -1),
+  ArrowDown: arrow('vert', 1),
 
-  "Shift-ArrowLeft": shiftArrow("horiz", -1),
-  "Shift-ArrowRight": shiftArrow("horiz", 1),
-  "Shift-ArrowUp": shiftArrow("vert", -1),
-  "Shift-ArrowDown": shiftArrow("vert", 1),
+  Enter: arrow('vert', 1),
+  'Shift-Enter': splitIfCellChild,
 
-  "Backspace": deleteCellSelection,
-  "Mod-Backspace": deleteCellSelection,
-  "Delete": deleteCellSelection,
-  "Mod-Delete": deleteCellSelection
-})
+  Tab: goToNextCell(1),
+  'Shift-Tab': goToNextCell(-1),
+
+  'Shift-ArrowLeft': shiftArrow('horiz', -1),
+  'Shift-ArrowRight': shiftArrow('horiz', 1),
+  'Shift-ArrowUp': shiftArrow('vert', -1),
+  'Shift-ArrowDown': shiftArrow('vert', 1),
+
+  Backspace: deleteCellSelection,
+  'Mod-Backspace': deleteCellSelection,
+  Delete: deleteCellSelection,
+  'Mod-Delete': deleteCellSelection,
+});
+
+function splitIfCellChild (state, dispatch) {
+  const {$head} = state.selection;
+  const parent = $head.node($head.depth - 1);
+
+  // if parent is not a table cell - let the editor handle key down
+  if (parent.type.name !== "table_cell") return false
+  
+  return splitBlockKeepMarks(state, dispatch)
+}
 
 function maybeSetSelection(state, dispatch, selection) {
   if (selection.eq(state.selection)) return false
