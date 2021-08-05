@@ -42,12 +42,12 @@ export const handleKeyDown = keydownHandler({
   'Mod-Delete': deleteCellSelection,
 });
 
-function splitIfCellChild (state, dispatch) {
+function splitIfCellChild(state, dispatch) {
   const {$head} = state.selection;
   const parent = $head.node($head.depth - 1);
 
   // if parent is not a table cell - let the editor handle key down
-  if (parent.type.name !== "table_cell") return false
+  if (parent.type.name !== 'table_cell') return false
   
   return splitBlockKeepMarks(state, dispatch)
 }
