@@ -4,7 +4,6 @@
 import {Slice, Fragment} from 'prosemirror-model';
 import {Selection, TextSelection} from 'prosemirror-state';
 import {keydownHandler} from 'prosemirror-keymap';
-
 import {
   key,
   nextCell,
@@ -27,7 +26,7 @@ export const handleKeyDown = keydownHandler({
   ArrowDown: arrow('vert', 1),
 
   Enter: arrow('vert', 1),
-  'Shift-Enter': splitBlockKeepMarks,
+  'Shift-Enter': splitIfCellChild,
 
   Tab: goToNextCell(1),
   'Shift-Tab': goToNextCell(-1),
@@ -42,6 +41,16 @@ export const handleKeyDown = keydownHandler({
   Delete: deleteCellSelection,
   'Mod-Delete': deleteCellSelection,
 });
+
+function splitIfCellChild(state, dispatch) {
+  const {$head} = state.selection;
+  const parent = $head.node($head.depth - 1);
+
+  // if parent is not a table cell - let the editor handle key down
+  if (parent.type.name !== 'table_cell') return false
+  
+  return splitBlockKeepMarks(state, dispatch)
+}
 
 function maybeSetSelection(state, dispatch, selection) {
   if (selection.eq(state.selection)) return false;
