@@ -68,9 +68,7 @@ export function addColumn(tr, {map, tableStart, table}, col) {
       tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
     }
   }
-  tr.setSelection(
-    TextSelection.near(tr.doc.resolve(tableStart + map.map[col]))
-  );
+
   return tr;
 }
 
@@ -789,6 +787,26 @@ export const addColBeforeButton = (view, pos) => {
   const colNumber = cellIndex % tableRect.map.width;
 
   const tr = addColumn(view.state.tr, tableRect, colNumber);
+
+  view.dispatch(tr);
+  view.focus();
+};
+
+export const addColAfterButton = (view, pos) => {
+  const resPos = view.state.doc.resolve(pos);
+  const tableRect = {
+    tableStart: resPos.start(-1),
+    table: resPos.node(1),
+    map: TableMap.get(resPos.node(1)),
+  };
+
+  const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
+
+  if (cellIndex === -1) return;
+
+  const colNumber = cellIndex % tableRect.map.width;
+
+  const tr = addColumn(view.state.tr, tableRect, colNumber + 1);
 
   view.dispatch(tr);
   view.focus();

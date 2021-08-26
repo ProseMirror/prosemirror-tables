@@ -1,7 +1,10 @@
 // Various helper function for working with tables
 
 import {PluginKey, TextSelection} from 'prosemirror-state';
-import {findParentNodeOfType} from 'prosemirror-utils';
+import {
+  findParentNodeOfType,
+  findParentNodeOfTypeClosestToPos,
+} from 'prosemirror-utils';
 import {TableMap} from './tablemap';
 import {tableNodeTypes} from './schema';
 import {selectedRect} from './commands';
@@ -130,9 +133,10 @@ export function getColIndex(state, pos) {
   const resPos = state.doc.resolve(pos);
   const tableStart = resPos.start(-1);
   const map = TableMap.get(resPos.node(1));
-  const {pos: insertRowPos} = findParentNodeOfType(
+  const {pos: insertRowPos} = findParentNodeOfTypeClosestToPos(
+    state.doc.resolve(pos + 1),
     state.schema.nodes.table_cell
-  )(TextSelection.create(state.doc, pos + 1));
+  );
 
   const insertCellIndex = map.map.indexOf(insertRowPos - tableStart);
 

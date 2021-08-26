@@ -15,6 +15,7 @@ import {ColDragHandler} from './table-dragging/colsdragging';
 import {getColIndex, createElementWithClass} from './util';
 import {setCellAttrs} from './schema';
 import {CellSelection} from './cellselection';
+import {tableHeadersMenuKey} from './headers/headers-menu/index';
 
 export const key = new PluginKey('tableColumnHandles');
 
@@ -186,6 +187,33 @@ export class CellView {
         view.focus();
       };
       this.sortButton = this.dom.appendChild(sortButton);
+
+      // trigger header menu open
+      this.dom.addEventListener('click', (e) => {
+        if (this.colHandle.contains(e.target)) return;
+        if (this.rowHandle && this.rowHandle.contains(e.target)) return;
+
+        const {tr} = this.view.state;
+        tr.setMeta(tableHeadersMenuKey, {
+          pos: this.getPos(),
+          dom: this.dom,
+          node: this.node,
+          id: window.id,
+          action: 'open',
+        });
+        setTimeout(() => this.view.dispatch(tr), 0);
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      this.dom.addEventListener('mousedown', (e) => {
+        if (this.colHandle.contains(e.target)) return;
+        if (this.rowHandle && this.rowHandle.contains(e.target)) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
     }
   }
 

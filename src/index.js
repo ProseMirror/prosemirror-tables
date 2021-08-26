@@ -110,4 +110,8 @@ export {
   clipCells as __clipCells,
 } from './copypaste';
 export {tablePopUpMenu, tablePopUpMenuKey};
+export {
+  tableHeadersMenu,
+  tableHeadersMenuKey,
+} from './headers/headers-menu/index';
 export {selectionShadowPlugin} from './selectionshadow';

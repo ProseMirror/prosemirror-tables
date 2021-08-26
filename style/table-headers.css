@@ -1,0 +1,38 @@
+.headersMenu {
+  min-height: 100px;
+  height: fit-content;
+  width: 200px;
+  padding: 3px 3px;
+  box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
+    rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
+  border-radius: 6px;
+  background-color: white;
+
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.headersMenu .ProseMirror-menuitem {
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 9px;
+  margin: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.headersMenu .ProseMirror-menuitem:hover {
+  background-color: #e9e9ec;
+}
+
+.headerInputField {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 9px;
+  margin: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid rgb(178, 222, 241);
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px inset;
+}

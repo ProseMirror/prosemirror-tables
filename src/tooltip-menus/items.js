@@ -39,11 +39,7 @@ const deleteMenuItem = () => {
   return new MenuItem({
     class: 'tablePopUpMenuItem',
     icon: {
-      dom: createElementWithClass(
-        'span',
-        'deleteMenuButton',
-        'table-delete'
-      ),
+      dom: createElementWithClass('span', 'deleteMenuButton', 'table-delete'),
     },
     select(view) {
       return enableDeleteItem(view);
