@@ -20,7 +20,7 @@ export const getTypesItems = () => {
       render: () => dom,
       class: 'typeItem',
       run(state, dispatch, view) {
-        type.command(state, dispatch, view);
+        type.handler.convert(state, dispatch, view, type.id);
       },
     });
   });

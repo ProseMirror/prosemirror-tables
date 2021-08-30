@@ -115,3 +115,4 @@ export {
   tableHeadersMenuKey,
 } from './headers/headers-menu/index';
 export {selectionShadowPlugin} from './selectionshadow';
+export {typesEnforcer} from './columnsTypes/typesEnforcer';

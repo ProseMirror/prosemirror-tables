@@ -8,6 +8,7 @@ import {
 import {TableMap} from './tablemap';
 import {tableNodeTypes} from './schema';
 import {selectedRect} from './commands';
+import {CellSelection} from './cellselection';
 
 export const key = new PluginKey('selectingCells');
 
@@ -164,4 +165,14 @@ export const getRowIndex = (state, pos) => {
   const rowNumber = Math.floor(cellIndex / tableRect.map.width);
 
   return rowNumber;
+};
+
+export const getColCells = (headerPos, state) => {
+  const ColSelection = CellSelection.colSelection(state.doc.resolve(headerPos));
+  const cells = [];
+
+  ColSelection.forEachCell((cell, pos) => cells.push({node: cell, pos}));
+  cells.splice(0, 1);
+
+  return cells;
 };

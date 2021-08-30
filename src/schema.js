@@ -81,6 +81,18 @@ export function tableNodes(options) {
     rowspan: {default: 1},
     colwidth: {default: null},
     id: {default: false},
+    type: {default: 'text'},
+    values: {
+      default: {
+        text: {default: ''},
+        number: {default: ''},
+        date: {default: ''},
+        currency: {default: ''},
+        label: {default: ''},
+        text: {default: ''},
+        checkbox: {default: false},
+      },
+    },
   };
   for (const prop in extraAttrs)
     cellAttrs[prop] = {default: extraAttrs[prop].default};

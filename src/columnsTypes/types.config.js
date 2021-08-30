@@ -1,27 +1,18 @@
+import NumberCellType from './types/Number';
+import TextCellType from './types/Text';
+
 export const types = [
   {
     id: 'text',
     displayName: 'Text',
     icon: '',
-    command(state, dispatch, view) {},
+    handler: new TextCellType(),
   },
   {
     id: 'number',
     displayName: 'Number',
     icon: '',
-    command(state, dispatch, view) {},
-  },
-  {
-    id: 'select',
-    displayName: 'Select',
-    icon: '',
-    command(state, dispatch, view) {},
-  },
-  {
-    id: 'multi-select',
-    displayName: 'Multi-Select',
-    icon: '',
-    command(state, dispatch, view) {},
+    handler: new NumberCellType(),
   },
   {
     id: 'date',
@@ -30,38 +21,20 @@ export const types = [
     command(state, dispatch, view) {},
   },
   {
-    id: 'person',
-    displayName: 'Person',
-    icon: '',
-    command(state, dispatch, view) {},
-  },
-  {
-    id: 'filesAndMedia',
-    displayName: 'Files & Media',
-    icon: '',
-    command(state, dispatch, view) {},
-  },
-  {
     id: 'checkbox',
-    displayName: 'Todo List',
+    displayName: 'Checkbox',
     icon: '',
     command(state, dispatch, view) {},
   },
   {
-    id: 'link',
-    displayName: 'URL',
+    id: 'currency',
+    displayName: 'Currency',
     icon: '',
     command(state, dispatch, view) {},
   },
   {
-    id: 'phone',
-    displayName: 'Phone',
-    icon: '',
-    command(state, dispatch, view) {},
-  },
-  {
-    id: 'formula',
-    displayName: 'Formula',
+    id: 'labels',
+    displayName: 'Labels',
     icon: '',
     command(state, dispatch, view) {},
   },
