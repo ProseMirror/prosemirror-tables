@@ -8,6 +8,8 @@ import {renderGrouped} from 'prosemirror-menu';
 import {tooltips, dropdownClassName} from './items';
 import {TextField} from './textField/text-field.prosemirror';
 import {tableHeadersMenuKey} from './index';
+import {types} from '../../columnsTypes/types.config';
+import {createElementWithClass} from '../../util';
 
 /**
  * class attached to the editor and update table tooltip on every view update.
@@ -117,7 +119,15 @@ class TableHeadersMenuView {
 
     if (!this.headerData) {
       this.headerData = headerData;
+      this.colType = headerData.node.attrs.type;
       this.onOpen();
+    }
+
+    if (this.colType !== headerData.node.attrs.type) {
+      this.headerData = headerData;
+      this.colType = headerData.node.attrs.type;
+
+      this.setTypesDropdownContent();
     }
 
     // Update the menu items state before calculating the position
@@ -142,9 +152,18 @@ class TableHeadersMenuView {
 
   setTypesDropdownContent() {
     const [dropDown] = this.popUpDOM.getElementsByClassName(dropdownClassName);
-    dropDown.innerText = 'Types DropDown';
 
-    // TODO: get column type and add icon and label
+    const typeId = this.headerData.node.attrs.type;
+
+    const typeDisplayName = types.find(
+      (type) => type.id === typeId
+    ).displayName;
+
+    const icon = createElementWithClass('div', `${typeId}ItemIcon`);
+    icon.classList.add('typeIcon');
+
+    dropDown.innerText = typeDisplayName;
+    dropDown.prepend(icon);
   }
 
   updateInputField(node) {
@@ -169,7 +188,6 @@ class TableHeadersMenuView {
   }
 
   onClose() {
-    console.log('on close');
     // update the header title
     this.updateHeaderTitle();
 

@@ -4,17 +4,26 @@ import {types} from '../types.config';
 
 class CellDataType {
   convert(state, dispatch, view, typeId) {
-    const {pos} = tableHeadersMenuKey.getState(state);
+    const {pos, node, dom} = tableHeadersMenuKey.getState(state);
     const cells = getColCells(pos, state);
+
+    dom.firstChild.className = `${typeId}ItemIcon typeIcon`;
 
     const {tr} = state;
 
+    // change header type
+    tr.setNodeMarkup(pos, undefined, Object.assign(node.attrs, {type: typeId}));
+
     cells.reverse().forEach(({node: cell, pos}) => {
       const currentContent = cell.textContent;
+      const valueFromAttrs =
+        cell.attrs.values[typeId].default !== undefined
+          ? cell.attrs.values[typeId].default
+          : cell.attrs.values[typeId];
 
       const reverseConvertedValue = types
         .find((type) => type.id === cell.attrs.type)
-        .handler.convertContent(cell.attrs.values[typeId]);
+        .handler.convertContent(valueFromAttrs);
 
       /**
        * for each cell we will keep all the values in all formats,
@@ -25,7 +34,7 @@ class CellDataType {
       const convertedValue =
         currentContent !== reverseConvertedValue
           ? this.convertContent(currentContent)
-          : this.convertContent(cell.attrs.values[typeId]);
+          : this.convertContent(valueFromAttrs);
 
       tr.replaceRangeWith(
         pos + 1,
@@ -66,3 +75,5 @@ class CellDataType {
 }
 
 export default CellDataType;
+
+// console.log([1, 3, 7, 8, 2, 5, 9, 1].sort((el1, el2) => el1 - el2))

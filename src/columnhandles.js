@@ -214,6 +214,14 @@ export class CellView {
         e.preventDefault();
         e.stopPropagation();
       });
+
+      const typeIcon = createElementWithClass(
+        'div',
+        `${this.node.attrs.type}ItemIcon`
+      );
+
+      typeIcon.classList.add('typeIcon');
+      this.dom.prepend(typeIcon);
     }
   }
 

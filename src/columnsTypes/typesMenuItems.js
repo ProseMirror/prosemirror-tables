@@ -7,8 +7,8 @@ export const getTypesItems = () => {
     const dom = createElementWithClass('div', type.id);
     dom.classList.add(type.id);
 
-    const icon = createElementWithClass('img', 'typeItemIcon');
-    icon.src = type.icon;
+    const icon = createElementWithClass('div', `${type.id}ItemIcon`);
+    icon.classList.add('typeIcon');
 
     const label = createElementWithClass('span', 'typeItemLabel');
     label.innerText = type.displayName;

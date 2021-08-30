@@ -5,7 +5,7 @@ class NumberCellType extends CellDataType {
     const numbersInStringRegex = /[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/g;
     const matches = content.match(numbersInStringRegex);
 
-    return matches.length ? matches.join('') : '';
+    return matches ? matches.join('') : '';
   }
 }
 

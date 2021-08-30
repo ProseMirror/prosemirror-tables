@@ -54,3 +54,50 @@
   top: -50px;
   left: 180px;
 }
+
+.typeItem,
+.ProseMirror-menu-dropdown.columnTypeDropdown {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.typeIcon {
+  width: 15px;
+  height: 15px;
+}
+
+.textItemIcon {
+  content: url(./svgs/types/text_type.svg);
+}
+
+.numberItemIcon {
+  content: url(./svgs/types/number_type.svg);
+}
+
+.dateItemIcon {
+  content: url(./svgs/types/date.svg);
+}
+
+.checkboxItemIcon {
+  content: url(./svgs/types/checkbox.svg);
+}
+
+.labelsItemIcon {
+  content: url(./svgs/types/label.svg);
+}
+
+.currencyItemIcon {
+  content: url(./svgs/types/currency.svg);
+}
+
+.colHeader .typeIcon {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  left: 8px;
+}
+
+.colHeader .cellContent {
+  padding-left: 10px;
+}
