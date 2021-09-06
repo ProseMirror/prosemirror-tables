@@ -10,6 +10,7 @@ import {
   cellAround,
   cellWrapping,
   columnIsHeader,
+  getColIndex,
   isInTable,
   moveCellForward,
   removeColSpan,
@@ -840,6 +841,23 @@ export const selectCol = (e, view, pos) => {
   } else {
     tr.setSelection(CellSelection.colSelection(state.doc.resolve(pos)));
   }
+
+  view.dispatch(tr);
+};
+
+export const deleteColAtPos = (pos, view) => {
+  const resolvedPos = view.state.doc.resolve(pos);
+
+  const rect = {
+    tableStart: resolvedPos.start(-1),
+    table: resolvedPos.node(1),
+    map: TableMap.get(resolvedPos.node(1)),
+  };
+
+  const {tr} = view.state;
+  const colIndex = getColIndex(view.state, pos);
+
+  removeColumn(tr, rect, colIndex);
 
   view.dispatch(tr);
 };

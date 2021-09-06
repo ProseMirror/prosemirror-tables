@@ -196,6 +196,7 @@ export const enableCellsColor = (view) => {
 export const addTooltips = (popupDOM, classes) => {
   classes.forEach(({className, text}) => {
     const [button] = popupDOM.getElementsByClassName(className);
+    if (!button) return;
     const buttonContainer = button.parentElement;
     const tooltip = createElementWithClass('span', 'popup-tooltip');
     tooltip.innerText = text;

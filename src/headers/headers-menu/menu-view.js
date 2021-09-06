@@ -20,6 +20,35 @@ class TableHeadersMenuView {
   constructor(items, view) {
     this.view = view;
     this.items = items;
+
+    this.buildMenuDOM();
+
+    this.view.dom.addEventListener('mousedown', () => {
+      const {tr} = this.view.state;
+      tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
+      this.view.dispatch(tr);
+    });
+
+    // append popup to dom
+    this.popUpRelativeContainer.appendChild(this.popUpDOM);
+
+    // render prosemirror menu to popUpDom
+    const {dom: itemsDOM, update: updateMenuItems} = renderGrouped(
+      this.view,
+      items
+    );
+
+    if (itemsDOM) this.popUpDOM.appendChild(itemsDOM);
+
+    // method to update menu items on view update
+    this.updateMenuItems = updateMenuItems;
+
+    // TODO: maybe add tooltips
+    // add tooltips
+    // addTooltips(this.popUpDOM, tooltips);
+  }
+
+  buildMenuDOM() {
     this.popUpDOM = generateMenuPopup();
 
     const textInput = new TextField({
@@ -32,7 +61,9 @@ class TableHeadersMenuView {
     this.inputFieldDOM = textInput.render();
     this.inputFieldDOM.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        this.onClose();
+        const {tr} = this.view.state;
+        tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
+        this.view.dispatch(tr);
       }
     });
 
@@ -52,45 +83,6 @@ class TableHeadersMenuView {
         popup.remove();
       });
     }
-
-    this.view.dom.addEventListener('mousedown', () => {
-      const {tr} = this.view.state;
-      tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
-      this.view.dispatch(tr);
-    });
-
-    // append popup to dom
-    this.popUpRelativeContainer.appendChild(this.popUpDOM);
-
-    // add event listeners to color in red before deleting rows/cols
-    this.popUpDOM.addEventListener('mouseover', (e) => {
-      if (e.target.className !== 'deleteMenuButton') return;
-      const [tableWrapper] = document.getElementsByClassName('tableFocus');
-      if (!tableWrapper) return;
-      // TODO: add border to the column
-    });
-
-    this.popUpDOM.addEventListener('mouseout', (e) => {
-      if (e.target.className !== 'deleteMenuButton') return;
-      const [tableWrapper] = document.getElementsByClassName('tableFocus');
-      if (!tableWrapper) return;
-      // TODO: remove border from the column
-    });
-
-    // render prosemirror menu to popUpDom
-    const {dom: itemsDOM, update: updateMenuItems} = renderGrouped(
-      this.view,
-      items
-    );
-
-    if (itemsDOM) this.popUpDOM.appendChild(itemsDOM);
-
-    // method to update menu items on view update
-    this.updateMenuItems = updateMenuItems;
-
-    // TODO: maybe add tooltips
-    // add tooltips
-    // addTooltips(this.popUpDOM, tooltips);
   }
 
   updateMenu(view) {
@@ -117,7 +109,7 @@ class TableHeadersMenuView {
       return;
     }
 
-    if (!this.headerData) {
+    if (!this.headerData && headerData) {
       this.headerData = headerData;
       this.colType = headerData.node.attrs.type;
       this.onOpen();
@@ -168,15 +160,18 @@ class TableHeadersMenuView {
 
   updateInputField(node) {
     const {textContent} = node;
-    const input = this.popUpDOM.firstChild;
-    input.focus();
+    const input = this.inputField.dom;
+    input.focus({preventScroll: true});
 
     if (!input || !textContent) {
       input.value = '';
+      input.focus({preventScroll: true});
+
       return;
     }
 
     input.value = textContent;
+    input.select();
   }
 
   onOpen() {

@@ -44,6 +44,8 @@ class CellDataType {
 
       const newValues = cell.attrs.values;
       newValues[typeId] = convertedValue;
+      if (cell.firstChild)
+        newValues[cell.attrs.type] = this.parseContent(cell.firstChild);
 
       const newAttrs = Object.assign(cell.attrs, {
         values: newValues,
@@ -64,6 +66,13 @@ class CellDataType {
   }
 
   /**
+   * convert the cell child node to a value that can be saved in the cell attrs
+   */
+  parseContent(contentNode) {
+    return contentNode.textContent;
+  }
+
+  /**
    * should return prosemirror node that will be the cell content
    */
   renderContentNode(schema, content) {
@@ -75,5 +84,3 @@ class CellDataType {
 }
 
 export default CellDataType;
-
-// console.log([1, 3, 7, 8, 2, 5, 9, 1].sort((el1, el2) => el1 - el2))

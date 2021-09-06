@@ -21,7 +21,6 @@ export const tableHeadersMenu = () => {
       },
       apply(tr, value, oldState, newState) {
         const headerData = tr.getMeta(tableHeadersMenuKey);
-
         if (
           headerData &&
           headerData.id === window.id &&

@@ -96,7 +96,7 @@ const cellBackgroundColorDropDown = () => {
 };
 
 export const popUpItems = [
-  [toggleHeader()],
+  // [toggleHeader()], // TODO: enable when we can the command will remove all type from the nodes
   [cellBackgroundColorDropDown()],
   [deleteMenuItem()],
 ];

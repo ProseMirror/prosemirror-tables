@@ -5,8 +5,19 @@ import {
   addColAfterButton,
   addColBeforeButton,
 } from '../../commands';
-import {getColIndex} from '../../util';
+import {createElementWithClass, getColIndex} from '../../util';
 import {tableHeadersMenuKey} from './index';
+import {deleteColAtPos} from '../../commands';
+
+const createMenuItemWithIcon = (className, label, iconClassName) => {
+  const item = createElementWithClass('div', className);
+  item.innerText = label;
+  const icon = createElementWithClass('div', iconClassName);
+
+  item.prepend(icon);
+
+  return item;
+};
 
 export const dropdownClassName = 'columnTypeDropdown';
 
@@ -20,7 +31,14 @@ const columnTypeDropdown = () => {
 
 const sortItem = (direction) => {
   return new MenuItem({
-    label: `Sort ${direction === 1 ? 'A > Z' : 'Z > A'}`,
+    render() {
+      const className = `sort-${direction === 1 ? 'down' : 'up'}`;
+      return createMenuItemWithIcon(
+        className + ' menuItem',
+        `Sort ${direction === 1 ? 'A > Z' : 'Z > A'}`,
+        className + '-icon  menuIcon'
+      );
+    },
     run(state, dispatch, view) {
       const {pos} = tableHeadersMenuKey.getState(state);
       const colIndex = getColIndex(state, pos);
@@ -31,7 +49,14 @@ const sortItem = (direction) => {
 
 const insertColumnItem = (direction) => {
   return new MenuItem({
-    label: `Insert ${direction === 1 ? 'Right' : 'Left'}`,
+    render() {
+      const className = `insert-${direction === 1 ? 'right' : 'left'}`;
+      return createMenuItemWithIcon(
+        className + ' menuItem',
+        `Insert ${direction === 1 ? 'Right' : 'Left'}`,
+        className + '-icon  menuIcon'
+      );
+    },
     run(state, dispatch, view) {
       const command = direction === 1 ? addColAfterButton : addColBeforeButton;
       const {pos} = tableHeadersMenuKey.getState(state);
@@ -42,18 +67,41 @@ const insertColumnItem = (direction) => {
 
 const filterItem = () => {
   return new MenuItem({
-    label: 'Add Filter',
+    render() {
+      return createMenuItemWithIcon(
+        'filters-colum menuItem',
+        `Add Filter`,
+        'filters-colum-icon  menuIcon'
+      );
+    },
+  });
+};
+
+const deleteItem = () => {
+  return new MenuItem({
+    render() {
+      return createMenuItemWithIcon(
+        'delete-colum menuItem',
+        `Delete Column`,
+        'delete-colum-icon  menuIcon'
+      );
+    },
+    run(state, dispatch, view) {
+      const {pos} = tableHeadersMenuKey.getState(state);
+      deleteColAtPos(pos, view);
+    },
   });
 };
 
 export const menuItems = [
   [columnTypeDropdown()],
   [
+    filterItem(),
     sortItem(1),
     sortItem(-1),
     insertColumnItem(1),
     insertColumnItem(-1),
-    filterItem(),
+    deleteItem(),
   ],
 ];
 export const tooltips = [

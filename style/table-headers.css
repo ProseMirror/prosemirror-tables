@@ -99,5 +99,49 @@
 }
 
 .colHeader .cellContent {
-  padding-left: 10px;
+  padding-left: 15px;
+}
+
+.colHeader .cellContent p {
+  overflow: hidden;
+}
+
+.sort-down-icon {
+  content: url(./svgs/down_arrow.svg);
+}
+.sort-up-icon {
+  content: url(./svgs/up_arrow.svg);
+}
+.insert-right-icon {
+  content: url(./svgs/up_arrow.svg);
+  transform: rotate(90deg);
+}
+.insert-left-icon {
+  content: url(./svgs/down_arrow.svg);
+  transform: rotate(90deg);
+}
+.filters-colum-icon {
+  content: url(./svgs/filter.svg);
+}
+.delete-colum-icon {
+  content: url(./svgs/trash_can_black.svg);
+}
+
+.menuIcon {
+  width: 15px;
+  height: 15px;
+}
+
+.menuItem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.empty-header::after {
+  content: 'Untitled';
+  position: absolute;
+  margin-left: 27px;
+  color: #939597;
+  top: 5px;
 }

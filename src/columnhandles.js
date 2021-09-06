@@ -31,6 +31,8 @@ export class CellView {
     this.checkIfFirstCol(this.view);
     this.checkIfColHeader(this.view);
 
+    this.updatePlaceholder();
+
     this.dom.style = `${setCellAttrs(node, {}).style}`;
     // TODO: find a better way, for now give generated id for every cell - fixing the disappear first cell's handles bug
     this.node.attrs.id = Math.random();
@@ -246,7 +248,15 @@ export class CellView {
     this.node = node;
     this.dom.style = `${setCellAttrs(node, {}).style}`;
 
+    this.updatePlaceholder();
+
     return true;
+  }
+
+  updatePlaceholder() {
+    if (this.colHandle && this.node.textContent.length === 0) {
+      this.dom.classList.add('empty-header');
+    }
   }
 }
 
