@@ -25,7 +25,7 @@
   cursor: col-resize;
 }
 /* Give selected cells a blue overlay */
-.ProseMirror .selectedCell:after {
+.ProseMirror .selectedCell::after {
   z-index: 2;
   position: absolute;
   content: "";
