@@ -31,20 +31,21 @@ export const typesEnforcer = () => {
 
       const newSel = newState.selection;
 
-      if (newSel.from < from || newSel.from > to) {
+      if (
+        (newSel.from < from || newSel.from > to) &&
+        !oldParentCell.node.attrs.header
+      ) {
         const typeHandler = types.find(
           (type) => type.id === oldParentCell.node.attrs.type
         ).handler;
 
         const {tr} = newState;
 
-        const typeContent = typeHandler.convertContent(
-          oldParentCell.node.textContent
-        );
+        const typeContent = typeHandler.convertContent(oldParentCell.node);
 
         tr.replaceRangeWith(
-          from + 2,
-          to - 2,
+          from + 1,
+          to - 1,
           typeHandler.renderContentNode(schema, typeContent)
         );
 

@@ -4,8 +4,7 @@ import {types} from './types.config';
 
 export const getTypesItems = () => {
   return types.map((type) => {
-    const dom = createElementWithClass('div', type.id);
-    dom.classList.add(type.id);
+    const dom = document.createElement('div');
 
     const icon = createElementWithClass('div', `${type.id}ItemIcon`);
     icon.classList.add('typeIcon');

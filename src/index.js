@@ -16,6 +16,7 @@ import {key as tableEditingKey} from './util';
 import {drawCellSelection, normalizeSelection} from './cellselection';
 import {fixTables, fixTablesKey} from './fixtables';
 import tablePopUpMenu, {tablePopUpMenuKey} from './tooltip-menus/index';
+import CheckboxNodeView from './columnsTypes/nodeViews/CheckboxNodeView';
 
 // :: () → Plugin
 //
@@ -68,6 +69,11 @@ export function tableEditing({allowTableNodeSelection = false} = {}) {
       handleKeyDown,
 
       handlePaste,
+
+      nodeViews: {
+        checkbox: (node, view, getPos) =>
+          new CheckboxNodeView(node, view, getPos),
+      },
     },
 
     appendTransaction(_, oldState, state) {

@@ -1,5 +1,6 @@
 import NumberCellType from './types/Number';
 import TextCellType from './types/Text';
+import CheckboxType from './types/Checkbox';
 
 export const types = [
   {
@@ -24,7 +25,7 @@ export const types = [
     id: 'checkbox',
     displayName: 'Checkbox',
     icon: '',
-    command(state, dispatch, view) {},
+    handler: new CheckboxType(),
   },
   {
     id: 'currency',

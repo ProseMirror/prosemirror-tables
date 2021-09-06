@@ -61,6 +61,9 @@ export function setCellAttrs(node, extraAttrs) {
 //     cellContent:: string
 //     The content expression for table cells.
 //
+//     cellContentGroup:: string
+//     The group of the cell content
+//
 //     cellAttributes:: ?Object
 //     Additional attributes to add to cells. Maps attribute names to
 //     objects with the following properties:
@@ -82,6 +85,7 @@ export function tableNodes(options) {
     colwidth: {default: null},
     id: {default: false},
     type: {default: 'text'},
+    header: {default: false},
     values: {
       default: {
         text: {default: ''},
@@ -121,7 +125,7 @@ export function tableNodes(options) {
       },
     },
     table_cell: {
-      content: options.cellContent,
+      content: `${options.cellContent}`,
       attrs: cellAttrs,
       tableRole: 'cell',
       isolating: true,
@@ -138,6 +142,29 @@ export function tableNodes(options) {
       parseDOM: [{tag: 'th', getAttrs: (dom) => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) {
         return ['th', setCellAttrs(node, extraAttrs), 0];
+      },
+    },
+
+    checkbox: {
+      attrs: {checked: {default: false}},
+      group: options.cellContentGroup,
+      selectable: false,
+      parseDOM: [
+        {
+          tag: '.cell-checkbox',
+          getAttrs: (dom) => getCellAttrs(dom, extraAttrs),
+        },
+      ],
+      toDOM(node) {
+        return [
+          'div',
+          {
+            class: node.attrs.checked
+              ? 'cell-checkbox checked'
+              : 'cell-checkbox',
+          },
+          0,
+        ];
       },
     },
   };

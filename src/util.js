@@ -173,6 +173,5 @@ export const getColCells = (headerPos, state) => {
 
   ColSelection.forEachCell((cell, pos) => cells.push({node: cell, pos}));
   cells.splice(0, 1);
-
   return cells;
 };

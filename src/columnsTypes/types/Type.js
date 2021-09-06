@@ -1,6 +1,6 @@
 import {getColCells} from '../../util';
 import {tableHeadersMenuKey} from '../../headers/headers-menu/index';
-import {types} from '../types.config';
+// import {types} from '../types.config';
 
 class CellDataType {
   convert(state, dispatch, view, typeId) {
@@ -15,15 +15,15 @@ class CellDataType {
     tr.setNodeMarkup(pos, undefined, Object.assign(node.attrs, {type: typeId}));
 
     cells.reverse().forEach(({node: cell, pos}) => {
-      const currentContent = cell.textContent;
-      const valueFromAttrs =
-        cell.attrs.values[typeId].default !== undefined
-          ? cell.attrs.values[typeId].default
-          : cell.attrs.values[typeId];
+      // const currentContent = cell.textContsent;
+      // const valueFromAttrs =
+      //   cell.attrs.values[typeId].default !== undefined
+      //     ? cell.attrs.values[typeId].default
+      //     : cell.attrs.values[typeId];
 
-      const reverseConvertedValue = types
-        .find((type) => type.id === cell.attrs.type)
-        .handler.convertContent(valueFromAttrs);
+      // const reverseConvertedValue = types
+      //   .find((type) => type.id === cell.attrs.type)
+      //   .handler.convertContent(valueFromAttrs);
 
       /**
        * for each cell we will keep all the values in all formats,
@@ -31,24 +31,24 @@ class CellDataType {
        * we will use the value from the attrs. if not we will just use the converted value :)
        */
 
-      const convertedValue =
-        currentContent !== reverseConvertedValue
-          ? this.convertContent(currentContent)
-          : this.convertContent(valueFromAttrs);
+      // const convertedValue =
+      //   currentContent !== reverseConvertedValue
+      //     ? this.convertContent(currentContent)
+      //     : this.convertContent(valueFromAttrs);
 
       tr.replaceRangeWith(
         pos + 1,
         pos + cell.nodeSize - 1,
-        this.renderContentNode(state.schema, convertedValue)
+        this.renderContentNode(state.schema, cell)
       );
 
-      const newValues = cell.attrs.values;
-      newValues[typeId] = convertedValue;
-      if (cell.firstChild)
-        newValues[cell.attrs.type] = this.parseContent(cell.firstChild);
+      // const newValues = cell.attrs.values;
+      // newValues[typeId] = convertedValue;
+      // if (cell.firstChild)
+      //   newValues[cell.attrs.type] = this.parseContent(cell.firstChild);
 
       const newAttrs = Object.assign(cell.attrs, {
-        values: newValues,
+        // values: newValues,
         type: typeId,
       });
 
@@ -59,17 +59,17 @@ class CellDataType {
   }
 
   /**
-   * convert the content to the type format
+   * convert the content to the type format, should return content that the renderContentNode of the same type can render to node
    */
-  convertContent(content) {
-    return content;
+  convertContent(cell) {
+    return cell.textContent;
   }
 
   /**
    * convert the cell child node to a value that can be saved in the cell attrs
    */
-  parseContent(contentNode) {
-    return contentNode.textContent;
+  parseContent(cell) {
+    return cell.textContent;
   }
 
   /**
@@ -77,7 +77,8 @@ class CellDataType {
    */
   renderContentNode(schema, content) {
     if (content !== '') {
-      return schema.text(content);
+      const p = schema.nodes.paragraph.createAndFill({}, schema.text(content));
+      return p;
     }
     return [];
   }

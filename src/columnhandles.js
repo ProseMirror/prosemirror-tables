@@ -16,6 +16,7 @@ import {getColIndex, createElementWithClass} from './util';
 import {setCellAttrs} from './schema';
 import {CellSelection} from './cellselection';
 import {tableHeadersMenuKey} from './headers/headers-menu/index';
+import CheckboxNodeView from './columnsTypes/nodeViews/CheckboxNodeView';
 
 export const key = new PluginKey('tableColumnHandles');
 
@@ -224,6 +225,14 @@ export class CellView {
 
       typeIcon.classList.add('typeIcon');
       this.dom.prepend(typeIcon);
+
+      if (!this.node.attrs.header) {
+        this.view.dispatch(
+          this.view.state.tr.setNodeMarkup(this.getPos(), undefined, {
+            header: true,
+          })
+        );
+      }
     }
   }
 
