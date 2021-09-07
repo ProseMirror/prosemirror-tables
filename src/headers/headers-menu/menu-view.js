@@ -1,11 +1,6 @@
-import {
-  generateMenuPopup,
-  displayPopup,
-  calculateMenuPosition,
-  addTooltips,
-} from './utils';
+import {generateMenuPopup, displayPopup, calculateMenuPosition} from './utils';
 import {renderGrouped} from 'prosemirror-menu';
-import {tooltips, dropdownClassName} from './items';
+import {dropdownClassName} from './items';
 import {TextField} from './textField/text-field.prosemirror';
 import {tableHeadersMenuKey} from './index';
 import {types} from '../../columnsTypes/types.config';
