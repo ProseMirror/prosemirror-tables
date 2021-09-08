@@ -17,6 +17,10 @@ import {drawCellSelection, normalizeSelection} from './cellselection';
 import {fixTables, fixTablesKey} from './fixtables';
 import tablePopUpMenu, {tablePopUpMenuKey} from './tooltip-menus/index';
 import CheckboxNodeView from './columnsTypes/nodeViews/CheckboxNodeView';
+import DateComponent from './columnsTypes/types/Date/Component.jsx';
+import DateTypeNodeView from './columnsTypes/types/Date/NodeView';
+import LabelTypeNodeView from './columnsTypes/types/Label/NodeView';
+import LabelComponent from './columnsTypes/types/Label/Component.jsx';
 
 // :: () → Plugin
 //
@@ -73,6 +77,16 @@ export function tableEditing({allowTableNodeSelection = false} = {}) {
       nodeViews: {
         checkbox: (node, view, getPos) =>
           new CheckboxNodeView(node, view, getPos),
+        date: (node, view, getPos, decorations) =>
+          new DateTypeNodeView(node, view, getPos, decorations, DateComponent),
+        label: (node, view, getPos, decorations) =>
+          new LabelTypeNodeView(
+            node,
+            view,
+            getPos,
+            decorations,
+            LabelComponent
+          ),
       },
     },
 

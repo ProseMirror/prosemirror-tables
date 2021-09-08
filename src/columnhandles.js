@@ -16,7 +16,6 @@ import {getColIndex, createElementWithClass} from './util';
 import {setCellAttrs} from './schema';
 import {CellSelection} from './cellselection';
 import {tableHeadersMenuKey} from './headers/headers-menu/index';
-import CheckboxNodeView from './columnsTypes/nodeViews/CheckboxNodeView';
 
 export const key = new PluginKey('tableColumnHandles');
 

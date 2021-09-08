@@ -5,8 +5,9 @@ import {tableHeadersMenuKey} from '../../headers/headers-menu/index';
 class CellDataType {
   convert(state, dispatch, view, typeId) {
     const {pos, node, dom} = tableHeadersMenuKey.getState(state);
-    const cells = getColCells(pos, state);
+    if (typeId === node.attrs.type) return;
 
+    const cells = getColCells(pos, state);
     dom.firstChild.className = `${typeId}ItemIcon typeIcon`;
 
     const {tr} = state;
@@ -35,11 +36,10 @@ class CellDataType {
       //   currentContent !== reverseConvertedValue
       //     ? this.convertContent(currentContent)
       //     : this.convertContent(valueFromAttrs);
-
       tr.replaceRangeWith(
         pos + 1,
         pos + cell.nodeSize - 1,
-        this.renderContentNode(state.schema, cell)
+        this.renderContentNode(state.schema, this.convertContent(cell), tr, pos)
       );
 
       // const newValues = cell.attrs.values;
@@ -55,7 +55,7 @@ class CellDataType {
       tr.setNodeMarkup(pos, undefined, newAttrs);
     });
 
-    dispatch(tr);
+    view.dispatch(tr);
   }
 
   /**

@@ -110,6 +110,7 @@ export function tableNodes(options) {
       attrs: {
         sort: {default: {col: null, dir: null}},
         headers: {default: true},
+        labels: {default: []},
       },
       parseDOM: [{tag: 'table'}],
       toDOM() {
@@ -164,6 +165,46 @@ export function tableNodes(options) {
               : 'cell-checkbox',
           },
           0,
+        ];
+      },
+    },
+
+    date: {
+      attrs: {value: {default: 0}},
+      group: 'block',
+      content: 'inline*',
+      draggable: false,
+      parseDOM: [
+        {
+          tag: '.cell-date',
+        },
+      ],
+      toDOM(node) {
+        return [
+          'div',
+          {
+            class: 'cell-date',
+          },
+        ];
+      },
+    },
+
+    label: {
+      attrs: {labels: {default: []}},
+      group: 'block',
+      draggable: false,
+      isolating: true,
+      parseDOM: [
+        {
+          tag: '.cell-label',
+        },
+      ],
+      toDOM(node) {
+        return [
+          'div',
+          {
+            class: 'cell-label',
+          },
         ];
       },
     },

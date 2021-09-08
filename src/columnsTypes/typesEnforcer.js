@@ -31,26 +31,26 @@ export const typesEnforcer = () => {
 
       const newSel = newState.selection;
 
-      if (
-        (newSel.from < from || newSel.from > to) &&
-        !oldParentCell.node.attrs.header
-      ) {
-        const typeHandler = types.find(
-          (type) => type.id === oldParentCell.node.attrs.type
-        ).handler;
+      // if (
+      //   (newSel.from < from || newSel.from > to) &&
+      //   !oldParentCell.node.attrs.header
+      // ) {
+      //   const typeHandler = types.find(
+      //     (type) => type.id === oldParentCell.node.attrs.type
+      //   ).handler;
 
-        const {tr} = newState;
+      //   const {tr} = newState;
 
-        const typeContent = typeHandler.convertContent(oldParentCell.node);
+      //   const typeContent = typeHandler.convertContent(oldParentCell.node);
 
-        tr.replaceRangeWith(
-          from + 1,
-          to - 1,
-          typeHandler.renderContentNode(schema, typeContent)
-        );
+      //   tr.replaceRangeWith(
+      //     from + 1,
+      //     to - 1,
+      //     typeHandler.renderContentNode(schema, typeContent)
+      //   );
 
-        return tr;
-      }
+      //   return tr;
+      // }
 
       return null;
     },

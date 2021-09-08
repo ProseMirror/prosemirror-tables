@@ -1,6 +1,8 @@
 import NumberCellType from './types/Number';
 import TextCellType from './types/Text';
 import CheckboxType from './types/Checkbox';
+import DateType from './types/Date/Handler';
+import LabelType from './types/Label/Handler';
 
 export const types = [
   {
@@ -19,7 +21,7 @@ export const types = [
     id: 'date',
     displayName: 'Date',
     icon: '',
-    command(state, dispatch, view) {},
+    handler: new DateType(),
   },
   {
     id: 'checkbox',
@@ -37,6 +39,6 @@ export const types = [
     id: 'labels',
     displayName: 'Labels',
     icon: '',
-    command(state, dispatch, view) {},
+    handler: new LabelType(),
   },
 ];
