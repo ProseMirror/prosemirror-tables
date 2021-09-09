@@ -19,7 +19,7 @@ export const getTypesItems = () => {
       render: () => dom,
       class: 'typeItem',
       run(state, dispatch, view) {
-        return type.handler.convert(state, dispatch, view, type.id);
+        return type.handler.convert(view, type.id);
       },
     });
   });

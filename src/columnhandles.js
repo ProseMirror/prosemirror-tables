@@ -225,6 +225,8 @@ export class CellView {
       typeIcon.classList.add('typeIcon');
       this.dom.prepend(typeIcon);
 
+      this.updatePlaceholder();
+
       if (!this.node.attrs.header) {
         this.view.dispatch(
           this.view.state.tr.setNodeMarkup(this.getPos(), undefined, {
@@ -262,7 +264,10 @@ export class CellView {
   }
 
   updatePlaceholder() {
-    if (this.colHandle && this.node.textContent.length === 0) {
+    if (
+      this.colHandle &&
+      this.node.textContent.replace(/[^\x00-\x7F]/g, '').length === 0
+    ) {
       this.dom.classList.add('empty-header');
     }
   }

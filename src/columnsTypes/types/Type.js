@@ -3,14 +3,14 @@ import {tableHeadersMenuKey} from '../../headers/headers-menu/index';
 // import {types} from '../types.config';
 
 class CellDataType {
-  convert(state, dispatch, view, typeId) {
-    const {pos, node, dom} = tableHeadersMenuKey.getState(state);
+  convert(view, typeId) {
+    const {pos, node, dom} = tableHeadersMenuKey.getState(view.state);
     if (typeId === node.attrs.type) return;
 
-    const cells = getColCells(pos, state);
+    const cells = getColCells(pos, view.state);
     dom.firstChild.className = `${typeId}ItemIcon typeIcon`;
 
-    const {tr} = state;
+    const {tr} = view.state;
 
     // change header type
     tr.setNodeMarkup(pos, undefined, Object.assign(node.attrs, {type: typeId}));
@@ -39,7 +39,12 @@ class CellDataType {
       tr.replaceRangeWith(
         pos + 1,
         pos + cell.nodeSize - 1,
-        this.renderContentNode(state.schema, this.convertContent(cell), tr, pos)
+        this.renderContentNode(
+          view.state.schema,
+          this.convertContent(cell),
+          tr,
+          pos
+        )
       );
 
       // const newValues = cell.attrs.values;

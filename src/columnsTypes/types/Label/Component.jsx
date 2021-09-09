@@ -87,7 +87,6 @@ const LabelsChooser = ({view, pos, node, handleClose}) => {
     <>
       <div className="labels-chooser-container" ref={ref}>
         <input
-          autoComplete={false}
           className="labels-search"
           id="labels-input"
           onChange={(e) => setInputValue(e.target.value)}
@@ -98,8 +97,6 @@ const LabelsChooser = ({view, pos, node, handleClose}) => {
           onKeyDown={(e) => {
             if (!view) return;
             e.stopPropagation();
-            // not 100% sure why but if setting editor to not editable backspace working as expected
-            // TODO: find out why...
             view.editable = false;
 
             if (e.key === 'Enter' && filteredLabels.length === 0) {

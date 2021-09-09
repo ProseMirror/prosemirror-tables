@@ -1,6 +1,7 @@
 import {NodeSelection} from 'prosemirror-state';
 import {addBottomRow, addRightColumn} from './commands';
 import {createElementWithClass} from './util';
+import {typeInheritance} from './headers/headers-menu/index';
 
 const createAddCellsButton = (type, view, pos) => {
   const isRow = type === 'row';
@@ -97,7 +98,12 @@ export class TableView {
 
   update(node, markers) {
     this.updateMarkers();
+
     if (node.type != this.node.type) return false;
+
+    if (this.node.attrs.headers)
+      typeInheritance(this.view, node, this.getPos());
+
     if (!this.node.sameMarkup(node)) return false;
 
     // to handle first row insert

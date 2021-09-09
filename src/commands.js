@@ -1,8 +1,6 @@
 // This file defines a number of table-related commands.
-
 import {TextSelection, Selection} from 'prosemirror-state';
 import {Fragment} from 'prosemirror-model';
-
 import {Rect, TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
 import {
@@ -12,7 +10,6 @@ import {
   columnIsHeader,
   getColIndex,
   isInTable,
-  moveCellForward,
   removeColSpan,
   selectionCell,
   setAttr,

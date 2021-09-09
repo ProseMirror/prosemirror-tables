@@ -1,7 +1,6 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
 import TableHeadersMenuView from './menu-view';
 import {menuItems} from './items';
-import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 
 window.id = `user_${new Date().getTime()}`;
 
@@ -42,3 +41,5 @@ export const tableHeadersMenu = () => {
     },
   });
 };
+
+export {typeInheritance} from '../../columnsTypes/typeInheritance';

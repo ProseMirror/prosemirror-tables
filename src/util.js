@@ -1,10 +1,7 @@
 // Various helper function for working with tables
 
-import {PluginKey, TextSelection} from 'prosemirror-state';
-import {
-  findParentNodeOfType,
-  findParentNodeOfTypeClosestToPos,
-} from 'prosemirror-utils';
+import {PluginKey} from 'prosemirror-state';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {TableMap} from './tablemap';
 import {tableNodeTypes} from './schema';
 import {selectedRect} from './commands';
