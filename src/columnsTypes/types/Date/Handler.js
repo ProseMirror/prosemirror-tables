@@ -5,7 +5,11 @@ class DateType extends CellDataType {
    * convert the content to the type format
    */
   convertContent(cell) {
-    return new Date(cell.textContent);
+    try {
+      return new Date(cell.textContent).getTime();
+    } catch {
+      return 0;
+    }
   }
 
   /**
