@@ -7,10 +7,10 @@ class DateTypeNodeView extends ReactNodeView {
     return dom;
   }
 
-  createContentDOM() {
-    const contentDOM = createElementWithClass('span', 'cell-date-content');
-    return contentDOM;
-  }
+  // createContentDOM() {
+  //   const contentDOM = createElementWithClass('span', 'cell-date-content');
+  //   return contentDOM;
+  // }
 }
 
 export default DateTypeNodeView;

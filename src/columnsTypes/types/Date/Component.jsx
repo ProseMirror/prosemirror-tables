@@ -1,34 +1,56 @@
 import React, {useState, useEffect} from 'react';
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
+import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-import EditorContent from '../../../ReactNodeView/EditorContent.jsx';
 
 const DateComponent = ({view, node, getPos, editorContentRef}) => {
-  // const [date, setDate] = useState(new Date());
-  // const [isOpen, setIsOpen] = useState(false);
+  const [date, setDate] = useState();
 
-  // const id = `Date-${getPos()}`;
+  const handleDateChange = (newDate) => {
+    setDate(newDate);
+  };
 
-  // const handleDateChange = (date) => {
-  //   setDate(date);
-  // };
+  const handleClose = React.useCallback(() => {
+    const {tr} = view.state;
 
-  // useEffect(() => {
-  //   const {value} = node.attrs;
-  //   const dateFromAttrs = value !== 0 ? new Date(value) : new Date();
-  //   setDate(dateFromAttrs);
-  // }, []);
-  console.log(node);
+    const newAttrs = {
+      ...node.attrs,
+      value: date.getTime(),
+    };
+
+    const pos = getPos();
+
+    tr.replaceRangeWith(
+      pos,
+      pos + 1,
+      view.state.schema.nodes.date.create(newAttrs)
+    );
+
+    view.dispatch(tr);
+  }, [date, view, node]);
+
+  useEffect(() => {
+    const {value} = node.attrs;
+    const dateFromAttrs = value !== 0 ? new Date(value) : new Date();
+    setDate(dateFromAttrs);
+  }, []);
+
   return (
-    <div className="date-picker" id={getPos()}>
-      {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <KeyboardDatePicker />
-      </MuiPickersUtilsProvider> */}
-      <EditorContent ref={editorContentRef} />
-    </div>
+    <>
+      <div className="date-picker">
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <DatePicker
+            disableToolbar
+            format="dd/MM/yyyy"
+            id="date-picker-inline"
+            margin="dense"
+            onChange={handleDateChange}
+            onClose={handleClose}
+            value={date}
+            variant="inline"
+          />
+        </MuiPickersUtilsProvider>
+      </div>
+    </>
   );
 };
 

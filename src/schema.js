@@ -172,7 +172,7 @@ export function tableNodes(options) {
     date: {
       attrs: {value: {default: 0}},
       group: 'block',
-      content: 'inline*',
+      // content: 'inline*',
       draggable: false,
       parseDOM: [
         {
