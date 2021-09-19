@@ -2,6 +2,7 @@ import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import React, {useState, useEffect} from 'react';
 import {addLabel, removeLabel, stringToColor, updateCellLabels} from './utils';
 import useClickOutside from '../../../useClickOutside.jsx';
+import {tableLabelsMenuKey} from './utils';
 
 const Label = ({title, onDelete, color, showDelete}) => {
   return (
@@ -49,12 +50,28 @@ const LabelOption = ({color, title, onChange, checked}) => {
   );
 };
 
-const LabelsChooser = ({view, pos, node, handleClose}) => {
+export const LabelsChooser = ({view, pos, node}) => {
   const [tableLabels, setTableLabels] = useState([]);
   const [chosenLabels, setChosenLabels] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
-  const ref = useClickOutside(() => handleClose(chosenLabels));
+  const handleClose = React.useCallback(
+    (currentChosenLabels) => {
+      if (typeof currentChosenLabels === 'string') {
+        addLabel(view, pos, node, currentChosenLabels);
+      } else {
+        updateCellLabels(view, pos, node, currentChosenLabels);
+      }
+      const {tr} = view.state;
+      tr.setMeta(tableLabelsMenuKey, {action: 'close', id: window.id});
+      view.dispatch(tr);
+    },
+    [node, pos, view, chosenLabels]
+  );
+
+  const ref = useClickOutside(() => {
+    handleClose(chosenLabels);
+  });
 
   const filteredLabels =
     inputValue === ''
@@ -141,18 +158,8 @@ const LabelsChooser = ({view, pos, node, handleClose}) => {
   );
 };
 
-const LabelComponent = ({view, node, getPos}) => {
-  const [openChooser, setOpenChooser] = useState(false);
+const LabelComponent = ({view, node, getPos, dom}) => {
   const labels = node.attrs.labels;
-
-  const handleCloseChooser = React.useCallback((chosenLabels) => {
-    if (typeof chosenLabels === 'string') {
-      addLabel(view, getPos(), node, chosenLabels);
-    } else {
-      updateCellLabels(view, getPos(), node, chosenLabels);
-    }
-    setOpenChooser(false);
-  }, []);
 
   return (
     <>
@@ -170,22 +177,25 @@ const LabelComponent = ({view, node, getPos}) => {
         {view.editable && (
           <button
             className="add-label"
-            onClick={() => {
-              setOpenChooser(true);
+            onClick={(e) => {
+              const {tr} = view.state;
+              tr.setMeta(tableLabelsMenuKey, {
+                pos: getPos(),
+                dom: dom,
+                node: node,
+                id: window.id,
+                action: 'open',
+              });
+              setTimeout(() => view.dispatch(tr), 0);
+
+              e.preventDefault();
+              e.stopPropagation();
             }}
           >
             <span>+</span>
           </button>
         )}
       </div>
-      {openChooser && (
-        <LabelsChooser
-          handleClose={handleCloseChooser}
-          node={node}
-          pos={getPos()}
-          view={view}
-        />
-      )}
     </>
   );
 };

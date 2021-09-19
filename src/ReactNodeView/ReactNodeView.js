@@ -47,6 +47,7 @@ export class ReactNodeView {
           {...props}
           {...componentProps}
           componentId={node.attrs.componentId}
+          dom={this.dom}
           editorContentRef={forwardRef}
           getPos={this.getPos}
           index={index}

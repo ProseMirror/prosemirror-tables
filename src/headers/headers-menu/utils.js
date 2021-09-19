@@ -2,8 +2,8 @@ import {CellSelection} from '../../cellselection';
 import {createElementWithClass} from '../..//util';
 import {tableHeadersMenuKey} from './index';
 
-const EDITOR_LEFT_OFFSET = 224;
-const EDITOR_TOP_OFFSET = 110;
+export const EDITOR_LEFT_OFFSET = 224;
+export const EDITOR_TOP_OFFSET = 110;
 
 export function enableDeleteItem(view) {
   const {selection: sel} = view.state;
