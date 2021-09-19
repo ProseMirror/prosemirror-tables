@@ -136,3 +136,4 @@ export {
 } from './headers/headers-menu/index';
 export {selectionShadowPlugin} from './selectionshadow';
 export {typesEnforcer} from './columnsTypes/typesEnforcer';
+export {TableDateMenu} from './columnsTypes/types/Date/datePopup';

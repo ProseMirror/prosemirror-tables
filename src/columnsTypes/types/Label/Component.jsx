@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {addLabel, removeLabel, stringToColor, updateCellLabels} from './utils';
 import useClickOutside from '../../../useClickOutside.jsx';
 
-const Label = ({title, onDelete, color}) => {
+const Label = ({title, onDelete, color, showDelete}) => {
   return (
     <div className="label-container">
       <span
@@ -11,9 +11,15 @@ const Label = ({title, onDelete, color}) => {
         style={{backgroundColor: `${color}`}}
       ></span>
       <span className="label-title">{title}</span>
-      <button className="remove-label" onClick={() => onDelete()} type="button">
-        x
-      </button>
+      {showDelete && (
+        <button
+          className="remove-label"
+          onClick={() => onDelete()}
+          type="button"
+        >
+          x
+        </button>
+      )}
     </div>
   );
 };
@@ -156,19 +162,21 @@ const LabelComponent = ({view, node, getPos}) => {
             color={stringToColor(label)}
             key={`${label.color}${index}`}
             onDelete={() => removeLabel(view, getPos(), node, label)}
+            showDelete={view.editable}
             title={label}
           />
         ))}
 
-        <button
-          className="add-label"
-          onClick={() => {
-            console.log('open');
-            setOpenChooser(true);
-          }}
-        >
-          <span>+</span>
-        </button>
+        {view.editable && (
+          <button
+            className="add-label"
+            onClick={() => {
+              setOpenChooser(true);
+            }}
+          >
+            <span>+</span>
+          </button>
+        )}
       </div>
       {openChooser && (
         <LabelsChooser

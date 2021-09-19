@@ -3,6 +3,7 @@ import TextCellType from './types/Text';
 import CheckboxType from './types/Checkbox';
 import DateType from './types/Date/Handler';
 import LabelType from './types/Label/Handler';
+import CurrencyCellType from './types/Currency';
 
 export const types = [
   {
@@ -22,23 +23,26 @@ export const types = [
     displayName: 'Date',
     icon: '',
     handler: new DateType(),
+    dontForce: true,
   },
   {
     id: 'checkbox',
     displayName: 'Checkbox',
     icon: '',
     handler: new CheckboxType(),
+    dontForce: true,
   },
   {
     id: 'currency',
     displayName: 'Currency',
     icon: '',
-    command(state, dispatch, view) {},
+    handler: new CurrencyCellType(),
   },
   {
     id: 'labels',
     displayName: 'Labels',
     icon: '',
     handler: new LabelType(),
+    dontForce: true,
   },
 ];
