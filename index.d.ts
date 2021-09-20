@@ -245,7 +245,7 @@ export function addColumn<S extends Schema = any>(
   row: number
 ): Transaction<S>;
 
-export function columnResizing<S extends Schema = any>(props: {
+export function columnResizing<S extends Schema = any>(props?: {
   handleWidth?: number;
   cellMinWidth?: number;
   View?: NodeView<S>;
