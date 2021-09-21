@@ -193,6 +193,8 @@ export function tableNodes(options) {
       attrs: {labels: {default: []}},
       group: 'block',
       draggable: false,
+      selectable: true,
+      atom: true,
       parseDOM: [
         {
           tag: '.cell-label',

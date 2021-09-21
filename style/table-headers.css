@@ -55,11 +55,16 @@
   left: 180px;
 }
 
+.ProseMirror-menu-dropdown-wrap {
+  width: 100%;
+}
+
 .typeItem,
 .ProseMirror-menu-dropdown.columnTypeDropdown {
   display: flex;
   gap: 10px;
   align-items: center;
+  width: 100%;
 }
 
 .typeIcon {
@@ -136,6 +141,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  width: 100%;
 }
 
 .empty-header::after {
