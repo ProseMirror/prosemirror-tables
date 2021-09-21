@@ -1,56 +1,70 @@
-import React, {useState, useEffect} from 'react';
-import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
+import React, {useState, useEffect, useCallback} from 'react';
+import useClickOutside from '../../../useClickOutside.jsx';
+import EditorContent from '../../../ReactNodeView/EditorContent.jsx'
+import {tableDateMenuKey} from './utils'
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import StaticDatePicker from '@mui/lab/StaticDatePicker';
 
-const DateComponent = ({view, node, getPos, editorContentRef}) => {
-  const [date, setDate] = useState();
 
-  const handleDateChange = (newDate) => {
-    setDate(newDate);
-  };
 
-  const handleClose = React.useCallback(() => {
+const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
+  const [date, setDate] = useState(new Date());
+
+  const openChooser = useCallback((e) => {
     const {tr} = view.state;
+    tr.setMeta(tableDateMenuKey, {
+      pos: getPos(),
+      dom: dom,
+      node: node,
+      id: window.id,
+      action: 'open',
+    });
+    setTimeout(() => view.dispatch(tr), 0);
+  }, [dom, node])
+  
+  return <div onClick={openChooser}><EditorContent ref={editorContentRef}/></div>
+}
 
-    const newAttrs = {
-      ...node.attrs,
-      value: date.getTime(),
+export const DatePickerComponent = ({view, node, pos, dom, textContent}) => {
+  const [date, setDate] = useState(new Date(textContent));
+
+  const ref = useClickOutside((e) => {
+    const {tr} = view.state;
+    tr.setMeta(tableDateMenuKey, {
+      id: window.id,
+      action: 'close',
+    });
+    setTimeout(() => view.dispatch(tr), 0);
+  })
+
+  const handleChange = useCallback((newValue) => {
+    setDate(newValue);
+    if (pos) {
+      const {tr} = view.state;
+      tr.insertText(newValue.toDateString(), pos + 1, pos + node.nodeSize - 1);
+
+      tr.setMeta(tableDateMenuKey, {
+        id: window.id,
+        action: 'close',
+      });
+
+      view.dispatch(tr);
     };
-
-    const pos = getPos();
-
-    tr.replaceRangeWith(
-      pos,
-      pos + 1,
-      view.state.schema.nodes.date.create(newAttrs)
-    );
-
-    view.dispatch(tr);
-  }, [date, view, node]);
-
-  useEffect(() => {
-    const {value} = node.attrs;
-    const dateFromAttrs = value !== 0 ? new Date(value) : new Date();
-    setDate(dateFromAttrs);
-  }, []);
+  }, [view, pos, node])
 
   return (
-    <>
-      <div className="date-picker">
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DatePicker
-            disableToolbar
-            format="dd/MM/yyyy"
-            id="date-picker-inline"
-            margin="dense"
-            onChange={handleDateChange}
-            onClose={handleClose}
-            value={date}
-            variant="inline"
-          />
-        </MuiPickersUtilsProvider>
-      </div>
-    </>
+    <div className='date-picker' ref={ref}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <StaticDatePicker
+          displayStaticWrapperAs="desktop"
+          openTo="day"
+          value={date}
+          onChange={handleChange}
+          renderInput={() => <></>}
+        />
+      </LocalizationProvider>
+    </div>
   );
 };
 

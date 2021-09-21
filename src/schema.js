@@ -171,8 +171,8 @@ export function tableNodes(options) {
 
     date: {
       attrs: {value: {default: 0}},
+      content: 'inline*',
       group: 'block',
-      // content: 'inline*',
       draggable: false,
       parseDOM: [
         {
@@ -193,7 +193,6 @@ export function tableNodes(options) {
       attrs: {labels: {default: []}},
       group: 'block',
       draggable: false,
-      isolating: true,
       parseDOM: [
         {
           tag: '.cell-label',
