@@ -37,6 +37,7 @@
     "@mui/material": "^5.0.0",
     "@stablelib/base64": "^1.0.1",
     "@stablelib/utf8": "^1.0.1",
+    "date-fns": "^2.24.0",
     "prosemirror-commands": "^1.1.1",
     "prosemirror-keymap": "^1.1.2",
     "prosemirror-menu": "^1.1.0",
