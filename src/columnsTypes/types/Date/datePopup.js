@@ -82,7 +82,6 @@ class TableDateMenuView {
   }
 
   onOpen() {
-    console.log(this.cellData);
     ReactDOM.render(
       <DatePickerComponent
         dom={this.cellData.dom}
@@ -113,6 +112,9 @@ export const TableDateMenu = () => {
       const menuView = new TableDateMenuView(view);
 
       return menuView;
+    },
+    props: {
+      handleDOMEvents: {},
     },
     state: {
       init() {

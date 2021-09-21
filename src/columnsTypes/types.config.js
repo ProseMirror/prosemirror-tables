@@ -23,7 +23,6 @@ export const types = [
     displayName: 'Date',
     icon: '',
     handler: new DateType(),
-    dontForce: true,
   },
   {
     id: 'checkbox',

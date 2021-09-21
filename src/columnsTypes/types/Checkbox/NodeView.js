@@ -1,4 +1,4 @@
-import {createElementWithClass} from '../../util';
+import {createElementWithClass} from '../../../util';
 
 class CheckboxNodeView {
   constructor(node, editorView, getPos) {

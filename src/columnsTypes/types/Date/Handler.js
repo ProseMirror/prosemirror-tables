@@ -1,4 +1,5 @@
 import CellDataType from '../Type';
+import {formatDate} from './utils';
 
 class DateType extends CellDataType {
   /**
@@ -6,17 +7,23 @@ class DateType extends CellDataType {
    */
   convertContent(cell) {
     try {
-      return new Date(cell.textContent).getTime();
+      const date = new Date(cell.textContent).getTime();
+      return isNaN(date) ? -1 : date;
     } catch {
-      return 0;
+      return -1;
     }
   }
 
   /**
    * should return prosemirror node that will be the cell content
    */
-  renderContentNode(schema, date) {
-    return schema.nodes.date.create({date});
+  renderContentNode(schema, dateInMili) {
+    return schema.nodes.date.createAndFill(
+      {value: dateInMili},
+      dateInMili !== -1
+        ? [schema.text(formatDate(new Date(dateInMili), 'dd/mm/yy'))]
+        : []
+    );
   }
 }
 

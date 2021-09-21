@@ -197,3 +197,9 @@
   padding: 1px;
   background-color: white;
 }
+
+.empty-date .dd_mm_yy::before {
+  content: 'dd/mm/yyyy';
+  color: rgb(189, 189, 189);
+  position: absolute;
+}

@@ -174,6 +174,7 @@ export function tableNodes(options) {
       content: 'inline*',
       group: 'block',
       draggable: false,
+      isolating: true,
       parseDOM: [
         {
           tag: '.cell-date',
@@ -194,7 +195,6 @@ export function tableNodes(options) {
       group: 'block',
       draggable: false,
       selectable: true,
-      atom: true,
       parseDOM: [
         {
           tag: '.cell-label',
