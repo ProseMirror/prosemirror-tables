@@ -60,7 +60,6 @@ class TableLabelsMenu {
 
     if (!this.cellData && cellData) {
       this.cellData = cellData;
-      this.colType = cellData.node.attrs.type;
       this.onOpen();
     }
 

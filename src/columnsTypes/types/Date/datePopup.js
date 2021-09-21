@@ -28,7 +28,7 @@ class TableDateMenuView {
     )[0];
 
     const existingPopUps = Array.from(
-      document.getElementsByClassName('tableLabelsMenu')
+      document.getElementsByClassName('tableDateMenu')
     );
 
     if (existingPopUps.length > 0) {
@@ -85,11 +85,11 @@ class TableDateMenuView {
     console.log(this.cellData);
     ReactDOM.render(
       <DatePickerComponent
+        dom={this.cellData.dom}
         node={this.cellData.node}
         pos={this.cellData.pos}
-        view={this.view}
-        dom={this.cellData.dom}
         textContent={this.cellData.node.textContent}
+        view={this.view}
       />,
       this.popUpDOM
     );
@@ -120,19 +120,11 @@ export const TableDateMenu = () => {
       },
       apply(tr, value, oldState, newState) {
         const action = tr.getMeta(tableDateMenuKey);
-        if (
-          action &&
-          action.id === window.id &&
-          action.action === 'open'
-        ) {
+        if (action && action.id === window.id && action.action === 'open') {
           return action;
         }
 
-        if (
-          action &&
-          action.id === window.id &&
-          action.action === 'close'
-        ) {
+        if (action && action.id === window.id && action.action === 'close') {
           return null;
         }
 

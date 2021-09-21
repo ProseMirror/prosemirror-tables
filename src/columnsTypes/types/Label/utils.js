@@ -137,11 +137,11 @@ export const generateMenuPopup = () => {
 };
 
 export const displayPopup = (view, popupDOM) => {
-  const menuData = tableLabelsMenuKey.getState(view.state);
+  const cellData = tableLabelsMenuKey.getState(view.state);
 
-  if (menuData) {
+  if (cellData) {
     popupDOM.style.display = 'flex';
-    return menuData;
+    return cellData;
   }
 
   return null;
