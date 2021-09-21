@@ -113,9 +113,6 @@ export const TableDateMenu = () => {
 
       return menuView;
     },
-    props: {
-      handleDOMEvents: {},
-    },
     state: {
       init() {
         return null;
