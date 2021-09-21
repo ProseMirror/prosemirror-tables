@@ -194,6 +194,7 @@ class TableHeadersMenuView {
 
     const schema = this.view.state.schema;
     const {pos, node} = this.headerData;
+    if (!pos) return;
     const {tr} = this.view.state;
     if (inputFieldValue !== '') {
       if (headerContent === '') {

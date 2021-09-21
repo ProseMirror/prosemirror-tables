@@ -13,8 +13,13 @@ export const typesEnforcer = () => {
         false
       );
 
+      const docChanged = transactions.reduce(
+        (changed, tr) => changed || tr.docChanged,
+        false
+      );
+
       // if the selection has not changed - return
-      if (!selectionChanged) return null;
+      if (!selectionChanged || docChanged) return null;
 
       const {schema} = newState;
 

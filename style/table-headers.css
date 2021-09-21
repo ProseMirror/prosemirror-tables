@@ -17,7 +17,7 @@
   border: none;
   display: inline-flex;
   align-items: center;
-  padding: 9px;
+  padding: 0px;
   margin: 1px;
   border-radius: 4px;
   cursor: pointer;
@@ -65,6 +65,7 @@
   gap: 10px;
   align-items: center;
   width: 100%;
+  padding: 9px;
 }
 
 .typeIcon {
@@ -142,6 +143,7 @@
   gap: 10px;
   align-items: center;
   width: 100%;
+  padding: 9px;
 }
 
 .empty-header::after {
