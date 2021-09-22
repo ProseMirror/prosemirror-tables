@@ -175,8 +175,20 @@
   justify-content: space-around;
   padding-left: 5px;
   font-size: 13px;
+  justify-content: flex-start;
 
   cursor: pointer;
+}
+
+.new-label-title,
+.labels-chooser-container .label-title {
+  width: 135px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.labels-chooser-container .label-title {
+  width: 123px;
 }
 
 .add-new-label:hover {

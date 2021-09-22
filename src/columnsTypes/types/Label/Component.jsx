@@ -149,7 +149,7 @@ export const LabelsChooser = ({view, pos, node}) => {
                 className="label-color"
                 style={{backgroundColor: `${stringToColor(inputValue)}`}}
               ></span>
-              Crete "{inputValue}"
+              <span className="label-title">Crete "{inputValue}"</span>
             </div>
           )}
         </div>
