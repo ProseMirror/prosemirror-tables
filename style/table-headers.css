@@ -147,13 +147,13 @@
 }
 
 .empty-header {
-  overflow: hidden;
-}
-
-.empty-header::after {
   content: 'Untitled';
-  position: absolute;
-  margin-left: 27px;
   color: #939597;
   top: 5px;
+  left: 30px;
+  position: absolute;
+  width: 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

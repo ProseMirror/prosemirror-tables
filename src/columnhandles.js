@@ -264,11 +264,20 @@ export class CellView {
   }
 
   updatePlaceholder() {
+    const placeholders = this.dom.getElementsByClassName('empty-header');
     if (
       this.colHandle &&
       this.node.textContent.replace(/[^\x00-\x7F]/g, '').length === 0
     ) {
-      this.dom.classList.add('empty-header');
+      if (placeholders.length === 0) {
+        const placeholder = createElementWithClass('span', 'empty-header');
+        placeholder.innerText = 'Untitled';
+        this.dom.appendChild(placeholder);
+      }
+    } else {
+      if (placeholders.length) {
+        Array.from(placeholders).forEach((placeholder) => placeholder.remove());
+      }
     }
   }
 }
