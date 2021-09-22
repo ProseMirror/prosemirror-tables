@@ -6,8 +6,10 @@ import {
   displayPopup,
   tableDateMenuKey,
   calculateMenuPosition,
+  getSelectedNode,
 } from './utils';
 import {DatePickerComponent} from './Component.jsx';
+import {findParentNodeOfType} from 'prosemirror-utils';
 
 class TableDateMenuView {
   constructor(view) {
@@ -42,12 +44,10 @@ class TableDateMenuView {
     // determine whether to display or hide popup - and change style accordingly
     const cellData = displayPopup(view, this.popUpDOM);
 
-    // different header selected
     if (cellData && this.cellData && cellData.pos !== this.cellData.pos) {
       this.onClose();
     }
 
-    // no header selected
     if (!cellData) {
       // handle close
       if (this.cellData) this.onClose();
@@ -87,7 +87,6 @@ class TableDateMenuView {
         dom={this.cellData.dom}
         node={this.cellData.node}
         pos={this.cellData.pos}
-        textContent={this.cellData.node.textContent}
         view={this.view}
       />,
       this.popUpDOM
@@ -129,6 +128,35 @@ export const TableDateMenu = () => {
 
         return value;
       },
+    },
+    appendTransaction(transactions, oldState, newState) {
+      const sel = newState.selection;
+      const dateParent = findParentNodeOfType(newState.schema.nodes.date)(sel);
+      const dom = getSelectedNode();
+
+      if (!dateParent || !dom || sel.from !== sel.to) {
+        const openMenu = tableDateMenuKey.getState(newState);
+        if (openMenu) {
+          const {tr} = newState;
+          tr.setMeta(tableDateMenuKey, {
+            id: window.id,
+            action: 'close',
+          });
+          return tr;
+        }
+        return null;
+      }
+
+      const {tr} = newState;
+      tr.setMeta(tableDateMenuKey, {
+        pos: dateParent.pos,
+        dom: dom.parentElement.parentElement,
+        node: dateParent.node,
+        id: window.id,
+        action: 'open',
+      });
+
+      return tr;
     },
   });
 };

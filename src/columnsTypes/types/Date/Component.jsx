@@ -1,7 +1,12 @@
 import React, {useState, useCallback} from 'react';
 import useClickOutside from '../../../useClickOutside.jsx';
 import EditorContent from '../../../ReactNodeView/EditorContent.jsx';
-import {formatDate, tableDateMenuKey, DATE_FORMAT} from './utils';
+import {
+  formatDate,
+  tableDateMenuKey,
+  DATE_FORMAT,
+  buildDateObjectFromText,
+} from './utils';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import StaticDatePicker from '@mui/lab/StaticDatePicker';
@@ -33,16 +38,21 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
   );
 };
 
-export const DatePickerComponent = ({view, node, pos, dom, textContent}) => {
-  const [date, setDate] = useState(new Date(textContent));
+export const DatePickerComponent = ({view, node, pos, dom}) => {
+  const [date, setDate] = useState(
+    buildDateObjectFromText(node.textContent, DATE_FORMAT) || new Date()
+  );
 
   const ref = useClickOutside((e) => {
+    const cellDom = tableDateMenuKey.getState(view.state).dom;
+    if (!e || cellDom.contains(e.target)) return;
+
     const {tr} = view.state;
     tr.setMeta(tableDateMenuKey, {
       id: window.id,
       action: 'close',
     });
-    setTimeout(() => view.dispatch(tr), 0);
+    view.dispatch(tr);
   });
 
   const handleChange = useCallback(
