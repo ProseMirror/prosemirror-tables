@@ -98,28 +98,6 @@ export const calculatePopupPosition = (view, popupDOM) => {
   const cellCenter =
     firstCellRect.left + (lastCellRect.right - firstCellRect.left) / 2;
 
-  // ColSelection
-  if (
-    state.selection instanceof CellSelection &&
-    state.selection.isColSelection()
-  ) {
-    let top;
-
-    // sometimes prose mirror switches anchor and head cells - fix it
-    if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
-      top = view.coordsAtPos(state.selection.$headCell.pos).top;
-    } else {
-      top = view.coordsAtPos(state.selection.$anchorCell.pos).top;
-    }
-
-    popupDOM.style.top = `${
-      top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
-    }px`;
-    popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
-
-    return;
-  }
-
   // RowSelection
   if (
     state.selection instanceof CellSelection &&
@@ -137,12 +115,35 @@ export const calculatePopupPosition = (view, popupDOM) => {
     }
 
     const tableContainerBox = tableContainer.getBoundingClientRect();
+
     popupDOM.style.left = `${
       tableContainerBox.left + tableContainerBox.width / 2 - EDITOR_LEFT_OFFSET
     }px`;
     popupDOM.style.top = `${
       lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET
     }px`;
+
+    return;
+  }
+
+  // ColSelection
+  if (
+    state.selection instanceof CellSelection &&
+    state.selection.isColSelection()
+  ) {
+    let top;
+    console.log('here');
+    // sometimes prose mirror switches anchor and head cells - fix it
+    if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
+      top = view.coordsAtPos(state.selection.$headCell.pos).top;
+    } else {
+      top = view.coordsAtPos(state.selection.$anchorCell.pos).top;
+    }
+
+    popupDOM.style.top = `${
+      top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
+    }px`;
+    popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
 
     return;
   }
