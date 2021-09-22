@@ -146,6 +146,10 @@
   padding: 9px;
 }
 
+.empty-header {
+  overflow: hidden;
+}
+
 .empty-header::after {
   content: 'Untitled';
   position: absolute;
