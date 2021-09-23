@@ -174,21 +174,21 @@
   align-items: center;
   justify-content: space-around;
   padding-left: 5px;
+  padding-bottom: 5px;
   font-size: 13px;
   justify-content: flex-start;
-
   cursor: pointer;
 }
 
 .new-label-title,
 .labels-chooser-container .label-title {
-  width: 135px;
+  width: 155px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .labels-chooser-container .label-title {
-  width: 123px;
+  width: 125px;
 }
 
 .add-new-label:hover {
@@ -197,7 +197,7 @@
 }
 
 .labels-search {
-  min-width: 170px;
+  min-width: 200px;
 }
 
 .date-picker {
@@ -214,4 +214,9 @@
   content: 'dd/mm/yyyy';
   color: rgb(189, 189, 189);
   position: absolute;
+}
+
+.new-label-placeholder {
+  color: grey;
+  opacity: 0.8;
 }

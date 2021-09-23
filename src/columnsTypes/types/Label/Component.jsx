@@ -1,8 +1,15 @@
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import React, {useState, useEffect} from 'react';
-import {addLabel, removeLabel, stringToColor, updateCellLabels} from './utils';
+import {
+  addLabel,
+  removeLabel,
+  stringToColor,
+  updateCellLabels,
+  tableLabelsMenuKey,
+  updateTablesLabels,
+  removeLabelsFromTableCells,
+} from './utils';
 import useClickOutside from '../../../useClickOutside.jsx';
-import {tableLabelsMenuKey} from './utils';
 
 const Label = ({title, onDelete, color, showDelete}) => {
   return (
@@ -25,7 +32,7 @@ const Label = ({title, onDelete, color, showDelete}) => {
   );
 };
 
-const LabelOption = ({color, title, onChange, checked}) => {
+const LabelOption = ({color, title, onChange, checked, onDelete}) => {
   const [selected, setSelected] = useState(checked);
 
   return (
@@ -46,6 +53,17 @@ const LabelOption = ({color, title, onChange, checked}) => {
         style={{backgroundColor: `${color}`}}
       ></span>
       <span className="label-title">{title}</span>
+      <button
+        className="remove-label"
+        onClick={(e) => {
+          onDelete(title);
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+        type="button"
+      >
+        x
+      </button>
     </div>
   );
 };
@@ -106,6 +124,26 @@ export const LabelsChooser = ({view, pos, node}) => {
     if (input) input.focus();
   }, []);
 
+  const createNewLabel = React.useCallback(() => {
+    inputValue.length
+      ? handleClose(inputValue)
+      : () => {
+          const input = document.getElementById('labels-input');
+          if (input) input.focus();
+        };
+  }, [inputValue, handleClose]);
+
+  const handleLabelDelete = (labelTitle) => {
+    const {tr} = view.state;
+    updateTablesLabels(tr, pos, 'remove', [labelTitle]);
+    removeLabelsFromTableCells(view.state, pos, labelTitle, tr);
+    view.dispatch(tr);
+
+    setTableLabels((oldLabels) =>
+      oldLabels.filter((label) => label !== labelTitle)
+    );
+  };
+
   return (
     <>
       <div className="labels-chooser-container" ref={ref}>
@@ -123,7 +161,7 @@ export const LabelsChooser = ({view, pos, node}) => {
             view.editable = false;
 
             if (e.key === 'Enter' && filteredLabels.length === 0) {
-              handleClose(inputValue);
+              createNewLabel();
             }
           }}
           type="text"
@@ -136,20 +174,28 @@ export const LabelsChooser = ({view, pos, node}) => {
                 color={stringToColor(label)}
                 key={`${label}${index}`}
                 onChange={handleLabelCheck}
+                onDelete={handleLabelDelete}
                 title={label}
               />
             ))
           ) : (
-            <div
-              className="add-new-label"
-              onClick={() => handleClose(inputValue)}
-            >
-              +
-              <span
-                className="label-color"
-                style={{backgroundColor: `${stringToColor(inputValue)}`}}
-              ></span>
-              <span className="label-title">Crete "{inputValue}"</span>
+            <div className="add-new-label" onClick={createNewLabel}>
+              {inputValue.length ? (
+                <>
+                  +
+                  <span
+                    className="label-color"
+                    style={{backgroundColor: `${stringToColor(inputValue)}`}}
+                  ></span>
+                  <span className="new-label-title">Create "{inputValue}"</span>
+                </>
+              ) : (
+                <>
+                  <span className="new-label-placeholder">
+                    Type To Create New Label
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>

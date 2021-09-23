@@ -11,6 +11,7 @@ export const types = [
     displayName: 'Text',
     icon: '',
     handler: new TextCellType(),
+    dontForce: true
   },
   {
     id: 'number',

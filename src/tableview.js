@@ -99,21 +99,30 @@ export class TableView {
   update(node, markers) {
     this.updateMarkers();
 
-    if (node.type != this.node.type) return false;
+    if (node.type != this.node.type) {
+      return false;
+    } 
 
-    if (this.node.attrs.headers)
+    if (this.node.attrs.headers) {
       typeInheritance(this.view, node, this.getPos());
+    }
 
-    if (!this.node.sameMarkup(node)) return false;
+    if (!this.node.sameMarkup(node)) {
+      return false;
+    } 
 
     // to handle first row insert
-    if (node.childCount !== this.node.childCount) return false;
+    if (node.childCount !== this.node.childCount){
+      return false;
+    } 
 
     const oldColCount = this.colgroup.childElementCount;
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
 
     // to handle first col insert
-    if (oldColCount !== this.colgroup.childElementCount) return false;
+    if (oldColCount !== this.colgroup.childElementCount) {
+      return false;
+    } 
 
     if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) {
       node.attrs.sort = {

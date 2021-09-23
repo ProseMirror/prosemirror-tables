@@ -1,20 +1,16 @@
-import * as nacl from 'tweetnacl';
-import {encode as decodeUTF8} from '@stablelib/utf8';
-import {encode as encodeBase64} from '@stablelib/base64';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {PluginKey} from 'prosemirror-state';
 import {
   EDITOR_LEFT_OFFSET,
   EDITOR_TOP_OFFSET,
 } from '../../../headers/headers-menu/utils';
+import {createHash} from 'crypto';
+import {getColCells} from '../../../util';
 
 export const tableLabelsMenuKey = new PluginKey('TableLabelsMenu');
 
-export const generateHash = (value) => {
-  const buffer = decodeUTF8(value);
-  const hashed = nacl.hash(buffer);
-  const hashValue = encodeBase64(hashed);
-  return hashValue;
+export const sha256 = (data) => {
+  return createHash('sha256').update(data).digest('base64');
 };
 
 export const stringToHash = (strToHash) => {
@@ -34,7 +30,7 @@ export const stringToHash = (strToHash) => {
 };
 
 export const stringToColor = (str, opacity = '1.0') => {
-  const stringHash = generateHash(str);
+  const stringHash = sha256(str);
   const numericalHash = stringToHash(stringHash);
   const shortened = numericalHash % 360;
   return `hsla(${shortened}, 68%, 48%, ${opacity})`;
@@ -152,10 +148,27 @@ export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
 
   const {left, top, height: cellHeight} = cellDOM.getBoundingClientRect();
 
+  if (left === 0 || top === 0) return;
+
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
 
   style.top = `${
     top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) - 70 + cellHeight
   }px`;
   style.left = `${left - EDITOR_LEFT_OFFSET - 20}px`;
+};
+
+export const removeLabelsFromTableCells = (state, pos, deletedLabel, tr) => {
+  const cells = getColCells(pos - 1, state);
+
+  cells.forEach((cell) => {
+    const dateNode = cell.node.firstChild;
+    const updatedLabels = dateNode.attrs.labels.filter(
+      (label) => label !== deletedLabel
+    );
+    tr.setNodeMarkup(cell.pos + 1, undefined, {
+      ...dateNode.attrs,
+      labels: updatedLabels,
+    });
+  });
 };
