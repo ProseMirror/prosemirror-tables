@@ -29,11 +29,13 @@
       "email": "hhuang@atlassian.com"
     }
   ],
+  "peerDependencies": {
+    "@material-ui/core": "^4.12.3",
+    "react": "16.14.0",
+    "react-dom": "16.14.0"
+  },
   
   "dependencies": {
-    "@material-ui/core": "^4.12.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "@material-ui/pickers": "^3.3.10",
     "@date-io/date-fns": "1.x",
     "crypto": "^1.0.1",

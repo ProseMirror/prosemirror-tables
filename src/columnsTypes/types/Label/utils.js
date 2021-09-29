@@ -63,7 +63,7 @@ export const removeLabel = (view, pos, node, labelTitle) => {
 
   const newAttrs = {
     ...node.attrs,
-    labels: currentLabels.filter((label) => label !== labelTitle),
+    labels: currentLabels.filter((label) => label.title !== labelTitle),
   };
 
   tr.replaceRangeWith(
@@ -94,9 +94,11 @@ export const updateTablesLabels = (tr, pos, action = 'add', newLabels) => {
     newAttrs = {
       ...table.node.attrs,
       labels: table.node.attrs.labels.filter(
-        (label) => !newLabels.includes(label)
+        (label) => !(newLabels.find(newLabel => newLabel === label.title))
       ),
     };
+
+    console.log(newAttrs);
   }
 
   tr.setNodeMarkup(table.pos, undefined, newAttrs);
@@ -160,11 +162,10 @@ export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
 
 export const removeLabelsFromTableCells = (state, pos, deletedLabel, tr) => {
   const cells = getColCells(pos - 1, state);
-
   cells.forEach((cell) => {
     const dateNode = cell.node.firstChild;
     const updatedLabels = dateNode.attrs.labels.filter(
-      (label) => label !== deletedLabel
+      (label) => label.title !== deletedLabel
     );
     tr.setNodeMarkup(cell.pos + 1, undefined, {
       ...dateNode.attrs,
@@ -172,3 +173,10 @@ export const removeLabelsFromTableCells = (state, pos, deletedLabel, tr) => {
     });
   });
 };
+
+export const randomString = () => {
+  // Math.random should be unique because of its seeding algorithm.
+  // Convert it to base 36 (numbers + letters), and grab the first 12 characters
+  // after the decimal.
+  return '_' + Math.random().toString(36).substr(2, 12);
+}

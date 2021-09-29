@@ -8,6 +8,7 @@ import {
   tableLabelsMenuKey,
   updateTablesLabels,
   removeLabelsFromTableCells,
+  randomString
 } from './utils';
 import useClickOutside from '../../../useClickOutside.jsx';
 
@@ -73,10 +74,12 @@ export const LabelsChooser = ({view, pos, node}) => {
   const [chosenLabels, setChosenLabels] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
+  const [newLabelColor, setNewLabelColor] = useState(stringToColor(randomString()))
+
   const handleClose = React.useCallback(
     (currentChosenLabels) => {
       if (typeof currentChosenLabels === 'string') {
-        addLabel(view, pos, node, currentChosenLabels);
+        addLabel(view, pos, node, {title: currentChosenLabels, color: newLabelColor});
       } else {
         updateCellLabels(view, pos, node, currentChosenLabels);
       }
@@ -95,7 +98,7 @@ export const LabelsChooser = ({view, pos, node}) => {
     inputValue === ''
       ? tableLabels
       : tableLabels.filter((label) =>
-          label.toLowerCase().includes(inputValue.toLowerCase())
+          label.title.toLowerCase().includes(inputValue.toLowerCase())
         );
 
   useEffect(() => {
@@ -112,12 +115,12 @@ export const LabelsChooser = ({view, pos, node}) => {
     setChosenLabels(node.attrs.labels);
   }, []);
 
-  const handleLabelCheck = React.useCallback((title, checked) => {
+  const handleLabelCheck = React.useCallback((title, color,  checked) => {
     if (checked) {
-      setChosenLabels((oldChosen) => [...oldChosen, title]);
+      setChosenLabels((oldChosen) => [...oldChosen, {title, color}]);
     } else {
       setChosenLabels((oldChosen) =>
-        oldChosen.filter((label) => label !== title)
+        oldChosen.filter((label) => label.title !== title)
       );
     }
     const input = document.getElementById('labels-input');
@@ -131,6 +134,8 @@ export const LabelsChooser = ({view, pos, node}) => {
           const input = document.getElementById('labels-input');
           if (input) input.focus();
         };
+    
+    setNewLabelColor(stringToColor(randomString()))
   }, [inputValue, handleClose]);
 
   const handleLabelDelete = (labelTitle) => {
@@ -140,7 +145,7 @@ export const LabelsChooser = ({view, pos, node}) => {
     view.dispatch(tr);
 
     setTableLabels((oldLabels) =>
-      oldLabels.filter((label) => label !== labelTitle)
+      oldLabels.filter((label) => label.title !== labelTitle)
     );
   };
 
@@ -168,14 +173,14 @@ export const LabelsChooser = ({view, pos, node}) => {
         />
         <div className="labels-list">
           {filteredLabels.length ? (
-            filteredLabels.map((label, index) => (
+            filteredLabels.map(({title, color}, index) => (
               <LabelOption
-                checked={chosenLabels.includes(label)}
-                color={stringToColor(label)}
-                key={`${label}${index}`}
-                onChange={handleLabelCheck}
+                checked={chosenLabels.find(label => label.title === title)}
+                color={color}
+                key={`${title}${index}`}
+                onChange={(title, checked) => handleLabelCheck(title, color, checked)}
                 onDelete={handleLabelDelete}
-                title={label}
+                title={title}
               />
             ))
           ) : (
@@ -185,7 +190,7 @@ export const LabelsChooser = ({view, pos, node}) => {
                   +
                   <span
                     className="label-color"
-                    style={{backgroundColor: `${stringToColor(inputValue)}`}}
+                    style={{backgroundColor: `${newLabelColor}`}}
                   ></span>
                   <span className="new-label-title">Create "{inputValue}"</span>
                 </>
@@ -210,13 +215,13 @@ const LabelComponent = ({view, node, getPos, dom}) => {
   return (
     <>
       <div className="all-labels-container">
-        {labels.map((label, index) => (
+        {labels.map(({title, color}, index) => (
           <Label
-            color={stringToColor(label)}
-            key={`${label.color}${index}`}
-            onDelete={() => removeLabel(view, getPos(), node, label)}
+            color={color}
+            key={`${color}${title}${index}`}
+            onDelete={() => removeLabel(view, getPos(), node, title)}
             showDelete={view.editable}
-            title={label}
+            title={title}
           />
         ))}
 
