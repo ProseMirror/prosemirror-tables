@@ -4,7 +4,8 @@ import {
   EDITOR_TOP_OFFSET,
 } from '../../../headers/headers-menu/utils';
 
-export const DATE_FORMAT = 'dd/mm/yy';
+export let DATE_FORMAT = 'dd/MM/yyyy';
+export const setDateFormat = (format) => (DATE_FORMAT = format);
 export const tableDateMenuKey = new PluginKey('TableLabelsMenu');
 
 export const generateMenuPopup = () => {
@@ -31,7 +32,6 @@ export const displayPopup = (view, popupDOM) => {
 
 export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
   const {style} = menuDOM;
-
   const {left, top, height: cellHeight} = cellDOM.getBoundingClientRect();
 
   if (left === 0 || top === 0 || cellHeight === 0) return;
@@ -53,10 +53,10 @@ export const formatDate = (date, format) => {
 
   formattedDate = formattedDate.replace('dd', day.toString().padStart(2, '0'));
   formattedDate = formattedDate.replace(
-    'mm',
+    'MM',
     month.toString().padStart(2, '0')
   );
-  formattedDate = formattedDate.replace('yy', year.toString());
+  formattedDate = formattedDate.replace('yyyy', year.toString());
 
   return formattedDate;
 };
@@ -74,11 +74,11 @@ export const buildDateObjectFromText = (text, format) => {
   const day = brokenContent[brokenFormat.indexOf('dd')]
     .toString()
     .padStart(2, '0');
-  const month = (brokenContent[brokenFormat.indexOf('mm')] - 1)
+  const month = (brokenContent[brokenFormat.indexOf('MM')] - 1)
     .toString()
     .padStart(2, '0');
 
-  const year = brokenContent[brokenFormat.indexOf('yy')] || '';
+  const year = brokenContent[brokenFormat.indexOf('yyyy')] || '';
 
   let fullYear;
   if (year.length > 3) {

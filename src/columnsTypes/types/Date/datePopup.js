@@ -7,6 +7,7 @@ import {
   tableDateMenuKey,
   calculateMenuPosition,
   getSelectedNode,
+  setDateFormat,
 } from './utils';
 import {DatePickerComponent} from './Component.jsx';
 import {findParentNodeOfType} from 'prosemirror-utils';
@@ -104,7 +105,8 @@ class TableDateMenuView {
   destroy() {}
 }
 
-export const TableDateMenu = () => {
+export const TableDateMenu = (dateFormat) => {
+  setDateFormat(dateFormat);
   return new Plugin({
     key: tableDateMenuKey,
     view(view) {
@@ -132,11 +134,14 @@ export const TableDateMenu = () => {
     appendTransaction(transactions, oldState, newState) {
       const sel = newState.selection;
       const dateParent = findParentNodeOfType(newState.schema.nodes.date)(sel);
-      const dom = getSelectedNode();
+      const selectionParentDom = getSelectedNode();
+      const cellDom = selectionParentDom.closest('.date-component')
 
-      if (!dateParent || !dom || sel.from !== sel.to) {
+      const selectionInPicker = !!selectionParentDom.closest('.date-picker')
+
+      if (!dateParent || !cellDom || sel.from !== sel.to) {
         const openMenu = tableDateMenuKey.getState(newState);
-        if (openMenu) {
+        if (openMenu && !selectionInPicker) {
           const {tr} = newState;
           tr.setMeta(tableDateMenuKey, {
             id: window.id,
@@ -146,11 +151,10 @@ export const TableDateMenu = () => {
         }
         return null;
       }
-
       const {tr} = newState;
       tr.setMeta(tableDateMenuKey, {
         pos: dateParent.pos,
-        dom: dom.parentElement.parentElement,
+        dom: cellDom,
         node: dateParent.node,
         id: window.id,
         action: 'open',

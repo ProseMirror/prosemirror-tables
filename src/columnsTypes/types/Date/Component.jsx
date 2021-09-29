@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import useClickOutside from '../../../useClickOutside.jsx';
 import EditorContent from '../../../ReactNodeView/EditorContent.jsx';
 import {
@@ -7,9 +7,8 @@ import {
   DATE_FORMAT,
   buildDateObjectFromText,
 } from './utils';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import StaticDatePicker from '@mui/lab/StaticDatePicker';
+import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from '@date-io/date-fns';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 
 const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
@@ -28,9 +27,29 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
     [dom, node]
   );
 
+  const pos = getPos()
+
+  useEffect(() => {
+    const dateFromAttrs = node.attrs.value
+    if(dateFromAttrs === -1 || !pos) return
+    const formattedDate = formatDate(new Date(dateFromAttrs), DATE_FORMAT)
+    if(formattedDate !== node.textContent) {
+      console.log(DATE_FORMAT, 'date format');
+      const {tr} = view.state;
+      tr.insertText(
+        formattedDate,
+        pos + 1,
+        pos + node.nodeSize - 1
+      );
+
+      view.dispatch(tr)
+    }
+
+  }, [pos])
+
   return (
     <div
-      className={`${DATE_FORMAT.replaceAll('/', '_')}`}
+      className={`${DATE_FORMAT.replaceAll('/', '_')} date-component`}
       onClick={openChooser}
     >
       <EditorContent ref={editorContentRef} />
@@ -45,7 +64,7 @@ export const DatePickerComponent = ({view, node, pos, dom}) => {
 
   const ref = useClickOutside((e) => {
     const cellDom = tableDateMenuKey.getState(view.state).dom;
-    if (!e || cellDom.contains(e.target)) return;
+    if(!e || cellDom.contains(e.target)) return
 
     const {tr} = view.state;
     tr.setMeta(tableDateMenuKey, {
@@ -73,11 +92,6 @@ export const DatePickerComponent = ({view, node, pos, dom}) => {
           pos + dateNode.node.nodeSize - 1
         );
 
-        tr.setMeta(tableDateMenuKey, {
-          id: window.id,
-          action: 'close',
-        });
-
         tr.setNodeMarkup(dateNode.pos, undefined, {
           ...dateNode.node.attrs,
           value: newValue.getTime(),
@@ -91,15 +105,15 @@ export const DatePickerComponent = ({view, node, pos, dom}) => {
 
   return (
     <div className="date-picker" ref={ref}>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <StaticDatePicker
-          displayStaticWrapperAs="desktop"
-          onChange={handleChange}
-          openTo="day"
-          renderInput={() => <></>}
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <DatePicker
+          autoOk
+          variant="static"
+          openTo="date"
           value={date}
+          onChange={handleChange}
         />
-      </LocalizationProvider>
+      </MuiPickersUtilsProvider>
     </div>
   );
 };

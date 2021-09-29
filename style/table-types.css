@@ -206,12 +206,19 @@
   height: fit-content;
   width: fit-content;
   border-radius: 5px;
-  padding: 1px;
+  padding: 0px;
+  overflow: hidden;
   background-color: white;
 }
 
-.empty-date .dd_mm_yy::before {
+.empty-date .dd_MM_yyyy::before {
   content: 'dd/mm/yyyy';
+  color: rgb(189, 189, 189);
+  position: absolute;
+}
+
+.empty-date .MM_dd_yyyy::before {
+  content: 'mm/dd/yyyy';
   color: rgb(189, 189, 189);
   position: absolute;
 }
