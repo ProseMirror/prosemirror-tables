@@ -1,12 +1,12 @@
 import {Dropdown, MenuItem} from 'prosemirror-menu';
-import {getTypesItems} from '../../columnsTypes/typesMenuItems';
 import {
   sortColumn,
   addColAfterButton,
   addColBeforeButton,
 } from '../../commands';
 import {createElementWithClass, getColIndex} from '../../util';
-import {tableHeadersMenuKey} from './index';
+import {getTypesItems} from '../../columnsTypes/typesMenuItems';
+import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 import {deleteColAtPos} from '../../commands';
 
 const createMenuItemWithIcon = (className, label, iconClassName) => {

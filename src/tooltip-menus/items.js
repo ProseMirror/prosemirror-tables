@@ -29,8 +29,8 @@ const toggleHeader = () => {
     enable(view) {
       return isFirstRowSelected(view);
     },
-    run(state, dispatch) {
-      toggleTableHeaders(state, dispatch);
+    run(state, dispatch, view) {
+      toggleTableHeaders(state, dispatch, view);
     },
   });
 };
@@ -96,7 +96,7 @@ const cellBackgroundColorDropDown = () => {
 };
 
 export const popUpItems = [
-  // [toggleHeader()], // TODO: enable when we can the command will remove all type from the nodes
+  [toggleHeader()],
   [cellBackgroundColorDropDown()],
   [deleteMenuItem()],
 ];

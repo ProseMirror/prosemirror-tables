@@ -15,7 +15,7 @@ import {ColDragHandler} from './table-dragging/colsdragging';
 import {getColIndex, createElementWithClass} from './util';
 import {setCellAttrs} from './schema';
 import {CellSelection} from './cellselection';
-import {tableHeadersMenuKey} from './headers/headers-menu/index';
+import {tableHeadersMenuKey} from './columnsTypes/types.config';
 
 export const key = new PluginKey('tableColumnHandles');
 
@@ -264,10 +264,14 @@ export class CellView {
   }
 
   updatePlaceholder() {
+    const resolvePos = this.view.state.doc.resolve(this.getPos());
+    const tableAttrs = resolvePos.node(1).attrs;
+
     const placeholders = this.dom.getElementsByClassName('empty-header');
     if (
       this.colHandle &&
-      this.node.textContent.replace(/[^\x00-\x7F]/g, '').length === 0
+      this.node.textContent.replace(/[^\x00-\x7F]/g, '').length === 0 &&
+      tableAttrs.headers
     ) {
       if (placeholders.length === 0) {
         const placeholder = createElementWithClass('span', 'empty-header');

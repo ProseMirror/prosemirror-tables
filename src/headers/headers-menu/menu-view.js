@@ -2,7 +2,7 @@ import {generateMenuPopup, displayPopup, calculateMenuPosition} from './utils';
 import {renderGrouped} from 'prosemirror-menu';
 import {dropdownClassName} from './items';
 import {TextField} from './textField/text-field.prosemirror';
-import {tableHeadersMenuKey} from './index';
+import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 import {types} from '../../columnsTypes/types.config';
 import {createElementWithClass} from '../../util';
 

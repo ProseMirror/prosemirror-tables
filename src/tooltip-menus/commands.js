@@ -1,3 +1,4 @@
+import { types } from '../columnsTypes/types.config';
 import {deleteColumn, deleteRow, deleteTable, selectedRect} from '../commands';
 import {CellSelection} from '../cellselection';
 
@@ -43,12 +44,37 @@ export const changeCellsBackgroundColor = (state, dispatch, color) => {
   dispatch(tr);
 };
 
-export const toggleTableHeaders = (state, dispatch) => {
-  const rect = selectedRect(state);
+export const toggleTableHeaders = (state, dispatch, view) => {
+  const {map, tableStart, table} = selectedRect(state);
   const {tr} = state;
-  tr.setNodeMarkup(rect.tableStart - 1, rect.table.type, {
-    headers: !rect.table.attrs.headers,
+  tr.setNodeMarkup(tableStart - 1, table.type, {
+    headers: !table.attrs.headers,
   });
+ 
+  if(table.attrs.headers) {
+    const cellsSelection = CellSelection.create(tr.doc, tableStart + map.map[0], tableStart + map.map[map.map.length - 1])
+    const textType = types.find(type => type.id === 'text').handler;
 
+    cellsSelection.forEachCell((cell, pos) => {
+      console.log(cell);
+      tr.replaceRangeWith(
+        pos + 1,
+        pos + cell.nodeSize - 1,
+        textType.renderContentNode(
+          view.state.schema,
+          textType.convertContent(cell),
+          tr,
+          pos
+        )
+      );
+
+      const newAttrs = Object.assign(cell.attrs, {
+        type: 'text',
+      });
+
+      tr.setNodeMarkup(pos, undefined, newAttrs);
+    })
+  }
+  
   dispatch(tr);
 };

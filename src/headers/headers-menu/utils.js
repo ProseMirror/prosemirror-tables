@@ -1,6 +1,6 @@
 import {CellSelection} from '../../cellselection';
 import {createElementWithClass} from '../..//util';
-import {tableHeadersMenuKey} from './index';
+import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 
 export const EDITOR_LEFT_OFFSET = 224;
 export const EDITOR_TOP_OFFSET = 110;

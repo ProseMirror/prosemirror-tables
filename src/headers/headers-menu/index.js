@@ -1,10 +1,9 @@
 import {Plugin, PluginKey} from 'prosemirror-state';
 import TableHeadersMenuView from './menu-view';
 import {menuItems} from './items';
+import {tableHeadersMenuKey} from  '../../columnsTypes/types.config'
 
 window.id = `user_${new Date().getTime()}`;
-
-export const tableHeadersMenuKey = new PluginKey('headersMenu');
 
 export const tableHeadersMenu = () => {
   return new Plugin({

@@ -1,6 +1,5 @@
 import {getColCells} from '../../util';
-import {tableHeadersMenuKey} from '../../headers/headers-menu/index';
-// import {types} from '../types.config';
+import {tableHeadersMenuKey, types} from '../types.config';
 
 class CellDataType {
   convert(view, typeId) {
