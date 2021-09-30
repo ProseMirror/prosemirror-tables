@@ -90,7 +90,17 @@ class TableDateMenuView {
         pos={this.cellData.pos}
         view={this.view}
       />,
-      this.popUpDOM
+      this.popUpDOM,
+      () => {
+        // Remove duplicate style tag till we will upgrade to new mui
+        // See: https://github.com/mui-org/material-ui/issues/15610#issuecomment-502182452
+        const [, ...duplicatedStyleTags] = document.querySelectorAll(
+          'style[data-meta="MuiButtonBase"]'
+        );
+        duplicatedStyleTags.forEach((tag) => {
+          tag.remove();
+        });
+      }
     );
   }
 
@@ -135,9 +145,9 @@ export const TableDateMenu = (dateFormat) => {
       const sel = newState.selection;
       const dateParent = findParentNodeOfType(newState.schema.nodes.date)(sel);
       const selectionParentDom = getSelectedNode();
-      const cellDom = selectionParentDom.closest('.date-component')
+      const cellDom = selectionParentDom.closest('.date-component');
 
-      const selectionInPicker = !!selectionParentDom.closest('.date-picker')
+      const selectionInPicker = !!selectionParentDom.closest('.date-picker');
 
       if (!dateParent || !cellDom || sel.from !== sel.to) {
         const openMenu = tableDateMenuKey.getState(newState);
