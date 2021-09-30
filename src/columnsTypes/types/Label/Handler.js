@@ -1,5 +1,5 @@
 import CellDataType from '../Type';
-import {stringToColor, updateTablesLabels} from './utils';
+import {randomString, stringToColor, updateTablesLabels} from './utils';
 
 class LabelType extends CellDataType {
   /**
@@ -13,13 +13,12 @@ class LabelType extends CellDataType {
    * should return prosemirror node that will be the cell content
    */
   renderContentNode(schema, label, tr, pos) {
-    const title = label.replace(/[^\x00-\x7F]/g, '');
-
     const labels = [];
 
-    if (title !== '') {
-      labels.push(title);
-      updateTablesLabels(tr, pos, 'add', [title]);
+    if (label.replace(/[^\x00-\x7F]/g, '') !== '') {
+      const newLabel = {title: label, color: stringToColor(randomString())};
+      labels.push(newLabel);
+      updateTablesLabels(tr, pos, 'add', [newLabel]);
     }
 
     return schema.nodes.label.create({
