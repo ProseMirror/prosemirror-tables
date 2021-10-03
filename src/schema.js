@@ -145,10 +145,10 @@ export function tableNodes(options) {
         return ['th', setCellAttrs(node, extraAttrs), 0];
       },
     },
-
     checkbox: {
       attrs: {checked: {default: false}},
       group: options.cellContentGroup,
+      draggable: false,
       selectable: false,
       parseDOM: [
         {
@@ -168,12 +168,12 @@ export function tableNodes(options) {
         ];
       },
     },
-
     date: {
       attrs: {value: {default: 0}},
       content: 'inline*',
       group: 'block',
       draggable: false,
+      selectable: false,
       isolating: true,
       parseDOM: [
         {
@@ -189,12 +189,12 @@ export function tableNodes(options) {
         ];
       },
     },
-
     label: {
       attrs: {labels: {default: []}},
       group: 'block',
-      draggable: false,
+      // content:
       selectable: true,
+      draggable: false,
       parseDOM: [
         {
           tag: '.cell-label',

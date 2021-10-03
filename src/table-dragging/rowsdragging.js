@@ -113,11 +113,9 @@ export class RowDragHandler {
         TextSelection.create(state.doc, mousePos.pos)
       ) || mousePos.inside;
 
-    let insertCellIndex = rect.map.map.indexOf(
+    const insertCellIndex = rect.map.map.indexOf(
       insertRowPos - rect.tableStart
     );
-    // Avoid drag above the header
-    insertCellIndex = insertCellIndex > 1 ? insertCellIndex : 2
 
     if (
       originCellIndex === -1 ||
@@ -127,7 +125,14 @@ export class RowDragHandler {
       return;
 
     const originRowNumber = originCellIndex / rect.map.width;
-    const insertRowNumber = insertCellIndex / rect.map.width;
+    let insertRowNumber = insertCellIndex / rect.map.width;
+    // Avoid drag above the header
+    insertRowNumber = insertRowNumber > 0 ? insertRowNumber : 1
+
+    if (insertRowNumber === originRowNumber) {
+      // Case when after avoid switch header try to drag second row above first
+      return;
+    }
 
     switchRows(
       this.view,
