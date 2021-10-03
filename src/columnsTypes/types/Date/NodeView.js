@@ -36,6 +36,15 @@ class DateTypeNodeView extends ReactNodeView {
     return true;
   }
 
+  setSelection() {
+    // Override the default setSelection - avoid error:
+    // Uncaught TypeError: Cannot read properties of null (reading 'nodeType')
+    if (!this.contentDOM.isConnected) {
+      return;
+    }
+  }
+
+
   addEmptyClass() {
     if (!this.node.textContent.length) this.dom.classList.add('empty-date');
     if (
