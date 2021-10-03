@@ -107,14 +107,17 @@ export class RowDragHandler {
       );
     }
 
+
     const {pos: insertRowPos} =
       findParentNodeOfType(state.schema.nodes.table_cell)(
         TextSelection.create(state.doc, mousePos.pos)
       ) || mousePos.inside;
 
-    const insertCellIndex = rect.map.map.indexOf(
+    let insertCellIndex = rect.map.map.indexOf(
       insertRowPos - rect.tableStart
     );
+    // Avoid drag above the header
+    insertCellIndex = insertCellIndex > 1 ? insertCellIndex : 2
 
     if (
       originCellIndex === -1 ||

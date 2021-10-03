@@ -23,7 +23,8 @@ export const switchRows = (
     tableRect.tableStart + tableRect.table.content.size,
     rowsSlice
   );
-  newTr.setSelection(Selection.near(newTr.doc.resolve(selPos), 1));
+  // TODO: Find a solution to selection after drag
+  // newTr.setSelection(Selection.near(newTr.doc.resolve(selPos), 1));
 
   if (tr) {
     return newTr;
@@ -54,7 +55,8 @@ export const switchCols = (
     tableRect.tableStart + tableRect.table.content.size,
     newRowsSlice
   );
-  newTr.setSelection(Selection.near(newTr.doc.resolve(selPos), 1));
+  // TODO: Find a solution to selection after drag
+  // newTr.setSelection(Selection.near(newTr.doc.resolve(selPos), 1));
 
   if (tr) {
     return newTr;
