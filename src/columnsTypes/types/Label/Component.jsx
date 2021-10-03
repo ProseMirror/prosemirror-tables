@@ -73,23 +73,16 @@ export const LabelsChooser = ({view, pos, node}) => {
   const [tableLabels, setTableLabels] = useState([]);
   const [chosenLabels, setChosenLabels] = useState([]);
   const [inputValue, setInputValue] = useState('');
-
   const [newLabelColor, setNewLabelColor] = useState(stringToColor(randomString()))
 
-  const handleClose = React.useCallback(
-    (currentChosenLabels) => {
-      if (typeof currentChosenLabels === 'string') {
-        addLabel(view, pos, node, {title: currentChosenLabels, color: newLabelColor});
-      } else {
-        updateCellLabels(view, pos, node, currentChosenLabels);
-      }
-      const {tr} = view.state;
-      tr.setMeta(tableLabelsMenuKey, {action: 'close', id: window.id});
-      view.dispatch(tr);
-    },
-    [node, pos, view, chosenLabels]
-  );
-
+  const handleClose = (currentChosenLabels) => {
+    if (typeof currentChosenLabels === 'string') {
+      addLabel(view, pos, node, {title: currentChosenLabels, color: newLabelColor});
+    } else {
+      updateCellLabels(view, pos, node, currentChosenLabels);
+    }
+  }
+    
   const ref = useClickOutside(() => {
     handleClose(chosenLabels);
   });
@@ -147,6 +140,8 @@ export const LabelsChooser = ({view, pos, node}) => {
     setTableLabels((oldLabels) =>
       oldLabels.filter((label) => label.title !== labelTitle)
     );
+    setChosenLabels((oldLabels) =>
+      oldLabels.filter((label) => label.title !== labelTitle))
   };
 
   return (
@@ -211,7 +206,6 @@ export const LabelsChooser = ({view, pos, node}) => {
 
 const LabelComponent = ({view, node, getPos, dom}) => {
   const labels = node.attrs.labels;
-
   return (
     <>
       <div className="all-labels-container">

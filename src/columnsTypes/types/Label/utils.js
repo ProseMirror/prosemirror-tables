@@ -49,7 +49,9 @@ export const addLabel = (view, pos, node, newLabel) => {
     pos + 1,
     view.state.schema.nodes.label.create(newAttrs)
   );
+  
   updateTablesLabels(tr, pos, 'add', [newLabel]);
+  tr.setMeta(tableLabelsMenuKey, {action: 'close', id: window.id});
 
   view.dispatch(tr);
 };
@@ -95,8 +97,6 @@ export const updateTablesLabels = (tr, pos, action = 'add', newLabels) => {
         (label) => !(newLabels.find(newLabel => newLabel === label.title))
       ),
     };
-
-    console.log(newAttrs);
   }
 
   tr.setNodeMarkup(table.pos, undefined, newAttrs);
@@ -117,6 +117,7 @@ export const updateCellLabels = (view, pos, node, labels) => {
   );
 
   updateTablesLabels(tr, pos, 'add', labels);
+  tr.setMeta(tableLabelsMenuKey, {action: 'close', id: window.id});
 
   view.dispatch(tr);
 };

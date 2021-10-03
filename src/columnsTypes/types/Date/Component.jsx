@@ -35,7 +35,6 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
     if (dateFromAttrs === -1 || !pos) return;
     const formattedDate = formatDate(new Date(dateFromAttrs), DATE_FORMAT);
     if (formattedDate !== node.textContent) {
-      console.log(DATE_FORMAT, 'date format');
       const {tr} = view.state;
       tr.insertText(formattedDate, pos + 1, pos + node.nodeSize - 1);
 
@@ -59,8 +58,9 @@ export const DatePickerComponent = ({view, node, pos, dom}) => {
   );
 
   const ref = useClickOutside((e) => {
-    const cellDom = tableDateMenuKey.getState(view.state).dom;
-    if (!e || cellDom.contains(e.target)) return;
+    const dateMenuState = tableDateMenuKey.getState(view.state);
+    const cellDom = dateMenuState ? dateMenuState.dom : null;
+    if (!e || !cellDom || cellDom.contains(e.target)) return;
 
     const {tr} = view.state;
     tr.setMeta(tableDateMenuKey, {
