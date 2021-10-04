@@ -4,7 +4,7 @@ import CheckboxType from './types/Checkbox';
 import DateType from './types/Date/Handler';
 import LabelType from './types/Label/Handler';
 import CurrencyCellType from './types/Currency';
-import { PluginKey } from 'prosemirror-state';
+import {PluginKey} from 'prosemirror-state';
 
 export const tableHeadersMenuKey = new PluginKey('headersMenu');
 
@@ -14,7 +14,7 @@ export const types = [
     displayName: 'Text',
     icon: '',
     handler: new TextCellType(),
-    dontForce: true
+    dontForce: true,
   },
   {
     id: 'number',

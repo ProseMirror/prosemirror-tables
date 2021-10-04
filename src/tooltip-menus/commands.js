@@ -1,4 +1,4 @@
-import { types } from '../columnsTypes/types.config';
+import {types} from '../columnsTypes/types.config';
 import {deleteColumn, deleteRow, deleteTable, selectedRect} from '../commands';
 import {CellSelection} from '../cellselection';
 
@@ -50,13 +50,20 @@ export const toggleTableHeaders = (state, dispatch, view) => {
   tr.setNodeMarkup(tableStart - 1, table.type, {
     headers: !table.attrs.headers,
   });
- 
-  if(table.attrs.headers) {
-    const cellsSelection = CellSelection.create(tr.doc, tableStart + map.map[0], tableStart + map.map[map.map.length - 1])
-    const textType = types.find(type => type.id === 'text').handler;
 
-    cellsSelection.forEachCell((cell, pos) => {
-      console.log(cell);
+  if (table.attrs.headers) {
+    const cellsSelection = CellSelection.create(
+      tr.doc,
+      tableStart + map.map[0],
+      tableStart + map.map[map.map.length - 1]
+    );
+    const textType = types.find((type) => type.id === 'text').handler;
+    const reversedCells = [];
+    cellsSelection.forEachCell((cell, pos) =>
+      reversedCells.unshift({cell, pos})
+    );
+
+    reversedCells.forEach(({cell, pos}) => {
       tr.replaceRangeWith(
         pos + 1,
         pos + cell.nodeSize - 1,
@@ -73,8 +80,8 @@ export const toggleTableHeaders = (state, dispatch, view) => {
       });
 
       tr.setNodeMarkup(pos, undefined, newAttrs);
-    })
+    });
   }
-  
+
   dispatch(tr);
 };

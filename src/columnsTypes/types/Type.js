@@ -1,5 +1,5 @@
 import {getColCells} from '../../util';
-import {tableHeadersMenuKey, types} from '../types.config';
+import {tableHeadersMenuKey} from '../types.config';
 
 class CellDataType {
   convert(view, typeId) {
@@ -15,26 +15,6 @@ class CellDataType {
     tr.setNodeMarkup(pos, undefined, Object.assign(node.attrs, {type: typeId}));
 
     cells.reverse().forEach(({node: cell, pos}) => {
-      // const currentContent = cell.textContsent;
-      // const valueFromAttrs =
-      //   cell.attrs.values[typeId].default !== undefined
-      //     ? cell.attrs.values[typeId].default
-      //     : cell.attrs.values[typeId];
-
-      // const reverseConvertedValue = types
-      //   .find((type) => type.id === cell.attrs.type)
-      //   .handler.convertContent(valueFromAttrs);
-
-      /**
-       * for each cell we will keep all the values in all formats,
-       * if the current content value is same as the value we will get if we reverse-convert to the converted type -
-       * we will use the value from the attrs. if not we will just use the converted value :)
-       */
-
-      // const convertedValue =
-      //   currentContent !== reverseConvertedValue
-      //     ? this.convertContent(currentContent)
-      //     : this.convertContent(valueFromAttrs);
       tr.replaceRangeWith(
         pos + 1,
         pos + cell.nodeSize - 1,
@@ -46,13 +26,7 @@ class CellDataType {
         )
       );
 
-      // const newValues = cell.attrs.values;
-      // newValues[typeId] = convertedValue;
-      // if (cell.firstChild)
-      //   newValues[cell.attrs.type] = this.parseContent(cell.firstChild);
-
       const newAttrs = Object.assign(cell.attrs, {
-        // values: newValues,
         type: typeId,
       });
 
