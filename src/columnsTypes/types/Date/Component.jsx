@@ -52,7 +52,7 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
   );
 };
 
-export const DatePickerComponent = ({view, node, pos, dom}) => {
+export const DatePickerComponent = ({view, node, pos}) => {
   const [date, setDate] = useState(
     buildDateObjectFromText(node.textContent, DATE_FORMAT) || new Date()
   );

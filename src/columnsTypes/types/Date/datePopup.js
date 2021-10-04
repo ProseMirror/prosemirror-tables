@@ -161,16 +161,19 @@ export const TableDateMenu = (dateFormat) => {
         }
         return null;
       }
-      const {tr} = newState;
-      tr.setMeta(tableDateMenuKey, {
-        pos: dateParent.pos,
-        dom: cellDom,
-        node: dateParent.node,
-        id: window.id,
-        action: 'open',
-      });
+      return null;
 
-      return tr;
+      // TODO: uncomment after implementing setSelection in the NOde View.
+      // const {tr} = newState;
+      // tr.setMeta(tableDateMenuKey, {
+      //   pos: dateParent.pos,
+      //   dom: cellDom,
+      //   node: dateParent.node,
+      //   id: window.id,
+      //   action: 'open',
+      // });
+
+      // return tr;
     },
   });
 };

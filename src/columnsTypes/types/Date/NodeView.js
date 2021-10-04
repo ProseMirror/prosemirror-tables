@@ -36,14 +36,17 @@ class DateTypeNodeView extends ReactNodeView {
     return true;
   }
 
-  setSelection() {
+  setSelection(anchor, head, root) {
+    // overriding this method actually takes control on all selection in date nodes
+    // TODO: need to implement default selection changes behavior
+    // https://github.com/ProseMirror/prosemirror-view/blob/ce6261bf7438bc52599d33c38e31eb393e652f0a/src/viewdesc.js
+
     // Override the default setSelection - avoid error:
     // Uncaught TypeError: Cannot read properties of null (reading 'nodeType')
     if (!this.contentDOM.isConnected) {
       return;
     }
   }
-
 
   addEmptyClass() {
     if (!this.node.textContent.length) this.dom.classList.add('empty-date');
