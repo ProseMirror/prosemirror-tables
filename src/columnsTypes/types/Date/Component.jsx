@@ -72,7 +72,7 @@ export const DatePickerComponent = ({view, node, pos}) => {
 
   const handleChange = useCallback(
     (newValue) => {
-      setDate(newValue);
+      setDate(newValue.toDate());
       if (pos) {
         const {tr} = view.state;
 
@@ -83,14 +83,14 @@ export const DatePickerComponent = ({view, node, pos}) => {
         if (!dateNode) return;
 
         tr.insertText(
-          formatDate(newValue, DATE_FORMAT),
+          formatDate(newValue.toDate(), DATE_FORMAT),
           dateNode.start,
           pos + dateNode.node.nodeSize - 1
         );
 
         tr.setNodeMarkup(dateNode.pos, undefined, {
           ...dateNode.node.attrs,
-          value: newValue.getTime(),
+          value: newValue.toDate().getTime(),
         });
 
         view.dispatch(tr);
