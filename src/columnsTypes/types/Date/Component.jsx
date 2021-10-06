@@ -9,7 +9,7 @@ import {
 } from './utils';
 
 import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
+import DateUtilDayJS from '@date-io/dayjs';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 
 const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
@@ -101,7 +101,7 @@ export const DatePickerComponent = ({view, node, pos}) => {
 
   return (
     <div className="date-picker" ref={ref}>
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <MuiPickersUtilsProvider utils={DateUtilDayJS}>
         <DatePicker
           autoOk
           onChange={handleChange}

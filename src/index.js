@@ -130,9 +130,7 @@ export {
   clipCells as __clipCells,
 } from './copypaste';
 export {tablePopUpMenu, tablePopUpMenuKey};
-export {
-  tableHeadersMenu,
-} from './headers/headers-menu/index';
+export {tableHeadersMenu} from './headers/headers-menu/index';
 export {selectionShadowPlugin} from './selectionshadow';
 export {typesEnforcer} from './columnsTypes/typesEnforcer';
 export {TableDateMenu} from './columnsTypes/types/Date/datePopup';

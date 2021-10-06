@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useRef} from 'react';
 
 /* USAGE:
-// const ref = useClickOutside(() => {...});
+* Returns a ref that calls an outside click listener.
+* const ref = useClickOutside(() => {...});
 */
 const useClickOutside = (onClose) => {
   const ref = useRef(null);

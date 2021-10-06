@@ -4,6 +4,8 @@ import {cellAround, getColIndex, pointsAtCell, setAttr} from './util';
 import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
 import {tableNodeTypes} from './schema';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
+import {types} from './columnsTypes/types.config';
 
 export const key = new PluginKey('tableColumnResizing');
 
@@ -322,18 +324,44 @@ function handleDoubleClick(view, event, cellMinWidth) {
   const cellsInColumn = tableRows.map((row) => row.children[colIndex]);
 
   let columnMaxWidth = 0;
+  let colType;
+
+  const tableNode = findParentNodeOfTypeClosestToPos(
+    view.state.doc.resolve(resizeHandlePos),
+    view.state.schema.nodes.table
+  );
+
+  let cellFullWidthElementClassName = 'cellContent';
+
+  // its possible to set for each cell type what will be the element className that determines the actual width of the cell
+  //(by defining `cellFullWidthElementClassName`) see labels for example
+  // for text type its 'cellContent', therefor this is the default value
+
+  if (tableNode) {
+    const colHeader = tableNode.node.firstChild.content.content[colIndex];
+    if (colHeader) {
+      colType = colHeader.attrs.type;
+      const typeConfig = types.find((type) => type.id === colType);
+      cellFullWidthElementClassName =
+        typeConfig && typeConfig.cellFullWidthElementClassName
+          ? typeConfig.cellFullWidthElementClassName
+          : cellFullWidthElementClassName;
+    }
+  }
 
   // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
   cellsInColumn.forEach((cell) => {
-    const [cellContent] = cell.getElementsByClassName('cellContent');
-
+    const [cellContent] = cell.getElementsByClassName(
+      cellFullWidthElementClassName
+    );
+    if (!cellContent) return;
     // Change column width to min + add no line breaks css role
     cellContent.style = `width: ${
       cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH
     }px;white-space: nowrap;`;
 
     const cellScrollWidth = cellContent.scrollWidth;
-
+    console.log(cellScrollWidth, cellContent);
     columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
   });
 

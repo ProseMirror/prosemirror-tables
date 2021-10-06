@@ -62,7 +62,7 @@ export function setCellAttrs(node, extraAttrs) {
 //     The content expression for table cells.
 //
 //     cellContentGroup:: string
-//     The group of the cell content
+//     The group of the cell content, used to set all types nodes groups
 //
 //     cellAttributes:: ?Object
 //     Additional attributes to add to cells. Maps attribute names to
@@ -171,7 +171,7 @@ export function tableNodes(options) {
     date: {
       attrs: {value: {default: 0}},
       content: 'inline*',
-      group: 'block',
+      group: options.cellContentGroup,
       draggable: false,
       selectable: false,
       isolating: true,
@@ -191,7 +191,7 @@ export function tableNodes(options) {
     },
     label: {
       attrs: {labels: {default: []}},
-      group: 'block',
+      group: options.cellContentGroup,
       // content:
       selectable: true,
       draggable: false,
