@@ -1,9 +1,5 @@
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {PluginKey} from 'prosemirror-state';
-import {
-  EDITOR_LEFT_OFFSET,
-  EDITOR_TOP_OFFSET,
-} from '../../../headers/headers-menu/utils';
 import {createHash} from 'crypto';
 import {getColCells} from '../../../util';
 
@@ -153,7 +149,10 @@ export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
 
   if (left === 0 || top === 0) return;
 
+  // scroll offset
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
+  const {x: EDITOR_LEFT_OFFSET, y: EDITOR_TOP_OFFSET} =
+    scrolledEl.getBoundingClientRect();
 
   style.top = `${
     top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) - 70 + cellHeight

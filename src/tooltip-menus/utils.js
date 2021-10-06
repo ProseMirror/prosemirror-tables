@@ -1,9 +1,6 @@
 import {CellSelection} from '../cellselection';
 import {createElementWithClass} from '../util';
 
-const EDITOR_LEFT_OFFSET = 224;
-const EDITOR_TOP_OFFSET = 130;
-
 export function enableDeleteItem(view) {
   const {selection: sel} = view.state;
 
@@ -94,6 +91,8 @@ export const calculatePopupPosition = (view, popupDOM) => {
 
   // scroll offset
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
+  const {x: EDITOR_LEFT_OFFSET, y: EDITOR_TOP_OFFSET} =
+    scrolledEl.getBoundingClientRect();
 
   const cellCenter =
     firstCellRect.left + (lastCellRect.right - firstCellRect.left) / 2;
@@ -106,7 +105,7 @@ export const calculatePopupPosition = (view, popupDOM) => {
     let tableContainer = selectedCells[0];
 
     // find the dom of the table wrapper
-    while (!tableContainer.classList.contains('tableFocus')) {
+    while (!tableContainer.classList.contains('tableVerticalWrapper')) {
       if (tableContainer.parentElement) {
         tableContainer = tableContainer.parentElement;
       } else {
@@ -120,7 +119,7 @@ export const calculatePopupPosition = (view, popupDOM) => {
       tableContainerBox.left + tableContainerBox.width / 2 - EDITOR_LEFT_OFFSET
     }px`;
     popupDOM.style.top = `${
-      lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET
+      lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET + 20
     }px`;
 
     return;
@@ -140,7 +139,7 @@ export const calculatePopupPosition = (view, popupDOM) => {
     }
 
     popupDOM.style.top = `${
-      top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
+      top - 35 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
     }px`;
     popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
 

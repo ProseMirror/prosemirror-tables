@@ -2,9 +2,6 @@ import {CellSelection} from '../../cellselection';
 import {createElementWithClass} from '../..//util';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 
-export const EDITOR_LEFT_OFFSET = 224;
-export const EDITOR_TOP_OFFSET = 110;
-
 export function enableDeleteItem(view) {
   const {selection: sel} = view.state;
 
@@ -63,11 +60,14 @@ export const calculateMenuPosition = (menuDOM, {node, dom: headerDOM, pos}) => {
   const {left, top, width: headerWidth} = headerDOM.getBoundingClientRect();
   const {width: menuWidth} = menuDOM.getBoundingClientRect();
 
+  // scroll offset
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
+  const {x: EDITOR_LEFT_OFFSET, y: EDITOR_TOP_OFFSET} =
+    scrolledEl.getBoundingClientRect();
 
   const leftOffset = (headerWidth - menuWidth) / 2;
 
-  style.top = `${top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0)}px`;
+  style.top = `${top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) - 5}px`;
   style.left = `${left - EDITOR_LEFT_OFFSET + leftOffset}px`;
 };
 
