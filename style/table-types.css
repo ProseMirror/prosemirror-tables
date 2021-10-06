@@ -210,17 +210,24 @@
   overflow: hidden;
   background-color: white;
 }
-
-.empty-date .dd_MM_yyyy::before {
-  content: 'dd/mm/yyyy';
+.empty-date .dd_MM_yyyy .cell-date-content,
+.empty-date .MM_dd_yyyy .cell-date-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.empty-date .dd_MM_yyyy .cell-date-content::before,
+.empty-date .MM_dd_yyyy .cell-date-content::before {
   color: rgb(189, 189, 189);
-  position: absolute;
+  content: 'dd/mm/yyyy';
 }
 
-.empty-date .MM_dd_yyyy::before {
+.empty-date .dd_MM_yyyy .cell-date-content::before {
+  content: 'dd/mm/yyyy';
+}
+
+.empty-date .MM_dd_yyyy .cell-date-content::before {
   content: 'mm/dd/yyyy';
-  color: rgb(189, 189, 189);
-  position: absolute;
 }
 
 .new-label-placeholder {

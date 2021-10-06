@@ -1,4 +1,4 @@
-import {Dropdown, MenuItem} from 'prosemirror-menu';
+import {MenuItem} from 'prosemirror-menu';
 import {
   sortColumn,
   addColAfterButton,
