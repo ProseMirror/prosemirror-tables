@@ -28,17 +28,17 @@ export const displayPopup = (view, popupDOM) => {
 
 export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
   const {style} = menuDOM;
-  const {left, top, height: cellHeight} = cellDOM.getBoundingClientRect();
+  const {left, bottom, height: cellHeight} = cellDOM.getBoundingClientRect();
 
-  if (left === 0 || top === 0 || cellHeight === 0) return;
+  if (left === 0 || bottom === 0 || cellHeight === 0) return;
 
   // scroll offset
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
   const {x: EDITOR_LEFT_OFFSET, y: EDITOR_TOP_OFFSET} =
     scrolledEl.getBoundingClientRect();
-    
+
   style.top = `${
-    top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) - 32 + cellHeight
+    bottom - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) + 8
   }px`;
   style.left = `${left - EDITOR_LEFT_OFFSET - 8}px`;
 };
