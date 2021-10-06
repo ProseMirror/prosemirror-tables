@@ -48,11 +48,17 @@
   border-radius: 6px;
   background-color: white;
 
-  display: inline-flex;
+  display: none;
   flex-direction: column;
 
   top: -50px;
   left: 180px;
+}
+
+.headersMenu
+  .ProseMirror-menu-dropdown-wrap:hover
+  .ProseMirror-menu-dropdown-menu.columnTypeDropdown {
+  display: inline-flex;
 }
 
 .ProseMirror-menu-dropdown-wrap {

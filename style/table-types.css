@@ -50,6 +50,10 @@
   font-size: 20px;
   color: rgba(73, 73, 73, 0.7);
 
+  margin-left: 3px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+
   display: flex;
   align-items: center;
   justify-content: center;

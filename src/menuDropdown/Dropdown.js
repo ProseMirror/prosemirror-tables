@@ -1,17 +1,5 @@
 import crel from 'crelt';
 
-const lastMenuEvent = {time: 0, node: null};
-function markMenuEvent(e) {
-  lastMenuEvent.time = Date.now();
-  lastMenuEvent.node = e.target;
-}
-function isMenuEvent(wrapper) {
-  return (
-    Date.now() - 100 < lastMenuEvent.time &&
-    lastMenuEvent.node &&
-    wrapper.contains(lastMenuEvent.node)
-  );
-}
 function translate(view, text) {
   return view._props.translate ? view._props.translate(text) : text;
 }
@@ -82,31 +70,8 @@ export class HoverDropdown {
     if (this.options.title)
       label.setAttribute('title', translate(view, this.options.title));
     const wrap = crel('div', {class: prefix + '-dropdown-wrap'}, label);
-    let open = null,
-      listeningOnClose = null;
-    const close = () => {
-      if (open && open.close()) {
-        open.close();
-        open = null;
-        label.removeEventListener('mouseout', listeningOnClose);
-      }
-    };
 
-    label.addEventListener('mouseenter', (e) => {
-      e.preventDefault();
-      markMenuEvent(e);
-
-      open = this.expand(wrap, content.dom);
-      open.node.addEventListener('mouseenter', () => {
-        open.node.addEventListener(
-          'mouseleave',
-          (listeningOnClose = () => {
-            console.log('out');
-            if (!isMenuEvent(wrap)) close();
-          })
-        );
-      });
-    });
+    this.expand(wrap, content.dom);
 
     function update(state) {
       const inner = content.update(state);
