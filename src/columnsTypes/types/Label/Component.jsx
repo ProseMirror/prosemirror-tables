@@ -8,7 +8,7 @@ import {
   tableLabelsMenuKey,
   updateTablesLabels,
   removeLabelsFromTableCells,
-  randomString
+  randomString,
 } from './utils';
 import useClickOutside from '../../../useClickOutside.jsx';
 
@@ -73,16 +73,21 @@ export const LabelsChooser = ({view, pos, node}) => {
   const [tableLabels, setTableLabels] = useState([]);
   const [chosenLabels, setChosenLabels] = useState([]);
   const [inputValue, setInputValue] = useState('');
-  const [newLabelColor, setNewLabelColor] = useState(stringToColor(randomString()))
+  const [newLabelColor, setNewLabelColor] = useState(
+    stringToColor(randomString())
+  );
 
   const handleClose = (currentChosenLabels) => {
     if (typeof currentChosenLabels === 'string') {
-      addLabel(view, pos, node, {title: currentChosenLabels, color: newLabelColor});
+      addLabel(view, pos, node, {
+        title: currentChosenLabels,
+        color: newLabelColor,
+      });
     } else {
       updateCellLabels(view, pos, node, currentChosenLabels);
     }
-  }
-    
+  };
+
   const ref = useClickOutside(() => {
     handleClose(chosenLabels);
   });
@@ -106,9 +111,11 @@ export const LabelsChooser = ({view, pos, node}) => {
 
     setTableLabels(tableParent.node.attrs.labels);
     setChosenLabels(node.attrs.labels);
+
+    return () => (ref.current = undefined);
   }, []);
 
-  const handleLabelCheck = React.useCallback((title, color,  checked) => {
+  const handleLabelCheck = React.useCallback((title, color, checked) => {
     if (checked) {
       setChosenLabels((oldChosen) => [...oldChosen, {title, color}]);
     } else {
@@ -127,8 +134,8 @@ export const LabelsChooser = ({view, pos, node}) => {
           const input = document.getElementById('labels-input');
           if (input) input.focus();
         };
-    
-    setNewLabelColor(stringToColor(randomString()))
+
+    setNewLabelColor(stringToColor(randomString()));
   }, [inputValue, handleClose]);
 
   const handleLabelDelete = (labelTitle) => {
@@ -141,7 +148,8 @@ export const LabelsChooser = ({view, pos, node}) => {
       oldLabels.filter((label) => label.title !== labelTitle)
     );
     setChosenLabels((oldLabels) =>
-      oldLabels.filter((label) => label.title !== labelTitle))
+      oldLabels.filter((label) => label.title !== labelTitle)
+    );
   };
 
   return (
@@ -170,10 +178,12 @@ export const LabelsChooser = ({view, pos, node}) => {
           {filteredLabels.length ? (
             filteredLabels.map(({title, color}, index) => (
               <LabelOption
-                checked={chosenLabels.find(label => label.title === title)}
+                checked={chosenLabels.find((label) => label.title === title)}
                 color={color}
                 key={`${title}${index}`}
-                onChange={(title, checked) => handleLabelCheck(title, color, checked)}
+                onChange={(title, checked) =>
+                  handleLabelCheck(title, color, checked)
+                }
                 onDelete={handleLabelDelete}
                 title={title}
               />

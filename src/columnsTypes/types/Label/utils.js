@@ -49,7 +49,7 @@ export const addLabel = (view, pos, node, newLabel) => {
     pos + 1,
     view.state.schema.nodes.label.create(newAttrs)
   );
-  
+
   updateTablesLabels(tr, pos, 'add', [newLabel]);
   tr.setMeta(tableLabelsMenuKey, {action: 'close', id: window.id});
 
@@ -83,18 +83,20 @@ export const updateTablesLabels = (tr, pos, action = 'add', newLabels) => {
   if (!table) return;
 
   let newAttrs;
-
   if (action === 'add') {
     newAttrs = {
       ...table.node.attrs,
-      labels: Array.from(new Set([...table.node.attrs.labels, ...newLabels])),
+      labels: getUniqueListBy(
+        [...table.node.attrs.labels, ...newLabels],
+        'title'
+      ),
     };
   }
   if (action === 'remove') {
     newAttrs = {
       ...table.node.attrs,
       labels: table.node.attrs.labels.filter(
-        (label) => !(newLabels.find(newLabel => newLabel === label.title))
+        (label) => !newLabels.find((newLabel) => newLabel === label.title)
       ),
     };
   }
@@ -178,4 +180,8 @@ export const randomString = () => {
   // Convert it to base 36 (numbers + letters), and grab the first 12 characters
   // after the decimal.
   return '_' + Math.random().toString(36).substr(2, 12);
+};
+
+function getUniqueListBy(arr, key) {
+  return [...new Map(arr.map((item) => [item[key], item])).values()];
 }

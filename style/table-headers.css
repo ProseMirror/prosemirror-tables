@@ -62,10 +62,19 @@
 .typeItem,
 .ProseMirror-menu-dropdown.columnTypeDropdown {
   display: flex;
+  position: relative;
   gap: 10px;
   align-items: center;
   width: 100%;
   padding: 9px;
+}
+
+.ProseMirror-menu-dropdown.columnTypeDropdown::before {
+  position: absolute;
+  right: 30px;
+  content: url(./svgs/right-arrow.svg);
+  width: 15px;
+  transform: scale(0.13);
 }
 
 .typeIcon {

@@ -4,6 +4,7 @@ import {
   addColAfterButton,
   addColBeforeButton,
 } from '../../commands';
+import {HoverDropdown} from '../../menuDropdown/Dropdown';
 import {createElementWithClass, getColIndex} from '../../util';
 import {getTypesItems} from '../../columnsTypes/typesMenuItems';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
@@ -24,7 +25,7 @@ export const dropdownClassName = 'columnTypeDropdown';
 const columnTypesItems = getTypesItems();
 
 const columnTypeDropdown = () => {
-  return new Dropdown(columnTypesItems, {
+  return new HoverDropdown(columnTypesItems, {
     class: dropdownClassName,
   });
 };
@@ -103,18 +104,4 @@ export const menuItems = [
     insertColumnItem(-1),
     deleteItem(),
   ],
-];
-export const tooltips = [
-  {
-    className: 'toggleTableHeaderButton',
-    text: 'Toggle Headers',
-  },
-  {
-    className: 'deleteMenuButton',
-    text: 'Delete Selection',
-  },
-  {
-    className: 'cellColorDropDown',
-    text: 'Color Selection',
-  },
 ];

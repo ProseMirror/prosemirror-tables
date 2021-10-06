@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@date-io/date-fns": "1.x",
+    "crelt": "^1.0.5",
     "crypto": "^1.0.1",
     "date-fns": "^2.24.0",
     "prosemirror-commands": "^1.1.1",

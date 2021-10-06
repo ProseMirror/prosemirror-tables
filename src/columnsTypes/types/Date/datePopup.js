@@ -163,7 +163,7 @@ export const TableDateMenu = (dateFormat) => {
       }
       return null;
 
-      // TODO: uncomment after implementing setSelection in the NOde View.
+      // TODO: uncomment after implementing setSelection in the Node View.
       // const {tr} = newState;
       // tr.setMeta(tableDateMenuKey, {
       //   pos: dateParent.pos,

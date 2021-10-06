@@ -1,4 +1,4 @@
-import {Plugin, PluginKey} from 'prosemirror-state';
+import {Plugin} from 'prosemirror-state';
 import TableHeadersMenuView from './menu-view';
 import {menuItems} from './items';
 import {tableHeadersMenuKey} from  '../../columnsTypes/types.config'
