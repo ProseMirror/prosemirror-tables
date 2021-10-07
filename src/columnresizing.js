@@ -348,12 +348,12 @@ function handleDoubleClick(view, event, cellMinWidth) {
           : cellFullWidthElementClassName;
     }
   }
-
   // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
   cellsInColumn.forEach((cell) => {
     const [cellContent] = cell.getElementsByClassName(
       cellFullWidthElementClassName
     );
+
     if (!cellContent) return;
     // Change column width to min + add no line breaks css role
     cellContent.style = `width: ${
@@ -361,7 +361,12 @@ function handleDoubleClick(view, event, cellMinWidth) {
     }px;white-space: nowrap;`;
 
     const cellScrollWidth = cellContent.scrollWidth;
-    console.log(cellScrollWidth, cellContent);
+
+     // return cell to original width
+    cellContent.style = `width: ${
+        Math.max(cellTotalWidth, cellMinWidth)
+      }px;white-space: nowrap;`;
+
     columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
   });
 
