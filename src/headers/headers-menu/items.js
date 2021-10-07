@@ -97,7 +97,7 @@ const deleteItem = () => {
 export const menuItems = [
   [columnTypeDropdown()],
   [
-    filterItem(),
+    // filterItem(),
     sortItem(1),
     sortItem(-1),
     insertColumnItem(1),
