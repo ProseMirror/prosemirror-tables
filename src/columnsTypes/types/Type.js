@@ -33,6 +33,8 @@ class CellDataType {
       tr.setNodeMarkup(pos, undefined, newAttrs);
     });
 
+    tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id})
+
     view.dispatch(tr);
   }
 
