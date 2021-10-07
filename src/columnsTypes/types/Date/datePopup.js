@@ -90,17 +90,7 @@ class TableDateMenuView {
         pos={this.cellData.pos}
         view={this.view}
       />,
-      this.popUpDOM,
-      () => {
-        // Remove duplicate style tag till we will upgrade to new mui
-        // See: https://github.com/mui-org/material-ui/issues/15610#issuecomment-502182452
-        const [, ...duplicatedStyleTags] = document.querySelectorAll(
-          'style[data-meta="MuiButtonBase"]'
-        );
-        duplicatedStyleTags.forEach((tag) => {
-          tag.remove();
-        });
-      }
+      this.popUpDOM
     );
   }
 

@@ -11,6 +11,12 @@ import {
 import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateUtilDayJS from '@date-io/dayjs';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
+import { StylesProvider, createGenerateClassName } from '@material-ui/core/styles';
+
+const generateClassName = createGenerateClassName({
+  seed: 'sgo-tables-plugin-',
+});
+
 
 const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
   const openChooser = useCallback(
@@ -54,7 +60,7 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
 
 export const DatePickerComponent = ({view, node, pos}) => {
   const [date, setDate] = useState(
-    buildDateObjectFromText(node.textContent, DATE_FORMAT) || new Date()
+    buildDateObjectFromText(node ? node.textContent : '', DATE_FORMAT) || new Date()
   );
 
   const ref = useClickOutside((e) => {
@@ -102,15 +108,17 @@ export const DatePickerComponent = ({view, node, pos}) => {
 
   return (
     <div className="date-picker" ref={ref}>
-      <MuiPickersUtilsProvider utils={DateUtilDayJS}>
-        <DatePicker
-          autoOk
-          onChange={handleChange}
-          openTo="date"
-          value={date}
-          variant="static"
-        />
-      </MuiPickersUtilsProvider>
+      <StylesProvider generateClassName={generateClassName}>
+        <MuiPickersUtilsProvider utils={DateUtilDayJS}>
+          <DatePicker
+            autoOk
+            onChange={handleChange}
+            openTo="date"
+            value={date}
+            variant="static"
+          />
+        </MuiPickersUtilsProvider>
+      </StylesProvider>
     </div>
   );
 };
