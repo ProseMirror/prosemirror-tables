@@ -1,6 +1,6 @@
 {
   "name": "@skiff-org/prosemirror-tables",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -30,6 +30,7 @@
     }
   ],
   "peerDependencies": {
+    "@material-ui/core": "^4.12.3",
     "@material-ui/pickers": "^3.2.10",
     "react": "16.14.0",
     "react-dom": "16.14.0"
