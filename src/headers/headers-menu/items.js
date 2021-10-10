@@ -9,6 +9,7 @@ import {createElementWithClass, getColIndex} from '../../util';
 import {getTypesItems} from '../../columnsTypes/typesMenuItems';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 import {deleteColAtPos} from '../../commands';
+import { tableFiltersMenuKey } from '../../filters/utils';
 
 const createMenuItemWithIcon = (className, label, iconClassName) => {
   const item = createElementWithClass('div', className);
@@ -75,6 +76,23 @@ const filterItem = () => {
         'filters-colum-icon  menuIcon'
       );
     },
+    run(state, dispatch) {
+      const {pos, dom: tableDom, node: table} = tableHeadersMenuKey.getState(state);
+      const {tr} = state;
+      tr.setMeta(tableFiltersMenuKey, {
+        action: 'open',
+        dom: tableDom,
+        node: table,
+        pos,
+        id: window.id
+      })
+      tr.setMeta(tableHeadersMenuKey, {
+        action: 'close',
+        id: window.id
+      })
+
+      dispatch(tr)
+    }
   });
 };
 
@@ -97,7 +115,7 @@ const deleteItem = () => {
 export const menuItems = [
   [columnTypeDropdown()],
   [
-    // filterItem(),
+    filterItem(),
     sortItem(1),
     sortItem(-1),
     insertColumnItem(1),

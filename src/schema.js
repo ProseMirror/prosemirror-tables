@@ -111,6 +111,7 @@ export function tableNodes(options) {
         sort: {default: {col: null, dir: null}},
         headers: {default: true},
         labels: {default: []},
+        filters: {default: []}
       },
       parseDOM: [{tag: 'table'}],
       toDOM() {
