@@ -19,20 +19,18 @@ const generateClassName = createGenerateClassName({
 
 
 const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
-  const openChooser = useCallback(
-    (e) => {
-      const {tr} = view.state;
-      tr.setMeta(tableDateMenuKey, {
-        pos: getPos(),
-        dom: dom,
-        node: node,
-        id: window.id,
-        action: 'open',
-      });
-      setTimeout(() => view.dispatch(tr), 0);
-    },
-    [dom, node]
-  );
+  const openChooser = (e) => {
+    const {tr} = view.state;
+    tr.setMeta(tableDateMenuKey, {
+      pos: getPos(),
+      dom: dom,
+      node: node,
+      id: window.id,
+      action: 'open',
+    });
+    
+    view.dispatch(tr)
+  }
 
   const pos = getPos();
 
