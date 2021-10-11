@@ -3,7 +3,7 @@ import {renderGrouped} from 'prosemirror-menu';
 import {dropdownClassName} from './items';
 import {TextField} from './textField/text-field.prosemirror';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
-import {types} from '../../columnsTypes/types.config';
+import {columnTypesMap} from '../../columnsTypes/types.config';
 import {createElementWithClass} from '../../util';
 
 /**
@@ -142,9 +142,7 @@ class TableHeadersMenuView {
 
     const typeId = this.headerData.node.attrs.type;
 
-    const typeDisplayName = types.find(
-      (type) => type.id === typeId
-    ).displayName;
+    const typeDisplayName = columnTypesMap[typeId].displayName;
 
     const icon = createElementWithClass('div', `${typeId}ItemIcon`);
     icon.classList.add('typeIcon');

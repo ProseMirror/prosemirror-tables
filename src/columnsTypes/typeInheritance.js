@@ -1,4 +1,4 @@
-import {types} from './types.config';
+import {columnTypesMap} from './types.config';
 import {TableMap} from '../tablemap';
 
 export const typeInheritance = (view, node, pos) => {
@@ -14,7 +14,7 @@ export const typeInheritance = (view, node, pos) => {
       const cell = node.child(row).child(col);
       if (cell.attrs.type !== colType) {
         const cellPos = tableMap.map[row * tableMap.width + col] + pos + 1;
-        const typeHandler = types.find((type) => type.id === colType).handler;
+        const typeHandler = columnTypesMap[colType].handler;
 
         tr.replaceRangeWith(
           cellPos + 1,
