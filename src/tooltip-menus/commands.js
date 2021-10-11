@@ -1,4 +1,4 @@
-import {types} from '../columnsTypes/types.config';
+import {columnTypesMap} from '../columnsTypes/types.config';
 import {deleteColumn, deleteRow, deleteTable, selectedRect} from '../commands';
 import {CellSelection} from '../cellselection';
 
@@ -57,7 +57,7 @@ export const toggleTableHeaders = (state, dispatch, view) => {
       tableStart + map.map[0],
       tableStart + map.map[map.map.length - 1]
     );
-    const textType = types.find((type) => type.id === 'text').handler;
+    const textType = columnTypesMap.text.handler;
     const reversedCells = [];
     cellsSelection.forEachCell((cell, pos) =>
       reversedCells.unshift({cell, pos})

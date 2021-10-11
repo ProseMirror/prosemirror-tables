@@ -5,6 +5,7 @@ import DateType from './types/Date/Handler';
 import LabelType from './types/Label/Handler';
 import CurrencyCellType from './types/Currency';
 import {PluginKey} from 'prosemirror-state';
+import {sortNumVsString} from '../util';
 
 export const tableHeadersMenuKey = new PluginKey('headersMenu');
 
@@ -50,6 +51,13 @@ export const types = [
     displayName: 'Checkbox',
     handler: new CheckboxType(),
     dontForce: true,
+    sortCompareFunction: (direction, cellA, cellB) => {
+      const getCellCheckState = (cell) => cell.content.content[0].attrs.checked
+      const cellAChecked = getCellCheckState(cellA);
+      const cellBChecked = getCellCheckState(cellB);
+      
+      return direction * (cellBChecked > cellAChecked ? 1 : -1);
+    }
   },
   {
     id: 'currency',
@@ -62,5 +70,20 @@ export const types = [
     handler: new LabelType(),
     dontForce: true,
     cellFullWidthElementClassName: 'all-labels-container', //class name of the element that determines the actual width of the cell
+    sortCompareFunction: (direction, cellA, cellB) => {
+      const getCellLabel = (cell) => cell.content.content[0].attrs.labels[0]
+      const cellALabel = getCellLabel(cellA);
+      const cellBLabel = getCellLabel(cellB);
+
+      const textA = cellALabel ? cellALabel.title : null
+      const textB = cellBLabel ? cellBLabel.title : null
+      
+      return sortNumVsString(direction, textA, textB)
+    }
   },
 ];
+
+export const columnTypesMap = types.reduce((map, type) => {
+  map[type.id] = type;
+  return map;
+}, {})

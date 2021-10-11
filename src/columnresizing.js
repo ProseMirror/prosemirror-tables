@@ -5,7 +5,7 @@ import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
 import {tableNodeTypes} from './schema';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import {types} from './columnsTypes/types.config';
+import {columnTypesMap} from './columnsTypes/types.config';
 
 export const key = new PluginKey('tableColumnResizing');
 
@@ -341,7 +341,7 @@ function handleDoubleClick(view, event, cellMinWidth) {
     const colHeader = tableNode.node.firstChild.content.content[colIndex];
     if (colHeader) {
       colType = colHeader.attrs.type;
-      const typeConfig = types.find((type) => type.id === colType);
+      const typeConfig = columnTypesMap[colType];
       cellFullWidthElementClassName =
         typeConfig && typeConfig.cellFullWidthElementClassName
           ? typeConfig.cellFullWidthElementClassName

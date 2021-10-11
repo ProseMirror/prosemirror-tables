@@ -3,6 +3,7 @@ import {TextSelection, Selection} from 'prosemirror-state';
 import {Fragment} from 'prosemirror-model';
 import {Rect, TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
+import {columnTypesMap} from './columnsTypes/types.config';
 import {
   addColSpan,
   cellAround,
@@ -13,6 +14,8 @@ import {
   removeColSpan,
   selectionCell,
   setAttr,
+  sortCollator,
+  sortNumVsString
 } from './util';
 import {tableNodeTypes} from './schema';
 
@@ -710,30 +713,21 @@ export function sortColumn(view, colNumber, pos, dir) {
     sensitivity: 'base',
   });
 
-  newRowsArray = newRowsArray.sort((a, b) => {
-    const textA = a.content.content[colNumber].textContent
+  const columnType = newRowsArray[0].content.content[colNumber].attrs.type
+  const defaultSort = (direction, cellA, cellB) => {
+    const textA = cellA.textContent
       .trim()
       .replace(/[^a-zA-Z0-9\-\.]/g, '');
-    const textB = b.content.content[colNumber].textContent
+    const textB = cellB.textContent
       .trim()
       .replace(/[^a-zA-Z0-9\-\.]/g, '');
 
-    // give first priority to numbers - so if only one content is numeric he will always be first
-    const aNumber = parseFloat(textA);
-    const bNumber = parseFloat(textB);
+    return sortNumVsString(direction, textA, textB)
+  }
 
-    const aIsNotNumber = isNaN(aNumber);
-    const bIsNotNumber = isNaN(bNumber);
+  const sortCompareFunction = columnTypesMap[columnType].sortCompareFunction || defaultSort;
 
-    if (aIsNotNumber && bIsNotNumber) {
-      // if not numeric values sort alphabetically
-      return dir * collator.compare(textA, textB);
-    }
-
-    if (!aIsNotNumber && bIsNotNumber) return -1 * dir;
-    if (aIsNotNumber && !bIsNotNumber) return 1 * dir;
-    return dir > 0 ? aNumber - bNumber : bNumber - aNumber;
-  });
+  newRowsArray = newRowsArray.sort((rowA, rowB) => sortCompareFunction(dir, rowA.content.content[colNumber], rowB.content.content[colNumber]));
 
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [
     header,
