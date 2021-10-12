@@ -1,6 +1,6 @@
 import {PluginKey} from 'prosemirror-state';
 
-export let DATE_FORMAT = 'dd/MM/yyyy';
+export let DATE_FORMAT = 'DD/MM/YYYY';
 export const setDateFormat = (format) => (DATE_FORMAT = format);
 export const tableDateMenuKey = new PluginKey('TableLabelsMenu');
 
@@ -55,12 +55,12 @@ export const formatDate = (date, format) => {
   const year = date.getUTCFullYear();
   const day = date.getUTCDate();
 
-  formattedDate = formattedDate.replace('dd', day.toString().padStart(2, '0'));
+  formattedDate = formattedDate.replace('DD', day.toString().padStart(2, '0'));
   formattedDate = formattedDate.replace(
     'MM',
     month.toString().padStart(2, '0')
   );
-  formattedDate = formattedDate.replace('yyyy', year.toString());
+  formattedDate = formattedDate.replace('YYYY', year.toString());
 
   return formattedDate;
 };
@@ -75,14 +75,14 @@ export const buildDateObjectFromText = (text, format) => {
 
   const date = new Date();
 
-  const day = brokenContent[brokenFormat.indexOf('dd')]
+  const day = brokenContent[brokenFormat.indexOf('DD')]
     .toString()
     .padStart(2, '0');
   const month = (brokenContent[brokenFormat.indexOf('MM')] - 1)
     .toString()
     .padStart(2, '0');
 
-  const year = brokenContent[brokenFormat.indexOf('yyyy')] || '';
+  const year = brokenContent[brokenFormat.indexOf('YYYY')] || '';
 
   let fullYear;
   if (year.length > 3) {

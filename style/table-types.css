@@ -120,8 +120,6 @@
 
   border-radius: 6px;
   background-color: white;
-  box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
-    rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
 
   z-index: 100;
 
@@ -199,7 +197,6 @@
 }
 
 .date-picker {
-  box-shadow: 0 1px 2px rgba(73, 73, 73, 0.5);
   border: 1px solid rgb(189, 189, 189);
   height: fit-content;
   width: fit-content;
@@ -208,24 +205,24 @@
   overflow: hidden;
   background-color: white;
 }
-.empty-date .dd_MM_yyyy .cell-date-content,
-.empty-date .MM_dd_yyyy .cell-date-content {
+.empty-date .DD_MM_YYYY .cell-date-content,
+.empty-date .MM_DD_YYYY .cell-date-content {
   color: rgb(189, 189, 189);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.empty-date .dd_MM_yyyy .cell-date-content::before,
-.empty-date .MM_dd_yyyy .cell-date-content::before {
+.empty-date .DD_MM_YYYY .cell-date-content::before,
+.empty-date .MM_DD_YYYY .cell-date-content::before {
   color: rgb(189, 189, 189);
+  font: Mulish;
+}
+
+.empty-date .DD_MM_YYYY .cell-date-content::before {
   content: 'dd/mm/yyyy';
 }
 
-.empty-date .dd_MM_yyyy .cell-date-content::before {
-  content: 'dd/mm/yyyy';
-}
-
-.empty-date .MM_dd_yyyy .cell-date-content::before {
+.empty-date .MM_DD_YYYY .cell-date-content::before {
   content: 'mm/dd/yyyy';
 }
 
