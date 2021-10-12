@@ -101,7 +101,7 @@ export class TableView {
 
     if (node.type != this.node.type) {
       return false;
-    } 
+    }
 
     if (this.node.attrs.headers) {
       typeInheritance(this.view, node, this.getPos());
@@ -109,20 +109,14 @@ export class TableView {
 
     if (!this.node.sameMarkup(node)) {
       return false;
-    } 
+    }
 
-    // to handle first row insert
-    if (node.childCount !== this.node.childCount){
+    // to handle first row/col insert
+    if (!node.firstChild.firstChild.eq(this.node.firstChild.firstChild)) {
       return false;
-    } 
+    }
 
-    const oldColCount = this.colgroup.childElementCount;
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
-
-    // to handle first col insert
-    if (oldColCount !== this.colgroup.childElementCount) {
-      return false;
-    } 
 
     if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) {
       node.attrs.sort = {
@@ -199,14 +193,20 @@ export function updateColumns(
   }
 }
 
+// this function should return true when the columns order has been changed;
 const firstRowOrderChanged = (newRow, oldRow) => {
   const newCells = newRow.content.content;
   const oldCells = oldRow.content.content;
 
+  // col number changed so its not columns dragging
+  if (newCells.length !== oldCells.length) return false;
+
   let rowChanged = false;
 
   newCells.forEach((cell, index) => {
-    rowChanged = rowChanged || !cell.eq(oldCells[index]);
+    rowChanged =
+      rowChanged ||
+      (cell !== oldCells[index] && !cell.content.eq(oldCells[index].content));
   });
 
   return rowChanged;

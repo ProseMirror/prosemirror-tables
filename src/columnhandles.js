@@ -192,6 +192,7 @@ export class CellView {
 
       // trigger header menu open
       this.dom.addEventListener('click', (e) => {
+        if (this.this.colMarker.contains(e.target)) return;
         if (this.colHandle.contains(e.target)) return;
         if (this.rowHandle && this.rowHandle.contains(e.target)) return;
 

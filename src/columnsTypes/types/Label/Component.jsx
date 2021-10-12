@@ -26,7 +26,7 @@ const Label = ({title, onDelete, color, showDelete}) => {
           onClick={() => onDelete()}
           type="button"
         >
-          x
+          <span className="remove-label-icon"></span>
         </button>
       )}
     </div>
@@ -63,7 +63,7 @@ const LabelOption = ({color, title, onChange, checked, onDelete}) => {
         }}
         type="button"
       >
-        x
+        <span className="remove-label-icon"></span>
       </button>
     </div>
   );

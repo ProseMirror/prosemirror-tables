@@ -247,7 +247,11 @@ function updateColumnWidth(view, cell, width) {
       ? attrs.colwidth.slice()
       : zeroes(attrs.colspan);
     colwidth[index] = width;
-    tr.setNodeMarkup(start + pos, null, setAttr(attrs, 'colwidth', colwidth));
+    tr.setNodeMarkup(
+      start + pos,
+      undefined,
+      setAttr(attrs, 'colwidth', colwidth)
+    );
   }
   if (tr.docChanged) view.dispatch(tr);
 }
@@ -362,10 +366,11 @@ function handleDoubleClick(view, event, cellMinWidth) {
 
     const cellScrollWidth = cellContent.scrollWidth;
 
-     // return cell to original width
-    cellContent.style = `width: ${
-        Math.max(cellTotalWidth, cellMinWidth)
-      }px;white-space: nowrap;`;
+    // return cell to original width
+    cellContent.style = `width: ${Math.max(
+      cellTotalWidth,
+      cellMinWidth
+    )}px;white-space: nowrap;`;
 
     columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
   });

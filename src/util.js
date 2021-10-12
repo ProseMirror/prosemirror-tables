@@ -173,7 +173,6 @@ export const getColCells = (headerPos, state) => {
   return cells;
 };
 
-
 export const sortCollator = new Intl.Collator(undefined, {
   numeric: true,
   sensitivity: 'base',
@@ -195,4 +194,4 @@ export const sortNumVsString = (direction, textA, textB, collator) => {
   if (!aIsNotNumber && bIsNotNumber) return -1 * direction;
   if (aIsNotNumber && !bIsNotNumber) return 1 * direction;
   return direction > 0 ? aNumber - bNumber : bNumber - aNumber;
-}
+};

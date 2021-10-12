@@ -96,11 +96,18 @@
 .remove-label {
   border: none;
   background-color: transparent;
-  padding: 5px 0px 5px 10px;
   cursor: pointer;
-  line-height: 10px;
-  margin-bottom: 1px;
-  color: rgba(73, 73, 73, 0.7);
+  padding: 0px;
+  width: 15px;
+  height: 15px;
+  margin-left: 6px;
+  margin-right: -2px;
+}
+
+.remove-label-icon {
+  content: url(./svgs/close_icon.svg);
+  width: 15px;
+  height: 15px;
 }
 
 .remove-label:hover {
