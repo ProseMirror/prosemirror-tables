@@ -213,6 +213,7 @@
   background-color: white;
 }
 .empty-date .DD_MM_YYYY .cell-date-content,
+.empty-date .YYYY_MM_DD .cell-date-content,
 .empty-date .MM_DD_YYYY .cell-date-content {
   color: rgb(189, 189, 189);
   white-space: nowrap;
@@ -220,6 +221,7 @@
   text-overflow: ellipsis;
 }
 .empty-date .DD_MM_YYYY .cell-date-content::before,
+.empty-date .YYYY_MM_DD .cell-date-content::before,
 .empty-date .MM_DD_YYYY .cell-date-content::before {
   color: rgb(189, 189, 189);
   font: Mulish;
@@ -231,6 +233,10 @@
 
 .empty-date .MM_DD_YYYY .cell-date-content::before {
   content: 'mm/dd/yyyy';
+}
+
+.empty-date .YYYY_MM_DD .cell-date-content::before {
+  content: 'yyyy/mm/dd';
 }
 
 .new-label-placeholder {
