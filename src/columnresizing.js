@@ -353,9 +353,9 @@ function handleDoubleClick(view, event, cellMinWidth) {
     }
   }
   // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
-  cellsInColumn.forEach((cell) => {
+  cellsInColumn.forEach((cell, index) => {
     const [cellContent] = cell.getElementsByClassName(
-      cellFullWidthElementClassName
+      index === 0 ? 'cellContent' : cellFullWidthElementClassName // the header should always be measured by `cellContent`
     );
 
     if (!cellContent) return;
