@@ -12,6 +12,9 @@ import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateUtilDayJS from '@date-io/dayjs';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import { StylesProvider, createGenerateClassName } from '@material-ui/core/styles';
+import DatePickerTheme from './DatePickerTheme'
+import { ThemeProvider } from '@material-ui/core/styles';
+
 
 const generateClassName = createGenerateClassName({
   seed: 'sgo-tables-plugin-',
@@ -107,15 +110,17 @@ export const DatePickerComponent = ({view, node, pos}) => {
   return (
     <div className="date-picker" ref={ref}>
       <StylesProvider generateClassName={generateClassName}>
-        <MuiPickersUtilsProvider utils={DateUtilDayJS}>
-          <DatePicker
-            autoOk
-            onChange={handleChange}
-            openTo="date"
-            value={date}
-            variant="static"
-          />
-        </MuiPickersUtilsProvider>
+        <ThemeProvider theme={DatePickerTheme}>
+          <MuiPickersUtilsProvider utils={DateUtilDayJS}>
+            <DatePicker
+              autoOk
+              onChange={handleChange}
+              openTo="date"
+              value={date}
+              variant="static"
+            />
+          </MuiPickersUtilsProvider>
+        </ThemeProvider >
       </StylesProvider>
     </div>
   );
