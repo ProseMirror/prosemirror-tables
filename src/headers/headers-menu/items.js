@@ -54,7 +54,7 @@ const insertColumnItem = (direction) => {
       const className = `insert-${direction === 1 ? 'right' : 'left'}`;
       return createMenuItemWithIcon(
         className + ' menuItem',
-        `Insert ${direction === 1 ? 'Right' : 'Left'}`,
+        `Insert ${direction === 1 ? 'right' : 'left'}`,
         className + '-icon  menuIcon'
       );
     },
@@ -71,7 +71,7 @@ const filterItem = () => {
     render() {
       return createMenuItemWithIcon(
         'filters-colum menuItem',
-        `Add Filter`,
+        `Add filter`,
         'filters-colum-icon  menuIcon'
       );
     },
@@ -83,7 +83,7 @@ const deleteItem = () => {
     render() {
       return createMenuItemWithIcon(
         'delete-colum menuItem',
-        `Delete Column`,
+        `Delete column`,
         'delete-colum-icon  menuIcon'
       );
     },
