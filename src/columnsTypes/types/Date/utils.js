@@ -39,7 +39,7 @@ export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
   let {height: menuHeight} = menuDOM.getBoundingClientRect();
   if(menuHeight === 0) menuHeight = 407;
   let topCord = bottom - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) + 8
-  console.log(menuHeight);
+
   if(topCord + menuHeight > window.innerHeight + (scrolledEl?.scrollTop || 0)){
     topCord = top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) - 8 -  menuHeight;
   }
