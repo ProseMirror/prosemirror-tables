@@ -202,7 +202,7 @@ export const LabelsChooser = ({view, pos, node}) => {
               ) : (
                 <>
                   <span className="new-label-placeholder">
-                    Type To Create New Label
+                    Type to create new label
                   </span>
                 </>
               )}
