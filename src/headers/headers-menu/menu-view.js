@@ -19,9 +19,11 @@ class TableHeadersMenuView {
     this.buildMenuDOM();
 
     this.view.dom.addEventListener('mousedown', () => {
-      const {tr} = this.view.state;
-      tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
-      this.view.dispatch(tr);
+      if (this.headerData) {
+        const {tr} = this.view.state;
+        tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
+        this.view.dispatch(tr);
+      }
     });
 
     // append popup to dom
