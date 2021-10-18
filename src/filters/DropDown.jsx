@@ -1,48 +1,59 @@
-import React, {useState, useCallback, useRef} from 'react'
+import React, {useState, useRef, useCallback, useMemo} from 'react';
 
 // export type DropDownItemType = {
-//   label: string;
-//   onSelect: (payload?: any) => void; // should be uniq
+//   label: any;
+//   value: any; // should be uniq
 //   separate?: boolean;
-//   className?: string;
-//   icon?: keyof Icons | undefined;
+//   notClickable?: boolean;
+//   itemStyleClass?: string;
 // };
 
 // interface DropDownItemProps {
-//   item: DropDownItemType;
-//   onSelect: () => void;
+//   label: any;
+//   onValueChange: () => void;
+//   selected: boolean;
+//   separate: boolean;
+//   notClickable?: boolean;
+//   itemStyleClass?: string;
 // }
 
 // interface DropDownProps {
-//   options: DropDownItemType[];
+//   items: DropDownItemType[];
+//   initialValue: any;
+//   onValueChange: (value: any) => void;
 //   parentRef?: any;
 //   className?: string;
-//   showArrow?: boolean;
-//   Label: keyof Icons | JSXElementConstructor<{}>;
-//   payload?: any;
 // }
 
-const DropDownItem = ({ item, onSelect }) => {
-  const {className, label} = item;
+const DropDownItem = ({
+  label,
+  onValueChange,
+  selected,
+  separate,
+  notClickable,
+  itemStyleClass,
+}) => {
   return (
     <button
+      className={`selectDropDownItem ${separate && 'separate'} ${
+        notClickable && 'notClickable'
+      } ${itemStyleClass}`}
+      onClick={onValueChange}
       type="button"
-      className={`dropdownItem ${separate && "separate"} ${className}`}
-      onClick={onSelect}
     >
-      <span className="dropdownItemLabel">{label}</span>
+      <span className="selectDropDownItemLabel">{label}</span>
     </button>
   );
 };
 
-const DropDown = ({
-  options,
+const SelectDropDown = ({
+  items,
+  initialValue,
+  onValueChange,
   parentRef,
   className,
-  showArrow,
-  Label,
-  payload,
 }) => {
+  const [value, setValue] = useState(initialValue);
   const [showDropDown, setShowDropDown] = useState(false);
   const dropDownRef = useRef();
 
@@ -50,11 +61,11 @@ const DropDown = ({
     setShowDropDown(false);
     if (
       dropDownRef.current &&
-      dropDownRef.current.classList.contains("open-up")
+      dropDownRef.current.classList.contains('open-up')
     ) {
-      dropDownRef.current.classList.remove("open-up");
+      dropDownRef.current.classList.remove('open-up');
     }
-    document.removeEventListener("click", closeDropDown);
+    document.removeEventListener('click', closeDropDown);
   }, [dropDownRef, setShowDropDown]);
 
   const openDropDown = useCallback(() => {
@@ -66,32 +77,53 @@ const DropDown = ({
         dropdownRect.top >
         (parentRect.bottom - parentRect.top) / 2 + parentRect.top
       ) {
-        dropDownRef.current.classList.add("open-up");
+        dropDownRef.current.classList.add('open-up');
       }
     }
 
     setShowDropDown(!showDropDown);
-    if (showDropDown === false)
-      document.addEventListener("click", closeDropDown);
+    if (!showDropDown) document.addEventListener('click', closeDropDown);
   }, [closeDropDown, parentRef, showDropDown]);
+
+  const updateValue = useCallback(
+    (value) => {
+      setValue(value);
+      onValueChange(value);
+    },
+    [onValueChange]
+  );
+
+  const disableDropDown = useMemo(() => items.length === 1, [items]);
 
   return (
     <div
-      className={`dropdownContainer${className ? ` ${className}` : ""}`}
+      className={`selectDropDownContainer${className ? ` ${className}` : ''}`}
       ref={dropDownRef}
     >
-      <button type="button" className="dropdownButton" onClick={openDropDown}>
-        {typeof Label === "string" ? <Icon icon={Label} /> : <Label />}
-        {showArrow && <Icon icon="CaretDown" />}
+      <button
+        className={`selectDropDownButton ${disableDropDown && 'disabled'}`}
+        disabled={disableDropDown}
+        onClick={openDropDown}
+        type="button"
+      >
+        <span className="selectedLabel">
+          {items.find((item) => item.value === value)?.label}
+        </span>
       </button>
       {showDropDown && (
-        <div className="dropdownItemsContainer">
-          {options.map((item) => {
+        <div className="selectDropDownSelection">
+          {items.map((item) => {
             return (
               <DropDownItem
-                item={item}
-                onSelect={() => item.onSelect(payload)}
-                key={item.label}
+                itemStyleClass={item.itemStyleClass}
+                key={item.value}
+                label={item.label}
+                notClickable={item.notClickable}
+                onValueChange={() =>
+                  item?.notClickable ? () => null : updateValue(item.value)
+                }
+                selected={item.value === value}
+                separate={!!item.separate}
               />
             );
           })}
@@ -101,4 +133,4 @@ const DropDown = ({
   );
 };
 
-export default DropDown;
+export default SelectDropDown;

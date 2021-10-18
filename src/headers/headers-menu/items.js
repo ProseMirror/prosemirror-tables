@@ -9,7 +9,8 @@ import {createElementWithClass, getColIndex} from '../../util';
 import {getTypesItems} from '../../columnsTypes/typesMenuItems';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 import {deleteColAtPos} from '../../commands';
-import { tableFiltersMenuKey } from '../../filters/utils';
+import {tableFiltersMenuKey} from '../../filters/utils';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 
 const createMenuItemWithIcon = (className, label, iconClassName) => {
   const item = createElementWithClass('div', className);
@@ -55,7 +56,7 @@ const insertColumnItem = (direction) => {
       const className = `insert-${direction === 1 ? 'right' : 'left'}`;
       return createMenuItemWithIcon(
         className + ' menuItem',
-        `Insert ${direction === 1 ? 'right' : 'left'}`,
+        `Insert ${direction === 1 ? 'Right' : 'Left'}`,
         className + '-icon  menuIcon'
       );
     },
@@ -72,27 +73,29 @@ const filterItem = () => {
     render() {
       return createMenuItemWithIcon(
         'filters-colum menuItem',
-        `Add filter`,
+        `Add Filter`,
         'filters-colum-icon  menuIcon'
       );
     },
-    run(state, dispatch) {
-      const {pos, dom: tableDom, node: table} = tableHeadersMenuKey.getState(state);
+    run(state, dispatch, view) {
+      const {pos} = tableHeadersMenuKey.getState(state);
       const {tr} = state;
+
+      const resolvedPos = state.doc.resolve(pos);
       tr.setMeta(tableFiltersMenuKey, {
         action: 'open',
-        dom: tableDom,
-        node: table,
+        dom: view.domAtPos(resolvedPos.start(-1)).node,
+        node: resolvedPos.node(1),
         pos,
-        id: window.id
-      })
+        id: window.id,
+      });
       tr.setMeta(tableHeadersMenuKey, {
         action: 'close',
-        id: window.id
-      })
+        id: window.id,
+      });
 
-      dispatch(tr)
-    }
+      dispatch(tr);
+    },
   });
 };
 
@@ -101,7 +104,7 @@ const deleteItem = () => {
     render() {
       return createMenuItemWithIcon(
         'delete-colum menuItem',
-        `Delete column`,
+        `Delete Column`,
         'delete-colum-icon  menuIcon'
       );
     },

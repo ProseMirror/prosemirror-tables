@@ -1,23 +1,42 @@
-.dropdownContainer {
-  display: inline-flex;
-  width: fit-content;
-  height: 18px;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+.tableFiltersMenu {
+  padding: 3px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid black;
 }
 
-.dropdownButton {
+.selectDropDownContainer {
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding-top: 2px;
+  padding: 3px;
+  border-radius: 6px;
+  background-color: white;
+}
+
+.selectDropDownButton {
   border: none;
   background-color: transparent;
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 18px;
+
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.02em;
+  gap: 6px;
+
+  color: #333333;
   cursor: pointer;
-  padding: 0px;
-  height: 100%;
-  width: fit-content;
-  position: relative;
 }
 
-.dropdownItemsContainer {
+.selectDropDownSelection {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -26,15 +45,20 @@
   width: fit-content;
   right: 0px;
   top: 30px;
-  background: #ffffff;
   border-radius: 4px;
   z-index: 4;
-  overflow: hidden;
+  padding: 3px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid black;
 }
 
-.dropdownItem {
-  width: 100%;
-  padding: 6px 14px 6px 8px;
+.selectDropDownItem {
+  height: 25px;
+  width: fit-content;
+  padding: 0px;
+  padding-left: 30px;
+  padding-right: 10px;
   border: none;
   background-color: transparent;
   font-family: Nunito;
@@ -43,37 +67,20 @@
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.02em;
-  color: grey;
   position: relative;
   text-align: left;
   white-space: nowrap;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
 }
 
-.dropdownItem.separate {
+.selectDropDownItem.separate {
   border-top: 1px solid grey;
 }
 
-.dropdownItem:hover {
-  cursor: pointer;
-}
-
-.open-up .dropdownItem {
+.open-up .selectDropDownSelection {
   top: -110px;
 }
 
-.table-filters-container {
-  box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
-    rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
-  border-radius: 6px;
-  background-color: white;
-
+.filter-container {
   display: flex;
-  flex-direction: column;
   gap: 10px;
-  padding: 10px;
 }

@@ -74,32 +74,38 @@ export const types = [
     // },
     filters: [
       {
+        id: 'text-equality',
         label: 'is',
         logic: textEquality,
         defaultValue: '',
         default: true,
       },
       {
+        id: 'text-in-equality',
         label: 'is Not',
         logic: textInequality,
         defaultValue: '',
       },
       {
+        id: 'text-contains',
         label: 'contains',
         logic: textContains,
         defaultValue: '',
       },
       {
+        id: 'text-not-contains',
         label: 'Does Not Contain',
         logic: textNotContains,
         defaultValue: '',
       },
       {
+        id: 'text-empty',
         label: 'Is Empty',
         logic: isTextEmpty,
         defaultValue: null,
       },
       {
+        id: 'text-not-empty',
         label: 'Is Not Empty',
         logic: isTextNotEmpty,
         defaultValue: null,

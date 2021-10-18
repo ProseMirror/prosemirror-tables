@@ -42,7 +42,11 @@ class TableFiltersMenuView {
     // determine whether to display or hide popup - and change style accordingly
     const tablesData = displayPopup(view, this.popUpDOM);
 
-    if (tablesData && this.tablesData && tablesData.pos !== this.tablesData.pos) {
+    if (
+      tablesData &&
+      this.tablesData &&
+      tablesData.pos !== this.tablesData.pos
+    ) {
       this.onClose();
     }
 
@@ -82,8 +86,8 @@ class TableFiltersMenuView {
     ReactDOM.render(
       <TableFiltersComponent
         dom={this.tablesData.dom}
-        table={this.tablesData.node}
         pos={this.tablesData.pos}
+        table={this.tablesData.node}
         view={this.view}
       />,
       this.popUpDOM
@@ -125,6 +129,6 @@ export const TableFiltersMenu = () => {
 
         return value;
       },
-    }
-  })
-}
+    },
+  });
+};
