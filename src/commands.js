@@ -15,9 +15,11 @@ import {
   selectionCell,
   setAttr,
   sortCollator,
-  sortNumVsString
+  sortNumVsString,
 } from './util';
 import {tableNodeTypes} from './schema';
+
+const MAX_COLS = 10000;
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
@@ -43,6 +45,8 @@ export function selectedRect(state) {
 
 // Add a column at the given position in a table.
 export function addColumn(tr, {map, tableStart, table}, col) {
+  const firstRow = table.firstChild;
+  if (firstRow.childCount === MAX_COLS) return tr;
   let refColumn = col > 0 ? -1 : 0;
   if (columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0;
@@ -713,21 +717,24 @@ export function sortColumn(view, colNumber, pos, dir) {
     sensitivity: 'base',
   });
 
-  const columnType = newRowsArray[0].content.content[colNumber].attrs.type
+  const columnType = newRowsArray[0].content.content[colNumber].attrs.type;
   const defaultSort = (direction, cellA, cellB) => {
-    const textA = cellA.textContent
-      .trim()
-      .replace(/[^a-zA-Z0-9\-\.]/g, '');
-    const textB = cellB.textContent
-      .trim()
-      .replace(/[^a-zA-Z0-9\-\.]/g, '');
+    const textA = cellA.textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '');
+    const textB = cellB.textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '');
 
-    return sortNumVsString(direction, textA, textB)
-  }
+    return sortNumVsString(direction, textA, textB);
+  };
 
-  const sortCompareFunction = columnTypesMap[columnType].sortCompareFunction || defaultSort;
+  const sortCompareFunction =
+    columnTypesMap[columnType].sortCompareFunction || defaultSort;
 
-  newRowsArray = newRowsArray.sort((rowA, rowB) => sortCompareFunction(dir, rowA.content.content[colNumber], rowB.content.content[colNumber]));
+  newRowsArray = newRowsArray.sort((rowA, rowB) =>
+    sortCompareFunction(
+      dir,
+      rowA.content.content[colNumber],
+      rowB.content.content[colNumber]
+    )
+  );
 
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [
     header,
