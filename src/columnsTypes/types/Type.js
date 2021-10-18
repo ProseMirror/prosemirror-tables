@@ -3,7 +3,9 @@ import {tableHeadersMenuKey} from '../types.config';
 
 class CellDataType {
   convert(view, typeId) {
-    const {pos, node, dom} = tableHeadersMenuKey.getState(view.state);
+    const headerState = tableHeadersMenuKey.getState(view.state);
+    if(!headerState) return;
+    const {pos, node, dom} = headerState;
     if (typeId === node.attrs.type) return;
 
     const cells = getColCells(pos, view.state);

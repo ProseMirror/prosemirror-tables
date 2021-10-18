@@ -1,6 +1,6 @@
 import {PluginKey} from 'prosemirror-state';
 
-export let DATE_FORMAT = 'dd/MM/yyyy';
+export let DATE_FORMAT = 'DD/MM/YYYY';
 export const setDateFormat = (format) => (DATE_FORMAT = format);
 export const tableDateMenuKey = new PluginKey('TableDateMenu');
 
@@ -28,18 +28,23 @@ export const displayPopup = (view, popupDOM) => {
 
 export const calculateMenuPosition = (menuDOM, {node, dom: cellDOM, pos}) => {
   const {style} = menuDOM;
-  const {left, bottom, height: cellHeight} = cellDOM.getBoundingClientRect();
+  const {left, bottom, height: cellHeight, top} = cellDOM.getBoundingClientRect();
 
-  if (left === 0 || bottom === 0 || cellHeight === 0) return;
+  if (left === 0 || bottom === 0 || cellHeight === 0 || top === 0) return;
 
   // scroll offset
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
   const {x: EDITOR_LEFT_OFFSET, y: EDITOR_TOP_OFFSET} =
     scrolledEl.getBoundingClientRect();
+  let {height: menuHeight} = menuDOM.getBoundingClientRect();
+  if(menuHeight === 0) menuHeight = 407;
+  let topCord = bottom - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) + 8
 
-  style.top = `${
-    bottom - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) + 8
-  }px`;
+  if(topCord + menuHeight > window.innerHeight + (scrolledEl?.scrollTop || 0)){
+    topCord = top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) - 8 -  menuHeight;
+  }
+
+  style.top = `${topCord}px`;
   style.left = `${left - EDITOR_LEFT_OFFSET - 8}px`;
 };
 
@@ -50,12 +55,12 @@ export const formatDate = (date, format) => {
   const year = date.getUTCFullYear();
   const day = date.getUTCDate();
 
-  formattedDate = formattedDate.replace('dd', day.toString().padStart(2, '0'));
+  formattedDate = formattedDate.replace('DD', day.toString().padStart(2, '0'));
   formattedDate = formattedDate.replace(
     'MM',
     month.toString().padStart(2, '0')
   );
-  formattedDate = formattedDate.replace('yyyy', year.toString());
+  formattedDate = formattedDate.replace('YYYY', year.toString());
 
   return formattedDate;
 };
@@ -70,14 +75,14 @@ export const buildDateObjectFromText = (text, format) => {
 
   const date = new Date();
 
-  const day = brokenContent[brokenFormat.indexOf('dd')]
+  const day = brokenContent[brokenFormat.indexOf('DD')]
     .toString()
     .padStart(2, '0');
   const month = (brokenContent[brokenFormat.indexOf('MM')] - 1)
     .toString()
     .padStart(2, '0');
 
-  const year = brokenContent[brokenFormat.indexOf('yyyy')] || '';
+  const year = brokenContent[brokenFormat.indexOf('YYYY')] || '';
 
   let fullYear;
   if (year.length > 3) {

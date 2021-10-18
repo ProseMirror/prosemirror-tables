@@ -135,7 +135,7 @@ export const TableDateMenu = (dateFormat) => {
       const sel = newState.selection;
       const dateParent = findParentNodeOfType(newState.schema.nodes.date)(sel);
       const selectionParentDom = getSelectedNode();
-      if(!selectionParentDom) return null
+      if (!selectionParentDom) return null;
       const cellDom = selectionParentDom.closest('.date-component');
 
       const selectionInPicker = !!selectionParentDom.closest('.date-picker');

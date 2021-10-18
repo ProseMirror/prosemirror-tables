@@ -34,6 +34,7 @@ import {
   currencyGreater,
   currencyGreaterOrEquals,
 } from './filtersLogic';
+import {sortNumVsString} from '../util';
 
 export const tableHeadersMenuKey = new PluginKey('headersMenu');
 
@@ -76,41 +77,40 @@ export const types = [
         label: 'is',
         logic: textEquality,
         defaultValue: '',
-        default: true
+        default: true,
       },
       {
         label: 'is Not',
         logic: textInequality,
-        defaultValue: ''
+        defaultValue: '',
       },
       {
         label: 'contains',
         logic: textContains,
-        defaultValue: ''
+        defaultValue: '',
       },
       {
         label: 'Does Not Contain',
         logic: textNotContains,
-        defaultValue: ''
+        defaultValue: '',
       },
       {
         label: 'Is Empty',
         logic: isTextEmpty,
-        defaultValue: null
+        defaultValue: null,
       },
       {
         label: 'Is Not Empty',
         logic: isTextNotEmpty,
-        defaultValue: null
+        defaultValue: null,
       },
-
-    ]
+    ],
   },
   {
     id: 'number',
     displayName: 'Number',
     handler: new NumberCellType(),
-    filters: []
+    filters: [],
     // filtersLogic: {
     //   '=': {logic: numberEquality, defaultValue: 0},
     //   '≠': numberInequality,
@@ -126,7 +126,7 @@ export const types = [
     id: 'date',
     displayName: 'Date',
     handler: new DateType(),
-    filters: []
+    filters: [],
     // filtersLogic: {
     //   Before: isBefore,
     //   On: isOn,
@@ -140,17 +140,24 @@ export const types = [
     displayName: 'Checkbox',
     handler: new CheckboxType(),
     dontForce: true,
-    filters: []
+    filters: [],
     // filtersLogic: {
     //   Is: checkboxEquality,
     //   'Is Not': checkboxInequality,
     // },
+    sortCompareFunction: (direction, cellA, cellB) => {
+      const getCellCheckState = (cell) => cell.content.content[0].attrs.checked;
+      const cellAChecked = getCellCheckState(cellA);
+      const cellBChecked = getCellCheckState(cellB);
+
+      return direction * (cellBChecked > cellAChecked ? 1 : -1);
+    },
   },
   {
     id: 'currency',
     displayName: 'Currency',
     handler: new CurrencyCellType(),
-    filters: []
+    filters: [],
     // filtersLogic: {
     //   '=': currencyEquality,
     //   '≠': currencyInequality,
@@ -167,5 +174,20 @@ export const types = [
     filters: [],
     dontForce: true,
     cellFullWidthElementClassName: 'all-labels-container', //class name of the element that determines the actual width of the cell
+    sortCompareFunction: (direction, cellA, cellB) => {
+      const getCellLabel = (cell) => cell.content.content[0].attrs.labels[0];
+      const cellALabel = getCellLabel(cellA);
+      const cellBLabel = getCellLabel(cellB);
+
+      const textA = cellALabel ? cellALabel.title : null;
+      const textB = cellBLabel ? cellBLabel.title : null;
+
+      return sortNumVsString(direction, textA, textB);
+    },
   },
 ];
+
+export const columnTypesMap = types.reduce((map, type) => {
+  map[type.id] = type;
+  return map;
+}, {});

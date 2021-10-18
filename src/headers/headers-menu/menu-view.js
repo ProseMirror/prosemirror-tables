@@ -3,7 +3,7 @@ import {renderGrouped} from 'prosemirror-menu';
 import {dropdownClassName} from './items';
 import {TextField} from './textField/text-field.prosemirror';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
-import {types} from '../../columnsTypes/types.config';
+import {columnTypesMap} from '../../columnsTypes/types.config';
 import {createElementWithClass} from '../../util';
 
 /**
@@ -19,9 +19,11 @@ class TableHeadersMenuView {
     this.buildMenuDOM();
 
     this.view.dom.addEventListener('mousedown', () => {
-      const {tr} = this.view.state;
-      tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
-      this.view.dispatch(tr);
+      if (this.headerData) {
+        const {tr} = this.view.state;
+        tr.setMeta(tableHeadersMenuKey, {action: 'close', id: window.id});
+        this.view.dispatch(tr);
+      }
     });
 
     // append popup to dom
@@ -142,9 +144,7 @@ class TableHeadersMenuView {
 
     const typeId = this.headerData.node.attrs.type;
 
-    const typeDisplayName = types.find(
-      (type) => type.id === typeId
-    ).displayName;
+    const typeDisplayName = columnTypesMap[typeId].displayName;
 
     const icon = createElementWithClass('div', `${typeId}ItemIcon`);
     icon.classList.add('typeIcon');

@@ -172,3 +172,26 @@ export const getColCells = (headerPos, state) => {
   cells.splice(0, 1);
   return cells;
 };
+
+export const sortCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: 'base',
+});
+
+export const sortNumVsString = (direction, textA, textB, collator) => {
+  // give first priority to numbers - so if only one content is numeric he will always be first
+  const aNumber = parseFloat(textA);
+  const bNumber = parseFloat(textB);
+
+  const aIsNotNumber = isNaN(aNumber);
+  const bIsNotNumber = isNaN(bNumber);
+
+  if (aIsNotNumber && bIsNotNumber) {
+    // if not numeric values sort alphabetically
+    return direction * (collator || sortCollator).compare(textA, textB);
+  }
+
+  if (!aIsNotNumber && bIsNotNumber) return -1 * direction;
+  if (aIsNotNumber && !bIsNotNumber) return 1 * direction;
+  return direction > 0 ? aNumber - bNumber : bNumber - aNumber;
+};

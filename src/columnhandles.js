@@ -192,6 +192,7 @@ export class CellView {
 
       // trigger header menu open
       this.dom.addEventListener('click', (e) => {
+        if (this.colMarker.contains(e.target)) return;
         if (this.colHandle.contains(e.target)) return;
         if (this.rowHandle && this.rowHandle.contains(e.target)) return;
 
@@ -320,23 +321,6 @@ export function columnHandles({} = {}) {
             decorations.push(
               Decoration.node(pos, pos + node.nodeSize, {class: 'tableFocus'})
             );
-            if (sel.to - pos > node.nodeSize) {
-              decorations.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'inColSelection',
-                })
-              );
-              decorations.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'inRowSelection',
-                })
-              );
-              decorations.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'focusTableSelected',
-                })
-              );
-            }
             return false;
           }
           return true;

@@ -5,7 +5,7 @@ import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
 import {tableNodeTypes} from './schema';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import {types} from './columnsTypes/types.config';
+import {columnTypesMap} from './columnsTypes/types.config';
 
 export const key = new PluginKey('tableColumnResizing');
 
@@ -247,7 +247,11 @@ function updateColumnWidth(view, cell, width) {
       ? attrs.colwidth.slice()
       : zeroes(attrs.colspan);
     colwidth[index] = width;
-    tr.setNodeMarkup(start + pos, null, setAttr(attrs, 'colwidth', colwidth));
+    tr.setNodeMarkup(
+      start + pos,
+      undefined,
+      setAttr(attrs, 'colwidth', colwidth)
+    );
   }
   if (tr.docChanged) view.dispatch(tr);
 }
@@ -341,7 +345,7 @@ function handleDoubleClick(view, event, cellMinWidth) {
     const colHeader = tableNode.node.firstChild.content.content[colIndex];
     if (colHeader) {
       colType = colHeader.attrs.type;
-      const typeConfig = types.find((type) => type.id === colType);
+      const typeConfig = columnTypesMap[colType];
       cellFullWidthElementClassName =
         typeConfig && typeConfig.cellFullWidthElementClassName
           ? typeConfig.cellFullWidthElementClassName
@@ -349,9 +353,9 @@ function handleDoubleClick(view, event, cellMinWidth) {
     }
   }
   // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
-  cellsInColumn.forEach((cell) => {
+  cellsInColumn.forEach((cell, index) => {
     const [cellContent] = cell.getElementsByClassName(
-      cellFullWidthElementClassName
+      index === 0 ? 'cellContent' : cellFullWidthElementClassName // the header should always be measured by `cellContent`
     );
 
     if (!cellContent) return;
@@ -362,10 +366,11 @@ function handleDoubleClick(view, event, cellMinWidth) {
 
     const cellScrollWidth = cellContent.scrollWidth;
 
-     // return cell to original width
-    cellContent.style = `width: ${
-        Math.max(cellTotalWidth, cellMinWidth)
-      }px;white-space: nowrap;`;
+    // return cell to original width
+    cellContent.style = `width: ${Math.max(
+      cellTotalWidth,
+      cellMinWidth
+    )}px;white-space: nowrap;`;
 
     columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
   });

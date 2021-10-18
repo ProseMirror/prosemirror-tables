@@ -12,6 +12,9 @@ import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateUtilDayJS from '@date-io/dayjs';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import { StylesProvider, createGenerateClassName } from '@material-ui/core/styles';
+import DatePickerTheme from './DatePickerTheme'
+import { ThemeProvider } from '@material-ui/core/styles';
+
 
 const generateClassName = createGenerateClassName({
   seed: 'sgo-tables-plugin-',
@@ -19,20 +22,18 @@ const generateClassName = createGenerateClassName({
 
 
 const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
-  const openChooser = useCallback(
-    (e) => {
-      const {tr} = view.state;
-      tr.setMeta(tableDateMenuKey, {
-        pos: getPos(),
-        dom: dom,
-        node: node,
-        id: window.id,
-        action: 'open',
-      });
-      setTimeout(() => view.dispatch(tr), 0);
-    },
-    [dom, node]
-  );
+  const openChooser = (e) => {
+    const {tr} = view.state;
+    tr.setMeta(tableDateMenuKey, {
+      pos: getPos(),
+      dom: dom,
+      node: node,
+      id: window.id,
+      action: 'open',
+    });
+    
+    view.dispatch(tr)
+  }
 
   const pos = getPos();
 
@@ -109,15 +110,17 @@ export const DatePickerComponent = ({view, node, pos}) => {
   return (
     <div className="date-picker" ref={ref}>
       <StylesProvider generateClassName={generateClassName}>
-        <MuiPickersUtilsProvider utils={DateUtilDayJS}>
-          <DatePicker
-            autoOk
-            onChange={handleChange}
-            openTo="date"
-            value={date}
-            variant="static"
-          />
-        </MuiPickersUtilsProvider>
+        <ThemeProvider theme={DatePickerTheme}>
+          <MuiPickersUtilsProvider utils={DateUtilDayJS}>
+            <DatePicker
+              autoOk
+              onChange={handleChange}
+              openTo="date"
+              value={date}
+              variant="static"
+            />
+          </MuiPickersUtilsProvider>
+        </ThemeProvider >
       </StylesProvider>
     </div>
   );
