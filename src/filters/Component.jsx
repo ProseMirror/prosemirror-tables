@@ -5,7 +5,7 @@ import SelectDropDown from './DropDown.jsx';
 import useClickOutside from '../useClickOutside.jsx';
 
 const FilterRule = ({setRule, filterHandler}) => {
-  const [filter, setFilter] = useState(filterHandler.toAttrsValue())
+  const [filter, setFilter] = useState(filterHandler.toAttrsValue());
 
   return (
     <div className="filter-container">
@@ -15,8 +15,8 @@ const FilterRule = ({setRule, filterHandler}) => {
           initialValue={filterHandler.colIndex}
           items={filterHandler.getColsOptions()}
           onValueChange={(index) => {
-            filterHandler.setColIndex(index)
-            setFilter(filterHandler.toAttrsValue())
+            filterHandler.setColIndex(index);
+            setFilter(filterHandler.toAttrsValue());
           }}
         />
       </div>
@@ -26,33 +26,33 @@ const FilterRule = ({setRule, filterHandler}) => {
           initialValue={filterHandler.filterId}
           items={filterHandler.getLogicOptions()}
           onValueChange={(filterId) => {
-            filterHandler.setFilterId(filterId)
-            setFilter(filterHandler.toAttrsValue())
+            filterHandler.setFilterId(filterId);
+            setFilter(filterHandler.toAttrsValue());
           }}
         />
       </div>
-      {filterHandler.valueIsDropdown() 
-        ? <div className="rule-value">
-            <SelectDropDown
-              className="filter-value-dropdown"
-              initialValue={filterHandler.getDefaultValue()}
-              items={filterHandler.getValuesOptions()}
-              onValueChange={(value) => {
-                filterHandler.setFilterValue(value)
-                setFilter(filterHandler.toAttrsValue())
-              }}
-            />
-          </div>
-        : filterHandler.noValue() 
-          ? <></>
-          : <input 
-              defaultValue={filterHandler.getDefaultValue()} 
-              className='filter-value-input' 
-              onChange={(e) => filterHandler.setFilterValue(e.target.value)}
-            >
-            </input>
-      }
-      
+      <div className="value-chooser">
+        {filterHandler.valueIsDropdown() ? (
+          <SelectDropDown
+            className="filter-value-dropdown"
+            initialValue={filterHandler.getDefaultValue()}
+            items={filterHandler.getValuesOptions()}
+            onValueChange={(value) => {
+              filterHandler.setFilterValue(value);
+              setFilter(filterHandler.toAttrsValue());
+            }}
+          />
+        ) : filterHandler.noValue() ? (
+          <></>
+        ) : (
+          <input
+            className="filter-value-input"
+            defaultValue={filterHandler.getDefaultValue()}
+            onChange={(e) => filterHandler.setFilterValue(e.target.value)}
+          ></input>
+        )}
+      </div>
+
       <button className="remove-rule-button">X</button>
     </div>
   );
@@ -66,15 +66,15 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
     setFilters((oldFilters) => [...oldFilters, defaultFilter]);
   };
 
-  const ref = useClickOutside(() => {
-    const {tr} = view.state;
-    tr.setMeta(tableFiltersMenuKey, {
-      action: 'close',
-      id: window.id,
-    });
+  // const ref = useClickOutside((e) => {
+  //   const {tr} = view.state;
+  //   tr.setMeta(tableFiltersMenuKey, {
+  //     action: 'close',
+  //     id: window.id,
+  //   });
 
-    view.dispatch(tr);
-  });
+  //   view.dispatch(tr);
+  // });
 
   return (
     <div className="table-filters-container">
@@ -84,12 +84,7 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
             Where
             {filters.map((filterConfig, index) => {
               const FilterHandler = new Filter(table, filterConfig);
-              return (
-                <FilterRule
-                  filterHandler={FilterHandler}
-                  key={index}
-                />
-              );
+              return <FilterRule filterHandler={FilterHandler} key={index} />;
             })}
           </>
         ) : (

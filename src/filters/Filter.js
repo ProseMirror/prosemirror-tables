@@ -42,12 +42,11 @@ class Filter {
   }
 
   getFilterLogic() {
-    const filterConfig = this.getFilterConfig()
+    const filterConfig = this.getFilterConfig();
     return filterConfig.logic;
   }
 
-
-   getFilterConfig() {
+  getFilterConfig() {
     const config = this.colType.filters.find(
       (filterConfig) => filterConfig.id === this.filterId
     );
@@ -64,22 +63,22 @@ class Filter {
     };
   }
 
-  setColIndex(index){
+  setColIndex(index) {
     this.colIndex = index;
-    this.colType = this.getColTypeConfig()
+    this.colType = this.getColTypeConfig();
   }
 
-  setFilterId(id){
+  setFilterId(id) {
     this.filterId = id;
   }
 
-  setFilterValue(value){
-    this.filterValue = value
+  setFilterValue(value) {
+    this.filterValue = value;
   }
 
   // should return true if the filter should have dropdown to choose value
   valueIsDropdown() {
-    return false
+    return false;
   }
 
   noValue() {
@@ -89,7 +88,7 @@ class Filter {
 
   getDefaultValue() {
     const filterConfig = this.getFilterConfig();
-    return filterConfig.defaultValue
+    return filterConfig.defaultValue;
   }
 
   // exec() {}

@@ -43,16 +43,14 @@ export const calculateMenuPosition = (menuDOM, {node, dom: tableDOM, pos}) => {
 
 export const createDefaultFilter = (table) => {
   const firstColHeader = table.firstChild.firstChild;
-  
+
   const {type: headerType} = firstColHeader.attrs;
   const typeConfig = types.find((type) => type.id === headerType);
   const typeFirstFilter = typeConfig.filters.find((filter) => filter.default);
-  
+
   return {
     colIndex: 0,
     filterId: typeFirstFilter.id,
     filterValue: typeFirstFilter.defaultValue,
   };
 };
-
-

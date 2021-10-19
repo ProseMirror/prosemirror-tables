@@ -1,9 +1,9 @@
 import {useCallback, useEffect, useRef} from 'react';
 
 /* USAGE:
-* Returns a ref that calls an outside click listener.
-* const ref = useClickOutside(() => {...});
-*/
+ * Returns a ref that calls an outside click listener.
+ * const ref = useClickOutside(() => {...});
+ */
 const useClickOutside = (onClose) => {
   const ref = useRef(null);
   const escapeListener = useCallback(
@@ -18,7 +18,7 @@ const useClickOutside = (onClose) => {
   const clickListener = useCallback(
     (e) => {
       if (!ref.current.contains(e.target) && e.target.isConnected) {
-        onClose?.();
+        onClose?.(e);
       }
     },
     [onClose]

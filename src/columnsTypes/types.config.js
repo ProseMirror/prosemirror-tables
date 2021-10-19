@@ -64,14 +64,6 @@ export const types = [
     displayName: 'Text',
     handler: new TextCellType(),
     dontForce: true,
-    // filtersLogic: {
-    //   is: textEquality,
-    //   'is not': textInequality,
-    //   contains: textContains,
-    //   'does not contain': textNotContains,
-    //   'Is Empty': isTextEmpty,
-    //   'Is Not Empty': isTextNotEmpty,
-    // },
     filters: [
       {
         id: 'text-equality',
