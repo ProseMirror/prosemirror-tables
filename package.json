@@ -1,6 +1,6 @@
 {
   "name": "@skiff-org/prosemirror-tables",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "ProseMirror's rowspan/colspan tables component",
   "main": "dist/index.js",
   "module": "dist/index.es.js",

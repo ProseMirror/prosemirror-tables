@@ -1,7 +1,7 @@
 import {Plugin} from 'prosemirror-state';
 import TableHeadersMenuView from './menu-view';
 import {menuItems} from './items';
-import {tableHeadersMenuKey} from  '../../columnsTypes/types.config'
+import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 
 window.id = `user_${new Date().getTime()}`;
 
