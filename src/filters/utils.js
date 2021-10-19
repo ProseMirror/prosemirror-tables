@@ -41,13 +41,13 @@ export const calculateMenuPosition = (menuDOM, {node, dom: tableDOM, pos}) => {
   style.left = `${left - EDITOR_LEFT_OFFSET - 8}px`;
 };
 
-export const createDefaultFilter = (view, table) => {
+export const createDefaultFilter = (table) => {
   const firstColHeader = table.firstChild.firstChild;
-
+  
   const {type: headerType} = firstColHeader.attrs;
   const typeConfig = types.find((type) => type.id === headerType);
   const typeFirstFilter = typeConfig.filters.find((filter) => filter.default);
-
+  
   return {
     colIndex: 0,
     filterId: typeFirstFilter.id,
@@ -55,7 +55,4 @@ export const createDefaultFilter = (view, table) => {
   };
 };
 
-export const getFiltersHandlers = (table) => {
-  const filters = table.attrs.filters;
-  return filters.map((filter) => new Filter(table, filter));
-};
+

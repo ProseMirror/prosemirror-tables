@@ -27,7 +27,7 @@ class Filter {
 
   getColTypeConfig() {
     const colType = this.table.firstChild.child(this.colIndex).attrs.type;
-    this.colType = types.find((typeConfig) => typeConfig.id === colType);
+    return types.find((typeConfig) => typeConfig.id === colType);
   }
 
   getLogicOptions() {
@@ -42,27 +42,54 @@ class Filter {
   }
 
   getFilterLogic() {
-    const logic = this.colType.filters.find(
+    const filterConfig = this.getFilterConfig()
+    return filterConfig.logic;
+  }
+
+
+   getFilterConfig() {
+    const config = this.colType.filters.find(
       (filterConfig) => filterConfig.id === this.filterId
     );
 
-    return logic || (() => null);
+    return config;
   }
 
-  updateFilterConfig({colIndex, filterId, filterValue}) {
-    this.colIndex = colIndex;
-    this.filterId = filterId;
-    this.filterValue = filterValue;
-
-    this.colType = this.getColTypeConfig();
-  }
-
+  // serialize the filter to be saved in the node attrs
   toAttrsValue() {
     return {
       colIndex: this.colIndex,
       filterId: this.filterId,
       filterValue: this.filterValue,
     };
+  }
+
+  setColIndex(index){
+    this.colIndex = index;
+    this.colType = this.getColTypeConfig()
+  }
+
+  setFilterId(id){
+    this.filterId = id;
+  }
+
+  setFilterValue(value){
+    this.filterValue = value
+  }
+
+  // should return true if the filter should have dropdown to choose value
+  valueIsDropdown() {
+    return false
+  }
+
+  noValue() {
+    const filterConfig = this.getFilterConfig();
+    return filterConfig.defaultValue === null;
+  }
+
+  getDefaultValue() {
+    const filterConfig = this.getFilterConfig();
+    return filterConfig.defaultValue
   }
 
   // exec() {}
