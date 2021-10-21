@@ -94,8 +94,6 @@ const filterColumn = (tableRows, colIndex, colType, filters) => {
 }
 
 export const executeFilters = (table, tablePos, view, filters) => {
-  if(!filters.length) return;
-
   // order filters by columns
   const filtersByHeaderId = {};
   filters.forEach((filter) => {

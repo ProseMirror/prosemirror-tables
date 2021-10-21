@@ -55,13 +55,15 @@ export const TableFiltersComponent = ({table, pos, view}) => {
   };
 
   const createFilterRemover = (filterIndex) => () => {
-    setFilters((oldFilters) => {
-      const newFilters = oldFilters.slice()
-      newFilters.splice(filterIndex, 1);
-      updateTableFilters(table, pos, view, newFilters)
+    const newFilters = filters.slice()
+    newFilters.splice(filterIndex, 1);
 
-      return newFilters
-    })
+    updateTableFilters(table, pos, view, newFilters)
+    
+    // apply all filters
+    executeFilters(table, pos, view, newFilters)
+
+    setFilters(newFilters)
   }
 
   const createFilterSetter = (filterIndex) => (newFilter) => {
