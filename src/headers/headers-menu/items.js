@@ -1,16 +1,15 @@
-import {MenuItem} from 'prosemirror-menu';
+import {MenuItem} from '../../menuItems/MenuItem';
 import {
   sortColumn,
   addColAfterButton,
   addColBeforeButton,
 } from '../../commands';
-import {HoverDropdown} from '../../menuDropdown/Dropdown';
+import {HoverDropdown} from '../../menuItems/Dropdown';
 import {createElementWithClass, getColIndex} from '../../util';
 import {getTypesItems} from '../../columnsTypes/typesMenuItems';
 import {tableHeadersMenuKey} from '../../columnsTypes/types.config';
 import {deleteColAtPos} from '../../commands';
 import {tableFiltersMenuKey} from '../../filters/utils';
-import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 
 const createMenuItemWithIcon = (className, label, iconClassName) => {
   const item = createElementWithClass('div', className);
