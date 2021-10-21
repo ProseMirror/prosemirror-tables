@@ -1,5 +1,6 @@
 import {PluginKey} from 'prosemirror-state';
-import {types} from '../columnsTypes/types.config';
+import {columnTypesMap, types} from '../columnsTypes/types.config';
+import { getColIndex } from '../util';
 import Filter from './Filter';
 
 export const tableFiltersMenuKey = new PluginKey('TableFiltersMenu');
@@ -70,28 +71,73 @@ export const getColsOptions = (table) => {
   return headers;
 }
 
-export const updateTableFilters = (table, tablePos, view, newFilter, filterIndex) => {
-  const newFilters = table.attrs.filters;
-  newFilters[filterIndex] = newFilter;
-
+export const updateTableFilters = (table, tablePos, view, newFilters) => { 
   const {tr} = view.state;
-  tr.setNodeMarkup(tablePos, undefined, {...table.attrs, filters: newFilters});
+  tr.setNodeMarkup(tablePos - 1, undefined, {filters: newFilters});
 
   view.dispatch(tr);
 } 
 
+
+const filterColumn = (tableRows, colIndex, colType, filters) => {
+  const colCells = tableRows.map((row) => row.node.child(colIndex));
+
+  filters.forEach((filter) => {
+    const filterLogic = colType.filters.find((filterConfig) => filterConfig.id === filter.filterId).logic
+     
+    colCells.forEach((cell, rowIndex) => {
+      if (!filterLogic(cell, filter.filterValue)) {
+        tableRows[rowIndex].hidden = true;
+      }
+    });
+  })
+}
+
 export const executeFilters = (table, tablePos, view, filters) => {
   if(!filters.length) return;
 
+  // order filters by columns
   const filtersByHeaderId = {};
   filters.forEach((filter) => {
-    if (!filtersByHeaderId[filter.headersId]) filtersByHeaderId[filter.headersId] = [];
-    filtersByHeaderId[filter.headersId].push(filter)
+    if (!filtersByHeaderId[filter.headerId]) filtersByHeaderId[filter.headerId] = [];
+    filtersByHeaderId[filter.headerId].push(filter)
   })
   
   const headersRow = table.firstChild;
+  const tableRows = [];
 
-  headersRow.descendants((header, pos, parent) => {
-
+  // get all rows and their pos
+  table.descendants((node, pos, parent) => {
+    if (parent.type.name !== 'table') return false; // go over the rows only and not their content
+    tableRows.push({node, pos: pos + tablePos, hidden: false})
+    return false;
   })
+
+  tableRows.splice(0, 1) // remove headers row
+
+  // apply filters on each column
+  headersRow.descendants((header, pos, parent) => {
+    if (parent.type.name !== 'table_row') return false; // go over the headers only and not their content
+    
+    const colType = columnTypesMap[header.attrs.type];
+    const colIndex = getColIndex(view.state, pos + tablePos + 1);
+
+    if (Object.keys(filtersByHeaderId).includes(header.attrs.id)) {
+      filterColumn(tableRows, colIndex, colType, filtersByHeaderId[header.attrs.id])
+    }
+    
+    return false;
+  })
+
+  const {tr} = view.state;
+
+  tableRows.forEach((row) => {
+    if(row.hidden) {
+      tr.setNodeMarkup(row.pos, undefined, {hidden: true})
+    } else {
+      tr.setNodeMarkup(row.pos, undefined, {hidden: false})
+    }
+  })
+
+  view.dispatch(tr)
 }

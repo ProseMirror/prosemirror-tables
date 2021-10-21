@@ -68,10 +68,8 @@ class Filter {
 
   getDefaultValue() {
     const filterConfig = this.getFilterConfig();
-    return filterConfig.defaultValue;
+    return this.filterValue || filterConfig.defaultValue;
   }
-
-  // exec() {}
 }
 
 export default Filter;

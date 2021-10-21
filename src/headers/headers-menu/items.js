@@ -86,7 +86,7 @@ const filterItem = () => {
         action: 'open',
         dom: view.domAtPos(resolvedPos.start(-1)).node,
         node: resolvedPos.node(1),
-        pos,
+        pos: resolvedPos.start(1),
         id: window.id,
       });
       tr.setMeta(tableHeadersMenuKey, {

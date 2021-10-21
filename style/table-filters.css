@@ -84,3 +84,7 @@
   display: flex;
   gap: 10px;
 }
+
+.hiddenRow {
+  display: none !important;
+}

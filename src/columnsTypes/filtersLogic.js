@@ -1,27 +1,29 @@
+const clearWeirdCharactersFromText = (text) => text.replace(/[^\x00-\x7F]/g, '');
+
 // Text Logic
 
 export const textEquality = (cell, value) => {
-  return cell.textContent === value;
+  return clearWeirdCharactersFromText(cell.textContent) === value;
 };
 
 export const textInequality = (cell, value) => {
-  return cell.textContent !== value;
+  return clearWeirdCharactersFromText(cell.textContent) !== value;
 };
 
 export const textContains = (cell, value) => {
-  return cell.textContent.includes(value);
+  return clearWeirdCharactersFromText(cell.textContent).includes(value);
 };
 
 export const textNotContains = (cell, value) => {
-  return !cell.textContent.includes(value);
+  return !clearWeirdCharactersFromText(cell.textContent).includes(value);
 };
 
 export const isTextEmpty = (cell) => {
-  return !cell.textContent.length;
+  return !clearWeirdCharactersFromText(cell.textContent).length;
 };
 
 export const isTextNotEmpty = (cell) => {
-  return !!cell.textContent.length;
+  return clearWeirdCharactersFromText(cell.textContent).length > 0;
 };
 
 // Number Logic

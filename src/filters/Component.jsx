@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Filter from './Filter';
-import {createDefaultFilter, getColsOptions, updateTableFilters} from './utils';
+import {createDefaultFilter, getColsOptions, updateTableFilters, executeFilters} from './utils';
 import SelectDropDown from './DropDown.jsx';
-import useClickOutside from '../useClickOutside.jsx';
 
-const FilterRule = ({onFilterChange, filterHandler, colsDropdownOptions}) => {
+const FilterRule = ({onFilterChange, filterHandler, colsDropdownOptions, onFilterRemove}) => {
   return (
     <div className="filter-container">
       <div className="column-chooser">
@@ -42,12 +41,12 @@ const FilterRule = ({onFilterChange, filterHandler, colsDropdownOptions}) => {
         )}
       </div>
 
-      <button className="remove-rule-button">X</button>
+      <button className="remove-rule-button" onClick={onFilterRemove}>X</button>
     </div>
   );
 };
 
-export const TableFiltersComponent = ({table, pos, dom, view}) => {
+export const TableFiltersComponent = ({table, pos, view}) => {
   const [filters, setFilters] = useState(table.attrs.filters || []);
 
   const addFilter = () => {
@@ -55,19 +54,26 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
     setFilters((oldFilters) => [...oldFilters, defaultFilter]);
   };
 
-  const createFilterSetter = (filterIndex) => (newFilter) => {
+  const createFilterRemover = (filterIndex) => () => {
     setFilters((oldFilters) => {
       const newFilters = oldFilters.slice()
-      newFilters[filterIndex] = newFilter;
+      newFilters.splice(filterIndex, 1);
+      updateTableFilters(table, pos, view, newFilters)
 
       return newFilters
     })
+  }
 
-    // update table filter
-    updateTableFilters(table, pos, view, newFilter, filterIndex)
+  const createFilterSetter = (filterIndex) => (newFilter) => {
+    const newFilters = filters.slice()
+    newFilters[filterIndex] = newFilter;
+
+    updateTableFilters(table, pos, view, newFilters)
 
     // apply all filters
-    //TODO: add execute
+    executeFilters(table, pos, view, newFilters)
+
+    setFilters(newFilters)
   }
 
   return (
@@ -82,6 +88,7 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
                 filterHandler={FilterHandler} 
                 key={index} 
                 onFilterChange={createFilterSetter(index)}
+                onFilterRemove={createFilterRemover(index)}
                 colsDropdownOptions={getColsOptions(table)}
               />;
             })}
@@ -93,7 +100,6 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
       <button className="add-filters-button" onClick={addFilter}>
         + Add Filter
       </button>
-      <button className="apply-rules-button">Apply Rules</button>
     </div>
   );
 };
