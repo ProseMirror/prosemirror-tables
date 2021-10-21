@@ -1,23 +1,18 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Filter from './Filter';
-import {createDefaultFilter, tableFiltersMenuKey} from './utils';
+import {createDefaultFilter, getColsOptions, updateTableFilters} from './utils';
 import SelectDropDown from './DropDown.jsx';
 import useClickOutside from '../useClickOutside.jsx';
 
-const FilterRule = ({setRule, filterHandler}) => {
-  const [filter, setFilter] = useState(filterHandler.toAttrsValue());
-
+const FilterRule = ({onFilterChange, filterHandler, colsDropdownOptions}) => {
   return (
     <div className="filter-container">
       <div className="column-chooser">
         <SelectDropDown
           className="filter-columns-dropdown"
-          initialValue={filterHandler.colIndex}
-          items={filterHandler.getColsOptions()}
-          onValueChange={(index) => {
-            filterHandler.setColIndex(index);
-            setFilter(filterHandler.toAttrsValue());
-          }}
+          initialValue={filterHandler.headerId}
+          items={colsDropdownOptions}
+          onValueChange={(headerId) => onFilterChange({...filterHandler.toAttrsValue(), headerId})}
         />
       </div>
       <div className="rule-chooser">
@@ -25,10 +20,7 @@ const FilterRule = ({setRule, filterHandler}) => {
           className="filter-logics-dropdown"
           initialValue={filterHandler.filterId}
           items={filterHandler.getLogicOptions()}
-          onValueChange={(filterId) => {
-            filterHandler.setFilterId(filterId);
-            setFilter(filterHandler.toAttrsValue());
-          }}
+          onValueChange={(filterId) => onFilterChange({...filterHandler.toAttrsValue(), filterId})}
         />
       </div>
       <div className="value-chooser">
@@ -37,10 +29,7 @@ const FilterRule = ({setRule, filterHandler}) => {
             className="filter-value-dropdown"
             initialValue={filterHandler.getDefaultValue()}
             items={filterHandler.getValuesOptions()}
-            onValueChange={(value) => {
-              filterHandler.setFilterValue(value);
-              setFilter(filterHandler.toAttrsValue());
-            }}
+            onValueChange={(filterValue) => onFilterChange({...filterHandler.toAttrsValue(), filterValue})}
           />
         ) : filterHandler.noValue() ? (
           <></>
@@ -48,7 +37,7 @@ const FilterRule = ({setRule, filterHandler}) => {
           <input
             className="filter-value-input"
             defaultValue={filterHandler.getDefaultValue()}
-            onChange={(e) => filterHandler.setFilterValue(e.target.value)}
+            onChange={(e) => onFilterChange({...filterHandler.toAttrsValue(), filterValue: e.target.value})}
           ></input>
         )}
       </div>
@@ -66,15 +55,20 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
     setFilters((oldFilters) => [...oldFilters, defaultFilter]);
   };
 
-  // const ref = useClickOutside((e) => {
-  //   const {tr} = view.state;
-  //   tr.setMeta(tableFiltersMenuKey, {
-  //     action: 'close',
-  //     id: window.id,
-  //   });
+  const createFilterSetter = (filterIndex) => (newFilter) => {
+    setFilters((oldFilters) => {
+      const newFilters = oldFilters.slice()
+      newFilters[filterIndex] = newFilter;
 
-  //   view.dispatch(tr);
-  // });
+      return newFilters
+    })
+
+    // update table filter
+    updateTableFilters(table, pos, view, newFilter, filterIndex)
+
+    // apply all filters
+    //TODO: add execute
+  }
 
   return (
     <div className="table-filters-container">
@@ -84,7 +78,12 @@ export const TableFiltersComponent = ({table, pos, dom, view}) => {
             Where
             {filters.map((filterConfig, index) => {
               const FilterHandler = new Filter(table, filterConfig);
-              return <FilterRule filterHandler={FilterHandler} key={index} />;
+              return <FilterRule 
+                filterHandler={FilterHandler} 
+                key={index} 
+                onFilterChange={createFilterSetter(index)}
+                colsDropdownOptions={getColsOptions(table)}
+              />;
             })}
           </>
         ) : (

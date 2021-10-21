@@ -49,8 +49,49 @@ export const createDefaultFilter = (table) => {
   const typeFirstFilter = typeConfig.filters.find((filter) => filter.default);
 
   return {
-    colIndex: 0,
+    headerId: firstColHeader.attrs.id,
     filterId: typeFirstFilter.id,
     filterValue: typeFirstFilter.defaultValue,
   };
 };
+
+export const getColsOptions = (table) => {
+  const headersRow = table.firstChild;
+  const headers = headersRow.content.content.map((headerNode) => {
+    return {
+      label: headerNode.textContent.length
+        ? headerNode.textContent
+        : 'Untitled',
+      value: headerNode.attrs.id,
+      className: `colItem ${headerNode.attrs.type}Type`,
+      onSelect: () => {},
+    };
+  });
+  return headers;
+}
+
+export const updateTableFilters = (table, tablePos, view, newFilter, filterIndex) => {
+  const newFilters = table.attrs.filters;
+  newFilters[filterIndex] = newFilter;
+
+  const {tr} = view.state;
+  tr.setNodeMarkup(tablePos, undefined, {...table.attrs, filters: newFilters});
+
+  view.dispatch(tr);
+} 
+
+export const executeFilters = (table, tablePos, view, filters) => {
+  if(!filters.length) return;
+
+  const filtersByHeaderId = {};
+  filters.forEach((filter) => {
+    if (!filtersByHeaderId[filter.headersId]) filtersByHeaderId[filter.headersId] = [];
+    filtersByHeaderId[filter.headersId].push(filter)
+  })
+  
+  const headersRow = table.firstChild;
+
+  headersRow.descendants((header, pos, parent) => {
+
+  })
+}

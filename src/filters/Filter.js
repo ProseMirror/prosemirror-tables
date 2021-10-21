@@ -1,39 +1,24 @@
-import {types} from '../columnsTypes/types.config';
+import {columnTypesMap} from '../columnsTypes/types.config';
 
 class Filter {
-  constructor(table, {colIndex, filterId, filterValue}) {
+  constructor(table, {filterId, filterValue, headerId}) {
     this.table = table; // the table the Filter applies on
-    this.colIndex = colIndex; // the index of the column the Filters applies on.
     this.filterId = filterId; // the label of the Filter ('greater than', '<', 'equals' ....)
     this.filterValue = filterValue; // the value of the Filter.
+    this.headerId = headerId;
 
-    this.colType = this.getColTypeConfig(); // the type of the column the Filters applies on.
+    this.colType = this.getColType(); // the type of the column the Filters applies on.
   }
 
-  getColsOptions() {
-    const headersRow = this.table.firstChild;
-    const headers = headersRow.content.content.map((headerNode, index) => {
-      return {
-        label: headerNode.textContent.length
-          ? headerNode.textContent
-          : 'Untitled',
-        value: index,
-        className: `colItem ${headerNode.attrs.type}Type`,
-        onSelect: () => {},
-      };
-    });
-    return headers;
-  }
-
-  getColTypeConfig() {
-    const colType = this.table.firstChild.child(this.colIndex).attrs.type;
-    return types.find((typeConfig) => typeConfig.id === colType);
+  getColType() {
+    const firstRowHeaders = this.table.firstChild.content.content;
+    const header = firstRowHeaders.find((header) => header.attrs.id == this.headerId);
+  
+    return columnTypesMap[header.attrs.type]
   }
 
   getLogicOptions() {
-    const colTypeConfig = this.getColTypeConfig();
-
-    return colTypeConfig.filters.map((filterConfig) => ({
+    return this.colType.filters.map((filterConfig) => ({
       value: filterConfig.id,
       label: filterConfig.label,
       onSelect: () => {},
@@ -57,15 +42,10 @@ class Filter {
   // serialize the filter to be saved in the node attrs
   toAttrsValue() {
     return {
-      colIndex: this.colIndex,
+      headerId: this.headerId,
       filterId: this.filterId,
       filterValue: this.filterValue,
     };
-  }
-
-  setColIndex(index) {
-    this.colIndex = index;
-    this.colType = this.getColTypeConfig();
   }
 
   setFilterId(id) {
