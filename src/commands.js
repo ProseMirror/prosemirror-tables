@@ -176,14 +176,16 @@ export function removeRow(tr, {map, table, tableStart}, row) {
   let mapFrom = tr.mapping.maps.length
   tr.delete(rowPos + tableStart, nextRow + tableStart)
 
-  for (let col = 0, index = row * map.width; col < map.width; col++, index++) {
+  for (let col = 0, index = row * map.width; col < map.width; col++) {
+    // col maybe skip with merged cell
+    index += col
     let pos = map.map[index]
     if (row > 0 && pos == map.map[index - map.width]) {
       // If this cell starts in the row above, simply reduce its rowspan
       let attrs = table.nodeAt(pos).attrs
       tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + tableStart), null, setAttr(attrs, "rowspan", attrs.rowspan - 1))
       col += attrs.colspan - 1
-    } else if (row < map.width && pos == map.map[index + map.width]) {
+    } else if (row < map.height && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
       let cell = table.nodeAt(pos)
       let copy = cell.type.create(setAttr(cell.attrs, "rowspan", cell.attrs.rowspan - 1), cell.content)
