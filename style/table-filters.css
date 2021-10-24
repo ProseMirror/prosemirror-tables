@@ -1,36 +1,46 @@
 .tableFiltersMenu {
-  padding: 3px;
   border-radius: 6px;
   background-color: white;
   border: 1px solid black;
+  padding: 6px 12px;
 }
 
 .selectDropDownContainer {
-  margin-left: auto;
-  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   position: relative;
-  padding-top: 2px;
-  padding: 3px;
   border-radius: 6px;
   background-color: white;
+
+  user-select: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 3px;
+  height: 24px;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  background: white;
+  margin-right: 0px;
+  max-width: 100%;
+}
+
+.dropDownArrow {
+  content: url(./svgs/right-arrow.svg);
+  transform: rotate(90deg);
+  width: 12px;
+  height: 12px;
 }
 
 .selectDropDownButton {
   border: none;
   background-color: transparent;
-  font-family: Nunito;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 14px;
-  line-height: 18px;
+  padding: 2px 8px 2px 12px;
 
   display: flex;
   align-items: center;
-  letter-spacing: 0.02em;
-  gap: 6px;
+  gap: 8px;
 
   color: #333333;
   cursor: pointer;
@@ -43,33 +53,30 @@
   padding: 0px;
   position: absolute;
   width: fit-content;
-  right: 0px;
+  left: 0px;
   top: 30px;
   border-radius: 4px;
   z-index: 4;
-  padding: 3px;
+  padding: 1px;
   border-radius: 6px;
   background-color: white;
-  border: 1px solid black;
 }
 
 .selectDropDownItem {
-  height: 25px;
   width: fit-content;
-  padding: 0px;
-  padding-left: 30px;
-  padding-right: 10px;
+  padding: 9px;
+  padding-right: 20px;
   border: none;
   background-color: transparent;
-  font-family: Nunito;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 14px;
-  line-height: 18px;
-  letter-spacing: 0.02em;
   position: relative;
   text-align: left;
   white-space: nowrap;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 3px;
 }
 
 .selectDropDownItem.separate {
@@ -80,11 +87,85 @@
   top: -110px;
 }
 
-.filter-container {
+.active-filters {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.filter-row {
+  display: flex;
+  gap: 20px;
+  height: 38px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.column-chooser,
+.rule-chooser,
+.value-chooser {
+  height: fit-content;
+}
+
+.remove-rule-button {
+  margin-left: auto;
+  content: url(./svgs/close_icon.svg);
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
 }
 
 .hiddenRow {
   display: none !important;
+}
+
+.colItem .selectDropDownIteIcon {
+  width: 15px;
+  height: 15px;
+}
+
+.colItem.textType .selectDropDownIteIcon {
+  content: url(./svgs/types/text_type.svg);
+}
+.colItem.numberType .selectDropDownIteIcon {
+  content: url(./svgs/types/number_type.svg);
+}
+.colItem.dateType .selectDropDownIteIcon {
+  content: url(./svgs/types/date.svg);
+}
+.colItem.labelsType .selectDropDownIteIcon {
+  content: url(./svgs/types/label.svg);
+}
+.colItem.checkboxType .selectDropDownIteIcon {
+  content: url(./svgs/types/checkbox_type.svg);
+}
+.colItem.currencyType .selectDropDownIteIcon {
+  content: url(./svgs/types/currency.svg);
+}
+
+.rule-chooser .selectDropDownItem {
+  padding-left: 15px;
+}
+
+.filter-value-input {
+  height: 14px;
+}
+
+.add-filters-button {
+  cursor: pointer;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 3px;
+  height: 24px;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  background: white;
+
+  padding: 8px;
+  margin-top: 12px;
+  margin-bottom: 6px;
+
+  display: flex;
+  align-items: center;
 }

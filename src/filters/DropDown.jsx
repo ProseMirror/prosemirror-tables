@@ -15,6 +15,7 @@ import React, {useState, useRef, useCallback, useMemo} from 'react';
 //   separate: boolean;
 //   notClickable?: boolean;
 //   itemStyleClass?: string;
+//   hasIcon: boolean;
 // }
 
 // interface DropDownProps {
@@ -30,17 +31,18 @@ const DropDownItem = ({
   onValueChange,
   selected,
   separate,
-  notClickable,
   itemStyleClass,
+  hasIcon,
 }) => {
   return (
     <button
-      className={`selectDropDownItem ${separate && 'separate'} ${
-        notClickable && 'notClickable'
+      className={`selectDropDownItem ${
+        separate ? 'separate' : ''
       } ${itemStyleClass}`}
       onClick={onValueChange}
       type="button"
     >
+      {hasIcon && <span className="selectDropDownIteIcon"></span>}
       <span className="selectDropDownItemLabel">{label}</span>
     </button>
   );
@@ -109,16 +111,17 @@ const SelectDropDown = ({
         <span className="selectedLabel">
           {items.find((item) => item.value === value)?.label}
         </span>
+        <span className="dropDownArrow"></span>
       </button>
       {showDropDown && (
         <div className="selectDropDownSelection">
           {items.map((item) => {
             return (
               <DropDownItem
+                hasIcon={item.hasIcon}
                 itemStyleClass={item.itemStyleClass}
                 key={item.value}
                 label={item.label}
-                notClickable={item.notClickable}
                 onValueChange={() =>
                   item?.notClickable ? () => null : updateValue(item.value)
                 }

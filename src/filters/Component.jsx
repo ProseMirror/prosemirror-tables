@@ -3,9 +3,9 @@ import Filter from './Filter';
 import {
   createDefaultFilter,
   getColsOptions,
-  updateTableFilters,
   executeFilters,
   tableFiltersMenuKey,
+  getConcatenationItems,
 } from './utils';
 import SelectDropDown from './DropDown.jsx';
 import useClickOutside from '../useClickOutside.jsx';
@@ -15,9 +15,25 @@ const FilterRule = ({
   filterHandler,
   colsDropdownOptions,
   onFilterRemove,
+  index,
 }) => {
   return (
-    <div className="filter-container">
+    <div className="filter-row">
+      {index === 0 ? (
+        'Where'
+      ) : (
+        <SelectDropDown
+          className="ternary-dropdown"
+          initialValue={filterHandler.concatenationLogic}
+          items={getConcatenationItems()}
+          onValueChange={(concatenationLogic) =>
+            onFilterChange({
+              ...filterHandler.toAttrsValue(),
+              concatenationLogic,
+            })
+          }
+        />
+      )}
       <div className="column-chooser">
         <SelectDropDown
           className="filter-columns-dropdown"
@@ -64,9 +80,7 @@ const FilterRule = ({
         )}
       </div>
 
-      <button className="remove-rule-button" onClick={onFilterRemove}>
-        X
-      </button>
+      <span className="remove-rule-button" onClick={onFilterRemove}></span>
     </div>
   );
 };
@@ -83,8 +97,6 @@ export const TableFiltersComponent = ({table, pos, view}) => {
     const newFilters = filters.slice();
     newFilters.splice(filterIndex, 1);
 
-    updateTableFilters(table, pos, view, newFilters);
-
     // apply all filters
     executeFilters(table, pos, view, newFilters);
 
@@ -94,8 +106,6 @@ export const TableFiltersComponent = ({table, pos, view}) => {
   const createFilterSetter = (filterIndex) => (newFilter) => {
     const newFilters = filters.slice();
     newFilters[filterIndex] = newFilter;
-
-    updateTableFilters(table, pos, view, newFilters);
 
     // apply all filters
     executeFilters(table, pos, view, newFilters);
@@ -118,17 +128,19 @@ export const TableFiltersComponent = ({table, pos, view}) => {
       <div className="active-filters">
         {filters.length ? (
           <>
-            Where
             {filters.map((filterConfig, index) => {
               const FilterHandler = new Filter(table, filterConfig);
               return (
-                <FilterRule
-                  colsDropdownOptions={getColsOptions(table)}
-                  filterHandler={FilterHandler}
-                  key={index}
-                  onFilterChange={createFilterSetter(index)}
-                  onFilterRemove={createFilterRemover(index)}
-                />
+                <>
+                  <FilterRule
+                    colsDropdownOptions={getColsOptions(table)}
+                    filterHandler={FilterHandler}
+                    index={index}
+                    key={index}
+                    onFilterChange={createFilterSetter(index)}
+                    onFilterRemove={createFilterRemover(index)}
+                  />
+                </>
               );
             })}
           </>

@@ -4,6 +4,8 @@ import {getColIndex} from '../util';
 
 export const tableFiltersMenuKey = new PluginKey('TableFiltersMenu');
 
+const CONCATENATION_DEFAULT_VALUE = 'and';
+
 export const generateMenuPopup = () => {
   const menuElement = document.createElement('div');
   menuElement.className = `tableFiltersMenu`;
@@ -52,6 +54,7 @@ export const createDefaultFilter = (table) => {
     headerId: firstColHeader.attrs.id,
     filterId: typeFirstFilter.id,
     filterValue: typeFirstFilter.defaultValue,
+    concatenationLogic: CONCATENATION_DEFAULT_VALUE,
   };
 };
 
@@ -63,18 +66,11 @@ export const getColsOptions = (table) => {
         ? headerNode.textContent
         : 'Untitled',
       value: headerNode.attrs.id,
-      className: `colItem ${headerNode.attrs.type}Type`,
-      onSelect: () => {},
+      itemStyleClass: `colItem ${headerNode.attrs.type}Type`,
+      hasIcon: true,
     };
   });
   return headers;
-};
-
-export const updateTableFilters = (table, tablePos, view, newFilters) => {
-  const {tr} = view.state;
-  tr.setNodeMarkup(tablePos - 1, undefined, {filters: newFilters});
-
-  view.dispatch(tr);
 };
 
 const filterColumn = (tableRows, colIndex, colType, filters) => {
@@ -142,5 +138,23 @@ export const executeFilters = (table, tablePos, view, filters) => {
     }
   });
 
+  // update table attrs with new filters
+  tr.setNodeMarkup(tablePos - 1, undefined, {filters});
+
   view.dispatch(tr);
+};
+
+const CONCATENATION_ITEMS = [
+  {
+    value: 'and',
+    label: 'And',
+  },
+  {
+    value: 'or',
+    label: 'Or',
+  },
+];
+
+export const getConcatenationItems = () => {
+  return CONCATENATION_ITEMS;
 };
