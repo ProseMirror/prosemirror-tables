@@ -121,33 +121,44 @@
   display: none !important;
 }
 
-.colItem .selectDropDownIteIcon {
+.colItem .selectDropDownIteIcon,
+.column-chooser .selectedIcon {
   width: 15px;
   height: 15px;
 }
 
-.colItem.textType .selectDropDownIteIcon {
+.colItem.textType .selectDropDownIteIcon,
+.column-chooser .selectedIcon.textType {
   content: url(./svgs/types/text_type.svg);
 }
-.colItem.numberType .selectDropDownIteIcon {
+.colItem.numberType .selectDropDownIteIcon,
+.column-chooser .selectedIcon.numberType {
   content: url(./svgs/types/number_type.svg);
 }
-.colItem.dateType .selectDropDownIteIcon {
+.colItem.dateType .selectDropDownIteIcon,
+.column-chooser .selectedIcon.dateType {
   content: url(./svgs/types/date.svg);
 }
-.colItem.labelsType .selectDropDownIteIcon {
+.colItem.labelsType .selectDropDownIteIcon,
+.column-chooser .selectedIcon.labelsType {
   content: url(./svgs/types/label.svg);
 }
-.colItem.checkboxType .selectDropDownIteIcon {
+.colItem.checkboxType .selectDropDownIteIcon,
+.column-chooser .selectedIcon.checkboxType {
   content: url(./svgs/types/checkbox_type.svg);
 }
-.colItem.currencyType .selectDropDownIteIcon {
+.colItem.currencyType .selectDropDownIteIcon,
+.column-chooser .selectedIcon.currencyType {
   content: url(./svgs/types/currency.svg);
 }
 
 .rule-chooser .selectDropDownItem,
 .value-chooser .selectDropDownItem {
   padding-left: 15px;
+}
+
+.selectDropDownButton {
+  padding-left: 10px;
 }
 
 .filter-value-input {

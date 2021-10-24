@@ -108,6 +108,11 @@ const SelectDropDown = ({
         onClick={openDropDown}
         type="button"
       >
+        <span
+          className={`selectedIcon ${
+            items.find((item) => item.value === value)?.itemStyleClass
+          }`}
+        ></span>
         <span className="selectedLabel">
           {items.find((item) => item.value === value)?.label}
         </span>
