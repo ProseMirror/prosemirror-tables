@@ -145,7 +145,8 @@
   content: url(./svgs/types/currency.svg);
 }
 
-.rule-chooser .selectDropDownItem {
+.rule-chooser .selectDropDownItem,
+.value-chooser .selectDropDownItem {
   padding-left: 15px;
 }
 

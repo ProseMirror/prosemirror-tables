@@ -1,4 +1,7 @@
-const clearWeirdCharactersFromText = (text) => text.replace(/[^\x00-\x7F]/g, '');
+import dayjs from 'dayjs';
+
+const clearWeirdCharactersFromText = (text) =>
+  text.replace(/[^\x00-\x7F]/g, '');
 
 // Text Logic
 
@@ -29,27 +32,27 @@ export const isTextNotEmpty = (cell) => {
 // Number Logic
 
 export const numberEquality = (cell, value) => {
-  return parseFloat(cell.textContent) === value;
+  return Number(cell.textContent) === Number(value);
 };
 
 export const numberInequality = (cell, value) => {
-  return parseFloat(cell.textContent) !== value;
+  return Number(cell.textContent) !== Number(value);
 };
 
 export const smallerOrEquals = (cell, value) => {
-  return parseFloat(cell.textContent) <= value;
+  return Number(cell.textContent) <= Number(value);
 };
 
 export const smaller = (cell, value) => {
-  return parseFloat(cell.textContent) < value;
+  return Number(cell.textContent) < Number(value);
 };
 
 export const greaterOrEquals = (cell, value) => {
-  return parseFloat(cell.textContent) >= value;
+  return Number(cell.textContent) >= Number(value);
 };
 
 export const greater = (cell, value) => {
-  return parseFloat(cell.textContent) > value;
+  return Number(cell.textContent) > Number(value);
 };
 
 export const isNumberEmpty = (cell) => {
@@ -62,34 +65,57 @@ export const isNumberNotEmpty = (cell) => {
 
 // Checkbox Logic
 
+export const CHECKED_ITEM_VALUE = 'checked';
+
+export const CHECKBOX_DROPDOWN_ITEMS = [
+  {
+    value: CHECKED_ITEM_VALUE,
+    label: 'Checked',
+  },
+  {
+    value: 'not-checked',
+    label: 'Not Checked',
+  },
+];
+
 export const checkboxEquality = (cell, value) => {
-  return cell.firstChild.attrs.checked === value;
+  const isChecked = value === CHECKED_ITEM_VALUE;
+  return cell.firstChild.attrs.checked === isChecked;
 };
 
 export const checkboxInequality = (cell, value) => {
-  return cell.firstChild.attrs.checked !== value;
+  const isChecked = value === CHECKED_ITEM_VALUE;
+  return cell.firstChild.attrs.checked !== isChecked;
 };
 
 // Date Logic
 
 export const isBefore = (cell, value) => {
-  return cell.firstChild.attrs.value < value;
+  return dayjs(Number(cell.firstChild.attrs.value)).isBefore(
+    dayjs(Number(value), 'date')
+  );
 };
 
 export const isOn = (cell, value) => {
-  return cell.firstChild.attrs.value === value;
+  return dayjs(Number(cell.firstChild.attrs.value)).isSame(
+    dayjs(Number(value)),
+    'date'
+  );
 };
 
 export const isAfter = (cell, value) => {
-  return cell.firstChild.attrs.value > value;
+  return dayjs(Number(cell.firstChild.attrs.value)).isAfter(
+    dayjs(Number(value)),
+    'date'
+  );
 };
 
 export const isDateEmpty = (cell) => {
-  return cell.firstChild.attrs.value === 0;
+  return cell.firstChild.attrs.value === -1;
 };
 
 export const isDateNotEmpty = (cell) => {
-  return cell.firstChild.attrs.value !== 0;
+  return cell.firstChild.attrs.value !== -1;
 };
 
 // Currency Logic
@@ -99,25 +125,36 @@ const removeCurrencyFromText = (text) => {
 };
 
 export const currencyEquality = (cell, value) => {
-  return parseFloat(removeCurrencyFromText(cell.textContent)) === value;
+  return Number(removeCurrencyFromText(cell.textContent)) === Number(value);
 };
 
 export const currencyInequality = (cell, value) => {
-  return parseFloat(removeCurrencyFromText(cell.textContent)) !== value;
+  return Number(removeCurrencyFromText(cell.textContent)) !== Number(value);
 };
 
 export const currencySmallerOrEquals = (cell, value) => {
-  return parseFloat(removeCurrencyFromText(cell.textContent)) <= value;
+  return Number(removeCurrencyFromText(cell.textContent)) <= Number(value);
 };
 
 export const currencySmaller = (cell, value) => {
-  return parseFloat(removeCurrencyFromText(cell.textContent)) < value;
+  return Number(removeCurrencyFromText(cell.textContent)) < Number(value);
 };
 
 export const currencyGreaterOrEquals = (cell, value) => {
-  return parseFloat(removeCurrencyFromText(cell.textContent)) >= value;
+  return Number(removeCurrencyFromText(cell.textContent)) >= Number(value);
 };
 
 export const currencyGreater = (cell, value) => {
-  return parseFloat(removeCurrencyFromText(cell.textContent)) > value;
+  return Number(removeCurrencyFromText(cell.textContent)) > Number(value);
+};
+
+// Labels Logic
+
+export const buildLabelsDropDownItems = (table) => {
+  return table.attar.labels.map((label) => ({
+    value: label.title,
+    label: label.title,
+    color: label.color,
+    checkbox: true,
+  }));
 };

@@ -24,9 +24,24 @@ class Filter {
     return this.colType.filters.map((filterConfig) => ({
       value: filterConfig.id,
       label: filterConfig.label,
-      onSelect: () => {},
       className: `logicItem`,
     }));
+  }
+
+  getLogicId() {
+    const filterConfig = this.colType.filters.find(
+      (filterConfig) => filterConfig.id === this.filterId
+    );
+
+    if (filterConfig) {
+      return this.filterId;
+    } else {
+      return this.getDefaultFilterId();
+    }
+  }
+
+  getDefaultFilterId() {
+    return this.colType.filters.find((filter) => filter.default).id;
   }
 
   getFilterLogic() {
@@ -36,7 +51,7 @@ class Filter {
 
   getFilterConfig() {
     const config = this.colType.filters.find(
-      (filterConfig) => filterConfig.id === this.filterId
+      (filterConfig) => filterConfig.id === this.getLogicId()
     );
 
     return config;
@@ -44,15 +59,9 @@ class Filter {
 
   // serialize the filter to be saved in the node attrs
   toAttrsValue() {
-    console.log({
-      headerId: this.headerId,
-      filterId: this.filterId,
-      filterValue: this.filterValue,
-      concatenationLogic: this.concatenationLogic,
-    });
     return {
       headerId: this.headerId,
-      filterId: this.filterId,
+      filterId: this.getLogicId(),
       filterValue: this.filterValue,
       concatenationLogic: this.concatenationLogic,
     };
@@ -79,6 +88,18 @@ class Filter {
   getDefaultValue() {
     const filterConfig = this.getFilterConfig();
     return this.filterValue || filterConfig.defaultValue;
+  }
+
+  getInputType() {
+    const filterConfig = this.getFilterConfig();
+    return filterConfig.inputType;
+  }
+
+  getDropdownInputItems() {
+    const filterConfig = this.getFilterConfig();
+    return filterConfig.inputDropdownItems
+      ? filterConfig.inputDropdownItems(this.table) || []
+      : [];
   }
 }
 

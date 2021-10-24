@@ -77,9 +77,12 @@ const filterColumn = (tableRows, colIndex, colType, filters) => {
   const colCells = tableRows.map((row) => row.node.child(colIndex));
 
   filters.forEach((filter) => {
-    const filterLogic = colType.filters.find(
+    const filterConfig = colType.filters.find(
       (filterConfig) => filterConfig.id === filter.filterId
-    ).logic;
+    );
+
+    if (!filterConfig) return;
+    const filterLogic = filterConfig.logic;
 
     colCells.forEach((cell, rowIndex) => {
       if (!filterLogic(cell, filter.filterValue)) {
