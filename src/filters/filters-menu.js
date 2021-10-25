@@ -140,7 +140,7 @@ export const TableFiltersMenu = () => {
           const stepResFrom = newState.doc.resolve(steps[step].from);
           const maybeTable = stepResFrom.node(1);
 
-          if (maybeTable.type.name === 'table') {
+          if (maybeTable && maybeTable.type.name === 'table') {
             const tableStart = stepResFrom.start(1);
             const tr = executeFilters(maybeTable, tableStart, newState);
             return tr;
