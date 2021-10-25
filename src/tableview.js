@@ -75,6 +75,8 @@ export class TableView {
     this.colgroup = this.table.appendChild(document.createElement('colgroup'));
     updateColumns(node, this.colgroup, this.table, cellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement('tbody'));
+
+    this.buildActiveFiltersButton(node);
   }
 
   updateMarkers() {
@@ -143,7 +145,7 @@ export class TableView {
     if (node.type != this.node.type) {
       return false;
     }
-
+    this.buildActiveFiltersButton(node);
     if (this.node.attrs.headers) {
       typeInheritance(this.view, node, this.getPos());
     }
@@ -158,7 +160,6 @@ export class TableView {
     }
 
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
-    this.buildActiveFiltersButton(node);
 
     if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) {
       node.attrs.sort = {
