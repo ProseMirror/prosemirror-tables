@@ -36,12 +36,15 @@ class Filter {
     if (filterConfig) {
       return this.filterId;
     } else {
-      return this.getDefaultFilterId();
+      // if the column type dont have the filterId, get the type default filter and set the value to the default value
+      return this.getDefaultFilterIdAndSetDefaultValue();
     }
   }
 
-  getDefaultFilterId() {
-    return this.colType.filters.find((filter) => filter.default).id;
+  getDefaultFilterIdAndSetDefaultValue() {
+    const defaultFilter = this.colType.filters.find((filter) => filter.default);
+    this.filterValue = defaultFilter.defaultValue;
+    return defaultFilter.id;
   }
 
   getFilterLogic() {
