@@ -1,3 +1,15 @@
+.activeFilterIndicator {
+  display: inline-block;
+  background-color: #e0eef9;
+  position: absolute;
+  right: 0px;
+  color: #3891fe;
+  padding: 5px;
+  font-size: 12px;
+  top: -45px;
+  border: 0;
+}
+
 .tableFiltersMenu {
   border-radius: 6px;
   background-color: white;

@@ -2,6 +2,8 @@ import {NodeSelection} from 'prosemirror-state';
 import {addBottomRow, addRightColumn} from './commands';
 import {createElementWithClass} from './util';
 import {typeInheritance} from './headers/headers-menu/index';
+import {tableFiltersMenuKey} from './filters/utils';
+import {tableHeadersMenuKey} from './columnsTypes/types.config';
 
 const createAddCellsButton = (type, view, pos) => {
   const isRow = type === 'row';
@@ -27,6 +29,7 @@ export class TableView {
     this.view = view;
     this.getPos = getPos;
     this.cellMinWidth = cellMinWidth;
+    this.activeFiltersBtn = null;
     const tableScrollWrapper = createElementWithClass(
       'div',
       'tableScrollWrapper'
@@ -96,6 +99,42 @@ export class TableView {
     e.preventDefault();
   }
 
+  buildActiveFiltersButton(node) {
+    if (node.attrs.filters && node.attrs.filters.length) {
+      if (!this.activeFiltersBtn) {
+        this.activeFiltersBtn = createElementWithClass(
+          'button',
+          'activeFilter'
+        );
+        this.activeFiltersBtn.className = 'activeFilterIndicator';
+        this.activeFiltersBtn.innerHTML = 'filters';
+        const {dispatch} = this.view;
+        const {tr} = this.view.state;
+
+        this.activeFiltersBtn.onclick = () => {
+          // TODO: Create util that open the filter popup and close other - reuse
+          tr.setMeta(tableFiltersMenuKey, {
+            action: 'open',
+            dom: this.tableWrapper,
+            node: node,
+            id: window.id,
+          });
+          tr.setMeta(tableHeadersMenuKey, {
+            action: 'close',
+            id: window.id,
+          });
+
+          dispatch(tr);
+        };
+        this.tableWrapper.prepend(this.activeFiltersBtn);
+      }
+    } else {
+      if (this.activeFiltersBtn) {
+        this.activeFiltersBtn.remove();
+      }
+    }
+  }
+
   update(node, markers) {
     this.updateMarkers();
 
@@ -117,6 +156,7 @@ export class TableView {
     }
 
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
+    this.buildActiveFiltersButton(node);
 
     if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) {
       node.attrs.sort = {
