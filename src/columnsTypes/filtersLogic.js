@@ -92,7 +92,8 @@ export const checkboxInequality = (cell, value) => {
 
 export const isBefore = (cell, value) => {
   return dayjs(Number(cell.firstChild.attrs.value)).isBefore(
-    dayjs(Number(value), 'date')
+    dayjs(Number(value)),
+    'date'
   );
 };
 
