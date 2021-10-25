@@ -128,6 +128,8 @@ export class TableView {
         };
         this.tableWrapper.prepend(this.activeFiltersBtn);
       }
+      // TODO: Find a way not to update it on every update
+      this.activeFiltersBtn.innerHTML = `${node.attrs.filters.length} filters`;
     } else {
       if (this.activeFiltersBtn) {
         this.activeFiltersBtn.remove();
