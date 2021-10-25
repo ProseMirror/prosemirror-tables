@@ -166,7 +166,8 @@ export const TableFiltersComponent = ({table, pos, view}) => {
     newFilters.splice(filterIndex, 1);
 
     // apply all filters
-    executeFilters(table, pos, view, newFilters);
+    const tr = executeFilters(table, pos, view.state, newFilters);
+    view.dispatch(tr);
 
     setFilters(newFilters);
   };
@@ -176,7 +177,8 @@ export const TableFiltersComponent = ({table, pos, view}) => {
     newFilters[filterIndex] = newFilter;
 
     // apply all filters
-    executeFilters(table, pos, view, newFilters);
+    const tr = executeFilters(table, pos, view.state, newFilters);
+    view.dispatch(tr);
 
     setFilters(newFilters);
   };

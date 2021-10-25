@@ -6,6 +6,7 @@ import {
   displayPopup,
   tableFiltersMenuKey,
   calculateMenuPosition,
+  executeFilters,
 } from './utils';
 import {TableFiltersComponent} from './Component.jsx';
 
@@ -118,7 +119,9 @@ export const TableFiltersMenu = () => {
         return null;
       },
       apply(tr, value, oldState, newState) {
+        // manage filter popup display
         const action = tr.getMeta(tableFiltersMenuKey);
+
         if (action && action.id === window.id && action.action === 'open') {
           return action;
         }
@@ -129,6 +132,23 @@ export const TableFiltersMenu = () => {
 
         return value;
       },
+    },
+    appendTransaction(transactions, oldState, newState) {
+      const steps = transactions.map((tr) => tr.steps).flat();
+      if (steps.length) {
+        for (let step = 0; step < steps.length; step++) {
+          const stepResFrom = newState.doc.resolve(steps[step].from);
+          const maybeTable = stepResFrom.node(1);
+
+          if (maybeTable.type.name === 'table') {
+            const tableStart = stepResFrom.start(1);
+            const tr = executeFilters(maybeTable, tableStart, newState);
+            return tr;
+          }
+        }
+      }
+
+      return null;
     },
   });
 };

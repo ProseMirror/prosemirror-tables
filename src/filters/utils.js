@@ -92,10 +92,12 @@ const filterColumn = (tableRows, colIndex, colType, filters) => {
   });
 };
 
-export const executeFilters = (table, tablePos, view, filters) => {
+export const executeFilters = (table, tablePos, state, filters) => {
+  const tableFilters = filters || table.attrs.filters;
+
   // order filters by columns
   const filtersByHeaderId = {};
-  filters.forEach((filter) => {
+  tableFilters.forEach((filter) => {
     if (!filtersByHeaderId[filter.headerId])
       filtersByHeaderId[filter.headerId] = [];
     filtersByHeaderId[filter.headerId].push(filter);
@@ -118,7 +120,7 @@ export const executeFilters = (table, tablePos, view, filters) => {
     if (parent.type.name !== 'table_row') return false; // go over the headers only and not their content
 
     const colType = columnTypesMap[header.attrs.type];
-    const colIndex = getColIndex(view.state, pos + tablePos + 1);
+    const colIndex = getColIndex(state, pos + tablePos + 1);
 
     if (Object.keys(filtersByHeaderId).includes(header.attrs.id)) {
       filterColumn(
@@ -131,7 +133,7 @@ export const executeFilters = (table, tablePos, view, filters) => {
     return false;
   });
 
-  const {tr} = view.state;
+  const {tr} = state;
 
   tableRows.forEach((row) => {
     if (row.hidden) {
@@ -142,9 +144,10 @@ export const executeFilters = (table, tablePos, view, filters) => {
   });
 
   // update table attrs with new filters
-  tr.setNodeMarkup(tablePos - 1, undefined, {filters});
+  if (filters)
+    tr.setNodeMarkup(tablePos - 1, undefined, {filters: tableFilters});
 
-  view.dispatch(tr);
+  return tr;
 };
 
 const CONCATENATION_ITEMS = [
