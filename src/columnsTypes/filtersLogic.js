@@ -151,11 +151,50 @@ export const currencyGreater = (cell, value) => {
 
 // Labels Logic
 
-export const buildLabelsDropDownItems = (table) => {
-  return table.attar.labels.map((label) => ({
-    value: label.title,
-    label: label.title,
-    color: label.color,
-    checkbox: true,
-  }));
+export const labelsEquality = (cell, value) => {
+  const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
+  if (value.length !== cellLabels.length) return false;
+
+  for (let i = 0; i < value.length; i++) {
+    if (!cellLabels.includes(value[i])) return false;
+  }
+  return true;
+};
+
+export const labelsInEquality = (cell, value) => {
+  const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
+  if (value.length !== cellLabels.length) return true;
+
+  for (let i = 0; i < value.length; i++) {
+    if (!cellLabels.includes(value[i])) return true;
+  }
+  return false;
+};
+
+export const labelsIsAny = (cell, value) => {
+  const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
+
+  for (let i = 0; i < value.length; i++) {
+    if (cellLabels.includes(value[i])) return true;
+  }
+  return false;
+};
+
+export const labelsIsNone = (cell, value) => {
+  const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
+
+  for (let i = 0; i < value.length; i++) {
+    if (cellLabels.includes(value[i])) return false;
+  }
+  return true;
+};
+
+export const labelsIsEmpty = (cell, value) => {
+  const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
+  return !cellLabels.length;
+};
+
+export const labelsIsNotEmpty = (cell, value) => {
+  const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
+  return !!cellLabels.length;
 };

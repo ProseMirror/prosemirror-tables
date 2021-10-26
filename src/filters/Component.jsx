@@ -7,7 +7,7 @@ import {
   tableFiltersMenuKey,
   getConcatenationItems,
 } from './utils';
-import SelectDropDown from './DropDown.jsx';
+import SelectDropDown, {SelectDropDownButton} from './DropDown.jsx';
 import useClickOutside from '../useClickOutside.jsx';
 import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateUtilDayJS from '@date-io/dayjs';
@@ -18,10 +18,137 @@ import {
 import DatePickerTheme from '../columnsTypes/types/Date/DatePickerTheme';
 import {ThemeProvider} from '@material-ui/core/styles';
 import {DATE_FORMAT} from '../columnsTypes/types/Date/utils';
+import {LabelsChooser} from '../columnsTypes/types/Label/Component.jsx';
 
 const generateClassName = createGenerateClassName({
   seed: 'sgo-tables-plugin-',
 });
+
+const FiltersDatePicker = ({onFilterChange, filterHandler}) => {
+  const [date, setDate] = useState(filterHandler.getDefaultValue());
+  return (
+    <StylesProvider generateClassName={generateClassName}>
+      <ThemeProvider theme={DatePickerTheme}>
+        <MuiPickersUtilsProvider utils={DateUtilDayJS}>
+          <DatePicker
+            format={DATE_FORMAT}
+            onChange={(newValue) => {
+              setDate(newValue.toDate().getTime());
+              onFilterChange({
+                ...filterHandler.toAttrsValue(),
+                filterValue: newValue.toDate().getTime(),
+              });
+            }}
+            openTo="date"
+            style={{width: '100px', cursor: 'pointer'}}
+            value={date}
+            variant="inline"
+          />
+        </MuiPickersUtilsProvider>
+      </ThemeProvider>
+    </StylesProvider>
+  );
+};
+
+const FiltersInputDropDown = ({filterHandler, onFilterChange}) => {
+  return (
+    <SelectDropDown
+      className="input-dropdown"
+      initialValue={filterHandler.getDefaultValue()}
+      items={filterHandler.getDropdownInputItems()}
+      onValueChange={(filterValue) =>
+        onFilterChange({
+          ...filterHandler.toAttrsValue(),
+          filterValue,
+        })
+      }
+    />
+  );
+};
+
+const FiltersTextInput = ({filterHandler, onFilterChange}) => {
+  const inputRef = useRef();
+
+  useEffect(() => {
+    if (inputRef.current) inputRef.current.focus();
+  }, [inputRef]);
+
+  return (
+    <input
+      className="filter-value-input"
+      defaultValue={filterHandler.getDefaultValue()}
+      onChange={(e) =>
+        onFilterChange({
+          ...filterHandler.toAttrsValue(),
+          filterValue: e.target.value,
+        })
+      }
+      ref={inputRef}
+    ></input>
+  );
+};
+
+const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
+  const [openDropDown, setOpenDropDown] = useState(false);
+
+  const tablePos = tableFiltersMenuKey.getState(filterHandler.view.state);
+  const handleLabelChoose = (title, checked, allChosenLabels) => {
+    let newChosenLabels = allChosenLabels.map((label) => label.title);
+
+    if (checked) {
+      console.log(newChosenLabels, title);
+      newChosenLabels = [...newChosenLabels, title];
+    } else {
+      newChosenLabels = newChosenLabels.filter((label) => label !== title);
+    }
+
+    onFilterChange({
+      ...filterHandler.toAttrsValue(),
+      filterValue: newChosenLabels,
+    });
+  };
+  // console.log(filterHandler.toAttrsValue().filterValue);
+  return (
+    <div className="selectDropDownContainer">
+      <SelectDropDownButton
+        disableDropDown={false}
+        itemStyleClass={''}
+        label={'Choose Labels'}
+        openDropDown={() => setOpenDropDown(!openDropDown)}
+      />
+      {openDropDown && (
+        <LabelsChooser
+          handleLabelChoose={handleLabelChoose}
+          inFilters={true}
+          initialChosenLabels={filterHandler
+            .toAttrsValue()
+            .filterValue.map((label) => ({title: label}))}
+          node={filterHandler.table}
+          onClose={() => setOpenDropDown(false)}
+          pos={tablePos.pos + 1}
+          view={filterHandler.view}
+        />
+      )}
+    </div>
+  );
+};
+
+const getInputElement = (filterHandler, onFilterChange) => {
+  const inputType = filterHandler.getInputType();
+
+  switch (inputType) {
+    default:
+      return () => <></>;
+    case 'input':
+      return FiltersTextInput;
+    case 'date-picker':
+      return FiltersDatePicker;
+    case 'dropdown':
+      return FiltersInputDropDown;
+    case 'labels-dropdown':
+      return FiltersLabelsDropDown;
+  }
+};
 
 const FilterRule = ({
   onFilterChange,
@@ -30,81 +157,7 @@ const FilterRule = ({
   onFilterRemove,
   index,
 }) => {
-  const getInputElement = () => {
-    const inputType = filterHandler.getInputType();
-
-    switch (inputType) {
-      default:
-        return () => <></>;
-      case 'input':
-        return () => {
-          const inputRef = useRef();
-
-          useEffect(() => {
-            if (inputRef.current) inputRef.current.focus();
-          }, [inputRef]);
-
-          return (
-            <input
-              className="filter-value-input"
-              defaultValue={filterHandler.getDefaultValue()}
-              onChange={(e) =>
-                onFilterChange({
-                  ...filterHandler.toAttrsValue(),
-                  filterValue: e.target.value,
-                })
-              }
-              ref={inputRef}
-            ></input>
-          );
-        };
-
-      case 'date-picker':
-        return () => {
-          const [date, setDate] = useState(filterHandler.getDefaultValue());
-          return (
-            <StylesProvider generateClassName={generateClassName}>
-              <ThemeProvider theme={DatePickerTheme}>
-                <MuiPickersUtilsProvider utils={DateUtilDayJS}>
-                  <DatePicker
-                    format={DATE_FORMAT}
-                    onChange={(newValue) => {
-                      setDate(newValue.toDate().getTime());
-                      onFilterChange({
-                        ...filterHandler.toAttrsValue(),
-                        filterValue: newValue.toDate().getTime(),
-                      });
-                    }}
-                    openTo="date"
-                    style={{width: '100px', cursor: 'pointer'}}
-                    value={date}
-                    variant="inline"
-                  />
-                </MuiPickersUtilsProvider>
-              </ThemeProvider>
-            </StylesProvider>
-          );
-        };
-      case 'dropdown':
-        return () => {
-          return (
-            <SelectDropDown
-              className="input-dropdown"
-              initialValue={filterHandler.getDefaultValue()}
-              items={filterHandler.getDropdownInputItems()}
-              onValueChange={(filterValue) =>
-                onFilterChange({
-                  ...filterHandler.toAttrsValue(),
-                  filterValue,
-                })
-              }
-            />
-          );
-        };
-    }
-  };
-
-  const FilterInput = getInputElement();
+  const FilterInput = getInputElement(filterHandler, onFilterChange);
 
   return (
     <div className="filter-row">
@@ -145,7 +198,10 @@ const FilterRule = ({
       </div>
 
       <div className="value-chooser">
-        <FilterInput />
+        <FilterInput
+          filterHandler={filterHandler}
+          onFilterChange={onFilterChange}
+        />
       </div>
 
       <span className="remove-rule-button" onClick={onFilterRemove}></span>
@@ -201,7 +257,7 @@ export const TableFiltersComponent = ({table, pos, view}) => {
         {filters.length ? (
           <>
             {filters.map((filterConfig, index) => {
-              const FilterHandler = new Filter(table, filterConfig);
+              const FilterHandler = new Filter(view, table, filterConfig);
               return (
                 <>
                   <FilterRule

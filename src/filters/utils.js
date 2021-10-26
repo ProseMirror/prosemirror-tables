@@ -74,6 +74,7 @@ export const getColsOptions = (table) => {
 };
 
 const filterColumn = (tableRows, colIndex, colType, filters) => {
+  if (colIndex === null) return;
   const colCells = tableRows.map((row) => row.node.child(colIndex));
 
   filters.forEach((filter) => {
@@ -144,9 +145,12 @@ export const executeFilters = (table, tablePos, state, filters) => {
   });
 
   // update table attrs with new filters
-  if (filters)
-    tr.setNodeMarkup(tablePos - 1, undefined, {filters: tableFilters});
-
+  if (filters) {
+    tr.setNodeMarkup(tablePos - 1, undefined, {
+      ...table.attrs,
+      filters: tableFilters,
+    });
+  }
   return tr;
 };
 

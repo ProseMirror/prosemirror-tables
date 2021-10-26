@@ -1,7 +1,12 @@
 import {columnTypesMap} from '../columnsTypes/types.config';
 
 class Filter {
-  constructor(table, {filterId, filterValue, headerId, concatenationLogic}) {
+  constructor(
+    view,
+    table,
+    {filterId, filterValue, headerId, concatenationLogic}
+  ) {
+    this.view = view; // the editor view
     this.table = table; // the table the Filter applies on
     this.filterId = filterId; // the label of the Filter ('greater than', '<', 'equals' ....)
     this.filterValue = filterValue; // the value of the Filter.

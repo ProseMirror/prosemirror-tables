@@ -712,10 +712,6 @@ export function sortColumn(view, colNumber, pos, dir) {
   const header = rect.table.content.content[0];
   let newRowsArray = rect.table.content.content.slice(1);
   const {tr} = view.state;
-  const collator = new Intl.Collator(undefined, {
-    numeric: true,
-    sensitivity: 'base',
-  });
 
   const columnType = newRowsArray[0].content.content[colNumber].attrs.type;
   const defaultSort = (direction, cellA, cellB) => {

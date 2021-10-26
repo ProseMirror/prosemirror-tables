@@ -48,6 +48,26 @@ const DropDownItem = ({
   );
 };
 
+export const SelectDropDownButton = ({
+  disableDropDown,
+  openDropDown,
+  itemStyleClass,
+  label,
+}) => {
+  return (
+    <button
+      className={`selectDropDownButton ${disableDropDown && 'disabled'}`}
+      disabled={disableDropDown}
+      onClick={openDropDown}
+      type="button"
+    >
+      <span className={`selectedIcon ${itemStyleClass}`}></span>
+      <span className="selectedLabel">{label}</span>
+      <span className="dropDownArrow"></span>
+    </button>
+  );
+};
+
 const SelectDropDown = ({
   items,
   initialValue,
@@ -102,22 +122,14 @@ const SelectDropDown = ({
       className={`selectDropDownContainer${className ? ` ${className}` : ''}`}
       ref={dropDownRef}
     >
-      <button
-        className={`selectDropDownButton ${disableDropDown && 'disabled'}`}
-        disabled={disableDropDown}
-        onClick={openDropDown}
-        type="button"
-      >
-        <span
-          className={`selectedIcon ${
-            items.find((item) => item.value === value)?.itemStyleClass
-          }`}
-        ></span>
-        <span className="selectedLabel">
-          {items.find((item) => item.value === value)?.label}
-        </span>
-        <span className="dropDownArrow"></span>
-      </button>
+      <SelectDropDownButton
+        disableDropDown={disableDropDown}
+        itemStyleClass={
+          items.find((item) => item.value === value)?.itemStyleClass
+        }
+        label={items.find((item) => item.value === value)?.label}
+        openDropDown={openDropDown}
+      />
       {showDropDown && (
         <div className="selectDropDownSelection">
           {items.map((item) => {

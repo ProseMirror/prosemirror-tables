@@ -35,6 +35,12 @@ import {
   currencyGreaterOrEquals,
   CHECKBOX_DROPDOWN_ITEMS,
   CHECKED_ITEM_VALUE,
+  labelsEquality,
+  labelsInEquality,
+  labelsIsAny,
+  labelsIsNone,
+  labelsIsEmpty,
+  labelsIsNotEmpty,
   // buildLabelsDropDownItems,
 } from './filtersLogic';
 import {sortNumVsString} from '../util';
@@ -301,34 +307,52 @@ export const types = [
     id: 'labels',
     displayName: 'Labels',
     handler: new LabelType(),
-    // filters: [
-    //   {
-    //     id: 'label-equals',
-    //     label: 'Is',
-    //     logic: checkboxEquality,
-    //     defaultValue: [],
-    //     default: true,
-    //     inputType: 'dropdown',
-    //     inputDropdownItems: (table) => buildLabelsDropDownItems(table),
-    //   },
-    //   {
-    //     id: 'label-not-equal',
-    //     label: 'Is Not',
-    //     logic: checkboxInequality,
-    //     defaultValue: [],
-    //     inputType: 'dropdown',
-    //     inputDropdownItems: (table) => buildLabelsDropDownItems(table),
-    //   },
-    //   {
-    //     id: 'label-equals',
-    //     label: 'Is',
-    //     logic: checkboxEquality,
-    //     defaultValue: 'checked',
-    //     default: true,
-    //     inputType: 'dropdown',
-    //     inputDropdownItems: (table) => buildLabelsDropDownItems(table),
-    //   },
-    // ],
+    // /is, is not, is any of, is none of, is empty, is not empty
+    filters: [
+      {
+        id: 'labels-equals',
+        label: 'Is',
+        logic: labelsEquality,
+        defaultValue: [],
+        default: true,
+        inputType: 'labels-dropdown',
+      },
+      {
+        id: 'labels-not-equal',
+        label: 'Is Not',
+        logic: labelsInEquality,
+        defaultValue: [],
+        inputType: 'labels-dropdown',
+      },
+      {
+        id: 'label-is-any',
+        label: 'Is Any Of',
+        logic: labelsIsAny,
+        defaultValue: [],
+        inputType: 'labels-dropdown',
+      },
+      {
+        id: 'label-is-none',
+        label: 'Is None Of',
+        logic: labelsIsNone,
+        defaultValue: [],
+        inputType: 'labels-dropdown',
+      },
+      {
+        id: 'label-is-empty',
+        label: 'Is Empty',
+        logic: labelsIsEmpty,
+        defaultValue: 'checked',
+        inputType: null,
+      },
+      {
+        id: 'label-is-not-empty',
+        label: 'Is Not Empty',
+        logic: labelsIsNotEmpty,
+        defaultValue: null,
+        inputType: null,
+      },
+    ],
     dontForce: true,
     cellFullWidthElementClassName: 'all-labels-container', //class name of the element that determines the actual width of the cell
     sortCompareFunction: (direction, cellA, cellB) => {
