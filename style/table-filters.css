@@ -9,6 +9,8 @@
   top: -45px;
   border: 0;
   cursor: pointer;
+  border-radius: 3px;
+  padding: 4px 8px;
 }
 
 .tableFiltersMenu {
