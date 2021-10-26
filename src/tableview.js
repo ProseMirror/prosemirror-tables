@@ -117,7 +117,8 @@ export class TableView {
           // TODO: Create util that open the filter popup and close other - reuse
           tr.setMeta(tableFiltersMenuKey, {
             action: 'open',
-            dom: this.tableWrapper,
+            dom: this.contentDOM,
+            pos: this.getPos() + 1,
             node: node,
             id: window.id,
           });
