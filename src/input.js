@@ -267,26 +267,12 @@ function shiftArrow(axis, dir) {
 }
 
 export function getDeleteCommand(state) {
-  const {map, tableStart} = selectedRect(state);
   if (!(state.selection instanceof CellSelection)) return null;
 
-  let selStart, selEnd;
-
-  if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
-    selStart = state.selection.$headCell.pos;
-    selEnd = state.selection.$anchorCell.pos;
-  } else {
-    selEnd = state.selection.$headCell.pos;
-    selStart = state.selection.$anchorCell.pos;
-  }
-
   // check if all the table selected
-  if (
-    map.map[0] + tableStart === selStart &&
-    map.map[map.map.length - 1] + tableStart === selEnd
-  ) {
-    return deleteTable;
-  }
+  const rect = selectedRect(state)
+  if (rect.top == 0 && rect.bottom == rect.map.height) return deleteTable;
+  
 
   if (state.selection.isRowSelection()) return deleteRow;
   if (state.selection.isColSelection()) return deleteColumn;

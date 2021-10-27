@@ -6,7 +6,8 @@ export const changeCellsBackgroundColor = (state, dispatch, color) => {
   if (!(state.selection instanceof CellSelection)) return;
 
   const {tr} = state;
-  state.selection.forEachCell((cell, pos) => {
+  state.selection.forEachCell((cell, pos, parent) => {
+    if(parent.attrs.hidden) return;
     tr.setNodeMarkup(
       pos,
       undefined,

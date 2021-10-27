@@ -212,6 +212,7 @@ const FilterRule = ({
 export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
   const [filters, setFilters] = useState(table.attrs.filters || []);
 
+  // ad filter to selected column
   useEffect(() => {
     if (!headerPos) return;
     const colDefaultFilter = createDefaultFilter(view.state, table, headerPos);
