@@ -43,15 +43,17 @@ export const calculateMenuPosition = (menuDOM, {node, dom: tableDOM, pos}) => {
   style.left = `${left - EDITOR_LEFT_OFFSET - 8}px`;
 };
 
-export const createDefaultFilter = (table) => {
-  const firstColHeader = table.firstChild.firstChild;
+export const createDefaultFilter = (state, table, headerPos) => {
+  const colHeader = headerPos
+    ? table.firstChild.child(getColIndex(state, headerPos))
+    : table.firstChild.firstChild;
 
-  const {type: headerType} = firstColHeader.attrs;
+  const {type: headerType} = colHeader.attrs;
   const typeConfig = types.find((type) => type.id === headerType);
   const typeFirstFilter = typeConfig.filters.find((filter) => filter.default);
 
   return {
-    headerId: firstColHeader.attrs.id,
+    headerId: colHeader.attrs.id,
     filterId: typeFirstFilter.id,
     filterValue: typeFirstFilter.defaultValue,
     concatenationLogic: CONCATENATION_DEFAULT_VALUE,

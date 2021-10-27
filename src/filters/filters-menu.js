@@ -94,6 +94,7 @@ class TableFiltersMenuView {
     ReactDOM.render(
       <TableFiltersComponent
         dom={this.tablesData.dom}
+        headerPos={this.tablesData.headerPos}
         pos={this.tablesData.pos}
         table={this.tablesData.node}
         view={this.view}

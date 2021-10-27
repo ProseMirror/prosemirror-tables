@@ -209,11 +209,17 @@ const FilterRule = ({
   );
 };
 
-export const TableFiltersComponent = ({table, pos, view}) => {
+export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
   const [filters, setFilters] = useState(table.attrs.filters || []);
 
+  useEffect(() => {
+    if (!headerPos) return;
+    const colDefaultFilter = createDefaultFilter(view.state, table, headerPos);
+    setFilters((oldFilters) => [...oldFilters, colDefaultFilter]);
+  }, []);
+
   const addFilter = () => {
-    const defaultFilter = createDefaultFilter(table);
+    const defaultFilter = createDefaultFilter(view.state, table);
     setFilters((oldFilters) => [...oldFilters, defaultFilter]);
   };
 
