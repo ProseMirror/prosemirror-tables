@@ -40,17 +40,21 @@ class TableFiltersMenuView {
     }
   }
 
+  shouldUpdatePopup(tablesData) {
+    return (
+      tablesData &&
+      this.tablesData &&
+      (tablesData.pos !== this.tablesData.pos ||
+        tablesData.node.firstChild.nodeSize !== // check if headers row has changed - if so update the filters popup
+          this.tablesData.node.firstChild.nodeSize)
+    );
+  }
+
   updateMenu(view) {
     // determine whether to display or hide popup - and change style accordingly
     const tablesData = displayPopup(view, this.popUpDOM);
 
-    if (
-      tablesData &&
-      this.tablesData &&
-      (tablesData.pos !== this.tablesData.pos ||
-        tablesData.node.firstChild.nodeSize !== // column added
-          this.tablesData.node.firstChild.nodeSize)
-    ) {
+    if (this.shouldUpdatePopup(tablesData)) {
       this.onClose();
     }
 
@@ -135,6 +139,7 @@ export const TableFiltersMenu = () => {
 
         if (!value) return null;
 
+        // check if the headers row has changed - if so we want to update the table state so we can update the filters popup
         const table = findParentNodeOfTypeClosestToPos(
           newState.doc.resolve(value.pos),
           newState.schema.nodes.table
