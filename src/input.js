@@ -1,7 +1,7 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
-import {Slice, Fragment} from 'prosemirror-model';
+import {Fragment} from 'prosemirror-model';
 import {Selection} from 'prosemirror-state';
 import {keydownHandler} from 'prosemirror-keymap';
 import {
@@ -17,7 +17,13 @@ import {TableMap} from './tablemap';
 import {pastedCells, fitSlice, clipCells, insertCells} from './copypaste';
 import {tableNodeTypes} from './schema';
 import {splitBlockKeepMarks} from 'prosemirror-commands';
-import {goToNextCell} from './commands';
+import {
+  goToNextCell,
+  deleteColumn,
+  deleteRow,
+  deleteTable,
+  selectedRect,
+} from './commands';
 
 export const handleKeyDown = keydownHandler({
   ArrowLeft: arrow('horiz', -1),
@@ -58,35 +64,187 @@ function maybeSetSelection(state, dispatch, selection) {
   return true;
 }
 
+function withFlushedState(view, state, f) {
+  const viewState = view.state,
+    active = view.root.activeElement;
+  if (viewState != state) view.updateState(state);
+  if (active != view.dom) view.focus();
+  try {
+    return f();
+  } finally {
+    if (viewState != state) view.updateState(viewState);
+    if (active != view.dom && active) active.focus();
+  }
+}
+
+let reusedRange = null;
+
+// Note that this will always return the same range, because DOM range
+// objects are every expensive, and keep slowing down subsequent DOM
+// updates, for some reason.
+export const textRange = function (node, from, to) {
+  const range = reusedRange || (reusedRange = document.createRange());
+  range.setEnd(node, to == null ? node.nodeValue.length : to);
+  range.setStart(node, from || 0);
+  return range;
+};
+
+// : (EditorView, number, number)
+// Whether vertical position motion in a given direction
+// from a position would leave a text block.
+function endOfTextblockVertical(view, state, dir, selection) {
+  const sel = selection;
+  const $pos = dir === 'up' ? sel.$from : sel.$to;
+  return withFlushedState(view, state, () => {
+    let {node: dom} = view.docView.domFromPos($pos.pos, dir == 'up' ? -1 : 1);
+    for (;;) {
+      const nearest = view.docView.nearestDesc(dom, true);
+      if (!nearest) break;
+      if (nearest.node.isBlock) {
+        dom = nearest.dom;
+        break;
+      }
+      dom = nearest.dom.parentNode;
+    }
+    const coords = view.coordsAtPos($pos.pos, 1);
+    for (let child = dom.firstChild; child; child = child.nextSibling) {
+      let boxes;
+      if (child.nodeType == 1) {
+        boxes = child.getClientRects();
+      } else if (child.nodeType == 3) {
+        boxes = textRange(child, 0, child.nodeValue.length).getClientRects();
+      } else {
+        continue;
+      }
+      for (let i = 0; i < boxes.length; i++) {
+        const box = boxes[i];
+        if (
+          box.bottom > box.top + 1 &&
+          (dir == 'up'
+            ? coords.top - box.top > (box.bottom - coords.top) * 2
+            : box.bottom - coords.bottom > (coords.bottom - box.top) * 2)
+        )
+          return false;
+      }
+    }
+    return true;
+  });
+}
+
+const maybeRTL = /[\u0590-\u08ac]/;
+
+function endOfTextblockHorizontal(view, state, dir, selection) {
+  const {$head} = selection;
+  if (!$head.parent.isTextblock) return false;
+  const offset = $head.parentOffset,
+    atStart = !offset,
+    atEnd = offset == $head.parent.content.size;
+  const sel = view.root.getSelection();
+  // If the textblock is all LTR, or the browser doesn't support
+  // Selection.modify (Edge), fall back to a primitive approach
+  if (!maybeRTL.test($head.parent.textContent) || !sel.modify)
+    return dir == 'left' || dir == 'backward' ? atStart : atEnd;
+
+  return withFlushedState(view, state, () => {
+    // This is a huge hack, but appears to be the best we can
+    // currently do: use `Selection.modify` to move the selection by
+    // one character, and see if that moves the cursor out of the
+    // textblock (or doesn't move it at all, when at the start/end of
+    // the document).
+    const oldRange = sel.getRangeAt(0),
+      oldNode = sel.focusNode,
+      oldOff = sel.focusOffset;
+    const oldBidiLevel = sel.caretBidiLevel; // Only for Firefox
+    sel.modify('move', dir, 'character');
+    const parentDOM = $head.depth
+      ? view.docView.domAfterPos($head.before())
+      : view.dom;
+    const result =
+      !parentDOM.contains(
+        sel.focusNode.nodeType == 1 ? sel.focusNode : sel.focusNode.parentNode
+      ) ||
+      (oldNode == sel.focusNode && oldOff == sel.focusOffset);
+    // Restore the previous selection
+    sel.removeAllRanges();
+    sel.addRange(oldRange);
+    if (oldBidiLevel != null) sel.caretBidiLevel = oldBidiLevel;
+    return result;
+  });
+}
+
+// Check whether the cursor is at the end of a cell (so that further
+// motion would move out of the cell)
+function atEndOfCellFromSelection(view, axis, dir, sel) {
+  if (sel.toJSON().type !== 'text') return null;
+  const {$head} = sel;
+  if (!$head) return null;
+  for (let d = $head.depth - 1; d >= 0; d--) {
+    const parent = $head.node(d),
+      index = dir < 0 ? $head.index(d) : $head.indexAfter(d);
+    if (index != (dir < 0 ? 0 : parent.childCount)) return null;
+    if (
+      parent.type.spec.tableRole == 'cell' ||
+      parent.type.spec.tableRole == 'header_cell'
+    ) {
+      const cellPos = $head.before(d);
+      const dirStr =
+        axis == 'vert' ? (dir > 0 ? 'down' : 'up') : dir > 0 ? 'right' : 'left';
+
+      return (axis == 'vert'
+        ? endOfTextblockVertical
+        : endOfTextblockHorizontal)(view, view.state, dirStr, sel)
+        ? cellPos
+        : null;
+    }
+  }
+  return null;
+}
+
+const getNextArrowSel = (axis, dir, sel, state, view) => {
+  if (sel instanceof CellSelection) {
+    return Selection.near(sel.$headCell, dir);
+  }
+  if (axis != 'horiz' && !sel.empty) return false;
+  const end = atEndOfCellFromSelection(view, axis, dir, sel);
+  if (end == null) return false;
+  if (axis == 'horiz') {
+    return Selection.near(state.doc.resolve(sel.head + dir), dir);
+  } else {
+    console.log();
+    const $cell = state.doc.resolve(end),
+      $next = nextCell($cell, axis, dir);
+    let newSel;
+    if ($next) newSel = Selection.near($next, dir);
+    else if (dir < 0)
+      newSel = Selection.near(state.doc.resolve($cell.before(-1)), dir);
+    else newSel = Selection.near(state.doc.resolve($cell.after(-1)), dir);
+    return newSel;
+  }
+};
+
 function arrow(axis, dir) {
   return (state, dispatch, view) => {
-    const sel = state.selection;
-    if (sel instanceof CellSelection) {
-      return maybeSetSelection(
-        state,
-        dispatch,
-        Selection.near(sel.$headCell, dir)
-      );
+    let newSel = state.selection;
+    let newSelVisible = false;
+    while (!newSelVisible) {
+      newSel = getNextArrowSel(axis, dir, newSel, state, view);
+      if (!newSel) return false;
+
+      // if no node at table_row depth - set the new selection
+      if (newSel && !newSel.$from.node(2)) {
+        newSelVisible = true;
+      }
+
+      // if the new selection is in visible row - set the selection
+      if (
+        newSel &&
+        newSel.$from.node(2) &&
+        !newSel.$from.node(2).attrs.hidden
+      ) {
+        newSelVisible = true;
+      }
     }
-    if (axis != 'horiz' && !sel.empty) return false;
-    const end = atEndOfCell(view, axis, dir);
-    if (end == null) return false;
-    if (axis == 'horiz') {
-      return maybeSetSelection(
-        state,
-        dispatch,
-        Selection.near(state.doc.resolve(sel.head + dir), dir)
-      );
-    } else {
-      const $cell = state.doc.resolve(end),
-        $next = nextCell($cell, axis, dir);
-      let newSel;
-      if ($next) newSel = Selection.near($next, 1);
-      else if (dir < 0)
-        newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1);
-      else newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1);
-      return maybeSetSelection(state, dispatch, newSel);
-    }
+    return maybeSetSelection(state, dispatch, newSel);
   };
 }
 
@@ -108,21 +266,40 @@ function shiftArrow(axis, dir) {
   };
 }
 
+export function getDeleteCommand(state) {
+  const {map, tableStart} = selectedRect(state);
+  if (!(state.selection instanceof CellSelection)) return null;
+
+  let selStart, selEnd;
+
+  if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
+    selStart = state.selection.$headCell.pos;
+    selEnd = state.selection.$anchorCell.pos;
+  } else {
+    selEnd = state.selection.$headCell.pos;
+    selStart = state.selection.$anchorCell.pos;
+  }
+
+  // check if all the table selected
+  if (
+    map.map[0] + tableStart === selStart &&
+    map.map[map.map.length - 1] + tableStart === selEnd
+  ) {
+    return deleteTable;
+  }
+
+  if (state.selection.isRowSelection()) return deleteRow;
+  if (state.selection.isColSelection()) return deleteColumn;
+
+  return null;
+}
+
 function deleteCellSelection(state, dispatch) {
   const sel = state.selection;
   if (!(sel instanceof CellSelection)) return false;
   if (dispatch) {
-    const tr = state.tr,
-      baseContent = tableNodeTypes(state.schema).cell.createAndFill().content;
-    sel.forEachCell((cell, pos) => {
-      if (!cell.content.eq(baseContent))
-        tr.replace(
-          tr.mapping.map(pos + 1),
-          tr.mapping.map(pos + cell.nodeSize - 1),
-          new Slice(baseContent, 0, 0)
-        );
-    });
-    if (tr.docChanged) dispatch(tr);
+    const deleteCommand = getDeleteCommand(state);
+    return deleteCommand(state, dispatch);
   }
   return true;
 }

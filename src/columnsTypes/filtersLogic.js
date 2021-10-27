@@ -152,6 +152,7 @@ export const currencyGreater = (cell, value) => {
 // Labels Logic
 
 export const labelsEquality = (cell, value) => {
+  if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
   if (value.length !== cellLabels.length) return false;
 
@@ -162,6 +163,7 @@ export const labelsEquality = (cell, value) => {
 };
 
 export const labelsInEquality = (cell, value) => {
+  if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
   if (value.length !== cellLabels.length) return true;
 
@@ -172,6 +174,7 @@ export const labelsInEquality = (cell, value) => {
 };
 
 export const labelsIsAny = (cell, value) => {
+  if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
 
   for (let i = 0; i < value.length; i++) {
@@ -181,6 +184,7 @@ export const labelsIsAny = (cell, value) => {
 };
 
 export const labelsIsNone = (cell, value) => {
+  if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
 
   for (let i = 0; i < value.length; i++) {
@@ -190,11 +194,13 @@ export const labelsIsNone = (cell, value) => {
 };
 
 export const labelsIsEmpty = (cell, value) => {
+  if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
   return !cellLabels.length;
 };
 
 export const labelsIsNotEmpty = (cell, value) => {
+  if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
   return !!cellLabels.length;
 };
