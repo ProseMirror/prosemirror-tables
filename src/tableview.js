@@ -120,13 +120,21 @@ export class TableView {
 
         this.activeFiltersBtn.onclick = (e) => {
           // TODO: Create util that open the filter popup and close other - reuse
-          tr.setMeta(tableFiltersMenuKey, {
-            action: 'open',
-            dom: this.contentDOM,
-            pos: this.getPos() + 1,
-            node: node,
-            id: window.id,
-          });
+          if(!tableFiltersMenuKey.getState(this.view.state)) {
+            tr.setMeta(tableFiltersMenuKey, {
+              action: 'open',
+              dom: this.contentDOM,
+              pos: this.getPos() + 1,
+              node: node,
+              id: window.id,
+            });
+          } else {
+            tr.setMeta(tableFiltersMenuKey, {
+              action: 'close',
+              id: window.id,
+            });
+          }
+          
           tr.setMeta(tableHeadersMenuKey, {
             action: 'close',
             id: window.id,

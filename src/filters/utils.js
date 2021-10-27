@@ -28,7 +28,7 @@ export const displayPopup = (view, popupDOM) => {
   return null;
 };
 
-export const calculateMenuPosition = (menuDOM, {node, dom: tableDOM, pos}) => {
+export const calculateMenuPosition = (menuDOM, {dom: tableDOM}) => {
   const {style} = menuDOM;
   const {left, height: cellHeight, top} = tableDOM.getBoundingClientRect();
 
@@ -40,7 +40,7 @@ export const calculateMenuPosition = (menuDOM, {node, dom: tableDOM, pos}) => {
     scrolledEl.getBoundingClientRect();
 
   style.top = `${top - EDITOR_TOP_OFFSET + (scrolledEl.scrollTop || 0) + 8}px`;
-  style.left = `${left - EDITOR_LEFT_OFFSET - 8}px`;
+  style.left = `${left - EDITOR_LEFT_OFFSET + 8}px`;
 };
 
 export const createDefaultFilter = (state, table, headerPos) => {
