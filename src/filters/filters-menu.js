@@ -9,6 +9,7 @@ import {
   executeFilters,
 } from './utils';
 import {TableFiltersComponent} from './Component.jsx';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 
 class TableFiltersMenuView {
   constructor(view) {
@@ -46,7 +47,9 @@ class TableFiltersMenuView {
     if (
       tablesData &&
       this.tablesData &&
-      tablesData.pos !== this.tablesData.pos
+      (tablesData.pos !== this.tablesData.pos ||
+        tablesData.node.firstChild.nodeSize !== // column added
+          this.tablesData.node.firstChild.nodeSize)
     ) {
       this.onClose();
     }
@@ -128,6 +131,21 @@ export const TableFiltersMenu = () => {
 
         if (action && action.id === window.id && action.action === 'close') {
           return null;
+        }
+
+        if (!value) return null;
+
+        const table = findParentNodeOfTypeClosestToPos(
+          newState.doc.resolve(value.pos),
+          newState.schema.nodes.table
+        );
+        if (!table) return null;
+
+        if (table.node.firstChild.nodeSize !== value.node.firstChild.nodeSize) {
+          return {
+            ...value,
+            node: table.node,
+          };
         }
 
         return value;
