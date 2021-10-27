@@ -189,7 +189,7 @@ function atEndOfCellFromSelection(view, axis, dir, sel) {
       const cellPos = $head.before(d);
       const dirStr =
         axis == 'vert' ? (dir > 0 ? 'down' : 'up') : dir > 0 ? 'right' : 'left';
-
+      if (dirStr === 'up') return null;
       return (axis == 'vert'
         ? endOfTextblockVertical
         : endOfTextblockHorizontal)(view, view.state, dirStr, sel)
