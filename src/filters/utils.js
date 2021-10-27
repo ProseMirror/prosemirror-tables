@@ -152,6 +152,20 @@ export const executeFilters = (table, tablePos, state, filters) => {
       ...table.attrs,
       filters: tableFilters,
     });
+  } else {
+    const headersIds = headersRow.content.content.map(
+      (header) => header.attrs.id
+    );
+
+    // delete all filters that dont have matching column
+    const relevantFilters = tableFilters.filter((filter) =>
+      headersIds.includes(filter.headerId)
+    );
+
+    tr.setNodeMarkup(tablePos - 1, undefined, {
+      ...table.attrs,
+      filters: relevantFilters,
+    });
   }
   return tr;
 };
