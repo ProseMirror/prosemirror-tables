@@ -14,12 +14,11 @@ import {
   removeColSpan,
   selectionCell,
   setAttr,
-  sortCollator,
   sortNumVsString,
 } from './util';
 import {tableNodeTypes} from './schema';
 
-const MAX_COLS = 10000;
+const MAX_COLS = 500;
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
