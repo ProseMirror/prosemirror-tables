@@ -1,22 +1,24 @@
 // This file defines a number of table-related commands.
-
 import {TextSelection, Selection} from 'prosemirror-state';
 import {Fragment} from 'prosemirror-model';
-
 import {Rect, TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
+import {columnTypesMap} from './columnsTypes/types.config';
 import {
   addColSpan,
   cellAround,
   cellWrapping,
   columnIsHeader,
+  getColIndex,
   isInTable,
-  moveCellForward,
   removeColSpan,
   selectionCell,
   setAttr,
+  sortNumVsString,
 } from './util';
 import {tableNodeTypes} from './schema';
+
+const MAX_COLS = 500;
 
 // Helper to get the selected rectangle in a table, if any. Adds table
 // map, table node, and table start offset to the object for
@@ -42,6 +44,8 @@ export function selectedRect(state) {
 
 // Add a column at the given position in a table.
 export function addColumn(tr, {map, tableStart, table}, col) {
+  const firstRow = table.firstChild;
+  if (firstRow.childCount === MAX_COLS) return tr;
   let refColumn = col > 0 ? -1 : 0;
   if (columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0;
@@ -68,9 +72,7 @@ export function addColumn(tr, {map, tableStart, table}, col) {
       tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
     }
   }
-  tr.setSelection(
-    TextSelection.near(tr.doc.resolve(tableStart + map.map[col]))
-  );
+
   return tr;
 }
 
@@ -714,30 +716,24 @@ export function sortColumn(view, colNumber, pos, dir) {
     sensitivity: 'base',
   });
 
-  newRowsArray = newRowsArray.sort((a, b) => {
-    const textA = a.content.content[colNumber].textContent
-      .trim()
-      .replace(/[^a-zA-Z0-9\-\.]/g, '');
-    const textB = b.content.content[colNumber].textContent
-      .trim()
-      .replace(/[^a-zA-Z0-9\-\.]/g, '');
+  const columnType = newRowsArray[0].content.content[colNumber].attrs.type;
+  const defaultSort = (direction, cellA, cellB) => {
+    const textA = cellA.textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '');
+    const textB = cellB.textContent.trim().replace(/[^a-zA-Z0-9\-\.]/g, '');
 
-    // give first priority to numbers - so if only one content is numeric he will always be first
-    const aNumber = parseFloat(textA);
-    const bNumber = parseFloat(textB);
+    return sortNumVsString(direction, textA, textB);
+  };
 
-    const aIsNotNumber = isNaN(aNumber);
-    const bIsNotNumber = isNaN(bNumber);
+  const sortCompareFunction =
+    columnTypesMap[columnType].sortCompareFunction || defaultSort;
 
-    if (aIsNotNumber && bIsNotNumber) {
-      // if not numeric values sort alphabetically
-      return dir * collator.compare(textA, textB);
-    }
-
-    if (!aIsNotNumber && bIsNotNumber) return -1 * dir;
-    if (aIsNotNumber && !bIsNotNumber) return 1 * dir;
-    return dir > 0 ? aNumber - bNumber : bNumber - aNumber;
-  });
+  newRowsArray = newRowsArray.sort((rowA, rowB) =>
+    sortCompareFunction(
+      dir,
+      rowA.content.content[colNumber],
+      rowB.content.content[colNumber]
+    )
+  );
 
   tr.replaceWith(rect.tableStart, rect.tableStart + rect.table.content.size, [
     header,
@@ -794,6 +790,26 @@ export const addColBeforeButton = (view, pos) => {
   view.focus();
 };
 
+export const addColAfterButton = (view, pos) => {
+  const resPos = view.state.doc.resolve(pos);
+  const tableRect = {
+    tableStart: resPos.start(-1),
+    table: resPos.node(1),
+    map: TableMap.get(resPos.node(1)),
+  };
+
+  const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
+
+  if (cellIndex === -1) return;
+
+  const colNumber = cellIndex % tableRect.map.width;
+
+  const tr = addColumn(view.state.tr, tableRect, colNumber + 1);
+
+  view.dispatch(tr);
+  view.focus();
+};
+
 export const selectRow = (e, view, pos) => {
   const {state} = view;
   const sel = view.state.selection;
@@ -822,6 +838,23 @@ export const selectCol = (e, view, pos) => {
   } else {
     tr.setSelection(CellSelection.colSelection(state.doc.resolve(pos)));
   }
+
+  view.dispatch(tr);
+};
+
+export const deleteColAtPos = (pos, view) => {
+  const resolvedPos = view.state.doc.resolve(pos);
+
+  const rect = {
+    tableStart: resolvedPos.start(-1),
+    table: resolvedPos.node(1),
+    map: TableMap.get(resolvedPos.node(1)),
+  };
+
+  const {tr} = view.state;
+  const colIndex = getColIndex(view.state, pos);
+
+  removeColumn(tr, rect, colIndex);
 
   view.dispatch(tr);
 };

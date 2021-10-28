@@ -4,6 +4,8 @@ import {cellAround, getColIndex, pointsAtCell, setAttr} from './util';
 import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
 import {tableNodeTypes} from './schema';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
+import {columnTypesMap} from './columnsTypes/types.config';
 
 export const key = new PluginKey('tableColumnResizing');
 
@@ -245,7 +247,11 @@ function updateColumnWidth(view, cell, width) {
       ? attrs.colwidth.slice()
       : zeroes(attrs.colspan);
     colwidth[index] = width;
-    tr.setNodeMarkup(start + pos, null, setAttr(attrs, 'colwidth', colwidth));
+    tr.setNodeMarkup(
+      start + pos,
+      undefined,
+      setAttr(attrs, 'colwidth', colwidth)
+    );
   }
   if (tr.docChanged) view.dispatch(tr);
 }
@@ -322,17 +328,49 @@ function handleDoubleClick(view, event, cellMinWidth) {
   const cellsInColumn = tableRows.map((row) => row.children[colIndex]);
 
   let columnMaxWidth = 0;
+  let colType;
 
+  const tableNode = findParentNodeOfTypeClosestToPos(
+    view.state.doc.resolve(resizeHandlePos),
+    view.state.schema.nodes.table
+  );
+
+  let cellFullWidthElementClassName = 'cellContent';
+
+  // its possible to set for each cell type what will be the element className that determines the actual width of the cell
+  //(by defining `cellFullWidthElementClassName`) see labels for example
+  // for text type its 'cellContent', therefor this is the default value
+
+  if (tableNode) {
+    const colHeader = tableNode.node.firstChild.content.content[colIndex];
+    if (colHeader) {
+      colType = colHeader.attrs.type;
+      const typeConfig = columnTypesMap[colType];
+      cellFullWidthElementClassName =
+        typeConfig && typeConfig.cellFullWidthElementClassName
+          ? typeConfig.cellFullWidthElementClassName
+          : cellFullWidthElementClassName;
+    }
+  }
   // for each cell check if the scrollWidth is bigger than the actual width, and store the biggest width in the column.
-  cellsInColumn.forEach((cell) => {
-    const [cellContent] = cell.getElementsByClassName('cellContent');
+  cellsInColumn.forEach((cell, index) => {
+    const [cellContent] = cell.getElementsByClassName(
+      index === 0 ? 'cellContent' : cellFullWidthElementClassName // the header should always be measured by `cellContent`
+    );
 
+    if (!cellContent) return;
     // Change column width to min + add no line breaks css role
     cellContent.style = `width: ${
       cellMinWidth - CELL_PADDING - SORT_BUTTON_WIDTH
     }px;white-space: nowrap;`;
 
     const cellScrollWidth = cellContent.scrollWidth;
+
+    // return cell to original width
+    cellContent.style = `width: ${Math.max(
+      cellTotalWidth,
+      cellMinWidth
+    )}px;white-space: nowrap;`;
 
     columnMaxWidth = Math.max(columnMaxWidth, cellScrollWidth);
   });

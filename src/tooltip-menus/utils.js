@@ -1,9 +1,6 @@
 import {CellSelection} from '../cellselection';
 import {createElementWithClass} from '../util';
 
-const EDITOR_LEFT_OFFSET = 224;
-const EDITOR_TOP_OFFSET = 130;
-
 export function enableDeleteItem(view) {
   const {selection: sel} = view.state;
 
@@ -94,31 +91,11 @@ export const calculatePopupPosition = (view, popupDOM) => {
 
   // scroll offset
   const [scrolledEl] = document.getElementsByClassName('czi-editor-frame-body');
+  const {x: EDITOR_LEFT_OFFSET, y: EDITOR_TOP_OFFSET} =
+    scrolledEl.getBoundingClientRect();
 
   const cellCenter =
     firstCellRect.left + (lastCellRect.right - firstCellRect.left) / 2;
-
-  // ColSelection
-  if (
-    state.selection instanceof CellSelection &&
-    state.selection.isColSelection()
-  ) {
-    let top;
-
-    // sometimes prose mirror switches anchor and head cells - fix it
-    if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
-      top = view.coordsAtPos(state.selection.$headCell.pos).top;
-    } else {
-      top = view.coordsAtPos(state.selection.$anchorCell.pos).top;
-    }
-
-    popupDOM.style.top = `${
-      top - 40 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
-    }px`;
-    popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
-
-    return;
-  }
 
   // RowSelection
   if (
@@ -128,7 +105,7 @@ export const calculatePopupPosition = (view, popupDOM) => {
     let tableContainer = selectedCells[0];
 
     // find the dom of the table wrapper
-    while (!tableContainer.classList.contains('tableFocus')) {
+    while (!tableContainer.classList.contains('tableVerticalWrapper')) {
       if (tableContainer.parentElement) {
         tableContainer = tableContainer.parentElement;
       } else {
@@ -137,12 +114,34 @@ export const calculatePopupPosition = (view, popupDOM) => {
     }
 
     const tableContainerBox = tableContainer.getBoundingClientRect();
+
     popupDOM.style.left = `${
       tableContainerBox.left + tableContainerBox.width / 2 - EDITOR_LEFT_OFFSET
     }px`;
     popupDOM.style.top = `${
-      lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET
+      lastCellRect.bottom + (scrolledEl.scrollTop || 0) - EDITOR_TOP_OFFSET + 20
     }px`;
+
+    return;
+  }
+
+  // ColSelection
+  if (
+    state.selection instanceof CellSelection &&
+    state.selection.isColSelection()
+  ) {
+    let top;
+    // sometimes prose mirror switches anchor and head cells - fix it
+    if (state.selection.$anchorCell.pos > state.selection.$headCell.pos) {
+      top = view.coordsAtPos(state.selection.$headCell.pos).top;
+    } else {
+      top = view.coordsAtPos(state.selection.$anchorCell.pos).top;
+    }
+
+    popupDOM.style.top = `${
+      top - 35 - (offsetParentBox.top || 0) + (scrolledEl.scrollTop || 0)
+    }px`;
+    popupDOM.style.left = `${cellCenter - EDITOR_LEFT_OFFSET}px`;
 
     return;
   }
@@ -196,6 +195,7 @@ export const enableCellsColor = (view) => {
 export const addTooltips = (popupDOM, classes) => {
   classes.forEach(({className, text}) => {
     const [button] = popupDOM.getElementsByClassName(className);
+    if (!button) return;
     const buttonContainer = button.parentElement;
     const tooltip = createElementWithClass('span', 'popup-tooltip');
     tooltip.innerText = text;

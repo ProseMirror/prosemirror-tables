@@ -107,6 +107,7 @@ export class RowDragHandler {
       );
     }
 
+
     const {pos: insertRowPos} =
       findParentNodeOfType(state.schema.nodes.table_cell)(
         TextSelection.create(state.doc, mousePos.pos)
@@ -124,7 +125,14 @@ export class RowDragHandler {
       return;
 
     const originRowNumber = originCellIndex / rect.map.width;
-    const insertRowNumber = insertCellIndex / rect.map.width;
+    let insertRowNumber = insertCellIndex / rect.map.width;
+    // Avoid drag above the header
+    insertRowNumber = insertRowNumber > 0 ? insertRowNumber : 1
+
+    if (insertRowNumber === originRowNumber) {
+      // Case when after avoid switch header try to drag second row above first
+      return;
+    }
 
     switchRows(
       this.view,

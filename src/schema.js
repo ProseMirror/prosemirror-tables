@@ -61,6 +61,9 @@ export function setCellAttrs(node, extraAttrs) {
 //     cellContent:: string
 //     The content expression for table cells.
 //
+//     cellContentGroup:: string
+//     The group of the cell content, used to set all types nodes groups
+//
 //     cellAttributes:: ?Object
 //     Additional attributes to add to cells. Maps attribute names to
 //     objects with the following properties:
@@ -81,6 +84,19 @@ export function tableNodes(options) {
     rowspan: {default: 1},
     colwidth: {default: null},
     id: {default: false},
+    type: {default: 'text'},
+    header: {default: false},
+    values: {
+      default: {
+        text: {default: ''},
+        number: {default: ''},
+        date: {default: ''},
+        currency: {default: ''},
+        label: {default: ''},
+        text: {default: ''},
+        checkbox: {default: false},
+      },
+    },
   };
   for (const prop in extraAttrs)
     cellAttrs[prop] = {default: extraAttrs[prop].default};
@@ -94,6 +110,7 @@ export function tableNodes(options) {
       attrs: {
         sort: {default: {col: null, dir: null}},
         headers: {default: true},
+        labels: {default: []},
       },
       parseDOM: [{tag: 'table'}],
       toDOM() {
@@ -109,7 +126,7 @@ export function tableNodes(options) {
       },
     },
     table_cell: {
-      content: options.cellContent,
+      content: `${options.cellContent}`,
       attrs: cellAttrs,
       tableRole: 'cell',
       isolating: true,
@@ -126,6 +143,70 @@ export function tableNodes(options) {
       parseDOM: [{tag: 'th', getAttrs: (dom) => getCellAttrs(dom, extraAttrs)}],
       toDOM(node) {
         return ['th', setCellAttrs(node, extraAttrs), 0];
+      },
+    },
+    checkbox: {
+      attrs: {checked: {default: false}},
+      group: options.cellContentGroup,
+      draggable: false,
+      selectable: false,
+      parseDOM: [
+        {
+          tag: '.cell-checkbox',
+          getAttrs: (dom) => getCellAttrs(dom, extraAttrs),
+        },
+      ],
+      toDOM(node) {
+        return [
+          'div',
+          {
+            class: node.attrs.checked
+              ? 'cell-checkbox checked'
+              : 'cell-checkbox',
+          },
+          0,
+        ];
+      },
+    },
+    date: {
+      attrs: {value: {default: 0}},
+      content: 'inline*',
+      group: options.cellContentGroup,
+      draggable: false,
+      selectable: false,
+      isolating: true,
+      parseDOM: [
+        {
+          tag: '.cell-date',
+        },
+      ],
+      toDOM(node) {
+        return [
+          'div',
+          {
+            class: 'cell-date',
+          },
+        ];
+      },
+    },
+    label: {
+      attrs: {labels: {default: []}},
+      group: options.cellContentGroup,
+      // content:
+      selectable: true,
+      draggable: false,
+      parseDOM: [
+        {
+          tag: '.cell-label',
+        },
+      ],
+      toDOM(node) {
+        return [
+          'div',
+          {
+            class: 'cell-label',
+          },
+        ];
       },
     },
   };

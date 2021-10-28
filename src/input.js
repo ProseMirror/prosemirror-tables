@@ -2,7 +2,7 @@
 // table-related functionality.
 
 import {Slice, Fragment} from 'prosemirror-model';
-import {Selection, TextSelection} from 'prosemirror-state';
+import {Selection} from 'prosemirror-state';
 import {keydownHandler} from 'prosemirror-keymap';
 import {
   key,
@@ -47,9 +47,9 @@ function splitIfCellChild(state, dispatch) {
   const parent = $head.node($head.depth - 1);
 
   // if parent is not a table cell - let the editor handle key down
-  if (parent.type.name !== 'table_cell') return false
-  
-  return splitBlockKeepMarks(state, dispatch)
+  if (parent.type.name !== 'table_cell') return false;
+
+  return splitBlockKeepMarks(state, dispatch);
 }
 
 function maybeSetSelection(state, dispatch, selection) {

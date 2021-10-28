@@ -29,8 +29,8 @@ const toggleHeader = () => {
     enable(view) {
       return isFirstRowSelected(view);
     },
-    run(state, dispatch) {
-      toggleTableHeaders(state, dispatch);
+    run(state, dispatch, view) {
+      toggleTableHeaders(state, dispatch, view);
     },
   });
 };
@@ -39,11 +39,7 @@ const deleteMenuItem = () => {
   return new MenuItem({
     class: 'tablePopUpMenuItem',
     icon: {
-      dom: createElementWithClass(
-        'span',
-        'deleteMenuButton',
-        'table-delete'
-      ),
+      dom: createElementWithClass('span', 'deleteMenuButton', 'table-delete'),
     },
     select(view) {
       return enableDeleteItem(view);

@@ -32,6 +32,7 @@ export interface TableNodesOptions {
   tableGroup?: string;
   cellContent: string;
   cellAttributes: { [key: string]: CellAttributes };
+  cellContentGroup: string;
 }
 
 export type getFromDOM = (dom: Element) => any;

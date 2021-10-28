@@ -1,10 +1,11 @@
 // Various helper function for working with tables
 
-import {PluginKey, TextSelection} from 'prosemirror-state';
-import {findParentNodeOfType} from 'prosemirror-utils';
+import {PluginKey} from 'prosemirror-state';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {TableMap} from './tablemap';
 import {tableNodeTypes} from './schema';
 import {selectedRect} from './commands';
+import {CellSelection} from './cellselection';
 
 export const key = new PluginKey('selectingCells');
 
@@ -130,9 +131,10 @@ export function getColIndex(state, pos) {
   const resPos = state.doc.resolve(pos);
   const tableStart = resPos.start(-1);
   const map = TableMap.get(resPos.node(1));
-  const {pos: insertRowPos} = findParentNodeOfType(
+  const {pos: insertRowPos} = findParentNodeOfTypeClosestToPos(
+    state.doc.resolve(pos + 1),
     state.schema.nodes.table_cell
-  )(TextSelection.create(state.doc, pos + 1));
+  );
 
   const insertCellIndex = map.map.indexOf(insertRowPos - tableStart);
 
@@ -160,4 +162,36 @@ export const getRowIndex = (state, pos) => {
   const rowNumber = Math.floor(cellIndex / tableRect.map.width);
 
   return rowNumber;
+};
+
+export const getColCells = (headerPos, state) => {
+  const ColSelection = CellSelection.colSelection(state.doc.resolve(headerPos));
+  const cells = [];
+
+  ColSelection.forEachCell((cell, pos) => cells.push({node: cell, pos}));
+  cells.splice(0, 1);
+  return cells;
+};
+
+export const sortCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: 'base',
+});
+
+export const sortNumVsString = (direction, textA, textB, collator) => {
+  // give first priority to numbers - so if only one content is numeric he will always be first
+  const aNumber = parseFloat(textA);
+  const bNumber = parseFloat(textB);
+
+  const aIsNotNumber = isNaN(aNumber);
+  const bIsNotNumber = isNaN(bNumber);
+
+  if (aIsNotNumber && bIsNotNumber) {
+    // if not numeric values sort alphabetically
+    return direction * (collator || sortCollator).compare(textA, textB);
+  }
+
+  if (!aIsNotNumber && bIsNotNumber) return -1 * direction;
+  if (aIsNotNumber && !bIsNotNumber) return 1 * direction;
+  return direction > 0 ? aNumber - bNumber : bNumber - aNumber;
 };

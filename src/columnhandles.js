@@ -15,6 +15,7 @@ import {ColDragHandler} from './table-dragging/colsdragging';
 import {getColIndex, createElementWithClass} from './util';
 import {setCellAttrs} from './schema';
 import {CellSelection} from './cellselection';
+import {tableHeadersMenuKey} from './columnsTypes/types.config';
 
 export const key = new PluginKey('tableColumnHandles');
 
@@ -29,6 +30,8 @@ export class CellView {
     );
     this.checkIfFirstCol(this.view);
     this.checkIfColHeader(this.view);
+
+    this.updatePlaceholder();
 
     this.dom.style = `${setCellAttrs(node, {}).style}`;
     // TODO: find a better way, for now give generated id for every cell - fixing the disappear first cell's handles bug
@@ -186,6 +189,52 @@ export class CellView {
         view.focus();
       };
       this.sortButton = this.dom.appendChild(sortButton);
+
+      // trigger header menu open
+      this.dom.addEventListener('click', (e) => {
+        if (this.colMarker.contains(e.target)) return;
+        if (this.colHandle.contains(e.target)) return;
+        if (this.rowHandle && this.rowHandle.contains(e.target)) return;
+
+        const {tr} = this.view.state;
+        tr.setMeta(tableHeadersMenuKey, {
+          pos: this.getPos(),
+          dom: this.dom,
+          node: this.node,
+          id: window.id,
+          action: 'open',
+        });
+        setTimeout(() => this.view.dispatch(tr), 0);
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      this.dom.addEventListener('mousedown', (e) => {
+        if (this.colHandle.contains(e.target)) return;
+        if (this.rowHandle && this.rowHandle.contains(e.target)) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      const typeIcon = createElementWithClass(
+        'div',
+        `${this.node.attrs.type}ItemIcon`
+      );
+
+      typeIcon.classList.add('typeIcon');
+      this.dom.prepend(typeIcon);
+
+      this.updatePlaceholder();
+
+      if (!this.node.attrs.header) {
+        this.view.dispatch(
+          this.view.state.tr.setNodeMarkup(this.getPos(), undefined, {
+            header: true,
+          })
+        );
+      }
     }
   }
 
@@ -210,7 +259,31 @@ export class CellView {
     this.node = node;
     this.dom.style = `${setCellAttrs(node, {}).style}`;
 
+    this.updatePlaceholder();
+
     return true;
+  }
+
+  updatePlaceholder() {
+    const resolvePos = this.view.state.doc.resolve(this.getPos());
+    const tableAttrs = resolvePos.node(1).attrs;
+
+    const placeholders = this.dom.getElementsByClassName('empty-header');
+    if (
+      this.colHandle &&
+      this.node.textContent.replace(/[^\x00-\x7F]/g, '').length === 0 &&
+      tableAttrs.headers
+    ) {
+      if (placeholders.length === 0) {
+        const placeholder = createElementWithClass('span', 'empty-header');
+        placeholder.innerText = 'Untitled';
+        this.dom.appendChild(placeholder);
+      }
+    } else {
+      if (placeholders.length) {
+        Array.from(placeholders).forEach((placeholder) => placeholder.remove());
+      }
+    }
   }
 }
 
@@ -248,23 +321,6 @@ export function columnHandles({} = {}) {
             decorations.push(
               Decoration.node(pos, pos + node.nodeSize, {class: 'tableFocus'})
             );
-            if (sel.to - pos > node.nodeSize) {
-              decorations.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'inColSelection',
-                })
-              );
-              decorations.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'inRowSelection',
-                })
-              );
-              decorations.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'focusTableSelected',
-                })
-              );
-            }
             return false;
           }
           return true;

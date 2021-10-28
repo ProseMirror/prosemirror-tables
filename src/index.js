@@ -16,6 +16,11 @@ import {key as tableEditingKey} from './util';
 import {drawCellSelection, normalizeSelection} from './cellselection';
 import {fixTables, fixTablesKey} from './fixtables';
 import tablePopUpMenu, {tablePopUpMenuKey} from './tooltip-menus/index';
+import CheckboxNodeView from './columnsTypes/types/Checkbox/NodeView';
+import DateComponent from './columnsTypes/types/Date/Component.jsx';
+import DateTypeNodeView from './columnsTypes/types/Date/NodeView';
+import LabelTypeNodeView from './columnsTypes/types/Label/NodeView';
+import LabelComponent from './columnsTypes/types/Label/Component.jsx';
 
 // :: () → Plugin
 //
@@ -68,6 +73,21 @@ export function tableEditing({allowTableNodeSelection = false} = {}) {
       handleKeyDown,
 
       handlePaste,
+
+      nodeViews: {
+        checkbox: (node, view, getPos) =>
+          new CheckboxNodeView(node, view, getPos),
+        date: (node, view, getPos, decorations) =>
+          new DateTypeNodeView(node, view, getPos, decorations, DateComponent),
+        label: (node, view, getPos, decorations) =>
+          new LabelTypeNodeView(
+            node,
+            view,
+            getPos,
+            decorations,
+            LabelComponent
+          ),
+      },
     },
 
     appendTransaction(_, oldState, state) {
@@ -110,4 +130,8 @@ export {
   clipCells as __clipCells,
 } from './copypaste';
 export {tablePopUpMenu, tablePopUpMenuKey};
+export {tableHeadersMenu} from './headers/headers-menu/index';
 export {selectionShadowPlugin} from './selectionshadow';
+export {typesEnforcer} from './columnsTypes/typesEnforcer';
+export {TableDateMenu} from './columnsTypes/types/Date/datePopup';
+export {TableLabelMenu} from './columnsTypes/types/Label/labelPopup';

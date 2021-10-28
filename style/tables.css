@@ -480,6 +480,16 @@
 
 .colHeader {
   background-color: #f0f1f3;
+  cursor: pointer;
+  padding: 4px !important;
+}
+
+.colHeader:hover {
+  background-color: rgba(55, 53, 47, 0.12);
+}
+
+.colHeader:active {
+  background-color: rgba(55, 53, 47, 0.16);
 }
 
 .markDeleteCells .inRowSelection .tableRowHandle::before,
@@ -500,7 +510,7 @@
   border: none;
   cursor: pointer;
   position: absolute;
-  top: 3px;
+  top: -1px;
   right: 0px;
   border-radius: 50%;
   padding: 0px;
