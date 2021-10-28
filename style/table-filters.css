@@ -181,7 +181,12 @@
   height: 14px;
 }
 
-.add-filters-button {
+.selectDropDownItemLabel {
+  background-color: transparent;
+}
+
+.add-filter-to-group-button,
+.add-new-group-button {
   cursor: pointer;
   align-items: center;
   white-space: nowrap;
@@ -198,6 +203,7 @@
   align-items: center;
 }
 
-.selectDropDownItemLabel {
-  background-color: transparent;
+.filters-group-separator,
+.or-breaker {
+  width: 100%;
 }

@@ -96,7 +96,6 @@ const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
     let newChosenLabels = allChosenLabels.map((label) => label.title);
 
     if (checked) {
-      console.log(newChosenLabels, title);
       newChosenLabels = [...newChosenLabels, title];
     } else {
       newChosenLabels = newChosenLabels.filter((label) => label !== title);
@@ -107,7 +106,7 @@ const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
       filterValue: newChosenLabels,
     });
   };
-  // console.log(filterHandler.toAttrsValue().filterValue);
+
   return (
     <div className="selectDropDownContainer">
       <SelectDropDownButton
@@ -161,21 +160,7 @@ const FilterRule = ({
 
   return (
     <div className="filter-row">
-      {index === 0 ? (
-        'Where'
-      ) : (
-        <SelectDropDown
-          className="concatenation-dropdown"
-          initialValue={filterHandler.concatenationLogic}
-          items={getConcatenationItems()}
-          onValueChange={(concatenationLogic) =>
-            onFilterChange({
-              ...filterHandler.toAttrsValue(),
-              concatenationLogic,
-            })
-          }
-        />
-      )}
+      {index === 0 ? 'Where' : 'And' }
       <div className="column-chooser">
         <SelectDropDown
           className="filter-columns-dropdown"
@@ -209,42 +194,90 @@ const FilterRule = ({
   );
 };
 
-export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
-  const [filters, setFilters] = useState(table.attrs.filters || []);
-
-  // ad filter to selected column
-  useEffect(() => {
-    if (!headerPos) return;
-    const colDefaultFilter = createDefaultFilter(view.state, table, headerPos);
-    setFilters((oldFilters) => [...oldFilters, colDefaultFilter]);
-  }, []);
-
-  const addFilter = () => {
-    const defaultFilter = createDefaultFilter(view.state, table);
-    setFilters((oldFilters) => [...oldFilters, defaultFilter]);
-  };
-
+const FiltersGroup = ({filters, onGroupChange, onGroupRemove, isLastGroup, table, addNewGroup, view}) => {
   const createFilterRemover = (filterIndex) => () => {
     const newFilters = filters.slice();
     newFilters.splice(filterIndex, 1);
 
-    // apply all filters
-    const tr = executeFilters(table, pos, view.state, newFilters);
-    view.dispatch(tr);
-
-    setFilters(newFilters);
+    onGroupRemove(newFilters);
   };
 
   const createFilterSetter = (filterIndex) => (newFilter) => {
     const newFilters = filters.slice();
     newFilters[filterIndex] = newFilter;
 
+    onGroupChange(newFilters);
+  };
+
+  const addFilterToGroup = () => {
+    const colDefaultFilter = createDefaultFilter(view.state, table);
+    onGroupChange([...filters, colDefaultFilter]);
+  }
+
+  return (
+    <div className='filters-group-container'>
+      {filters.length ? (
+          <>
+            {filters.map((filterHandler, index) => {
+              return (
+                <>
+                  <FilterRule
+                    colsDropdownOptions={getColsOptions(table)}
+                    filterHandler={filterHandler}
+                    index={index}
+                    key={`${index}${filterHandler.headerId}`}
+                    onFilterChange={createFilterSetter(index)}
+                    onFilterRemove={createFilterRemover(index)}
+                  />
+                </>
+              );
+            })}
+          </>
+        ) : (
+          <></>
+        )}
+      <button className='add-filter-to-group-button' onClick={addFilterToGroup}>+ And</button>
+      {isLastGroup && <button className='add-new-group-button' onClick={() => addNewGroup()}>+ Or</button>}
+    </div>
+  )
+}
+
+export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
+  const [filtersGroups, setFiltersGroups] = useState(table.attrs.filters || []);
+
+  // ad filter to selected column
+  useEffect(() => {
+    if (!headerPos) return;
+    const colDefaultFilter = createDefaultFilter(view.state, table, headerPos);
+    setFiltersGroups((oldGroups) => [...oldGroups, [colDefaultFilter]]);
+  }, []);
+
+  const addNewGroup = () => {
+    const defaultFilter = createDefaultFilter(view.state, table);
+    setFiltersGroups((oldFilters) => [...oldFilters, [defaultFilter]]);
+  };
+
+  const createFiltersGroupSetter = (groupIndex) => (newGroup) => {
+    const newFilters = filtersGroups.slice();
+    newFilters[groupIndex] = newGroup;
+
     // apply all filters
     const tr = executeFilters(table, pos, view.state, newFilters);
     view.dispatch(tr);
 
-    setFilters(newFilters);
-  };
+    setFiltersGroups(newFilters);
+  }
+
+  const createFiltersGroupRemover = (groupIndex) => () => {
+   const newFilters = filtersGroups.slice();
+    newFilters.splice(groupIndex, 1);
+
+    // apply all filters
+    const tr = executeFilters(table, pos, view.state, newFilters);
+    view.dispatch(tr);
+
+    setFiltersGroups(newFilters);
+  }
 
   const ref = useClickOutside((e) => {
     if (view.dom.contains(e.target)) {
@@ -261,20 +294,22 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
   return (
     <div className="table-filters-container" ref={ref}>
       <div className="active-filters">
-        {filters.length ? (
+        {filtersGroups.length ? (
           <>
-            {filters.map((filterConfig, index) => {
-              const FilterHandler = new Filter(view, table, filterConfig);
+            {filtersGroups.map((groupFilters, index) => {
               return (
                 <>
-                  <FilterRule
-                    colsDropdownOptions={getColsOptions(table)}
-                    filterHandler={FilterHandler}
-                    index={index}
-                    key={`${index}${filterConfig.headerId}`}
-                    onFilterChange={createFilterSetter(index)}
-                    onFilterRemove={createFilterRemover(index)}
+                  <FiltersGroup
+                    key={`${index}`}
+                    filters={groupFilters.map((filter) => new Filter(view, table, filter))}
+                    onGroupChange={createFiltersGroupSetter(index)}
+                    onGroupRemove={createFiltersGroupRemover(index)}
+                    table={table}
+                    isLastGroup={index + 1 === filtersGroups.length}
+                    addNewGroup={addNewGroup}
+                    view={view}
                   />
+                  {index + 1 !== filtersGroups.length ? <><hr className='filters-group-separator'></hr><span className='or-breaker'>Or</span></> : <></>}
                 </>
               );
             })}
@@ -283,9 +318,6 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
           <></>
         )}
       </div>
-      <button className="add-filters-button" onClick={addFilter}>
-        + Add Filter
-      </button>
     </div>
   );
 };

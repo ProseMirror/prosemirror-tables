@@ -4,14 +4,13 @@ class Filter {
   constructor(
     view,
     table,
-    {filterId, filterValue, headerId, concatenationLogic}
+    {filterId, filterValue, headerId}
   ) {
     this.view = view; // the editor view
     this.table = table; // the table the Filter applies on
     this.filterId = filterId; // the label of the Filter ('greater than', '<', 'equals' ....)
     this.filterValue = filterValue; // the value of the Filter.
     this.headerId = headerId;
-    this.concatenationLogic = concatenationLogic;
 
     this.colType = this.getColType(); // the type of the column the Filters applies on.
   }
@@ -71,7 +70,6 @@ class Filter {
       headerId: this.headerId,
       filterId: this.getLogicId(),
       filterValue: this.filterValue,
-      concatenationLogic: this.concatenationLogic,
     };
   }
 
