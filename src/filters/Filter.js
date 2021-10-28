@@ -1,11 +1,7 @@
 import {columnTypesMap} from '../columnsTypes/types.config';
 
 class Filter {
-  constructor(
-    view,
-    table,
-    {filterId, filterValue, headerId}
-  ) {
+  constructor(view, table, {filterId, filterValue, headerId}) {
     this.view = view; // the editor view
     this.table = table; // the table the Filter applies on
     this.filterId = filterId; // the label of the Filter ('greater than', '<', 'equals' ....)

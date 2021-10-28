@@ -113,14 +113,14 @@ export class TableView {
         const {dispatch} = this.view;
         const {tr} = this.view.state;
 
-         this.activeFiltersBtn.onmousedown = (e) => {
-          e.preventDefault()
-          e.stopPropagation()
+        this.activeFiltersBtn.onmousedown = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
         };
 
         this.activeFiltersBtn.onclick = (e) => {
           // TODO: Create util that open the filter popup and close other - reuse
-          if(!tableFiltersMenuKey.getState(this.view.state)) {
+          if (!tableFiltersMenuKey.getState(this.view.state)) {
             tr.setMeta(tableFiltersMenuKey, {
               action: 'open',
               dom: this.contentDOM,
@@ -134,7 +134,7 @@ export class TableView {
               id: window.id,
             });
           }
-          
+
           tr.setMeta(tableHeadersMenuKey, {
             action: 'close',
             id: window.id,
@@ -142,8 +142,8 @@ export class TableView {
 
           dispatch(tr);
 
-          e.preventDefault()
-          e.stopPropagation()
+          e.preventDefault();
+          e.stopPropagation();
         };
         this.tableWrapper.prepend(this.activeFiltersBtn);
       }

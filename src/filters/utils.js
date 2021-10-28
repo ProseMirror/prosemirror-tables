@@ -75,36 +75,35 @@ export const getColsOptions = (table) => {
   return headers;
 };
 
-const filterColumn = (tableRows, colIndex, colType, filters) => {
+const filterColumn = (
+  tableRows,
+  colIndex,
+  colType,
+  filter,
+  filterGroupIndex
+) => {
   if (colIndex === null) return;
   const colCells = tableRows.map((row) => row.node.child(colIndex));
 
-  filters.forEach((filter) => {
-    const filterConfig = colType.filters.find(
-      (filterConfig) => filterConfig.id === filter.filterId
-    );
+  const filterConfig = colType.filters.find(
+    (filterConfig) => filterConfig.id === filter.filterId
+  );
 
-    if (!filterConfig) return;
-    const filterLogic = filterConfig.logic;
+  if (!filterConfig) return;
+  const filterLogic = filterConfig.logic;
 
-    colCells.forEach((cell, rowIndex) => {
-      if (!filterLogic(cell, filter.filterValue)) {
-        tableRows[rowIndex].hidden = true;
-      }
-    });
+  colCells.forEach((cell, rowIndex) => {
+    if (!tableRows[rowIndex].hidden[filterGroupIndex]) {
+      tableRows[rowIndex].hidden[filterGroupIndex] = false;
+    }
+    if (!filterLogic(cell, filter.filterValue)) {
+      tableRows[rowIndex].hidden[filterGroupIndex] = true;
+    }
   });
 };
 
 export const executeFilters = (table, tablePos, state, filters) => {
-  const tableFilters = filters || table.attrs.filters;
-
-  // order filters by columns
-  const filtersByHeaderId = {};
-  tableFilters.forEach((filter) => {
-    if (!filtersByHeaderId[filter.headerId])
-      filtersByHeaderId[filter.headerId] = [];
-    filtersByHeaderId[filter.headerId].push(filter);
-  });
+  const tableFilterGroups = filters || table.attrs.filters;
 
   const headersRow = table.firstChild;
   const tableRows = [];
@@ -112,55 +111,60 @@ export const executeFilters = (table, tablePos, state, filters) => {
   // get all rows and their pos
   table.descendants((node, pos, parent) => {
     if (parent.type.name !== 'table') return false; // go over the rows only and not their content
-    tableRows.push({node, pos: pos + tablePos, hidden: false});
+    tableRows.push({node, pos: pos + tablePos, hidden: []});
     return false;
   });
 
   tableRows.splice(0, 1); // remove headers row
 
-  // apply filters on each column
+  const tableHeaders = {};
+  // get all headers and their position
   headersRow.descendants((header, pos, parent) => {
     if (parent.type.name !== 'table_row') return false; // go over the headers only and not their content
-
     const colType = columnTypesMap[header.attrs.type];
     const colIndex = getColIndex(state, pos + tablePos + 1);
-
-    if (Object.keys(filtersByHeaderId).includes(header.attrs.id)) {
-      filterColumn(
-        tableRows,
-        colIndex,
-        colType,
-        filtersByHeaderId[header.attrs.id]
-      );
-    }
+    tableHeaders[header.attrs.id] = {colType, colIndex};
     return false;
+  });
+
+  // apply filters on each column
+  tableFilterGroups.forEach((filterGroup, groupIndex) => {
+    filterGroup.forEach((filter) => {
+      const {colType, colIndex} = tableHeaders[filter.headerId];
+      filterColumn(tableRows, colIndex, colType, filter, groupIndex);
+    });
+  });
+
+  // check OR condition between filterGroups
+  tableRows.forEach((row) => {
+    row.hidden = row.hidden.length
+      ? row.hidden.every((groupResult) => !!groupResult)
+      : false;
   });
 
   const {tr} = state;
 
   tableRows.forEach((row) => {
-    if (row.hidden) {
-      tr.setNodeMarkup(row.pos, undefined, {hidden: true});
-    } else {
-      tr.setNodeMarkup(row.pos, undefined, {hidden: false});
-    }
+    tr.setNodeMarkup(row.pos, undefined, {hidden: !!row.hidden});
   });
 
   // update table attrs with new filters
   if (filters) {
     tr.setNodeMarkup(tablePos - 1, undefined, {
       ...table.attrs,
-      filters: tableFilters,
+      filters: tableFilterGroups,
     });
   } else {
     const headersIds = headersRow.content.content.map(
       (header) => header.attrs.id
     );
 
-    // delete all filters that dont have matching column
-    const relevantFilters = tableFilters.filter((filter) =>
-      headersIds.includes(filter.headerId)
-    );
+    // delete all filters that dont have matching column + remove empty groups
+    const relevantFilters = tableFilterGroups
+      .map((filterGroup) =>
+        filterGroup.filter((filter) => headersIds.includes(filter.headerId))
+      )
+      .filter((filterGroup) => filterGroup.length);
 
     tr.setNodeMarkup(tablePos - 1, undefined, {
       ...table.attrs,
