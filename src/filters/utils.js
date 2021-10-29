@@ -4,8 +4,6 @@ import {getColIndex} from '../util';
 
 export const tableFiltersMenuKey = new PluginKey('TableFiltersMenu');
 
-const CONCATENATION_DEFAULT_VALUE = 'and';
-
 export const generateMenuPopup = () => {
   const menuElement = document.createElement('div');
   menuElement.className = `tableFiltersMenu`;
@@ -56,7 +54,6 @@ export const createDefaultFilter = (state, table, headerPos) => {
     headerId: colHeader.attrs.id,
     filterId: typeFirstFilter.id,
     filterValue: typeFirstFilter.defaultValue,
-    concatenationLogic: CONCATENATION_DEFAULT_VALUE,
   };
 };
 

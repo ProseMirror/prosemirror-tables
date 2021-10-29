@@ -204,14 +204,14 @@ const FiltersGroup = ({
   view,
 }) => {
   const createFilterRemover = (filterIndex) => () => {
-    const newFilters = filters.slice();
+    const newFilters = filters.map((filter) => filter.toAttrsValue());
     newFilters.splice(filterIndex, 1);
 
-    onGroupRemove(newFilters);
+    onGroupChange(newFilters);
   };
 
   const createFilterSetter = (filterIndex) => (newFilter) => {
-    const newFilters = filters.slice();
+    const newFilters = filters.map((filter) => filter.toAttrsValue());
     newFilters[filterIndex] = newFilter;
 
     onGroupChange(newFilters);
@@ -219,7 +219,10 @@ const FiltersGroup = ({
 
   const addFilterToGroup = () => {
     const colDefaultFilter = createDefaultFilter(view.state, table);
-    onGroupChange([...filters, colDefaultFilter]);
+    onGroupChange([
+      ...filters.map((filter) => filter.toAttrsValue()),
+      colDefaultFilter,
+    ]);
   };
 
   return (
@@ -244,12 +247,28 @@ const FiltersGroup = ({
       ) : (
         <></>
       )}
-      <button className="add-filter-to-group-button" onClick={addFilterToGroup}>
-        + And
-      </button>
-      {isLastGroup && (
-        <button className="add-new-group-button" onClick={() => addNewGroup()}>
-          + Or
+      {filters.length ? (
+        <>
+          <div className="group-actions-container">
+            <button className="group-action-button" onClick={addFilterToGroup}>
+              + And
+            </button>
+            <button className="group-action-button" onClick={onGroupRemove}>
+              Remove group
+            </button>
+          </div>
+          {isLastGroup && (
+            <button
+              className="group-action-button"
+              onClick={() => addNewGroup()}
+            >
+              + Or
+            </button>
+          )}
+        </>
+      ) : (
+        <button className="group-action-button" onClick={addFilterToGroup}>
+          + Add filter
         </button>
       )}
     </div>
@@ -338,7 +357,14 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
             })}
           </>
         ) : (
-          <></>
+          <>
+            <button
+              className="group-action-button"
+              onClick={() => addNewGroup()}
+            >
+              + Add filter
+            </button>
+          </>
         )}
       </div>
     </div>

@@ -185,8 +185,7 @@
   background-color: transparent;
 }
 
-.add-filter-to-group-button,
-.add-new-group-button {
+.group-action-button {
   cursor: pointer;
   align-items: center;
   white-space: nowrap;
@@ -195,9 +194,11 @@
   border: 1px solid rgba(55, 53, 47, 0.16);
   background: white;
 
-  padding: 8px;
+  padding: 6px 12px;
   margin-top: 12px;
   margin-bottom: 6px;
+  width: fit-content;
+  height: fit-content;
 
   display: flex;
   align-items: center;
@@ -206,4 +207,18 @@
 .filters-group-separator,
 .or-breaker {
   width: 100%;
+}
+
+.filters-group-container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+
+  width: 100%;
+}
+
+.group-actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
