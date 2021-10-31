@@ -207,7 +207,6 @@ const FilterRule = ({
 const FiltersGroup = ({
   filters,
   onGroupChange,
-  onGroupRemove,
   isLastGroup,
   isFirstGroup,
   table,
@@ -278,12 +277,6 @@ const FiltersGroup = ({
                 + Or
               </button>
             )}
-            <button
-              className="group-action-button remove-filters-group"
-              onClick={onGroupRemove}
-            >
-              <span className="remove-filters-group-icon"></span>
-            </button>
           </div>
         </>
       ) : (
@@ -293,6 +286,16 @@ const FiltersGroup = ({
       )}
     </div>
   );
+};
+
+const closeFiltersPopup = (view, tr) => {
+  tr = tr || view.state.tr;
+  tr.setMeta(tableFiltersMenuKey, {
+    action: 'close',
+    id: window.id,
+  });
+
+  return tr;
 };
 
 export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
@@ -311,22 +314,18 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
   };
 
   const createFiltersGroupSetter = (groupIndex) => (newGroup) => {
-    const newFilters = filtersGroups.slice();
+    const newFilters = filtersGroups
+      .slice()
+      .filter((filtersGroup) => !!filtersGroup.length);
     newFilters[groupIndex] = newGroup;
 
     // apply all filters
     const tr = executeFilters(table, pos, view.state, newFilters);
-    view.dispatch(tr);
 
-    setFiltersGroups(newFilters);
-  };
-
-  const createFiltersGroupRemover = (groupIndex) => () => {
-    const newFilters = filtersGroups.slice();
-    newFilters.splice(groupIndex, 1);
-
-    // apply all filters
-    const tr = executeFilters(table, pos, view.state, newFilters);
+    if (!newFilters.length) {
+      // Close filter popup when no filters rule left
+      closeFiltersPopup(view, tr);
+    }
     view.dispatch(tr);
 
     setFiltersGroups(newFilters);
@@ -334,12 +333,7 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
 
   const ref = useClickOutside((e) => {
     if (view.dom.contains(e.target)) {
-      const {tr} = view.state;
-      tr.setMeta(tableFiltersMenuKey, {
-        action: 'close',
-        id: window.id,
-      });
-
+      const tr = closeFiltersPopup(view);
       view.dispatch(tr);
     }
   }, 'mousedown');
@@ -361,7 +355,6 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
                     isLastGroup={index + 1 === filtersGroups.length}
                     key={`${index}`}
                     onGroupChange={createFiltersGroupSetter(index)}
-                    onGroupRemove={createFiltersGroupRemover(index)}
                     table={table}
                     view={view}
                   />
