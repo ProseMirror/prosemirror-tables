@@ -14,7 +14,9 @@ export const textInequality = (cell, value) => {
 };
 
 export const textContains = (cell, value) => {
-  return clearWeirdCharactersFromText(cell.textContent).includes(value);
+  return clearWeirdCharactersFromText(cell.textContent.toLowerCase()).includes(
+    value.toLowerCase()
+  );
 };
 
 export const textNotContains = (cell, value) => {
