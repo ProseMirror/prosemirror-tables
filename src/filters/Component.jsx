@@ -5,7 +5,6 @@ import {
   getColsOptions,
   executeFilters,
   tableFiltersMenuKey,
-  getConcatenationItems,
 } from './utils';
 import SelectDropDown, {SelectDropDownButton} from './DropDown.jsx';
 import useClickOutside from '../useClickOutside.jsx';
@@ -132,7 +131,7 @@ const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
   );
 };
 
-const getInputElement = (filterHandler, onFilterChange) => {
+const getInputElement = (filterHandler) => {
   const inputType = filterHandler.getInputType();
 
   switch (inputType) {
@@ -156,7 +155,7 @@ const FilterRule = ({
   onFilterRemove,
   index,
 }) => {
-  const FilterInput = getInputElement(filterHandler, onFilterChange);
+  const FilterInput = getInputElement(filterHandler);
 
   return (
     <div className="filter-row">

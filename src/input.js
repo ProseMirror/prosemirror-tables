@@ -189,7 +189,7 @@ function atEndOfCellFromSelection(view, axis, dir, sel) {
       const cellPos = $head.before(d);
       const dirStr =
         axis == 'vert' ? (dir > 0 ? 'down' : 'up') : dir > 0 ? 'right' : 'left';
-      if (dirStr === 'up') return null;
+
       return (axis == 'vert'
         ? endOfTextblockVertical
         : endOfTextblockHorizontal)(view, view.state, dirStr, sel)
@@ -210,11 +210,10 @@ const getNextArrowSel = (axis, dir, sel, state, view) => {
   if (axis == 'horiz') {
     return Selection.near(state.doc.resolve(sel.head + dir), dir);
   } else {
-    console.log();
-    const $cell = state.doc.resolve(end),
-      $next = nextCell($cell, axis, dir);
+    const $cell = state.doc.resolve(end);
+    const $next = nextCell($cell, axis, dir);
     let newSel;
-    if ($next) newSel = Selection.near($next, dir);
+    if ($next) newSel = Selection.near($next, 1);
     else if (dir < 0)
       newSel = Selection.near(state.doc.resolve($cell.before(-1)), dir);
     else newSel = Selection.near(state.doc.resolve($cell.after(-1)), dir);
@@ -270,9 +269,8 @@ export function getDeleteCommand(state) {
   if (!(state.selection instanceof CellSelection)) return null;
 
   // check if all the table selected
-  const rect = selectedRect(state)
+  const rect = selectedRect(state);
   if (rect.top == 0 && rect.bottom == rect.map.height) return deleteTable;
-  
 
   if (state.selection.isRowSelection()) return deleteRow;
   if (state.selection.isColSelection()) return deleteColumn;
