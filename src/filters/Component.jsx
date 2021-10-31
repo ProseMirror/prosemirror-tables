@@ -314,10 +314,9 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
   };
 
   const createFiltersGroupSetter = (groupIndex) => (newGroup) => {
-    const newFilters = filtersGroups
-      .slice()
-      .filter((filtersGroup) => !!filtersGroup.length);
+    let newFilters = filtersGroups.slice();
     newFilters[groupIndex] = newGroup;
+    newFilters = newFilters.filter((filtersGroup) => !!filtersGroup.length);
 
     // apply all filters
     const tr = executeFilters(table, pos, view.state, newFilters);
