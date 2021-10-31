@@ -1,6 +1,6 @@
 import {NodeSelection} from 'prosemirror-state';
 import {addBottomRow, addRightColumn} from './commands';
-import {createElementWithClass} from './util';
+import {createButtonWithIcon, createElementWithClass} from './util';
 import {typeInheritance} from './headers/headers-menu/index';
 import {tableFiltersMenuKey} from './filters/utils';
 import {tableHeadersMenuKey} from './columnsTypes/types.config';
@@ -104,17 +104,21 @@ export class TableView {
   buildActiveFiltersButton(node) {
     if (node.attrs.filters && node.attrs.filters.length) {
       if (!this.activeFiltersBtn) {
-        this.activeFiltersBtn = createElementWithClass(
-          'button',
-          'activeFilter'
+        this.filterStatusIndicator = createElementWithClass(
+          'div',
+          'filterStatusIndicator'
         );
-        this.activeFiltersBtn.className = 'activeFilterIndicator';
-        this.activeFiltersBtn.innerHTML = 'filters';
 
-        this.activeFiltersBtn.onmousedown = (e) => {
+        this.activeFiltersBtn = createButtonWithIcon('activeFilters');
+
+        this.activeFiltersBtn.lastChild.innerText = 'filters';
+
+        this.activeFiltersBtn.lastChild.onmousedown = (e) => {
           e.preventDefault();
           e.stopPropagation();
         };
+
+        this.filterStatusIndicator.appendChild(this.activeFiltersBtn);
 
         this.activeFiltersBtn.onclick = (e) => {
           const {dispatch} = this.view;
@@ -145,10 +149,10 @@ export class TableView {
           e.preventDefault();
           e.stopPropagation();
         };
-        this.tableWrapper.prepend(this.activeFiltersBtn);
+        this.tableWrapper.prepend(this.filterStatusIndicator);
       }
       // TODO: Find a way not to update it on every update
-      this.activeFiltersBtn.innerHTML = `${node.attrs.filters.length} filters`;
+      this.activeFiltersBtn.lastChild.innerText = `${node.attrs.filters.length} filters`;
     } else {
       if (this.activeFiltersBtn) {
         this.activeFiltersBtn.remove();

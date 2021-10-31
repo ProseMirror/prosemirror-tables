@@ -153,6 +153,17 @@ export const createElementWithClass = (type, className, datatest) => {
   return el;
 };
 
+export const createButtonWithIcon = (className) => {
+  const button = createElementWithClass('button', `${className}Button`);
+  const icon = createElementWithClass('span', `${className}Icon`);
+  const buttonLabel = createElementWithClass('span', `${className}Label`);
+
+  button.appendChild(icon);
+  button.appendChild(buttonLabel);
+
+  return button;
+};
+
 export const getRowIndex = (state, pos) => {
   const tableRect = selectedRect(state);
   const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);

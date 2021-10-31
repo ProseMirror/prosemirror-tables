@@ -1,18 +1,3 @@
-.activeFilterIndicator {
-  display: inline-block;
-  background-color: #e0eef9;
-  position: absolute;
-  right: 0px;
-  color: #3891fe;
-  padding: 5px;
-  font-size: 12px;
-  top: -45px;
-  border: 0;
-  cursor: pointer;
-  border-radius: 3px;
-  padding: 4px 8px;
-}
-
 .tableFiltersMenu {
   border-radius: 6px;
   background-color: white;
@@ -235,4 +220,41 @@
   content: url(./svgs/trash_can_black.svg);
   width: 16px;
   height: 16px;
+}
+
+.filterStatusIndicator {
+  width: fit-content;
+  display: inline-flex;
+  flex-direction: column;
+  position: absolute;
+  right: -7px;
+  font-size: 12px;
+  top: -35px;
+  border: 0;
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+.tableFocus .filterStatusIndicator {
+  top: -50px;
+}
+
+.activeFiltersIcon {
+  content: url(./svgs/filter.svg);
+  width: 15px;
+  height: 15px;
+}
+
+.activeFiltersButton {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  background-color: #075cbd;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  border-radius: 3px;
+  padding: 4px 8px;
 }
