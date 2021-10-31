@@ -4,7 +4,7 @@ import {useCallback, useEffect, useRef} from 'react';
  * Returns a ref that calls an outside click listener.
  * const ref = useClickOutside(() => {...});
  */
-const useClickOutside = (onClose) => {
+const useClickOutside = (onClose, eventType) => {
   const ref = useRef(null);
   const escapeListener = useCallback(
     (e) => {
@@ -25,10 +25,10 @@ const useClickOutside = (onClose) => {
   );
 
   useEffect(() => {
-    document.addEventListener('click', clickListener);
+    document.addEventListener(eventType || 'click', clickListener);
     document.addEventListener('keyup', escapeListener);
     return () => {
-      document.removeEventListener('click', clickListener);
+      document.removeEventListener(eventType || 'click', clickListener);
       document.removeEventListener('keyup', escapeListener);
     };
   }, [clickListener, escapeListener]);

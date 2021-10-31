@@ -110,8 +110,6 @@ export class TableView {
         );
         this.activeFiltersBtn.className = 'activeFilterIndicator';
         this.activeFiltersBtn.innerHTML = 'filters';
-        const {dispatch} = this.view;
-        const {tr} = this.view.state;
 
         this.activeFiltersBtn.onmousedown = (e) => {
           e.preventDefault();
@@ -119,6 +117,8 @@ export class TableView {
         };
 
         this.activeFiltersBtn.onclick = (e) => {
+          const {dispatch} = this.view;
+          const {tr} = this.view.state;
           // TODO: Create util that open the filter popup and close other - reuse
           if (!tableFiltersMenuKey.getState(this.view.state)) {
             tr.setMeta(tableFiltersMenuKey, {

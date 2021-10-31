@@ -321,7 +321,7 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
 
       view.dispatch(tr);
     }
-  });
+  }, 'mousedown');
 
   return (
     <div className="table-filters-container" ref={ref}>
