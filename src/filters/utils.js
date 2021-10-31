@@ -99,6 +99,16 @@ const filterColumn = (
   });
 };
 
+const checkIfFilterMatchColType = (headers, headerId, filterId) => {
+  const filterHeaderNode = headers.find(
+    (header) => header.attrs.id === headerId
+  );
+  if (!filterHeaderNode) return false;
+  const filterColType = columnTypesMap[filterHeaderNode.attrs.type];
+
+  return filterColType.filters.map((filter) => filter.id).includes(filterId);
+};
+
 export const executeFilters = (table, tablePos, state, filters) => {
   const tableFilterGroups = filters || table.attrs.filters;
 
@@ -152,14 +162,25 @@ export const executeFilters = (table, tablePos, state, filters) => {
       filters: tableFilterGroups,
     });
   } else {
-    const headersIds = headersRow.content.content.map(
-      (header) => header.attrs.id
-    );
+    const headers = headersRow.content.content;
 
     // delete all filters that dont have matching column + remove empty groups
     const relevantFilters = tableFilterGroups
       .map((filterGroup) =>
-        filterGroup.filter((filter) => headersIds.includes(filter.headerId))
+        filterGroup.filter((filter) => {
+          const hasMatchingCol = headers
+            .map((header) => header.attrs.id)
+            .includes(filter.headerId);
+
+          if (!hasMatchingCol) return false;
+
+          const matchToColType = checkIfFilterMatchColType(
+            headers,
+            filter.headerId,
+            filter.filterId
+          );
+          return hasMatchingCol && matchToColType;
+        })
       )
       .filter((filterGroup) => filterGroup.length);
 
