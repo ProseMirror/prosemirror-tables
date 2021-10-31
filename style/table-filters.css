@@ -219,6 +219,20 @@
 
 .group-actions-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
+}
+
+.concatenation-rule {
+  color: rgba(253, 251, 254, 0.7);
+}
+
+.remove-filters-group {
+  margin-left: 20px;
+}
+
+.remove-filters-group-icon {
+  content: url(./svgs/trash_can_black.svg);
+  width: 16px;
+  height: 16px;
 }

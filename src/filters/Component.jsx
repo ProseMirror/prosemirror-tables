@@ -154,12 +154,23 @@ const FilterRule = ({
   colsDropdownOptions,
   onFilterRemove,
   index,
+  isFirstGroup,
 }) => {
   const FilterInput = getInputElement(filterHandler);
 
   return (
     <div className="filter-row">
-      {index === 0 ? 'Where' : 'And'}
+      {index === 0 ? (
+        isFirstGroup ? (
+          'Where'
+        ) : (
+          <>
+            <span className="concatenation-rule">Or</span> Where
+          </>
+        )
+      ) : (
+        <span className="concatenation-rule">And</span>
+      )}
       <div className="column-chooser">
         <SelectDropDown
           className="filter-columns-dropdown"
@@ -198,6 +209,7 @@ const FiltersGroup = ({
   onGroupChange,
   onGroupRemove,
   isLastGroup,
+  isFirstGroup,
   table,
   addNewGroup,
   view,
@@ -226,6 +238,11 @@ const FiltersGroup = ({
 
   return (
     <div className="filters-group-container">
+      {!isFirstGroup && (
+        <>
+          <hr className="filters-group-separator"></hr>
+        </>
+      )}
       {filters.length ? (
         <>
           {filters.map((filterHandler, index) => {
@@ -235,6 +252,7 @@ const FiltersGroup = ({
                   colsDropdownOptions={getColsOptions(table)}
                   filterHandler={filterHandler}
                   index={index}
+                  isFirstGroup={isFirstGroup}
                   key={`${index}${filterHandler.headerId}`}
                   onFilterChange={createFilterSetter(index)}
                   onFilterRemove={createFilterRemover(index)}
@@ -252,18 +270,21 @@ const FiltersGroup = ({
             <button className="group-action-button" onClick={addFilterToGroup}>
               + And
             </button>
-            <button className="group-action-button" onClick={onGroupRemove}>
-              Remove group
+            {isLastGroup && (
+              <button
+                className="group-action-button"
+                onClick={() => addNewGroup()}
+              >
+                + Or
+              </button>
+            )}
+            <button
+              className="group-action-button remove-filters-group"
+              onClick={onGroupRemove}
+            >
+              <span className="remove-filters-group-icon"></span>
             </button>
           </div>
-          {isLastGroup && (
-            <button
-              className="group-action-button"
-              onClick={() => addNewGroup()}
-            >
-              + Or
-            </button>
-          )}
         </>
       ) : (
         <button className="group-action-button" onClick={addFilterToGroup}>
@@ -336,6 +357,7 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
                     filters={groupFilters.map(
                       (filter) => new Filter(view, table, filter)
                     )}
+                    isFirstGroup={index === 0}
                     isLastGroup={index + 1 === filtersGroups.length}
                     key={`${index}`}
                     onGroupChange={createFiltersGroupSetter(index)}
@@ -343,14 +365,6 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
                     table={table}
                     view={view}
                   />
-                  {index + 1 !== filtersGroups.length ? (
-                    <>
-                      <hr className="filters-group-separator"></hr>
-                      <span className="or-breaker">Or</span>
-                    </>
-                  ) : (
-                    <></>
-                  )}
                 </>
               );
             })}
