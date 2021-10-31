@@ -270,7 +270,13 @@ export function getDeleteCommand(state) {
 
   // check if all the table selected
   const rect = selectedRect(state);
-  if (rect.top == 0 && rect.bottom == rect.map.height) return deleteTable;
+  if (
+    rect.top == 0 &&
+    rect.left == 0 &&
+    rect.bottom == rect.map.height &&
+    rect.right == rect.map.width
+  )
+    return deleteTable;
 
   if (state.selection.isRowSelection()) return deleteRow;
   if (state.selection.isColSelection()) return deleteColumn;
