@@ -1,3 +1,5 @@
+import { checkboxExtraAttrs } from '../../../schema/cellTypeAttrs';
+import { setNodeAttrs } from '../../../schema/schema';
 import {createElementWithClass} from '../../../util';
 
 class CheckboxNodeView {
@@ -35,7 +37,17 @@ class CheckboxNodeView {
       this.view.focus();
     });
 
+    this.setDOMAttrsFromNode(this.node)
+
     this.dom.appendChild(this.checkBox);
+  }
+
+  setDOMAttrsFromNode(node) {
+    const extraAttrs = setNodeAttrs(node, checkboxExtraAttrs);
+    this.dom.style = `${extraAttrs.style}`;
+    Object.keys(extraAttrs).forEach((attr) => {
+      this.dom.setAttribute(attr, extraAttrs[attr]);
+    })
   }
 
   setDomAttrs(node, element) {
@@ -51,6 +63,8 @@ class CheckboxNodeView {
   update(node) {
     if (node.type !== this.node.type) return false;
     if (!this.node.sameMarkup(node)) return false;
+
+    this.setDOMAttrsFromNode(this.node)
 
     return true;
   }

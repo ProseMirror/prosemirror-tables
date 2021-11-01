@@ -16,7 +16,7 @@ import {Transform} from 'prosemirror-transform';
 import {setAttr, removeColSpan} from './util';
 import {TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 
 // Utilities to help with copying and pasting table cells
 

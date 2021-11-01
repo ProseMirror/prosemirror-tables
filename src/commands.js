@@ -16,7 +16,7 @@ import {
   setAttr,
   sortNumVsString,
 } from './util';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 
 const MAX_COLS = 500;
 

@@ -13,7 +13,8 @@ import {TableView} from './tableview';
 import {RowDragHandler} from './table-dragging/rowsdragging';
 import {ColDragHandler} from './table-dragging/colsdragging';
 import {getColIndex, createElementWithClass} from './util';
-import {setCellAttrs} from './schema';
+import {setNodeAttrs} from './schema/schema';
+import {cellExtraAttrs} from './schema/cellAttrs';
 import {CellSelection} from './cellselection';
 import {tableHeadersMenuKey} from './columnsTypes/types.config';
 
@@ -33,7 +34,7 @@ export class CellView {
 
     this.updatePlaceholder();
 
-    this.dom.style = `${setCellAttrs(node, {}).style}`;
+    this.setDOMAttrsFromNode(this.node)
 
     // maybe use transaction to set the attrs
     if(!this.node.attrs.id) {
@@ -42,6 +43,14 @@ export class CellView {
     }
   }
 
+  setDOMAttrsFromNode(node) {
+    const extraAttrs = setNodeAttrs(node, cellExtraAttrs);
+    this.dom.style = `${extraAttrs.style}`;
+    Object.keys(extraAttrs).forEach((attr) => {
+      this.dom.setAttribute(attr, extraAttrs[attr]);
+    })
+  }
+ 
   checkIfFirstCol(view) {
     const pos = this.getPos();
     const resolvePos = view.state.doc.resolve(pos);
@@ -261,7 +270,7 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.node = node;
-    this.dom.style = `${setCellAttrs(node, {}).style}`;
+    this.setDOMAttrsFromNode(node)
 
     this.updatePlaceholder();
 

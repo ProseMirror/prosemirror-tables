@@ -116,7 +116,7 @@ export {
   addColSpan,
   columnIsHeader,
 } from './util';
-export {tableNodes, tableNodeTypes} from './schema';
+export {tableNodes, tableNodeTypes} from './schema/schema';
 export {CellSelection} from './cellselection';
 export {columnHandles} from './columnhandles';
 export {TableMap} from './tablemap';

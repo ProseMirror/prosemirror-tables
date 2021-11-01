@@ -15,7 +15,7 @@ import {
 import {CellSelection} from './cellselection';
 import {TableMap} from './tablemap';
 import {pastedCells, fitSlice, clipCells, insertCells} from './copypaste';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 import {splitBlockKeepMarks} from 'prosemirror-commands';
 import {
   goToNextCell,

@@ -161,7 +161,7 @@ export const TableFiltersMenu = () => {
       const steps = transactions.map((tr) => tr.steps).flat();
       if (steps.length) {
         for (let step = 0; step < steps.length; step++) {
-          if(steps[step].from > newState.doc.nodeSize) continue; // when deleting rows the steps pos might be outside of the document
+          if (steps[step].from > newState.doc.nodeSize) continue; // when deleting rows the steps pos might be outside of the document
           const stepResFrom = newState.doc.resolve(steps[step].from);
           const maybeTable = stepResFrom.node(1);
 
@@ -173,6 +173,6 @@ export const TableFiltersMenu = () => {
         }
       }
       return null;
-    },
+    }
   });
 };
