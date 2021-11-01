@@ -21,6 +21,7 @@ import DateComponent from './columnsTypes/types/Date/Component.jsx';
 import DateTypeNodeView from './columnsTypes/types/Date/NodeView';
 import LabelTypeNodeView from './columnsTypes/types/Label/NodeView';
 import LabelComponent from './columnsTypes/types/Label/Component.jsx';
+import { addLabelsToPastedTable } from './copypaste';
 
 // :: () → Plugin
 //
@@ -88,6 +89,8 @@ export function tableEditing({allowTableNodeSelection = false} = {}) {
             LabelComponent
           ),
       },
+
+      transformPasted: addLabelsToPastedTable
     },
 
     appendTransaction(_, oldState, state) {
@@ -97,6 +100,8 @@ export function tableEditing({allowTableNodeSelection = false} = {}) {
         allowTableNodeSelection
       );
     },
+
+
   });
 }
 
