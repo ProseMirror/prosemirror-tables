@@ -1,7 +1,8 @@
 // Helper for creating a schema that supports tables.
 
 import { cellExtraAttrs } from "./cellAttrs";
-import { checkboxExtraAttrs } from "./cellTypeAttrs";
+import { checkboxExtraAttrs, dateExtraAttrs, labelsExtraAttrs } from "./cellTypeAttrs";
+import { tableExtraAttrs } from "./tableAttrs";
 
 function getNodeAttrs(dom, extraAttrs) {
   const attrsFromNode = {};
@@ -11,7 +12,7 @@ function getNodeAttrs(dom, extraAttrs) {
     const value = getter && getter(dom);
     if (value != null) attrsFromNode[prop] = value;
   }
-  console.log(attrsFromNode);
+
   return attrsFromNode;
 }
 
@@ -22,7 +23,7 @@ export function setNodeAttrs(node, extraAttrs) {
     const setter = extraAttrs[prop].setDOMAttr;
     if (setter) setter(node.attrs[prop], attrsForDOM);
   }
-  console.log(attrsForDOM)
+
   return attrsForDOM;
 }
 
@@ -79,9 +80,9 @@ export function tableNodes(options) {
         labels: {default: []},
         filters: {default: []},
       },
-      parseDOM: [{tag: 'table'}],
+      parseDOM: [{tag: 'table', getAttrs: (dom) => getNodeAttrs(dom, tableExtraAttrs)}],
       toDOM() {
-        return ['table', ['tbody', 0]];
+        return ['table', setNodeAttrs(node, tableExtraAttrs), ['tbody',  0]];
       },
     },
     table_row: {
@@ -140,7 +141,7 @@ export function tableNodes(options) {
       },
     },
     date: {
-      attrs: {value: {default: 0}},
+      attrs: {value: {default: -1}},
       content: 'inline*',
       group: options.cellContentGroup,
       draggable: false,
@@ -149,6 +150,8 @@ export function tableNodes(options) {
       parseDOM: [
         {
           tag: '.cell-date',
+          getAttrs: (dom) => getNodeAttrs(dom, dateExtraAttrs)
+
         },
       ],
       toDOM(node) {
@@ -156,6 +159,7 @@ export function tableNodes(options) {
           'div',
           {
             class: 'cell-date',
+            ...setNodeAttrs(node, dateExtraAttrs)
           },
         ];
       },
@@ -168,6 +172,7 @@ export function tableNodes(options) {
       parseDOM: [
         {
           tag: '.cell-label',
+          getAttrs: (dom) => getNodeAttrs(dom, labelsExtraAttrs)
         },
       ],
       toDOM(node) {
@@ -175,6 +180,7 @@ export function tableNodes(options) {
           'div',
           {
             class: 'cell-label',
+            ...setNodeAttrs(node, labelsExtraAttrs)
           },
         ];
       },
