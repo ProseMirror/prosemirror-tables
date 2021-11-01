@@ -34,10 +34,10 @@ export class CellView {
 
     this.updatePlaceholder();
 
-    this.setDOMAttrsFromNode(this.node)
+    this.setDOMAttrsFromNode(this.node);
 
     // maybe use transaction to set the attrs
-    if(!this.node.attrs.id) {
+    if (!this.node.attrs.id) {
       // TODO: find a better way, for now give generated id for every cell - fixing the disappear first cell's handles bug
       this.node.attrs.id = '_' + Math.random().toString(36).substr(2, 9);
     }

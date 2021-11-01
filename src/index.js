@@ -90,7 +90,8 @@ export function tableEditing({allowTableNodeSelection = false} = {}) {
           ),
       },
 
-      transformPasted: addLabelsToPastedTable
+      transformPasted: addLabelsToPastedTable,
+
     },
 
     appendTransaction(_, oldState, state) {

@@ -173,6 +173,6 @@ export const TableFiltersMenu = () => {
         }
       }
       return null;
-    }
+    },
   });
 };
