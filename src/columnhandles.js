@@ -190,7 +190,7 @@ export class CellView {
         );
       }
 
-      sortButton.onclick = () => {
+      sortButton.onclick = (e) => {
         if (colIndex === null) return;
 
         if (sortedCol !== colIndex || tableAttrs.sort.dir === 'up') {
@@ -200,6 +200,9 @@ export class CellView {
         }
 
         view.focus();
+
+        e.preventDefault()
+        e.stopPropagation()
       };
       this.sortButton = this.dom.appendChild(sortButton);
 
