@@ -739,6 +739,7 @@ export function sortColumn(view, colNumber, pos, dir) {
     ...newRowsArray,
   ]);
   tr.setNodeMarkup(rect.tableStart - 1, rect.table.type, {
+    ...rect.table.attrs,
     sort: {col: colNumber, dir: dir === 1 ? 'down' : 'up'},
   });
 
