@@ -853,8 +853,13 @@ export const deleteColAtPos = (pos, view) => {
 
   const {tr} = view.state;
   const colIndex = getColIndex(view.state, pos);
-
-  removeColumn(tr, rect, colIndex);
+  if(rect.map.width ===  1) {
+    tr.delete(rect.tableStart - 1 , rect.tableStart + rect.table.nodeSize);
+  } else {
+    removeColumn(tr, rect, colIndex);
+  }
 
   view.dispatch(tr);
+  return true
 };
+
