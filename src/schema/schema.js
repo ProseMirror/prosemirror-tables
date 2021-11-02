@@ -102,6 +102,7 @@ export function tableNodes(options) {
       attrs: cellAttrs,
       tableRole: 'cell',
       isolating: true,
+      allowGapCursor: false,
       parseDOM: [{tag: 'td', getAttrs: (dom) => getNodeAttrs(dom, tableCellExtraAttrs)}],
       toDOM(node) {
         return ['td', setNodeAttrs(node, tableCellExtraAttrs), 0];
@@ -167,8 +168,9 @@ export function tableNodes(options) {
     label: {
       attrs: {labels: {default: []}},
       group: options.cellContentGroup,
-      selectable: true,
+      selectable: false,
       draggable: false,
+      isolating: true,
       parseDOM: [
         {
           tag: '.cell-label',
