@@ -48,12 +48,19 @@ export const handleKeyDown = keydownHandler({
   'Mod-Delete': deleteCellSelection,
 });
 
-function splitIfCellChild(state, dispatch) {
+function checkIfParentIsCell(state) {
   const {$head} = state.selection;
   const parent = $head.node($head.depth - 1);
 
   // if parent is not a table cell - let the editor handle key down
   if (parent.type.name !== 'table_cell') return false;
+
+  return true
+}
+
+function splitIfCellChild(state, dispatch) {
+  // if parent is not a table cell - let the editor handle key down
+  if (!checkIfParentIsCell(state)) return false;
 
   return splitBlockKeepMarks(state, dispatch);
 }
@@ -223,6 +230,9 @@ const getNextArrowSel = (axis, dir, sel, state, view) => {
 
 function arrow(axis, dir) {
   return (state, dispatch, view) => {
+    // if parent is not a table cell - let the editor handle key down
+    if (!checkIfParentIsCell(state)) return false;
+
     let newSel = state.selection;
     let newSelVisible = false;
     while (!newSelVisible) {
