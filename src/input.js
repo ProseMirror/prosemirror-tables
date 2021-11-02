@@ -419,10 +419,12 @@ export function handleMouseDown(view, startEvent) {
     if (anchor != null) {
       // Continuing an existing cross-cell selection
       $anchor = view.state.doc.resolve(anchor);
-    } else if (domInCell(view, event.target) != startDOMCell) {
+    } else if (domInCell(view, event.target) && domInCell(view, event.target) != startDOMCell) {
       // Moving out of the initial cell -- start a new cell selection
       $anchor = cellUnderMouse(view, startEvent);
-      if (!$anchor) return stop();
+      if (!$anchor){
+        return stop();
+      } 
     }
     if ($anchor) setCellSelection($anchor, event);
 
