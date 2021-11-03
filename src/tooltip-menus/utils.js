@@ -102,16 +102,8 @@ export const calculatePopupPosition = (view, popupDOM) => {
     state.selection instanceof CellSelection &&
     state.selection.isRowSelection()
   ) {
-    let tableContainer = selectedCells[0];
-
-    // find the dom of the table wrapper
-    while (!tableContainer.classList.contains('tableVerticalWrapper')) {
-      if (tableContainer.parentElement) {
-        tableContainer = tableContainer.parentElement;
-      } else {
-        return;
-      }
-    }
+    const tableContainer = selectedCells[0].closest('.tableWrapper');
+    if (!tableContainer) return;
 
     const tableContainerBox = tableContainer.getBoundingClientRect();
 
