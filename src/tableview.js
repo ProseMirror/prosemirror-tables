@@ -102,62 +102,61 @@ export class TableView {
   }
 
   buildActiveFiltersButton(node) {
-    if (node.attrs.filters && node.attrs.filters.length) {
-      if (!this.activeFiltersBtn) {
-        this.filterStatusIndicator = createElementWithClass(
-          'div',
-          'filterStatusIndicator'
-        );
+    if (!this.activeFiltersBtn) {
+      this.filterStatusIndicator = createElementWithClass(
+        'div',
+        'filterStatusIndicator'
+      );
 
-        this.activeFiltersBtn = createButtonWithIcon('active-filters');
+      this.activeFiltersBtn = createButtonWithIcon('active-filters');
 
-        this.activeFiltersBtn.lastChild.innerText = 'filters';
+      this.activeFiltersBtn.lastChild.innerText = 'filters';
 
-        this.activeFiltersBtn.lastChild.onmousedown = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        };
+      this.activeFiltersBtn.lastChild.onmousedown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
 
-        this.filterStatusIndicator.appendChild(this.activeFiltersBtn);
+      this.filterStatusIndicator.appendChild(this.activeFiltersBtn);
 
-        this.activeFiltersBtn.onclick = (e) => {
-          const {dispatch} = this.view;
-          const {tr} = this.view.state;
-          // TODO: Create util that open the filter popup and close other - reuse
-          if (!tableFiltersMenuKey.getState(this.view.state)) {
-            tr.setMeta(tableFiltersMenuKey, {
-              action: 'open',
-              dom: this.contentDOM,
-              pos: this.getPos() + 1,
-              node: node,
-              id: window.id,
-            });
-          } else {
-            tr.setMeta(tableFiltersMenuKey, {
-              action: 'close',
-              id: window.id,
-            });
-          }
-
-          tr.setMeta(tableHeadersMenuKey, {
+      this.activeFiltersBtn.onclick = (e) => {
+        const {dispatch} = this.view;
+        const {tr} = this.view.state;
+        // TODO: Create util that open the filter popup and close other - reuse
+        if (!tableFiltersMenuKey.getState(this.view.state)) {
+          tr.setMeta(tableFiltersMenuKey, {
+            action: 'open',
+            dom: this.contentDOM,
+            pos: this.getPos() + 1,
+            node: node,
+            id: window.id,
+          });
+        } else {
+          tr.setMeta(tableFiltersMenuKey, {
             action: 'close',
             id: window.id,
           });
+        }
 
-          dispatch(tr);
+        tr.setMeta(tableHeadersMenuKey, {
+          action: 'close',
+          id: window.id,
+        });
 
-          e.preventDefault();
-          e.stopPropagation();
-        };
-        this.tableWrapper.prepend(this.filterStatusIndicator);
-      }
-      // TODO: Find a way not to update it on every update
-      this.activeFiltersBtn.lastChild.innerText = `${node.attrs.filters.length} filters`;
-    } else {
-      if (this.activeFiltersBtn) {
-        this.activeFiltersBtn.remove();
-      }
+        dispatch(tr);
+
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      this.tableWrapper.prepend(this.filterStatusIndicator);
     }
+    // TODO: Find a way not to update it on every update
+    this.activeFiltersBtn.lastChild.innerText =
+      node.attrs.filters && node.attrs.filters.length
+        ? `${node.attrs.filters.length} filter${
+            node.attrs.filters.length > 1 ? 's' : ''
+          }`
+        : 'Add filter';
   }
 
   update(node, markers) {

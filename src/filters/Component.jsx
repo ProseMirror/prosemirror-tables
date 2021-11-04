@@ -303,7 +303,10 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
 
   // ad filter to selected column
   useEffect(() => {
-    if (!headerPos) return;
+    if (!headerPos) {
+      if (!filtersGroups.length) addNewGroup();
+      return;
+    }
     const colDefaultFilter = createDefaultFilter(view.state, table, headerPos);
     setFiltersGroups((oldGroups) => [...oldGroups, [colDefaultFilter]]);
   }, []);
