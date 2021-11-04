@@ -64,7 +64,18 @@ export function setNodeAttrs(node, extraAttrs) {
 //       object that's used to render the cell's DOM.
 export function tableNodes(options) {
   const tableCellExtraAttrs = {...options.cellAttributes || {}, ...cellExtraAttrs} ;
-  const cellAttrs = {};
+  const cellAttrs = {
+    typesValues: {
+      default: {
+        text: '',
+        number: '',
+        currency: '',
+        labels: [],
+        date: -1,
+        checkbox: false
+      }
+    }
+  };
   for (const prop in tableCellExtraAttrs)
     cellAttrs[prop] = {default: tableCellExtraAttrs[prop].default};
 
