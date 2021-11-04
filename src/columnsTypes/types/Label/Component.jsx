@@ -111,7 +111,7 @@ export const LabelsChooser = ({
 
   const ref = useClickOutside(() => {
     handleClose(chosenLabels);
-  });
+  }, 'mousedown');
 
   const filteredLabels =
     inputValue === ''
