@@ -47,9 +47,10 @@ class TablePopUpMenuView {
 
     this.popUpDOM.addEventListener('mouseout', (e) => {
       if (e.target.className !== 'deleteMenuButton') return;
-      const [tableWrapper] = document.getElementsByClassName('tableFocus');
-      if (!tableWrapper) return;
-      tableWrapper.classList.remove('markDeleteCells');
+      // remove class from all tables in the document' in case that the focus removed before the delete button was clicked
+      const tableWrappers = document.getElementsByClassName('tableScrollWrapper');
+      if (!tableWrappers.length) return;
+      Array.from(tableWrappers).forEach((table) => table.classList.remove('markDeleteCells'));
     });
 
     // render prosemirror menu to popUpDom
