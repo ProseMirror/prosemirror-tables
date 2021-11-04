@@ -287,7 +287,7 @@ export function deleteRow(state, dispatch) {
         : tr.doc;
       rect.map = TableMap.get(rect.table);
     }
-
+    debugger
     dispatch(tr);
   }
   return true;
