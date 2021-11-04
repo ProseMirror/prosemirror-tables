@@ -196,12 +196,12 @@ class TableHeadersMenuView {
     const {pos, node} = this.headerData;
     if (!pos || pos > this.view.state.doc.nodeSize) return;
 
-    const resolvedCell = this.view.state.doc.resolve(pos).parent
+    const resolvedCell = this.view.state.doc.resolve(pos + 1).parent
 
     // make sure we are trying to update the correct cell
     if (
       resolvedCell.type.name !== 'table_cell' ||
-      resolvedCell.attr.id !== this.headerData.node.attrs.id
+      resolvedCell.attrs.id !== this.headerData.node.attrs.id
     ) return;
 
     const {tr} = this.view.state;
