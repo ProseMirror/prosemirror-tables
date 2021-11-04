@@ -13,6 +13,9 @@ class CellDataType {
 
     const {tr} = view.state;
 
+    // save old type before changing attrs
+    const convertFromType = node.attrs.type
+
     // change header type
     tr.setNodeMarkup(pos, undefined, Object.assign(node.attrs, {type: typeId}));
 
@@ -22,7 +25,7 @@ class CellDataType {
         pos + cell.nodeSize - 1,
         this.renderContentNode(
           view.state.schema,
-          this.convertContent(cell),
+          this.convertContent(cell, convertFromType),
           tr,
           pos
         )
@@ -43,7 +46,7 @@ class CellDataType {
   /**
    * convert the content to the type format, should return content that the renderContentNode of the same type can render to node
    */
-  convertContent(cell) {
+  convertContent(cell, convertFromType) {
     return cell.textContent;
   }
 

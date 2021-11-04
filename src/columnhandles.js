@@ -25,7 +25,7 @@ export class CellView {
     this.getPos = getPos;
     this.node = node;
     this.view = view;
-    this.dom = createElementWithClass('td', '');
+    this.dom = createElementWithClass('td', `${node.attrs.type}-cell`);
     this.contentDOM = this.dom.appendChild(
       createElementWithClass('div', 'cellContent')
     );
@@ -176,7 +176,7 @@ export class CellView {
     // add sort and style only if headers allowed
     if (tableAttrs.headers) {
       this.dom.classList.add('colHeader');
-
+      
       const sortButton = createElementWithClass('button', 'sortColButton');
       sortButton.dataset.test = 'sort-button';
       sortButton.contentEditable = false;
