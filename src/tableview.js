@@ -109,7 +109,7 @@ export class TableView {
           'filterStatusIndicator'
         );
 
-        this.activeFiltersBtn = createButtonWithIcon('activeFilters');
+        this.activeFiltersBtn = createButtonWithIcon('active-filters');
 
         this.activeFiltersBtn.lastChild.innerText = 'filters';
 

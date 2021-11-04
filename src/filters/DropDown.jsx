@@ -56,7 +56,7 @@ export const SelectDropDownButton = ({
 }) => {
   return (
     <button
-      className={`selectDropDownButton ${disableDropDown && 'disabled'}`}
+      className={`select-dropdown-button ${disableDropDown && 'disabled'}`}
       disabled={disableDropDown}
       onClick={openDropDown}
       type="button"

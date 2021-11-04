@@ -33,10 +33,10 @@
   height: 12px;
 }
 
-.selectDropDownButton {
+.select-dropdown-button {
   border: none;
   background-color: transparent;
-  padding: 2px 8px 2px 12px;
+  padding: 2px 8px 2px 10px;
 
   display: flex;
   align-items: center;
@@ -158,10 +158,6 @@
   padding-left: 15px;
 }
 
-.selectDropDownButton {
-  padding-left: 10px;
-}
-
 .filter-value-input {
   height: 14px;
 }
@@ -239,13 +235,13 @@
   top: -50px;
 }
 
-.activeFiltersIcon {
+.active-filters-icon {
   content: url(./svgs/filter.svg);
   width: 15px;
   height: 15px;
 }
 
-.activeFiltersButton {
+.active-filters-button {
   border: none;
   background-color: transparent;
   cursor: pointer;

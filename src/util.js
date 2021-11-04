@@ -154,9 +154,9 @@ export const createElementWithClass = (type, className, datatest) => {
 };
 
 export const createButtonWithIcon = (className) => {
-  const button = createElementWithClass('button', `${className}Button`);
-  const icon = createElementWithClass('span', `${className}Icon`);
-  const buttonLabel = createElementWithClass('span', `${className}Label`);
+  const button = createElementWithClass('button', `${className}-button`);
+  const icon = createElementWithClass('span', `${className}-icon`);
+  const buttonLabel = createElementWithClass('span', `${className}-label`);
 
   button.appendChild(icon);
   button.appendChild(buttonLabel);
