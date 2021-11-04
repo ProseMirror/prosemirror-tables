@@ -111,7 +111,7 @@ const FiltersLabelsDropdown = ({filterHandler, onFilterChange}) => {
       <SelectDropdownButton
         disableDropdown={false}
         itemStyleClass={''}
-        label={'Choose Labels'}
+        label={'Choose labels'}
         openDropdown={() => setOpenDropdown(!openDropdown)}
       />
       {openDropdown && (
@@ -129,7 +129,7 @@ const FiltersLabelsDropdown = ({filterHandler, onFilterChange}) => {
       )}
     </div>
   );
-}; 
+};
 
 const getInputElement = (filterHandler) => {
   const inputType = filterHandler.getInputType();
