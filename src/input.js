@@ -174,6 +174,8 @@ function endOfTextblockHorizontal(view, state, dir, selection) {
 
 // Check whether the cursor is at the end of a cell (so that further
 // motion would move out of the cell)
+
+// do the same as atEndOfCell' but from a given selection and not from the state current selection
 function atEndOfCellFromSelection(view, axis, dir, sel) {
   if (sel.toJSON().type !== 'text') return null;
   const {$head} = sel;

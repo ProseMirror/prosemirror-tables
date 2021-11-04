@@ -1,34 +1,42 @@
 import dayjs from 'dayjs';
 
-const clearWeirdCharactersFromText = (text) =>
+/**
+ * This file contains all the filters logic
+ * each function gets the cell that its checking and the value from the filter input(each filter and his own input)
+ * the function should return true if this cell should be visible, false otherwise
+ */
+
+/** */
+// sometimes cells has invisible character when they are empty - remove it so the filters wont fail
+const removeInvisibleCharacterFromText = (text) =>
   text.replace(/[^\x00-\x7F]/g, '');
 
 // Text Logic
 
 export const textEquality = (cell, value) => {
-  return clearWeirdCharactersFromText(cell.textContent) === value;
+  return removeInvisibleCharacterFromText(cell.textContent) === value;
 };
 
 export const textInequality = (cell, value) => {
-  return clearWeirdCharactersFromText(cell.textContent) !== value;
+  return removeInvisibleCharacterFromText(cell.textContent) !== value;
 };
 
 export const textContains = (cell, value) => {
-  return clearWeirdCharactersFromText(cell.textContent.toLowerCase()).includes(
+  return removeInvisibleCharacterFromText(cell.textContent.toLowerCase()).includes(
     value.toLowerCase()
   );
 };
 
 export const textNotContains = (cell, value) => {
-  return !clearWeirdCharactersFromText(cell.textContent).includes(value);
+  return !removeInvisibleCharacterFromText(cell.textContent).includes(value);
 };
 
 export const isTextEmpty = (cell) => {
-  return !clearWeirdCharactersFromText(cell.textContent).length;
+  return !removeInvisibleCharacterFromText(cell.textContent).length;
 };
 
 export const isTextNotEmpty = (cell) => {
-  return clearWeirdCharactersFromText(cell.textContent).length > 0;
+  return removeInvisibleCharacterFromText(cell.textContent).length > 0;
 };
 
 // Number Logic
@@ -153,44 +161,48 @@ export const currencyGreater = (cell, value) => {
 
 // Labels Logic
 
-export const labelsEquality = (cell, value) => {
+// if the cell containing exactly all the selected labels, return true. false otherwise
+export const labelsEquality = (cell, selectedLabels) => {
   if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
-  if (value.length !== cellLabels.length) return false;
+  if (selectedLabels.length !== cellLabels.length) return false; // has to exact match between the labels
 
-  for (let i = 0; i < value.length; i++) {
-    if (!cellLabels.includes(value[i])) return false;
+  for (let i = 0; i < selectedLabels.length; i++) {
+    if (!cellLabels.includes(selectedLabels[i])) return false;
   }
   return true;
 };
 
-export const labelsInEquality = (cell, value) => {
+// if the cell containing exactly all the selected labels, return false. true otherwise
+export const labelsInEquality = (cell, selectedLabels) => {
   if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
-  if (value.length !== cellLabels.length) return true;
+  if (selectedLabels.length !== cellLabels.length) return true; // has to exact match between the labels to return false
 
-  for (let i = 0; i < value.length; i++) {
-    if (!cellLabels.includes(value[i])) return true;
+  for (let i = 0; i < selectedLabels.length; i++) {
+    if (!cellLabels.includes(selectedLabels[i])) return true;
   }
   return false;
 };
 
-export const labelsIsAny = (cell, value) => {
+// if the cell includes one or more of the selected labels, return true. false otherwise
+export const labelsIsAny = (cell, selectedLabels) => {
   if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
 
-  for (let i = 0; i < value.length; i++) {
-    if (cellLabels.includes(value[i])) return true;
+  for (let i = 0; i < selectedLabels.length; i++) {
+    if (cellLabels.includes(selectedLabels[i])) return true;
   }
   return false;
 };
 
-export const labelsIsNone = (cell, value) => {
+// if the cell includes one of the selected labels, return false. true otherwise
+export const labelsIsNone = (cell, selectedLabels) => {
   if (!cell.firstChild.attrs.labels) return false;
   const cellLabels = cell.firstChild.attrs.labels.map((label) => label.title);
 
-  for (let i = 0; i < value.length; i++) {
-    if (cellLabels.includes(value[i])) return false;
+  for (let i = 0; i < selectedLabels.length; i++) {
+    if (cellLabels.includes(selectedLabels[i])) return false;
   }
   return true;
 };

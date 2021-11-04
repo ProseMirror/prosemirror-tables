@@ -99,6 +99,8 @@ export const LabelsChooser = ({
   const handleClose = (currentChosenLabels) => {
     if (onClose) onClose();
     if (inFilters) return;
+
+    // execute default close procedure
     if (typeof currentChosenLabels === 'string') {
       addLabel(view, pos, node, {
         title: currentChosenLabels,

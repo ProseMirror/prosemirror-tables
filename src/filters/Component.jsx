@@ -6,7 +6,7 @@ import {
   executeFilters,
   tableFiltersMenuKey,
 } from './utils';
-import SelectDropDown, {SelectDropDownButton} from './DropDown.jsx';
+import SelectDropdown, {SelectDropdownButton} from './Dropdown.jsx';
 import useClickOutside from '../useClickOutside.jsx';
 import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateUtilDayJS from '@date-io/dayjs';
@@ -49,9 +49,9 @@ const FiltersDatePicker = ({onFilterChange, filterHandler}) => {
   );
 };
 
-const FiltersInputDropDown = ({filterHandler, onFilterChange}) => {
+const FiltersInputDropdown = ({filterHandler, onFilterChange}) => {
   return (
-    <SelectDropDown
+    <SelectDropdown
       className="input-dropdown"
       initialValue={filterHandler.getDefaultValue()}
       items={filterHandler.getDropdownInputItems()}
@@ -87,8 +87,8 @@ const FiltersTextInput = ({filterHandler, onFilterChange}) => {
   );
 };
 
-const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
-  const [openDropDown, setOpenDropDown] = useState(false);
+const FiltersLabelsDropdown = ({filterHandler, onFilterChange}) => {
+  const [openDropdown, setOpenDropdown] = useState(false);
 
   const tablePos = tableFiltersMenuKey.getState(filterHandler.view.state);
   const handleLabelChoose = (title, checked, allChosenLabels) => {
@@ -108,13 +108,13 @@ const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
 
   return (
     <div className="select-dropdown-container">
-      <SelectDropDownButton
-        disableDropDown={false}
+      <SelectDropdownButton
+        disableDropdown={false}
         itemStyleClass={''}
         label={'Choose Labels'}
-        openDropDown={() => setOpenDropDown(!openDropDown)}
+        openDropdown={() => setOpenDropdown(!openDropdown)}
       />
-      {openDropDown && (
+      {openDropdown && (
         <LabelsChooser
           handleLabelChoose={handleLabelChoose}
           inFilters={true}
@@ -122,14 +122,14 @@ const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
             .toAttrsValue()
             .filterValue.map((label) => ({title: label}))}
           node={filterHandler.table}
-          onClose={() => setOpenDropDown(false)}
+          onClose={() => setOpenDropdown(false)}
           pos={tablePos.pos + 1}
           view={filterHandler.view}
         />
       )}
     </div>
   );
-};
+}; 
 
 const getInputElement = (filterHandler) => {
   const inputType = filterHandler.getInputType();
@@ -142,9 +142,9 @@ const getInputElement = (filterHandler) => {
     case 'date-picker':
       return FiltersDatePicker;
     case 'dropdown':
-      return FiltersInputDropDown;
+      return FiltersInputDropdown;
     case 'labels-dropdown':
-      return FiltersLabelsDropDown;
+      return FiltersLabelsDropdown;
   }
 };
 
@@ -172,7 +172,7 @@ const FilterRule = ({
         <span className="concatenation-rule">And</span>
       )}
       <div className="column-chooser">
-        <SelectDropDown
+        <SelectDropdown
           className="filter-columns-dropdown"
           initialValue={filterHandler.headerId}
           items={colsDropdownOptions}
@@ -182,7 +182,7 @@ const FilterRule = ({
         />
       </div>
       <div className="rule-chooser">
-        <SelectDropDown
+        <SelectDropdown
           className="filter-logics-dropdown"
           initialValue={filterHandler.getLogicId()}
           items={filterHandler.getLogicOptions()}

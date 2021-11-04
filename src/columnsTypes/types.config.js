@@ -41,7 +41,6 @@ import {
   labelsIsNone,
   labelsIsEmpty,
   labelsIsNotEmpty,
-  // buildLabelsDropDownItems,
 } from './filtersLogic';
 import {sortNumVsString} from '../util';
 
@@ -83,7 +82,7 @@ export const types = [
         inputType: 'input',
       },
       {
-        id: 'text-in-equality',
+        id: 'text-inequality',
         label: 'Is not',
         logic: textInequality,
         defaultValue: '',
@@ -131,7 +130,7 @@ export const types = [
         inputType: 'input',
       },
       {
-        id: 'number-in-equality',
+        id: 'number-inequality',
         label: '≠',
         logic: numberInequality,
         defaultValue: '',
@@ -266,7 +265,7 @@ export const types = [
         inputType: 'input',
       },
       {
-        id: 'currency-in-equality',
+        id: 'currency-inequality',
         label: '≠',
         logic: currencyInequality,
         defaultValue: '',

@@ -1,6 +1,6 @@
 import React, {useState, useRef, useCallback, useMemo} from 'react';
 
-// export type DropDownItemType = {
+// export type DropdownItemType = {
 //   label: any;
 //   value: any; // should be uniq
 //   separate?: boolean;
@@ -8,7 +8,7 @@ import React, {useState, useRef, useCallback, useMemo} from 'react';
 //   itemStyleClass?: string;
 // };
 
-// interface DropDownItemProps {
+// interface DropdownItemProps {
 //   label: any;
 //   onValueChange: () => void;
 //   selected: boolean;
@@ -18,15 +18,15 @@ import React, {useState, useRef, useCallback, useMemo} from 'react';
 //   hasIcon: boolean;
 // }
 
-// interface DropDownProps {
-//   items: DropDownItemType[];
+// interface DropdownProps {
+//   items: DropdownItemType[];
 //   initialValue: any;
 //   onValueChange: (value: any) => void;
 //   parentRef?: any;
 //   className?: string;
 // }
 
-const DropDownItem = ({
+const DropdownItem = ({
   label,
   onValueChange,
   selected,
@@ -48,17 +48,17 @@ const DropDownItem = ({
   );
 };
 
-export const SelectDropDownButton = ({
-  disableDropDown,
-  openDropDown,
+export const SelectDropdownButton = ({
+  disableDropdown,
+  openDropdown,
   itemStyleClass,
   label,
 }) => {
   return (
     <button
-      className={`select-dropdown-button ${disableDropDown && 'disabled'}`}
-      disabled={disableDropDown}
-      onClick={openDropDown}
+      className={`select-dropdown-button ${disableDropdown && 'disabled'}`}
+      disabled={disableDropdown}
+      onClick={openDropdown}
       type="button"
     >
       <span className={`selected-icon ${itemStyleClass}`}></span>
@@ -68,7 +68,7 @@ export const SelectDropDownButton = ({
   );
 };
 
-const SelectDropDown = ({
+const SelectDropdown = ({
   items,
   initialValue,
   onValueChange,
@@ -76,21 +76,21 @@ const SelectDropDown = ({
   className,
 }) => {
   const [value, setValue] = useState(initialValue);
-  const [showDropDown, setShowDropDown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const dropDownRef = useRef();
 
-  const closeDropDown = useCallback(() => {
-    setShowDropDown(false);
+  const closeDropdown = useCallback(() => {
+    setShowDropdown(false);
     if (
       dropDownRef.current &&
       dropDownRef.current.classList.contains('open-up')
     ) {
       dropDownRef.current.classList.remove('open-up');
     }
-    document.removeEventListener('click', closeDropDown);
-  }, [dropDownRef, setShowDropDown]);
+    document.removeEventListener('click', closeDropdown);
+  }, [dropDownRef, setShowDropdown]);
 
-  const openDropDown = useCallback(() => {
+  const openDropdown = useCallback(() => {
     if (parentRef) {
       const dropdownRect = dropDownRef.current.getBoundingClientRect();
       const parentRect = parentRef.current.getBoundingClientRect();
@@ -103,9 +103,9 @@ const SelectDropDown = ({
       }
     }
 
-    setShowDropDown(!showDropDown);
-    if (!showDropDown) document.addEventListener('click', closeDropDown);
-  }, [closeDropDown, parentRef, showDropDown]);
+    setShowDropdown(!showDropdown);
+    if (!showDropdown) document.addEventListener('click', closeDropdown);
+  }, [closeDropdown, parentRef, showDropdown]);
 
   const updateValue = useCallback(
     (value) => {
@@ -115,26 +115,26 @@ const SelectDropDown = ({
     [onValueChange]
   );
 
-  const disableDropDown = useMemo(() => items.length === 1, [items]);
+  const disableDropdown = useMemo(() => items.length === 1, [items]);
 
   return (
     <div
       className={`select-dropdown-container${className ? ` ${className}` : ''}`}
       ref={dropDownRef}
     >
-      <SelectDropDownButton
-        disableDropDown={disableDropDown}
+      <SelectDropdownButton
+        disableDropdown={disableDropdown}
         itemStyleClass={
           items.find((item) => item.value === value)?.itemStyleClass
         }
         label={items.find((item) => item.value === value)?.label}
-        openDropDown={openDropDown}
+        openDropdown={openDropdown}
       />
-      {showDropDown && (
+      {showDropdown && (
         <div className="select-dropdown-selection">
           {items.map((item) => {
             return (
-              <DropDownItem
+              <DropdownItem
                 hasIcon={item.hasIcon}
                 itemStyleClass={item.itemStyleClass}
                 key={item.value}
@@ -153,4 +153,4 @@ const SelectDropDown = ({
   );
 };
 
-export default SelectDropDown;
+export default SelectDropdown;
