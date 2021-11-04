@@ -194,3 +194,18 @@ export const addTooltips = (popupDOM, classes) => {
     buttonContainer.appendChild(tooltip);
   });
 };
+
+export const addDeleteHoverClass = (e) => {
+  if (e.target.className !== 'deleteMenuButton') return;
+  const [tableWrapper] = document.getElementsByClassName('tableFocus');
+  if (!tableWrapper) return;
+  tableWrapper.classList.add('markDeleteCells');
+}
+
+export const removeDeleteHoverClass = (e) => {
+  if (e.target.className !== 'deleteMenuButton') return;
+  // remove class from all tables in the document' in case that the focus removed before the delete button was clicked
+  const tableWrappers = document.getElementsByClassName('tableScrollWrapper');
+  if (!tableWrappers.length) return;
+  Array.from(tableWrappers).forEach((table) => table.classList.remove('markDeleteCells'));
+}
