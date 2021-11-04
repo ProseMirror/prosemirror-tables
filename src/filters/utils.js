@@ -6,7 +6,7 @@ export const tableFiltersMenuKey = new PluginKey('TableFiltersMenu');
 
 export const generateMenuPopup = () => {
   const menuElement = document.createElement('div');
-  menuElement.className = `tableFiltersMenu`;
+  menuElement.className = `table-filters-menu`;
   menuElement.dataset.test = `table-filters-menu`;
   menuElement.style.display = 'none';
   menuElement.style.position = 'absolute';

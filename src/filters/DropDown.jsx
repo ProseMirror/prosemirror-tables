@@ -36,14 +36,14 @@ const DropDownItem = ({
 }) => {
   return (
     <button
-      className={`selectDropDownItem ${
+      className={`select-dropdown-item ${
         separate ? 'separate' : ''
       } ${itemStyleClass}`}
       onClick={onValueChange}
       type="button"
     >
-      {hasIcon && <span className="selectDropDownIteIcon"></span>}
-      <span className="selectDropDownItemLabel">{label}</span>
+      {hasIcon && <span className="select-dropdown-item-icon"></span>}
+      <span className="select-dropdown-itemLabel">{label}</span>
     </button>
   );
 };
@@ -61,9 +61,9 @@ export const SelectDropDownButton = ({
       onClick={openDropDown}
       type="button"
     >
-      <span className={`selectedIcon ${itemStyleClass}`}></span>
-      <span className="selectedLabel">{label}</span>
-      <span className="dropDownArrow"></span>
+      <span className={`selected-icon ${itemStyleClass}`}></span>
+      <span className="selected-label">{label}</span>
+      <span className="dropdown-arrow"></span>
     </button>
   );
 };
@@ -119,7 +119,7 @@ const SelectDropDown = ({
 
   return (
     <div
-      className={`selectDropDownContainer${className ? ` ${className}` : ''}`}
+      className={`select-dropdown-container${className ? ` ${className}` : ''}`}
       ref={dropDownRef}
     >
       <SelectDropDownButton
@@ -131,7 +131,7 @@ const SelectDropDown = ({
         openDropDown={openDropDown}
       />
       {showDropDown && (
-        <div className="selectDropDownSelection">
+        <div className="select-dropdown-selection">
           {items.map((item) => {
             return (
               <DropDownItem

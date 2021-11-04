@@ -107,7 +107,7 @@ const FiltersLabelsDropDown = ({filterHandler, onFilterChange}) => {
   };
 
   return (
-    <div className="selectDropDownContainer">
+    <div className="select-dropdown-container">
       <SelectDropDownButton
         disableDropDown={false}
         itemStyleClass={''}
