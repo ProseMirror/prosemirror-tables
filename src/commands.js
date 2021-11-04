@@ -1,6 +1,7 @@
 // This file defines a number of table-related commands.
 import {TextSelection, Selection} from 'prosemirror-state';
 import {Fragment} from 'prosemirror-model';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {Rect, TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
 import {columnTypesMap} from './columnsTypes/types.config';
@@ -210,11 +211,12 @@ export function addRowAfter(state, dispatch) {
 
 export function addBottomRow(state, dispatch, pos) {
   if (dispatch) {
-    const resPos = state.doc.resolve(pos);
+    const table = findParentNodeOfTypeClosestToPos(state.doc.resolve(pos + 1), state.schema.nodes.table)
+    if (!table) return;
     const rect = {
-      tableStart: pos,
-      table: resPos.node(1),
-      map: TableMap.get(resPos.node(1)),
+      tableStart: table.start,
+      table: table.node,
+      map: TableMap.get(table.node),
     };
     const tr = addRow(state.tr, rect, rect.map.height);
     dispatch(tr);
@@ -224,11 +226,12 @@ export function addBottomRow(state, dispatch, pos) {
 
 export function addRightColumn(state, dispatch, pos) {
   if (dispatch) {
-    const resPos = state.doc.resolve(pos);
+    const table = findParentNodeOfTypeClosestToPos(state.doc.resolve(pos + 1), state.schema.nodes.table)
+    if (!table) return;
     const rect = {
-      tableStart: pos,
-      table: resPos.node(1),
-      map: TableMap.get(resPos.node(1)),
+      tableStart: table.start,
+      table: table.node,
+      map: TableMap.get(table.node),
     };
     const tr = addColumn(state.tr, rect, rect.map.width);
     dispatch(tr);

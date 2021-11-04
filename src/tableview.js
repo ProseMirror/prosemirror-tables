@@ -4,8 +4,6 @@ import {createButtonWithIcon, createElementWithClass} from './util';
 import {typeInheritance} from './headers/headers-menu/index';
 import {tableFiltersMenuKey} from './filters/utils';
 import {tableHeadersMenuKey} from './columnsTypes/types.config';
-import { setNodeAttrs } from './schema/schema';
-import { tableExtraAttrs } from './schema/tableAttrs';
 
 const createAddCellsButton = (type, view, pos) => {
   const isRow = type === 'row';
