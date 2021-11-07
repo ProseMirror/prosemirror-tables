@@ -46,7 +46,7 @@ export function selectedRect(state) {
 // Add a column at the given position in a table.
 export function addColumn(tr, {map, tableStart, table}, col) {
   const firstRow = table.firstChild;
-  if (firstRow.childCount === MAX_COLS) return tr;
+  if (firstRow.childCount > MAX_COLS) return tr;
   let refColumn = col > 0 ? -1 : 0;
   if (columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0;
@@ -70,7 +70,12 @@ export function addColumn(tr, {map, tableStart, table}, col) {
           ? tableNodeTypes(table.type.schema).cell
           : table.nodeAt(map.map[index + refColumn]).type;
       const pos = map.positionAt(row, col, table);
-      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
+
+      // inherit row background color
+      const prevCell = tr.doc.resolve(tr.mapping.map(tableStart + pos + (col === 0 ? 1 : -1))).parent
+      const background = prevCell.attrs.background;
+
+      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({background}));
     }
   }
 

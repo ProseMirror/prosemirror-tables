@@ -67,8 +67,6 @@ export const DatePickerComponent = ({view, node, pos}) => {
   );
 
   const ref = useClickOutside((e) => {
-    const dateMenuState = tableDateMenuKey.getState(view.state);
-    const cellDom = dateMenuState ? dateMenuState.dom : null;
     if (!view.dom.contains(e.target)) return;
     
     const {tr} = view.state;
