@@ -1,11 +1,11 @@
-.tableFiltersMenu {
+.table-filters-menu {
   border-radius: 6px;
   background-color: white;
   border: 1px solid black;
   padding: 6px 12px;
 }
 
-.selectDropDownContainer {
+.select-dropdown-container {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -26,17 +26,17 @@
   max-width: 100%;
 }
 
-.dropDownArrow {
+.dropdown-arrow {
   content: url(./svgs/right-arrow.svg);
   transform: rotate(90deg);
   width: 12px;
   height: 12px;
 }
 
-.selectDropDownButton {
+.select-dropdown-button {
   border: none;
   background-color: transparent;
-  padding: 2px 8px 2px 12px;
+  padding: 2px 8px 2px 10px;
 
   display: flex;
   align-items: center;
@@ -46,7 +46,7 @@
   cursor: pointer;
 }
 
-.selectDropDownSelection {
+.select-dropdown-selection {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -62,7 +62,7 @@
   background-color: white;
 }
 
-.selectDropDownItem {
+.select-dropdown-item {
   width: fit-content;
   padding: 9px;
   padding-right: 20px;
@@ -79,11 +79,11 @@
   border-radius: 3px;
 }
 
-.selectDropDownItem.separate {
+.select-dropdown-item.separate {
   border-top: 1px solid grey;
 }
 
-.open-up .selectDropDownSelection {
+.open-up .select-dropdown-selection {
   top: -110px;
 }
 
@@ -122,51 +122,47 @@
   display: none !important;
 }
 
-.colItem .selectDropDownIteIcon,
-.column-chooser .selectedIcon {
+.colItem .select-dropdown-item-icon,
+.column-chooser .selected-icon {
   width: 15px;
   height: 15px;
 }
 
-.colItem.textType .selectDropDownIteIcon,
-.column-chooser .selectedIcon.textType {
+.colItem.textType .select-dropdown-item-icon,
+.column-chooser .selected-icon.textType {
   content: url(./svgs/types/text_type.svg);
 }
-.colItem.numberType .selectDropDownIteIcon,
-.column-chooser .selectedIcon.numberType {
+.colItem.numberType .select-dropdown-item-icon,
+.column-chooser .selected-icon.numberType {
   content: url(./svgs/types/number_type.svg);
 }
-.colItem.dateType .selectDropDownIteIcon,
-.column-chooser .selectedIcon.dateType {
+.colItem.dateType .select-dropdown-item-icon,
+.column-chooser .selected-icon.dateType {
   content: url(./svgs/types/date.svg);
 }
-.colItem.labelsType .selectDropDownIteIcon,
-.column-chooser .selectedIcon.labelsType {
+.colItem.labelsType .select-dropdown-item-icon,
+.column-chooser .selected-icon.labelsType {
   content: url(./svgs/types/label.svg);
 }
-.colItem.checkboxType .selectDropDownIteIcon,
-.column-chooser .selectedIcon.checkboxType {
+.colItem.checkboxType .select-dropdown-item-icon,
+.column-chooser .selected-icon.checkboxType {
   content: url(./svgs/types/checkbox_type.svg);
 }
-.colItem.currencyType .selectDropDownIteIcon,
-.column-chooser .selectedIcon.currencyType {
+.colItem.currencyType .select-dropdown-item-icon,
+.column-chooser .selected-icon.currencyType {
   content: url(./svgs/types/currency.svg);
 }
 
-.rule-chooser .selectDropDownItem,
-.value-chooser .selectDropDownItem {
+.rule-chooser .select-dropdown-item,
+.value-chooser .select-dropdown-item {
   padding-left: 15px;
-}
-
-.selectDropDownButton {
-  padding-left: 10px;
 }
 
 .filter-value-input {
   height: 14px;
 }
 
-.selectDropDownItemLabel {
+.select-dropdown-itemLabel {
   background-color: transparent;
 }
 
@@ -239,13 +235,13 @@
   top: -50px;
 }
 
-.activeFiltersIcon {
+.active-filters-icon {
   content: url(./svgs/filter.svg);
   width: 15px;
   height: 15px;
 }
 
-.activeFiltersButton {
+.active-filters-button {
   border: none;
   background-color: transparent;
   cursor: pointer;

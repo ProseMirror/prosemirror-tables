@@ -154,9 +154,9 @@ export const createElementWithClass = (type, className, datatest) => {
 };
 
 export const createButtonWithIcon = (className) => {
-  const button = createElementWithClass('button', `${className}Button`);
-  const icon = createElementWithClass('span', `${className}Icon`);
-  const buttonLabel = createElementWithClass('span', `${className}Label`);
+  const button = createElementWithClass('button', `${className}-button`);
+  const icon = createElementWithClass('span', `${className}-icon`);
+  const buttonLabel = createElementWithClass('span', `${className}-label`);
 
   button.appendChild(icon);
   button.appendChild(buttonLabel);
@@ -206,3 +206,7 @@ export const sortNumVsString = (direction, textA, textB, collator) => {
   if (aIsNotNumber && !bIsNotNumber) return 1 * direction;
   return direction > 0 ? aNumber - bNumber : bNumber - aNumber;
 };
+
+// sometimes cells has invisible character when they are empty - remove it
+export const removeInvisibleCharacterFromText = (text) =>
+  text.replace(/[^\x00-\x7F]/g, '');

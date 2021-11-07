@@ -287,7 +287,7 @@ export function deleteRow(state, dispatch) {
     if (rect.top == 0 && rect.bottom == rect.map.height) return false;
     for (let i = rect.bottom - 1; ; i--) {
       const row = rect.table.child(i)
-      if(row.attrs.hidden) continue;
+      if (row.attrs.hidden) continue;
       removeRow(tr, rect, i);
       if (i == rect.top) break;
       rect.table = rect.tableStart

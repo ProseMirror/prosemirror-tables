@@ -71,7 +71,6 @@ export const types = [
       const getCellCheckState = (cell) => cell.content.content[0].attrs.checked;
       const cellAChecked = getCellCheckState(cellA);
       const cellBChecked = getCellCheckState(cellB);
-
       return direction * (cellBChecked > cellAChecked ? 1 : -1);
     },
   },

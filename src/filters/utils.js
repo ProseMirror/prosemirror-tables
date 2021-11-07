@@ -1,12 +1,12 @@
 import {PluginKey} from 'prosemirror-state';
 import {columnTypesMap, types} from '../columnsTypes/types.config';
-import {getColIndex} from '../util';
+import {getColIndex, removeInvisibleCharacterFromText} from '../util';
 
 export const tableFiltersMenuKey = new PluginKey('TableFiltersMenu');
 
 export const generateMenuPopup = () => {
   const menuElement = document.createElement('div');
-  menuElement.className = `tableFiltersMenu`;
+  menuElement.className = `table-filters-menu`;
   menuElement.dataset.test = `table-filters-menu`;
   menuElement.style.display = 'none';
   menuElement.style.position = 'absolute';
@@ -61,7 +61,7 @@ export const getColsOptions = (table) => {
   const headersRow = table.firstChild;
   const headers = headersRow.content.content.map((headerNode) => {
     return {
-      label: headerNode.textContent.length
+      label: removeInvisibleCharacterFromText(headerNode.textContent).length
         ? headerNode.textContent
         : 'Untitled',
       value: headerNode.attrs.id,
