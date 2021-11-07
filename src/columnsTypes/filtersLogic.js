@@ -1,15 +1,11 @@
 import dayjs from 'dayjs';
+import { removeInvisibleCharacterFromText } from '../util';
 
 /**
  * This file contains all the filters logic
  * each function gets the cell that its checking and the value from the filter input(each filter and his own input)
  * the function should return true if this cell should be visible, false otherwise
  */
-
-/** */
-// sometimes cells has invisible character when they are empty - remove it so the filters wont fail
-const removeInvisibleCharacterFromText = (text) =>
-  text.replace(/[^\x00-\x7F]/g, '');
 
 // Text Logic
 
