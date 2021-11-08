@@ -159,7 +159,7 @@
   top: 5px;
   left: 30px;
   position: absolute;
-  width: 60%;
+  width: calc(60% - 20px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
