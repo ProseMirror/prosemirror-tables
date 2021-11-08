@@ -114,10 +114,25 @@
 
 .remove-rule-button {
   margin-left: auto;
-  content: url(./svgs/close_icon.svg);
-  height: 20px;
-  width: 20px;
   cursor: pointer;
+  height: 28px;
+  width: 28px;
+
+  border: none;
+  background-color: transparent;
+  padding: 0px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 3px;
+}
+
+.remove-rule-icon {
+  content: url(./svgs/close_icon.svg);
+  height: 22px;
+  width: 22px;
 }
 
 .hiddenRow {

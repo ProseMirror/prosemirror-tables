@@ -199,7 +199,9 @@ const FilterRule = ({
         />
       </div>
 
-      <span className="remove-rule-button" onClick={onFilterRemove}></span>
+      <button className="remove-rule-button" onClick={onFilterRemove}>
+        <span className="remove-rule-icon" ></span>
+      </button>
     </div>
   );
 };
