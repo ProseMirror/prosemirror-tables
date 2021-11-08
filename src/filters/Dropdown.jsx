@@ -119,7 +119,7 @@ const SelectDropdown = ({
 
   return (
     <div
-      className={`select-dropdown-container${className ? ` ${className}` : ''}`}
+      className={`${showDropdown ? 'open' : 'close'} select-dropdown-container${className ? ` ${className}` : ''}`}
       ref={dropDownRef}
     >
       <SelectDropdownButton
