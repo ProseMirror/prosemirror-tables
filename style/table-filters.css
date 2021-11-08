@@ -2,7 +2,7 @@
   border-radius: 6px;
   background-color: white;
   border: 1px solid black;
-  padding: 6px 12px;
+  padding: 8px 12px;
 }
 
 .select-dropdown-container {
@@ -19,11 +19,12 @@
   align-items: center;
   white-space: nowrap;
   border-radius: 3px;
-  height: 24px;
   border: 1px solid rgba(55, 53, 47, 0.16);
   background: white;
   margin-right: 0px;
   max-width: 100%;
+
+  height: 32px;
 }
 
 .dropdown-arrow {
@@ -54,7 +55,7 @@
   position: absolute;
   width: fit-content;
   left: 0px;
-  top: 30px;
+  top: 36px;
   border-radius: 4px;
   z-index: 4;
   padding: 1px;
@@ -96,11 +97,12 @@
 
 .filter-row {
   display: flex;
-  gap: 20px;
   height: 38px;
   align-items: center;
   justify-content: flex-start;
   width: 100%;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .column-chooser,
@@ -160,6 +162,8 @@
 
 .filter-value-input {
   height: 14px;
+  border-radius: 6px;
+  padding: 8px;
 }
 
 .select-dropdown-itemLabel {
@@ -185,8 +189,7 @@
   align-items: center;
 }
 
-.filters-group-separator,
-.or-breaker {
+.filters-group-separator {
   width: 100%;
 }
 
