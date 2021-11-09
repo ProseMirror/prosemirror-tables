@@ -279,7 +279,7 @@ function handleDecorations(state, cell) {
   const decorations = [];
   const $cell = state.doc.resolve(cell);
   const table = $cell.node(-1);
-  if (!table) return;
+  if (!table) return DecorationSet.empty;
   const map = TableMap.get(table),
     start = $cell.start(-1);
   const col = map.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan;

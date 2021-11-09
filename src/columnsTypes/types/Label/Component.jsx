@@ -33,7 +33,14 @@ const Label = ({title, onDelete, color, showDelete}) => {
   );
 };
 
-const LabelOption = ({color, title, onChange, checked, onDelete}) => {
+const LabelOption = ({
+  color,
+  title,
+  onChange,
+  checked,
+  onDelete,
+  inFilters,
+}) => {
   const [selected, setSelected] = useState(checked);
 
   return (
@@ -54,22 +61,34 @@ const LabelOption = ({color, title, onChange, checked, onDelete}) => {
         style={{backgroundColor: `${color}`}}
       ></span>
       <span className="label-title">{title}</span>
-      <button
-        className="remove-label"
-        onClick={(e) => {
-          onDelete(title);
-          e.stopPropagation();
-          e.preventDefault();
-        }}
-        type="button"
-      >
-        <span className="remove-label-icon"></span>
-      </button>
+      {inFilters ? (
+        <></>
+      ) : (
+        <button
+          className="remove-label"
+          onClick={(e) => {
+            onDelete(title);
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          type="button"
+        >
+          <span className="remove-label-icon"></span>
+        </button>
+      )}
     </div>
   );
 };
 
-export const LabelsChooser = ({view, pos, node}) => {
+export const LabelsChooser = ({
+  view,
+  pos,
+  node,
+  inFilters,
+  handleLabelChoose,
+  initialChosenLabels,
+  onClose,
+}) => {
   const [tableLabels, setTableLabels] = useState([]);
   const [chosenLabels, setChosenLabels] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -78,6 +97,10 @@ export const LabelsChooser = ({view, pos, node}) => {
   );
 
   const handleClose = (currentChosenLabels) => {
+    if (onClose) onClose();
+    if (inFilters) return;
+
+    // execute default close procedure
     if (typeof currentChosenLabels === 'string') {
       addLabel(view, pos, node, {
         title: currentChosenLabels,
@@ -102,30 +125,35 @@ export const LabelsChooser = ({view, pos, node}) => {
   useEffect(() => {
     const input = document.getElementById('labels-input');
     if (input) input.focus();
-
     const tableParent = findParentNodeOfTypeClosestToPos(
       view.state.doc.resolve(pos),
       view.state.schema.nodes.table
     );
+
     if (!tableParent) handleClose();
 
     setTableLabels(tableParent.node.attrs.labels);
-    setChosenLabels(node.attrs.labels);
+    setChosenLabels(initialChosenLabels);
 
     return () => (ref.current = undefined);
   }, []);
 
-  const handleLabelCheck = React.useCallback((title, color, checked) => {
-    if (checked) {
-      setChosenLabels((oldChosen) => [...oldChosen, {title, color}]);
-    } else {
-      setChosenLabels((oldChosen) =>
-        oldChosen.filter((label) => label.title !== title)
-      );
-    }
-    const input = document.getElementById('labels-input');
-    if (input) input.focus();
-  }, []);
+  const handleLabelCheck = React.useCallback(
+    (title, color, checked) => {
+      if (inFilters) handleLabelChoose(title, checked, chosenLabels);
+
+      if (checked) {
+        setChosenLabels((oldChosen) => [...oldChosen, {title, color}]);
+      } else {
+        setChosenLabels((oldChosen) =>
+          oldChosen.filter((label) => label.title !== title)
+        );
+      }
+      const input = document.getElementById('labels-input');
+      if (input) input.focus();
+    },
+    [chosenLabels]
+  );
 
   const createNewLabel = React.useCallback(() => {
     inputValue.length
@@ -169,7 +197,7 @@ export const LabelsChooser = ({view, pos, node}) => {
             view.editable = false;
 
             if (e.key === 'Enter' && filteredLabels.length === 0) {
-              createNewLabel();
+              inFilters ? () => null : createNewLabel();
             }
           }}
           type="text"
@@ -180,6 +208,7 @@ export const LabelsChooser = ({view, pos, node}) => {
               <LabelOption
                 checked={chosenLabels.find((label) => label.title === title)}
                 color={color}
+                inFilters={inFilters}
                 key={`${title}${index}`}
                 onChange={(title, checked) =>
                   handleLabelCheck(title, color, checked)
@@ -190,7 +219,7 @@ export const LabelsChooser = ({view, pos, node}) => {
             ))
           ) : (
             <div className="add-new-label" onClick={createNewLabel}>
-              {inputValue.length ? (
+              {inputValue.length && !inFilters ? (
                 <>
                   +
                   <span
@@ -202,7 +231,9 @@ export const LabelsChooser = ({view, pos, node}) => {
               ) : (
                 <>
                   <span className="new-label-placeholder">
-                    Type to create new label
+                    {inFilters
+                      ? 'Type to search for labels'
+                      : 'Type to create new label'}
                   </span>
                 </>
               )}

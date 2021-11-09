@@ -1,7 +1,9 @@
 import {NodeSelection} from 'prosemirror-state';
 import {addBottomRow, addRightColumn} from './commands';
-import {createElementWithClass} from './util';
+import {createButtonWithIcon, createElementWithClass} from './util';
 import {typeInheritance} from './headers/headers-menu/index';
+import {tableFiltersMenuKey} from './filters/utils';
+import {tableHeadersMenuKey} from './columnsTypes/types.config';
 
 const createAddCellsButton = (type, view, pos) => {
   const isRow = type === 'row';
@@ -27,6 +29,7 @@ export class TableView {
     this.view = view;
     this.getPos = getPos;
     this.cellMinWidth = cellMinWidth;
+    this.activeFiltersBtn = null;
     const tableScrollWrapper = createElementWithClass(
       'div',
       'tableScrollWrapper'
@@ -72,6 +75,8 @@ export class TableView {
     this.colgroup = this.table.appendChild(document.createElement('colgroup'));
     updateColumns(node, this.colgroup, this.table, cellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement('tbody'));
+
+    this.buildActiveFiltersButton(node);
   }
 
   updateMarkers() {
@@ -96,13 +101,71 @@ export class TableView {
     e.preventDefault();
   }
 
+  buildActiveFiltersButton(node) {
+    if (!this.activeFiltersBtn) {
+      this.filterStatusIndicator = createElementWithClass(
+        'div',
+        'filterStatusIndicator'
+      );
+
+      this.activeFiltersBtn = createButtonWithIcon('active-filters');
+
+      this.activeFiltersBtn.lastChild.innerText = 'filters';
+
+      this.activeFiltersBtn.lastChild.onmousedown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      this.filterStatusIndicator.appendChild(this.activeFiltersBtn);
+
+      this.activeFiltersBtn.onclick = (e) => {
+        const {dispatch} = this.view;
+        const {tr} = this.view.state;
+        // TODO: Create util that open the filter popup and close other - reuse
+        if (!tableFiltersMenuKey.getState(this.view.state)) {
+          tr.setMeta(tableFiltersMenuKey, {
+            action: 'open',
+            dom: this.contentDOM,
+            pos: this.getPos() + 1,
+            node: node,
+            id: window.id,
+          });
+        } else {
+          tr.setMeta(tableFiltersMenuKey, {
+            action: 'close',
+            id: window.id,
+          });
+        }
+
+        tr.setMeta(tableHeadersMenuKey, {
+          action: 'close',
+          id: window.id,
+        });
+
+        dispatch(tr);
+
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      this.tableWrapper.prepend(this.filterStatusIndicator);
+    }
+    // TODO: Find a way not to update it on every update
+    this.activeFiltersBtn.lastChild.innerText =
+      node.attrs.filters && node.attrs.filters.length
+        ? `${node.attrs.filters.length} filter${
+            node.attrs.filters.length > 1 ? 's' : ''
+          }`
+        : 'Add filter';
+  }
+
   update(node, markers) {
     this.updateMarkers();
 
     if (node.type != this.node.type) {
       return false;
     }
-
+    this.buildActiveFiltersButton(node);
     if (this.node.attrs.headers) {
       typeInheritance(this.view, node, this.getPos());
     }

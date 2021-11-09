@@ -11,15 +11,16 @@ import {
 import {DatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import DateUtilDayJS from '@date-io/dayjs';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
-import { StylesProvider, createGenerateClassName } from '@material-ui/core/styles';
-import DatePickerTheme from './DatePickerTheme'
-import { ThemeProvider } from '@material-ui/core/styles';
-
+import {
+  StylesProvider,
+  createGenerateClassName,
+} from '@material-ui/core/styles';
+import DatePickerTheme from './DatePickerTheme';
+import {ThemeProvider} from '@material-ui/core/styles';
 
 const generateClassName = createGenerateClassName({
   seed: 'sgo-tables-plugin-',
 });
-
 
 const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
   const openChooser = (e) => {
@@ -31,9 +32,9 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
       id: window.id,
       action: 'open',
     });
-    
-    view.dispatch(tr)
-  }
+
+    view.dispatch(tr);
+  };
 
   const pos = getPos();
 
@@ -61,7 +62,8 @@ const DateComponent = ({view, node, getPos, editorContentRef, dom}) => {
 
 export const DatePickerComponent = ({view, node, pos}) => {
   const [date, setDate] = useState(
-    buildDateObjectFromText(node ? node.textContent : '', DATE_FORMAT) || new Date()
+    buildDateObjectFromText(node ? node.textContent : '', DATE_FORMAT) ||
+      new Date()
   );
 
   const ref = useClickOutside((e) => {
@@ -120,7 +122,7 @@ export const DatePickerComponent = ({view, node, pos}) => {
               variant="static"
             />
           </MuiPickersUtilsProvider>
-        </ThemeProvider >
+        </ThemeProvider>
       </StylesProvider>
     </div>
   );

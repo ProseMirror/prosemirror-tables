@@ -6,12 +6,9 @@ import {
   isFirstRowSelected,
   enableCellsColor,
 } from './utils';
-import {
-  getDeleteCommand,
-  changeCellsBackgroundColor,
-  toggleTableHeaders,
-} from './commands';
+import {changeCellsBackgroundColor, toggleTableHeaders} from './commands';
 import {createElementWithClass} from '../util';
+import {getDeleteCommand} from '../input';
 
 const toggleHeader = () => {
   return new MenuItem({

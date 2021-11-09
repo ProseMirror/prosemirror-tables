@@ -111,6 +111,7 @@ export function tableNodes(options) {
         sort: {default: {col: null, dir: null}},
         headers: {default: true},
         labels: {default: []},
+        filters: {default: []},
       },
       parseDOM: [{tag: 'table'}],
       toDOM() {
@@ -120,9 +121,13 @@ export function tableNodes(options) {
     table_row: {
       content: '(table_cell | table_header)*',
       tableRole: 'row',
+      attrs: {
+        hidden: {default: false}
+      },
       parseDOM: [{tag: 'tr'}],
-      toDOM() {
-        return ['tr', 0];
+      toDOM(node) {
+        const {hidden} = node.attrs
+        return ['tr', {class: hidden ? 'hiddenRow' : ''}, 0];
       },
     },
     table_cell: {

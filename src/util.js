@@ -153,6 +153,17 @@ export const createElementWithClass = (type, className, datatest) => {
   return el;
 };
 
+export const createButtonWithIcon = (className) => {
+  const button = createElementWithClass('button', `${className}-button`);
+  const icon = createElementWithClass('span', `${className}-icon`);
+  const buttonLabel = createElementWithClass('span', `${className}-label`);
+
+  button.appendChild(icon);
+  button.appendChild(buttonLabel);
+
+  return button;
+};
+
 export const getRowIndex = (state, pos) => {
   const tableRect = selectedRect(state);
   const cellIndex = tableRect.map.map.indexOf(pos - tableRect.tableStart);
@@ -195,3 +206,7 @@ export const sortNumVsString = (direction, textA, textB, collator) => {
   if (aIsNotNumber && !bIsNotNumber) return 1 * direction;
   return direction > 0 ? aNumber - bNumber : bNumber - aNumber;
 };
+
+// sometimes cells has invisible character when they are empty - remove it
+export const removeInvisibleCharacterFromText = (text) =>
+  text.replace(/[^\x00-\x7F]/g, '');

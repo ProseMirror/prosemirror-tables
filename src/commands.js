@@ -278,6 +278,8 @@ export function deleteRow(state, dispatch) {
       tr = state.tr;
     if (rect.top == 0 && rect.bottom == rect.map.height) return false;
     for (let i = rect.bottom - 1; ; i--) {
+      const row = rect.table.child(i)
+      if (row.attrs.hidden) continue;
       removeRow(tr, rect, i);
       if (i == rect.top) break;
       rect.table = rect.tableStart
@@ -285,6 +287,7 @@ export function deleteRow(state, dispatch) {
         : tr.doc;
       rect.map = TableMap.get(rect.table);
     }
+
     dispatch(tr);
   }
   return true;
@@ -711,10 +714,6 @@ export function sortColumn(view, colNumber, pos, dir) {
   const header = rect.table.content.content[0];
   let newRowsArray = rect.table.content.content.slice(1);
   const {tr} = view.state;
-  const collator = new Intl.Collator(undefined, {
-    numeric: true,
-    sensitivity: 'base',
-  });
 
   const columnType = newRowsArray[0].content.content[colNumber].attrs.type;
   const defaultSort = (direction, cellA, cellB) => {
