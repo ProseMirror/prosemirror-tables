@@ -152,29 +152,30 @@ export const TableDateMenu = (dateFormat) => {
         }
         return null;
       }
+      return null;
 
       // TODO: uncomment after implementing setSelection in the Node View.
-      const {tr} = newState;
-      tr.setMeta(tableDateMenuKey, {
-        pos: dateParent.pos,
-        dom: cellDom,
-        node: dateParent.node,
-        id: window.id,
-        action: 'open',
-      });
+      // const {tr} = newState;
+      // tr.setMeta(tableDateMenuKey, {
+      //   pos: dateParent.pos,
+      //   dom: cellDom,
+      //   node: dateParent.node,
+      //   id: window.id,
+      //   action: 'open',
+      // });
 
-      return tr;
+      // return tr;
     },
     props: {
       handleKeyPress(view, event) {
-        emitPopupUpdate(view,event)
+        emitPopupUpdate(view)
         return false
       }
     }
   });
 };
 
-const emitPopupUpdate = debounce((view, event) => {
+const emitPopupUpdate = debounce((view) => {
   const dateNode = findParentNodeOfType(view.state.schema.nodes.date)(view.state.selection);
   if (!dateNode) return false;
 
