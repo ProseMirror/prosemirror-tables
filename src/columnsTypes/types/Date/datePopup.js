@@ -175,7 +175,6 @@ export const TableDateMenu = (dateFormat) => {
 };
 
 const emitPopupUpdate = debounce((view, event) => {
-  console.log('here');
   const dateNode = findParentNodeOfType(view.state.schema.nodes.date)(view.state.selection);
   if (!dateNode) return false;
 
