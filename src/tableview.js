@@ -107,6 +107,11 @@ export class TableView {
         'div',
         'filterStatusIndicator'
       );
+      this.filterStatusIndicatorScrollContainer = createElementWithClass(
+        'div',
+        'filterStatusIndicatorScrollContainer'
+      );
+      this.filterStatusIndicatorScrollContainer.appendChild(this.filterStatusIndicator)
 
       this.activeFiltersBtn = createButtonWithIcon('active-filters');
 
@@ -148,7 +153,7 @@ export class TableView {
         e.preventDefault();
         e.stopPropagation();
       };
-      this.tableWrapper.prepend(this.filterStatusIndicator);
+      this.tableVerticalWrapper.prepend(this.filterStatusIndicatorScrollContainer);
     }
     // TODO: Find a way not to update it on every update
     this.activeFiltersBtn.lastChild.innerText =
