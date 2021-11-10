@@ -110,13 +110,20 @@
 .colHeader .typeIcon {
   position: absolute;
   height: 100%;
-  top: 0px;
   left: 8px;
-  opacity: 0.7;
+  top: 0px;
 }
 
 .colHeader .cellContent {
   padding-left: 15px;
+  width: calc(95% - 38px);
+}
+
+.colHeader p {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sort-down-icon {
@@ -159,7 +166,7 @@
   top: 5px;
   left: 30px;
   position: absolute;
-  width: 60%;
+  width: calc(60% - 20px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

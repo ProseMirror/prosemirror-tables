@@ -3,7 +3,7 @@
 import {PluginKey} from 'prosemirror-state';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {TableMap} from './tablemap';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 import {selectedRect} from './commands';
 import {CellSelection} from './cellselection';
 

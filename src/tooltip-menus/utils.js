@@ -102,16 +102,8 @@ export const calculatePopupPosition = (view, popupDOM) => {
     state.selection instanceof CellSelection &&
     state.selection.isRowSelection()
   ) {
-    let tableContainer = selectedCells[0];
-
-    // find the dom of the table wrapper
-    while (!tableContainer.classList.contains('tableVerticalWrapper')) {
-      if (tableContainer.parentElement) {
-        tableContainer = tableContainer.parentElement;
-      } else {
-        return;
-      }
-    }
+    const tableContainer = selectedCells[0].closest('.tableWrapper');
+    if (!tableContainer) return;
 
     const tableContainerBox = tableContainer.getBoundingClientRect();
 
@@ -202,3 +194,18 @@ export const addTooltips = (popupDOM, classes) => {
     buttonContainer.appendChild(tooltip);
   });
 };
+
+export const addDeleteHoverClass = (e) => {
+  if (e.target.className !== 'deleteMenuButton') return;
+  const [tableWrapper] = document.getElementsByClassName('tableFocus');
+  if (!tableWrapper) return;
+  tableWrapper.classList.add('markDeleteCells');
+}
+
+export const removeDeleteHoverClass = (e) => {
+  if (e.target.className !== 'deleteMenuButton') return;
+  // remove class from all tables in the document' in case that the focus removed before the delete button was clicked
+  const tableWrappers = document.getElementsByClassName('tableScrollWrapper');
+  if (!tableWrappers.length) return;
+  Array.from(tableWrappers).forEach((table) => table.classList.remove('markDeleteCells'));
+}

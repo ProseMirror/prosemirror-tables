@@ -3,7 +3,7 @@ import {Decoration, DecorationSet} from 'prosemirror-view';
 import {cellAround, getColIndex, pointsAtCell, setAttr} from './util';
 import {TableMap} from './tablemap';
 import {TableView, updateColumns} from './tableview';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {columnTypesMap} from './columnsTypes/types.config';
 

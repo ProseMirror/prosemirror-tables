@@ -236,21 +236,30 @@
   height: 16px;
 }
 
+.filterStatusIndicatorScrollContainer {
+  position: absolute;
+  height: 0px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  top: -35px;
+  right: -7px;
+}
+
+.tableFocus .filterStatusIndicatorScrollContainer {
+  top: -50px;
+}
+
 .filterStatusIndicator {
   width: fit-content;
   display: inline-flex;
   flex-direction: column;
-  position: absolute;
-  right: -7px;
+  position: sticky;
   font-size: 12px;
-  top: -35px;
   border: 0;
   border-radius: 3px;
   padding: 4px 8px;
-}
-
-.tableFocus .filterStatusIndicator {
-  top: -50px;
+  right: -10px;
 }
 
 .active-filters-icon {

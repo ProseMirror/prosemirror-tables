@@ -15,7 +15,7 @@ import {
 import {CellSelection} from './cellselection';
 import {TableMap} from './tablemap';
 import {pastedCells, fitSlice, clipCells, insertCells} from './copypaste';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 import {splitBlockKeepMarks} from 'prosemirror-commands';
 import {
   goToNextCell,
@@ -24,6 +24,7 @@ import {
   deleteTable,
   selectedRect,
 } from './commands';
+import {columnTypesMap} from './columnsTypes/types.config';
 
 export const handleKeyDown = keydownHandler({
   ArrowLeft: arrow('horiz', -1),
@@ -48,12 +49,19 @@ export const handleKeyDown = keydownHandler({
   'Mod-Delete': deleteCellSelection,
 });
 
-function splitIfCellChild(state, dispatch) {
+function checkIfParentIsCell(state) {
   const {$head} = state.selection;
   const parent = $head.node($head.depth - 1);
 
   // if parent is not a table cell - let the editor handle key down
   if (parent.type.name !== 'table_cell') return false;
+
+  return true;
+}
+
+function splitIfCellChild(state, dispatch) {
+  // if parent is not a table cell - let the editor handle key down
+  if (!checkIfParentIsCell(state)) return false;
 
   return splitBlockKeepMarks(state, dispatch);
 }
@@ -225,6 +233,9 @@ const getNextArrowSel = (axis, dir, sel, state, view) => {
 
 function arrow(axis, dir) {
   return (state, dispatch, view) => {
+    // if parent is not a table cell - let the editor handle key down
+    if (!checkIfParentIsCell(state)) return false;
+
     let newSel = state.selection;
     let newSelVisible = false;
     while (!newSelVisible) {
@@ -267,6 +278,25 @@ function shiftArrow(axis, dir) {
   };
 }
 
+export const deleteCellContentByType = (state, dispatch, view) => {
+  const {selection: sel, tr} = state;
+  if (!(sel instanceof CellSelection)) return false;
+
+  const reversedCellsInSelection = [];
+  sel.forEachCell((cell, pos) => {
+    reversedCellsInSelection.unshift({cell, pos});
+  });
+
+  reversedCellsInSelection.forEach(({cell, pos}) => {
+    const cellDeleteCommand =
+      columnTypesMap[cell.attrs.type].deleteContentCommand;
+    cellDeleteCommand(cell, pos, tr);
+  });
+
+  dispatch(tr);
+  return true;
+};
+
 export function getDeleteCommand(state) {
   if (!(state.selection instanceof CellSelection)) return null;
 
@@ -283,7 +313,7 @@ export function getDeleteCommand(state) {
   if (state.selection.isRowSelection()) return deleteRow;
   if (state.selection.isColSelection()) return deleteColumn;
 
-  return null;
+  return deleteCellContentByType;
 }
 
 function deleteCellSelection(state, dispatch) {
@@ -291,6 +321,7 @@ function deleteCellSelection(state, dispatch) {
   if (!(sel instanceof CellSelection)) return false;
   if (dispatch) {
     const deleteCommand = getDeleteCommand(state);
+    if (!deleteCommand) return false;
     return deleteCommand(state, dispatch);
   }
   return true;
@@ -421,10 +452,15 @@ export function handleMouseDown(view, startEvent) {
     if (anchor != null) {
       // Continuing an existing cross-cell selection
       $anchor = view.state.doc.resolve(anchor);
-    } else if (domInCell(view, event.target) != startDOMCell) {
+    } else if (
+      domInCell(view, event.target) &&
+      domInCell(view, event.target) != startDOMCell
+    ) {
       // Moving out of the initial cell -- start a new cell selection
       $anchor = cellUnderMouse(view, startEvent);
-      if (!$anchor) return stop();
+      if (!$anchor) {
+        return stop();
+      }
     }
     if ($anchor) setCellSelection($anchor, event);
 

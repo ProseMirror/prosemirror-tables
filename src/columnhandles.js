@@ -13,7 +13,8 @@ import {TableView} from './tableview';
 import {RowDragHandler} from './table-dragging/rowsdragging';
 import {ColDragHandler} from './table-dragging/colsdragging';
 import {getColIndex, createElementWithClass} from './util';
-import {setCellAttrs} from './schema';
+import {setNodeAttrs} from './schema/schema';
+import {cellExtraAttrs} from './schema/cellAttrs';
 import {CellSelection} from './cellselection';
 import {tableHeadersMenuKey} from './columnsTypes/types.config';
 
@@ -24,7 +25,7 @@ export class CellView {
     this.getPos = getPos;
     this.node = node;
     this.view = view;
-    this.dom = createElementWithClass('td', '');
+    this.dom = createElementWithClass('td', `${node.attrs.type}-cell`);
     this.contentDOM = this.dom.appendChild(
       createElementWithClass('div', 'cellContent')
     );
@@ -33,15 +34,23 @@ export class CellView {
 
     this.updatePlaceholder();
 
-    this.dom.style = `${setCellAttrs(node, {}).style}`;
+    this.setDOMAttrsFromNode(this.node);
 
     // maybe use transaction to set the attrs
-    if(!this.node.attrs.id) {
+    if (!this.node.attrs.id) {
       // TODO: find a better way, for now give generated id for every cell - fixing the disappear first cell's handles bug
       this.node.attrs.id = '_' + Math.random().toString(36).substr(2, 9);
     }
   }
 
+  setDOMAttrsFromNode(node) {
+    const extraAttrs = setNodeAttrs(node, cellExtraAttrs);
+    this.dom.style = `${extraAttrs.style}`;
+    Object.keys(extraAttrs).forEach((attr) => {
+      this.dom.setAttribute(attr, extraAttrs[attr]);
+    })
+  }
+ 
   checkIfFirstCol(view) {
     const pos = this.getPos();
     const resolvePos = view.state.doc.resolve(pos);
@@ -167,7 +176,7 @@ export class CellView {
     // add sort and style only if headers allowed
     if (tableAttrs.headers) {
       this.dom.classList.add('colHeader');
-
+      
       const sortButton = createElementWithClass('button', 'sortColButton');
       sortButton.dataset.test = 'sort-button';
       sortButton.contentEditable = false;
@@ -181,7 +190,7 @@ export class CellView {
         );
       }
 
-      sortButton.onclick = () => {
+      sortButton.onclick = (e) => {
         if (colIndex === null) return;
 
         if (sortedCol !== colIndex || tableAttrs.sort.dir === 'up') {
@@ -191,6 +200,9 @@ export class CellView {
         }
 
         view.focus();
+
+        e.preventDefault()
+        e.stopPropagation()
       };
       this.sortButton = this.dom.appendChild(sortButton);
 
@@ -261,7 +273,7 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.node = node;
-    this.dom.style = `${setCellAttrs(node, {}).style}`;
+    this.setDOMAttrsFromNode(node)
 
     this.updatePlaceholder();
 

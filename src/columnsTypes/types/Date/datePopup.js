@@ -9,7 +9,7 @@ import {
   getSelectedNode,
   setDateFormat,
 } from './utils';
-import {DatePickerComponent} from './Component.jsx';
+import {DatePickerComponent, datePopupEmitter} from './Component.jsx';
 import {findParentNodeOfType} from 'prosemirror-utils';
 
 class TableDateMenuView {
@@ -166,5 +166,26 @@ export const TableDateMenu = (dateFormat) => {
 
       // return tr;
     },
+    props: {
+      handleKeyPress(view, event) {
+        emitPopupUpdate(view)
+        return false
+      }
+    }
   });
 };
+
+const emitPopupUpdate = debounce((view) => {
+  const dateNode = findParentNodeOfType(view.state.schema.nodes.date)(view.state.selection);
+  if (!dateNode) return false;
+
+  datePopupEmitter.emit('updatePopup', dateNode.node.textContent)
+})
+
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
+}

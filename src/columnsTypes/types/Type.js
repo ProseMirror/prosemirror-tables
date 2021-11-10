@@ -1,5 +1,5 @@
 import {getColCells} from '../../util';
-import {tableHeadersMenuKey} from '../types.config';
+import {columnTypesMap, tableHeadersMenuKey} from '../types.config';
 
 class CellDataType {
   convert(view, typeId) {
@@ -13,24 +13,35 @@ class CellDataType {
 
     const {tr} = view.state;
 
+    // save old type before changing attrs
+    const oldType = node.attrs.type
+
     // change header type
     tr.setNodeMarkup(pos, undefined, Object.assign(node.attrs, {type: typeId}));
 
     cells.reverse().forEach(({node: cell, pos}) => {
+      const convertedContent =  this.convertContent(cell, oldType);
+      const oldTypeContentToAttrs = columnTypesMap[oldType].handler.parseContentToAttrsMemory(cell);
+
       tr.replaceRangeWith(
         pos + 1,
         pos + cell.nodeSize - 1,
         this.renderContentNode(
           view.state.schema,
-          this.convertContent(cell),
+          convertedContent,
           tr,
           pos
         )
       );
 
-      const newAttrs = Object.assign(cell.attrs, {
+      const newAttrs = {
+        ...cell.attrs, 
         type: typeId,
-      });
+        typesValues: {
+          ...cell.attrs.typesValues,
+          [oldType]: oldTypeContentToAttrs
+        }
+      };
 
       tr.setNodeMarkup(pos, undefined, newAttrs);
     });
@@ -43,15 +54,20 @@ class CellDataType {
   /**
    * convert the content to the type format, should return content that the renderContentNode of the same type can render to node
    */
-  convertContent(cell) {
+  convertContent(cell, convertFromType) {
     return cell.textContent;
   }
 
   /**
    * convert the cell child node to a value that can be saved in the cell attrs
    */
-  parseContent(cell) {
+  parseContentToAttrsMemory(cell) {
     return cell.textContent;
+  }
+
+  /** should return same value type as `convertContent`*/
+  parseContentFromAttrsMemory(attrsValue) {
+    return attrsValue
   }
 
   /**

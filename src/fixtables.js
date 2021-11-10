@@ -6,7 +6,7 @@
 import {PluginKey} from 'prosemirror-state';
 import {TableMap} from './tablemap';
 import {setAttr, removeColSpan} from './util';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 
 export const fixTablesKey = new PluginKey('fix-tables');
 

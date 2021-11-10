@@ -110,7 +110,7 @@ const deleteItem = () => {
     },
     run(state, dispatch, view) {
       const {pos} = tableHeadersMenuKey.getState(state);
-      deleteColAtPos(pos, view);
+      return deleteColAtPos(pos, view);
     },
   });
 };

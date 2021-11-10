@@ -1,6 +1,7 @@
 // This file defines a number of table-related commands.
 import {TextSelection, Selection} from 'prosemirror-state';
 import {Fragment} from 'prosemirror-model';
+import {findParentNodeOfTypeClosestToPos} from 'prosemirror-utils';
 import {Rect, TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
 import {columnTypesMap} from './columnsTypes/types.config';
@@ -16,7 +17,7 @@ import {
   setAttr,
   sortNumVsString,
 } from './util';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 
 const MAX_COLS = 500;
 
@@ -45,7 +46,7 @@ export function selectedRect(state) {
 // Add a column at the given position in a table.
 export function addColumn(tr, {map, tableStart, table}, col) {
   const firstRow = table.firstChild;
-  if (firstRow.childCount === MAX_COLS) return tr;
+  if (firstRow.childCount > MAX_COLS) return tr;
   let refColumn = col > 0 ? -1 : 0;
   if (columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0;
@@ -69,7 +70,12 @@ export function addColumn(tr, {map, tableStart, table}, col) {
           ? tableNodeTypes(table.type.schema).cell
           : table.nodeAt(map.map[index + refColumn]).type;
       const pos = map.positionAt(row, col, table);
-      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({}));
+
+      // inherit row background color
+      const prevCell = tr.doc.resolve(tr.mapping.map(tableStart + pos + (col === 0 ? 1 : -1))).parent
+      const background = prevCell.attrs.background;
+
+      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill({background}));
     }
   }
 
@@ -210,11 +216,12 @@ export function addRowAfter(state, dispatch) {
 
 export function addBottomRow(state, dispatch, pos) {
   if (dispatch) {
-    const resPos = state.doc.resolve(pos);
+    const table = findParentNodeOfTypeClosestToPos(state.doc.resolve(pos + 1), state.schema.nodes.table)
+    if (!table) return;
     const rect = {
-      tableStart: pos,
-      table: resPos.node(1),
-      map: TableMap.get(resPos.node(1)),
+      tableStart: table.start,
+      table: table.node,
+      map: TableMap.get(table.node),
     };
     const tr = addRow(state.tr, rect, rect.map.height);
     dispatch(tr);
@@ -224,11 +231,12 @@ export function addBottomRow(state, dispatch, pos) {
 
 export function addRightColumn(state, dispatch, pos) {
   if (dispatch) {
-    const resPos = state.doc.resolve(pos);
+    const table = findParentNodeOfTypeClosestToPos(state.doc.resolve(pos + 1), state.schema.nodes.table)
+    if (!table) return;
     const rect = {
-      tableStart: pos,
-      table: resPos.node(1),
-      map: TableMap.get(resPos.node(1)),
+      tableStart: table.start,
+      table: table.node,
+      map: TableMap.get(table.node),
     };
     const tr = addColumn(state.tr, rect, rect.map.width);
     dispatch(tr);
@@ -287,7 +295,6 @@ export function deleteRow(state, dispatch) {
         : tr.doc;
       rect.map = TableMap.get(rect.table);
     }
-
     dispatch(tr);
   }
   return true;
@@ -739,6 +746,7 @@ export function sortColumn(view, colNumber, pos, dir) {
     ...newRowsArray,
   ]);
   tr.setNodeMarkup(rect.tableStart - 1, rect.table.type, {
+    ...rect.table.attrs,
     sort: {col: colNumber, dir: dir === 1 ? 'down' : 'up'},
   });
 
@@ -852,8 +860,13 @@ export const deleteColAtPos = (pos, view) => {
 
   const {tr} = view.state;
   const colIndex = getColIndex(view.state, pos);
-
-  removeColumn(tr, rect, colIndex);
+  if(rect.map.width ===  1) {
+    tr.delete(rect.tableStart - 1 , rect.tableStart + rect.table.nodeSize);
+  } else {
+    removeColumn(tr, rect, colIndex);
+  }
 
   view.dispatch(tr);
+  return true
 };
+

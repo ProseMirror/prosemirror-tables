@@ -16,7 +16,7 @@ import {Transform} from 'prosemirror-transform';
 import {setAttr, removeColSpan} from './util';
 import {TableMap} from './tablemap';
 import {CellSelection} from './cellselection';
-import {tableNodeTypes} from './schema';
+import {tableNodeTypes} from './schema/schema';
 
 // Utilities to help with copying and pasting table cells
 
@@ -315,4 +315,34 @@ export function insertCells(state, dispatch, tableStart, rect, cells) {
     )
   );
   dispatch(tr);
+}
+
+
+const extractLabelsFromTableNode = (tableNode) => {
+  const labelsMap = new Map()
+  tableNode.descendants((node) => {
+    if(node.type.name === 'label') {
+      node.attrs.labels.forEach((label) => {
+        if(!labelsMap.get(label.title)) {
+          labelsMap.set(label.title, label);
+        }
+      })
+      return false;
+    }
+    return true
+  })
+
+  return Array.from(labelsMap.values())
+}
+
+export const addLabelsToPastedTable = (slice) => {
+  slice.content.descendants((node) => {
+    if(node.type.name === 'table') {
+      const tableLabels = extractLabelsFromTableNode(node);
+      node.attrs.labels = tableLabels
+
+      return false
+    }
+  })
+  return slice;
 }

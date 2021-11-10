@@ -3,6 +3,8 @@ import {
   displayPopup,
   calculatePopupPosition,
   addTooltips,
+  addDeleteHoverClass,
+  removeDeleteHoverClass,
 } from './utils';
 import {renderGrouped} from 'prosemirror-menu';
 import {tooltips} from './items';
@@ -38,19 +40,8 @@ class TablePopUpMenuView {
     this.popUpRelativeContainer.appendChild(this.popUpDOM);
 
     // add event listeners to color in red before deleting rows/cols
-    this.popUpDOM.addEventListener('mouseover', (e) => {
-      if (e.target.className !== 'deleteMenuButton') return;
-      const [tableWrapper] = document.getElementsByClassName('tableFocus');
-      if (!tableWrapper) return;
-      tableWrapper.classList.add('markDeleteCells');
-    });
-
-    this.popUpDOM.addEventListener('mouseout', (e) => {
-      if (e.target.className !== 'deleteMenuButton') return;
-      const [tableWrapper] = document.getElementsByClassName('tableFocus');
-      if (!tableWrapper) return;
-      tableWrapper.classList.remove('markDeleteCells');
-    });
+    this.popUpDOM.addEventListener('mouseover', addDeleteHoverClass);
+    this.popUpDOM.addEventListener('mouseout', removeDeleteHoverClass);
 
     // render prosemirror menu to popUpDom
     const {dom: itemsDOM, update: updateMenuItems} = renderGrouped(

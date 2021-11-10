@@ -91,6 +91,7 @@
   font-size: 13px;
   word-break: keep-all;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .remove-label {

@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {PluginKey} from 'prosemirror-state';
 
 export let DATE_FORMAT = 'DD/MM/YYYY';
@@ -65,11 +66,13 @@ export const formatDate = (date, format) => {
   return formattedDate;
 };
 
+const breakTextContentBySeparators = (text) => text
+    .split(/(\/|\.)/gi)
+    .filter((char) => char !== '/' && char !== '.' && char.length);
+
 export const buildDateObjectFromText = (text, format) => {
   const brokenFormat = format.split('/');
-  const brokenContent = text
-    .split(/(\/|\.)/gi)
-    .filter((char) => char !== '/' && char !== '.');
+  const brokenContent = breakTextContentBySeparators(text)
 
   if (brokenContent.length < 3) return null;
 
@@ -113,3 +116,15 @@ export const getSelectedNode = () => {
   }
   return null;
 };
+
+export const getClosestDate = (textContent, format) => {
+  const brokenContent = breakTextContentBySeparators(textContent);
+  const currentDateBroken = formatDate(dayjs().toDate(), format).split('/');
+  
+  for (let i = 0; i < brokenContent.length; i++) {
+    currentDateBroken[i] = brokenContent[i];
+  }
+
+  const dateFromTextContent = buildDateObjectFromText(currentDateBroken.join('/'), format);
+  return dateFromTextContent;
+}

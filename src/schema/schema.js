@@ -1,48 +1,33 @@
 // Helper for creating a schema that supports tables.
 
-function getCellAttrs(dom, extraAttrs) {
-  const widthAttr = dom.getAttribute('data-colwidth');
-  const widths =
-    widthAttr && /^\d+(,\d+)*$/.test(widthAttr)
-      ? widthAttr.split(',').map((s) => Number(s))
-      : null;
-  const colspan = Number(dom.getAttribute('colspan') || 1);
-  const result = {
-    colspan,
-    rowspan: Number(dom.getAttribute('rowspan') || 1),
-    colwidth: widths && widths.length == colspan ? widths : null,
-  };
+import { cellExtraAttrs } from "./cellAttrs";
+import { checkboxExtraAttrs, dateExtraAttrs, labelsExtraAttrs } from "./cellTypeAttrs";
+import { tableExtraAttrs } from "./tableAttrs";
+
+function getNodeAttrs(dom, extraAttrs) {
+  const attrsFromNode = {};
+
   for (const prop in extraAttrs) {
     const getter = extraAttrs[prop].getFromDOM;
     const value = getter && getter(dom);
-    if (value != null) result[prop] = value;
+    if (value != null) attrsFromNode[prop] = value;
   }
-  return result;
+
+  return attrsFromNode;
 }
 
-export function setCellAttrs(node, extraAttrs) {
-  const attrs = {};
-  if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan;
-  if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan;
-  if (node.attrs.colwidth)
-    attrs['data-colwidth'] = node.attrs.colwidth.join(',');
-
-  // maybe find way to take it from  the `tableNode` configuration?
-  if (node.attrs.background)
-    attrs.style = `${attrs.style || ''} background-color: ${
-      node.attrs.background
-    };`;
-  if (node.attrs.borderColor)
-    attrs.style = `${attrs.style || ''} border-color: ${
-      node.attrs.borderColor
-    };`;
+export function setNodeAttrs(node, extraAttrs) {
+  const attrsForDOM = {};
 
   for (const prop in extraAttrs) {
     const setter = extraAttrs[prop].setDOMAttr;
-    if (setter) setter(node.attrs[prop], attrs);
+    if (setter) setter(node.attrs[prop], attrsForDOM);
   }
-  return attrs;
+
+  return attrsForDOM;
 }
+
+
 
 // :: (Object) → Object
 //
@@ -78,28 +63,21 @@ export function setCellAttrs(node, extraAttrs) {
 //       A function to add the attribute's value to an attribute
 //       object that's used to render the cell's DOM.
 export function tableNodes(options) {
-  const extraAttrs = options.cellAttributes || {};
+  const tableCellExtraAttrs = {...options.cellAttributes || {}, ...cellExtraAttrs} ;
   const cellAttrs = {
-    colspan: {default: 1},
-    rowspan: {default: 1},
-    colwidth: {default: null},
-    id: {default: false},
-    type: {default: 'text'},
-    header: {default: false},
-    values: {
+    typesValues: {
       default: {
-        text: {default: ''},
-        number: {default: ''},
-        date: {default: ''},
-        currency: {default: ''},
-        label: {default: ''},
-        text: {default: ''},
-        checkbox: {default: false},
-      },
-    },
+        text: '',
+        number: '',
+        currency: '',
+        labels: [],
+        date: -1,
+        checkbox: false
+      }
+    }
   };
-  for (const prop in extraAttrs)
-    cellAttrs[prop] = {default: extraAttrs[prop].default};
+  for (const prop in tableCellExtraAttrs)
+    cellAttrs[prop] = {default: tableCellExtraAttrs[prop].default};
 
   return {
     table: {
@@ -113,20 +91,20 @@ export function tableNodes(options) {
         labels: {default: []},
         filters: {default: []},
       },
-      parseDOM: [{tag: 'table'}],
+      parseDOM: [{tag: 'table', getAttrs: (dom) => getNodeAttrs(dom, tableExtraAttrs)}],
       toDOM() {
-        return ['table', ['tbody', 0]];
+        return ['table', setNodeAttrs(node, tableExtraAttrs), ['tbody',  0]];
       },
     },
     table_row: {
       content: '(table_cell | table_header)*',
       tableRole: 'row',
       attrs: {
-        hidden: {default: false}
+        hidden: {default: false},
       },
       parseDOM: [{tag: 'tr'}],
       toDOM(node) {
-        const {hidden} = node.attrs
+        const {hidden} = node.attrs;
         return ['tr', {class: hidden ? 'hiddenRow' : ''}, 0];
       },
     },
@@ -135,9 +113,10 @@ export function tableNodes(options) {
       attrs: cellAttrs,
       tableRole: 'cell',
       isolating: true,
-      parseDOM: [{tag: 'td', getAttrs: (dom) => getCellAttrs(dom, extraAttrs)}],
+      allowGapCursor: false,
+      parseDOM: [{tag: 'td', getAttrs: (dom) => getNodeAttrs(dom, tableCellExtraAttrs)}],
       toDOM(node) {
-        return ['td', setCellAttrs(node, extraAttrs), 0];
+        return ['td', setNodeAttrs(node, tableCellExtraAttrs), 0];
       },
     },
     table_header: {
@@ -145,9 +124,9 @@ export function tableNodes(options) {
       attrs: cellAttrs,
       tableRole: 'header_cell',
       isolating: true,
-      parseDOM: [{tag: 'th', getAttrs: (dom) => getCellAttrs(dom, extraAttrs)}],
+      parseDOM: [{tag: 'th', getAttrs: (dom) => getNodeAttrs(dom, tableCellExtraAttrs)}],
       toDOM(node) {
-        return ['th', setCellAttrs(node, extraAttrs), 0];
+        return ['th', setNodeAttrs(node, tableCellExtraAttrs), 0];
       },
     },
     checkbox: {
@@ -158,7 +137,7 @@ export function tableNodes(options) {
       parseDOM: [
         {
           tag: '.cell-checkbox',
-          getAttrs: (dom) => getCellAttrs(dom, extraAttrs),
+          getAttrs: (dom) => getNodeAttrs(dom, checkboxExtraAttrs)
         },
       ],
       toDOM(node) {
@@ -168,13 +147,13 @@ export function tableNodes(options) {
             class: node.attrs.checked
               ? 'cell-checkbox checked'
               : 'cell-checkbox',
-          },
-          0,
+            ...setNodeAttrs(node, checkboxExtraAttrs)
+          }
         ];
       },
     },
     date: {
-      attrs: {value: {default: 0}},
+      attrs: {value: {default: -1}},
       content: 'inline*',
       group: options.cellContentGroup,
       draggable: false,
@@ -183,6 +162,8 @@ export function tableNodes(options) {
       parseDOM: [
         {
           tag: '.cell-date',
+          getAttrs: (dom) => getNodeAttrs(dom, dateExtraAttrs)
+
         },
       ],
       toDOM(node) {
@@ -190,6 +171,7 @@ export function tableNodes(options) {
           'div',
           {
             class: 'cell-date',
+            ...setNodeAttrs(node, dateExtraAttrs)
           },
         ];
       },
@@ -197,12 +179,13 @@ export function tableNodes(options) {
     label: {
       attrs: {labels: {default: []}},
       group: options.cellContentGroup,
-      // content:
-      selectable: true,
+      selectable: false,
       draggable: false,
+      isolating: true,
       parseDOM: [
         {
           tag: '.cell-label',
+          getAttrs: (dom) => getNodeAttrs(dom, labelsExtraAttrs)
         },
       ],
       toDOM(node) {
@@ -210,6 +193,7 @@ export function tableNodes(options) {
           'div',
           {
             class: 'cell-label',
+            ...setNodeAttrs(node, labelsExtraAttrs)
           },
         ];
       },

@@ -12,15 +12,15 @@ import {
 } from './utils';
 import useClickOutside from '../../../useClickOutside.jsx';
 
-const Label = ({title, onDelete, color, showDelete}) => {
+const Label = ({title, onDelete, color, editMode, openChooser}) => {
   return (
-    <div className="label-container">
+    <div className="label-container" >
       <span
         className="label-color"
         style={{backgroundColor: `${color}`}}
       ></span>
-      <span className="label-title">{title}</span>
-      {showDelete && (
+      <span className="label-title" onClick={editMode ? openChooser : () => null}>{title}</span>
+      {editMode && (
         <button
           className="remove-label"
           onClick={() => onDelete()}
@@ -113,7 +113,7 @@ export const LabelsChooser = ({
 
   const ref = useClickOutside(() => {
     handleClose(chosenLabels);
-  });
+  }, 'mousedown');
 
   const filteredLabels =
     inputValue === ''
@@ -247,6 +247,22 @@ export const LabelsChooser = ({
 
 const LabelComponent = ({view, node, getPos, dom}) => {
   const labels = node.attrs.labels;
+
+  const openChooser = (e) => {
+    const {tr} = view.state;
+    tr.setMeta(tableLabelsMenuKey, {
+      pos: getPos(),
+      dom: dom,
+      node: node,
+      id: window.id,
+      action: 'open',
+    });
+    setTimeout(() => view.dispatch(tr), 0);
+
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
   return (
     <>
       <div className="all-labels-container">
@@ -255,28 +271,16 @@ const LabelComponent = ({view, node, getPos, dom}) => {
             color={color}
             key={`${color}${title}${index}`}
             onDelete={() => removeLabel(view, getPos(), node, title)}
-            showDelete={view.editable}
+            editMode={view.editable}
             title={title}
+            openChooser={openChooser}
           />
         ))}
 
         {view.editable && (
           <button
             className="add-label"
-            onClick={(e) => {
-              const {tr} = view.state;
-              tr.setMeta(tableLabelsMenuKey, {
-                pos: getPos(),
-                dom: dom,
-                node: node,
-                id: window.id,
-                action: 'open',
-              });
-              setTimeout(() => view.dispatch(tr), 0);
-
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            onClick={openChooser}
           >
             <span>+</span>
           </button>
