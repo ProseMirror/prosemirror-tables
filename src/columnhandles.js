@@ -48,9 +48,9 @@ export class CellView {
     this.dom.style = `${extraAttrs.style}`;
     Object.keys(extraAttrs).forEach((attr) => {
       this.dom.setAttribute(attr, extraAttrs[attr]);
-    })
+    });
   }
- 
+
   checkIfFirstCol(view) {
     const pos = this.getPos();
     const resolvePos = view.state.doc.resolve(pos);
@@ -176,7 +176,9 @@ export class CellView {
     // add sort and style only if headers allowed
     if (tableAttrs.headers) {
       this.dom.classList.add('colHeader');
-      
+
+      this.dom.dataset.test = 'col-header';
+
       const sortButton = createElementWithClass('button', 'sortColButton');
       sortButton.dataset.test = 'sort-button';
       sortButton.contentEditable = false;
@@ -201,8 +203,8 @@ export class CellView {
 
         view.focus();
 
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopPropagation();
       };
       this.sortButton = this.dom.appendChild(sortButton);
 
@@ -273,7 +275,7 @@ export class CellView {
     this.checkIfColHeader(this.view);
 
     this.node = node;
-    this.setDOMAttrsFromNode(node)
+    this.setDOMAttrsFromNode(node);
 
     this.updatePlaceholder();
 
