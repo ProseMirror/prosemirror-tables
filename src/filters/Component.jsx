@@ -171,7 +171,7 @@ const FilterRule = ({
       ) : (
         <span className="concatenation-rule">And</span>
       )}
-      <div className="column-chooser">
+      <div className="column-chooser" data-test="filter-column-chooser">
         <SelectDropdown
           className="filter-columns-dropdown"
           initialValue={filterHandler.headerId}
@@ -181,7 +181,7 @@ const FilterRule = ({
           }
         />
       </div>
-      <div className="rule-chooser">
+      <div className="rule-chooser" data-test="filter-role-chooser">
         <SelectDropdown
           className="filter-logics-dropdown"
           initialValue={filterHandler.getLogicId()}
@@ -192,7 +192,7 @@ const FilterRule = ({
         />
       </div>
 
-      <div className="value-chooser">
+      <div className="value-chooser" data-test="filter-value-chooser">
         <FilterInput
           filterHandler={filterHandler}
           onFilterChange={onFilterChange}
@@ -200,7 +200,7 @@ const FilterRule = ({
       </div>
 
       <button className="remove-rule-button" onClick={onFilterRemove}>
-        <span className="remove-rule-icon" ></span>
+        <span className="remove-rule-icon"></span>
       </button>
     </div>
   );
@@ -268,12 +268,17 @@ const FiltersGroup = ({
       {filters.length ? (
         <>
           <div className="group-actions-container">
-            <button className="group-action-button" onClick={addFilterToGroup}>
+            <button
+              className="group-action-button"
+              data-test="filter-add-button"
+              onClick={addFilterToGroup}
+            >
               + And
             </button>
             {isLastGroup && (
               <button
                 className="group-action-button"
+                data-test="filter-or-button"
                 onClick={() => addNewGroup()}
               >
                 + Or
@@ -344,7 +349,7 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
 
   return (
     <div className="table-filters-container" ref={ref}>
-      <div className="active-filters">
+      <div className="active-filters" data-test="add-filter">
         {filtersGroups.length ? (
           <>
             {filtersGroups.map((groupFilters, index) => {
