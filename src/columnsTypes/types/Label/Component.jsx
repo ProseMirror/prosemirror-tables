@@ -14,12 +14,17 @@ import useClickOutside from '../../../useClickOutside.jsx';
 
 const Label = ({title, onDelete, color, editMode, openChooser}) => {
   return (
-    <div className="label-container" >
+    <div className="label-container">
       <span
         className="label-color"
         style={{backgroundColor: `${color}`}}
       ></span>
-      <span className="label-title" onClick={editMode ? openChooser : () => null}>{title}</span>
+      <span
+        className="label-title"
+        onClick={editMode ? openChooser : () => null}
+      >
+        {title}
+      </span>
       {editMode && (
         <button
           className="remove-label"
@@ -261,7 +266,7 @@ const LabelComponent = ({view, node, getPos, dom}) => {
 
     e.preventDefault();
     e.stopPropagation();
-  }
+  };
 
   return (
     <>
@@ -269,17 +274,18 @@ const LabelComponent = ({view, node, getPos, dom}) => {
         {labels.map(({title, color}, index) => (
           <Label
             color={color}
+            editMode={view.editable}
             key={`${color}${title}${index}`}
             onDelete={() => removeLabel(view, getPos(), node, title)}
-            editMode={view.editable}
-            title={title}
             openChooser={openChooser}
+            title={title}
           />
         ))}
 
         {view.editable && (
           <button
             className="add-label"
+            data-test="add-label"
             onClick={openChooser}
           >
             <span>+</span>
