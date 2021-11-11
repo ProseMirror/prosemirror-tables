@@ -349,7 +349,7 @@ export const TableFiltersComponent = ({table, pos, view, headerPos}) => {
 
   return (
     <div className="table-filters-container" ref={ref}>
-      <div className="active-filters" data-test="add-filter">
+      <div className="active-filters">
         {filtersGroups.length ? (
           <>
             {filtersGroups.map((groupFilters, index) => {

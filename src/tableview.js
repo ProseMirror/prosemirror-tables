@@ -111,9 +111,13 @@ export class TableView {
         'div',
         'filterStatusIndicatorScrollContainer'
       );
-      this.filterStatusIndicatorScrollContainer.appendChild(this.filterStatusIndicator)
+      this.filterStatusIndicatorScrollContainer.appendChild(
+        this.filterStatusIndicator
+      );
 
       this.activeFiltersBtn = createButtonWithIcon('active-filters');
+
+      this.activeFiltersBtn.dataset.test = 'add-filter';
 
       this.activeFiltersBtn.lastChild.innerText = 'filters';
 
@@ -153,7 +157,9 @@ export class TableView {
         e.preventDefault();
         e.stopPropagation();
       };
-      this.tableVerticalWrapper.prepend(this.filterStatusIndicatorScrollContainer);
+      this.tableVerticalWrapper.prepend(
+        this.filterStatusIndicatorScrollContainer
+      );
     }
     // TODO: Find a way not to update it on every update
     this.activeFiltersBtn.lastChild.innerText =
@@ -185,7 +191,7 @@ export class TableView {
     }
 
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
-    
+
     if (firstRowOrderChanged(node.nodeAt(0), this.node.nodeAt(0))) {
       node.attrs.sort = {
         col: null,
@@ -194,9 +200,9 @@ export class TableView {
       this.node = node;
       return false;
     }
-    
+
     this.node = node;
-    
+
     return true;
   }
 
