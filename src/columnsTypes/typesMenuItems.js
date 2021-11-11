@@ -6,6 +6,8 @@ export const getTypesItems = () => {
   return types.map((type) => {
     const dom = document.createElement('div');
 
+    dom.dataset.test = `${type.id}-type-item`;
+
     const icon = createElementWithClass('div', `${type.id}ItemIcon`);
     icon.classList.add('typeIcon');
 

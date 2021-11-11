@@ -71,6 +71,8 @@ export class HoverDropdown {
       label.setAttribute('title', translate(view, this.options.title));
     const wrap = crel('div', {class: prefix + '-dropdown-wrap'}, label);
 
+    if (this.options.dataTest) wrap.dataset.test = this.options.dataTest;
+
     this.expand(wrap, content.dom);
 
     function update(state) {
