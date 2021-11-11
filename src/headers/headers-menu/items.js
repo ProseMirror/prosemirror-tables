@@ -28,7 +28,7 @@ const columnTypesItems = getTypesItems();
 const columnTypeDropdown = () => {
   return new HoverDropdown(columnTypesItems, {
     class: dropdownClassName,
-    test: 'column-type-dropdown',
+    dataTest: 'column-type-dropdown',
   });
 };
 
