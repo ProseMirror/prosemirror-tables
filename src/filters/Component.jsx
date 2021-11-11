@@ -270,7 +270,7 @@ const FiltersGroup = ({
           <div className="group-actions-container">
             <button
               className="group-action-button"
-              data-test="filter-add-button"
+              data-test="filter-and-button"
               onClick={addFilterToGroup}
             >
               + And
