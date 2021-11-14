@@ -39,6 +39,7 @@ const DropdownItem = ({
       className={`select-dropdown-item ${
         separate ? 'separate' : ''
       } ${itemStyleClass}`}
+      data-test={`${label.toLowerCase().replace(' ', '-')}-dropdown-item`}
       onClick={onValueChange}
       type="button"
     >
@@ -119,7 +120,9 @@ const SelectDropdown = ({
 
   return (
     <div
-      className={`${showDropdown ? 'open' : 'close'} select-dropdown-container${className ? ` ${className}` : ''}`}
+      className={`${showDropdown ? 'open' : 'close'} select-dropdown-container${
+        className ? ` ${className}` : ''
+      }`}
       ref={dropDownRef}
     >
       <SelectDropdownButton
