@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { removeInvisibleCharacterFromText } from '../util';
+import {removeInvisibleCharacterFromText} from '../util';
 
 /**
  * This file contains all the filters logic
@@ -18,9 +18,9 @@ export const textInequality = (cell, value) => {
 };
 
 export const textContains = (cell, value) => {
-  return removeInvisibleCharacterFromText(cell.textContent.toLowerCase()).includes(
-    value.toLowerCase()
-  );
+  return removeInvisibleCharacterFromText(
+    cell.textContent.toLowerCase()
+  ).includes(value.toLowerCase());
 };
 
 export const textNotContains = (cell, value) => {
@@ -36,29 +36,32 @@ export const isTextNotEmpty = (cell) => {
 };
 
 // Number Logic
+const parseNum = (number) => {
+  return Number(number.trim().replaceAll(',', ''));
+};
 
 export const numberEquality = (cell, value) => {
-  return Number(cell.textContent) === Number(value);
+  return parseNum(cell.textContent) === parseNum(value);
 };
 
 export const numberInequality = (cell, value) => {
-  return Number(cell.textContent) !== Number(value);
+  return parseNum(cell.textContent) !== parseNum(value);
 };
 
 export const smallerOrEquals = (cell, value) => {
-  return Number(cell.textContent) <= Number(value);
+  return parseNum(cell.textContent) <= parseNum(value);
 };
 
 export const smaller = (cell, value) => {
-  return Number(cell.textContent) < Number(value);
+  return parseNum(cell.textContent) < parseNum(value);
 };
 
 export const greaterOrEquals = (cell, value) => {
-  return Number(cell.textContent) >= Number(value);
+  return parseNum(cell.textContent) >= parseNum(value);
 };
 
 export const greater = (cell, value) => {
-  return Number(cell.textContent) > Number(value);
+  return parseNum(cell.textContent) > parseNum(value);
 };
 
 export const isNumberEmpty = (cell) => {
@@ -128,7 +131,7 @@ export const isDateNotEmpty = (cell) => {
 // Currency Logic
 
 const removeCurrencyFromText = (text) => {
-  return text.replace('$', '').trim();
+  return text.replaceAll(/[\$,]/g, '').trim();
 };
 
 export const currencyEquality = (cell, value) => {
