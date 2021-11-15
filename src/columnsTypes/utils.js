@@ -9,11 +9,10 @@ export const parseTextToCurrency = (text, currency) => {
           .toString()
           .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     : `${currency} 0.00`;
-}
+};
 
 export const parseTextToNumber = (text) => {
-  const numbersInStringRegex = /[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)/g;
+  const numbersInStringRegex = /(^[+-])?([0-9]+\.?[0-9]*|\.[0-9]+)/g;
   const matches = text.match(numbersInStringRegex);
-
   return matches ? matches.join('').replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '';
-}
+};
