@@ -1,6 +1,6 @@
 import {Plugin, PluginKey} from "prosemirror-state"
 import {Decoration, DecorationSet} from "prosemirror-view"
-import {cellAround, pointsAtCell, setAttr} from "./util"
+import {cellAround, debounce, pointsAtCell, setAttr} from "./util"
 import {TableMap} from "./tablemap"
 import {TableView, updateColumns} from "./tableview"
 import {tableNodeTypes} from "./schema"
@@ -27,7 +27,7 @@ export function columnResizing({ handleWidth = 5, cellMinWidth = 25, View = Tabl
       },
 
       handleDOMEvents: {
-        mousemove(view, event) { handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResizable) },
+        mousemove(view, event) { debouncedHandleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResizable) },
         mouseleave(view) { handleMouseLeave(view) },
         mousedown(view, event) { handleMouseDown(view, event, cellMinWidth) }
       },
@@ -92,6 +92,8 @@ function handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResiz
     }
   }
 }
+
+const debouncedHandleMouseMove = debounce(handleMouseMove)
 
 function handleMouseLeave(view) {
   let pluginState = key.getState(view.state)
