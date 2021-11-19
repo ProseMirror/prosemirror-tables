@@ -1,6 +1,7 @@
 import {Plugin, PluginKey} from "prosemirror-state"
 import {Decoration, DecorationSet} from "prosemirror-view"
-import {cellAround, debounce, pointsAtCell, setAttr} from "./util"
+import {cellAround, pointsAtCell, setAttr} from "./util"
+import {debounce} from "./util-event-listeners"
 import {TableMap} from "./tablemap"
 import {TableView, updateColumns} from "./tableview"
 import {tableNodeTypes} from "./schema"

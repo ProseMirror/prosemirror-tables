@@ -107,26 +107,3 @@ export function columnIsHeader(map, table, col) {
       return false
   return true
 }
-
-const defaultDebounceTime = 100
-export function debounce(func, wait = defaultDebounceTime, immediate) {
-  let timeout
-  return function() {
-    let context = this,
-      args = arguments
-    let later = function() {
-      timeout = null
-      if (!immediate) {
-        func.apply(context, args)
-      }
-    }
-    let callNow = immediate && !timeout
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-    if (callNow) {
-      func.apply(context, args)
-    }
-
-    return timeout
-  }
-}

@@ -23,7 +23,7 @@ import {fixTables, fixTablesKey} from "./fixtables"
 // rather broadly, and other plugins, like the gap cursor or the
 // column-width dragging plugin, might want to get a turn first to
 // perform more specific behavior.
-export function tableEditing({ allowTableNodeSelection = false } = {}) {
+export function tableEditing({ allowTableNodeSelection = false, mouseMoveThrottleOptOut = false } = {}) {
   return new Plugin({
     key: tableEditingKey,
 
@@ -31,6 +31,8 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
     // cell-selection is happening, so that it can continue even as
     // transactions (which might move its anchor cell) come in.
     state: {
+      mouseMoveThrottleOptOut,
+
       init() { return null },
       apply(tr, cur) {
         let set = tr.getMeta(tableEditingKey)
