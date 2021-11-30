@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset=utf8>
+<title>Table demo</title>
+
+<link rel=stylesheet href="node_modules/prosemirror-view/style/prosemirror.css">
+<link rel=stylesheet href="node_modules/prosemirror-menu/style/menu.css">
+<link rel=stylesheet href="node_modules/prosemirror-example-setup/style/style.css">
+<link rel=stylesheet href="style/tables.css">
+<link rel=stylesheet href="node_modules/prosemirror-gapcursor/style/gapcursor.css">
+<style>
+    body {
+        max-width: 50em;
+        font-family: Georgia;
+    }
+    .ProseMirror-menubar-wrapper {
+        border: 1px solid silver;
+        outline: none;
+    }
+    .ProseMirror {
+        padding: 5px 15px;
+    }
+    .ProseMirror table {
+        margin: 0;
+    }
+    .ProseMirror th, .ProseMirror td {
+        min-width: 1em;
+        border: 1px solid #ddd;
+        padding: 3px 5px;
+    }
+    .ProseMirror .tableWrapper {
+        margin: 1em 0;
+    }
+    .ProseMirror th {
+        font-weight: bold;
+        text-align: left;
+    }
+
+    p {
+        color: grey;
+    }
+</style>
+
+<h1>Large Table</h1>
+
+<div id=editor style="width: calc(100vw - 30px);"></div>
+
+<script src="demo_large_bundle.js"></script>

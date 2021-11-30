@@ -5,12 +5,16 @@ import {Slice, Fragment} from "prosemirror-model"
 import {Selection, TextSelection} from "prosemirror-state"
 import {keydownHandler} from "prosemirror-keymap"
 
-import {key, nextCell, cellAround, inSameTable,
-        isInTable, selectionCell} from "./util"
+import {
+  key, nextCell, cellAround, inSameTable,
+  isInTable, selectionCell
+} from "./util";
+import {throttle} from "./util-event-listeners"
 import {CellSelection} from "./cellselection"
 import {TableMap} from "./tablemap"
 import {pastedCells, fitSlice, clipCells, insertCells} from "./copypaste"
 import {tableNodeTypes} from "./schema"
+import {tableEditingKey} from "./index";
 
 export const handleKeyDown = keydownHandler({
   "ArrowLeft": arrow("horiz", -1),
@@ -148,15 +152,28 @@ export function handleMouseDown(view, startEvent) {
     }
   }
 
+  const tableEditing = tableEditingKey.get(view.state)
+  const {mouseMoveThrottleOptOut} = tableEditing.spec.state
+  const _mouseMove = mouseMoveThrottleOptOut
+    ? move
+    : throttle(move, 100)
+
   // Stop listening to mouse motion events.
-  function stop() {
+  function stop(e) {
+    if (!mouseMoveThrottleOptOut) { _mouseMove.applyLastEvent(e) }
+
     view.root.removeEventListener("mouseup", stop)
     view.root.removeEventListener("dragstart", stop)
-    view.root.removeEventListener("mousemove", move)
+    view.root.removeEventListener("mousemove", _mouseMove)
+
     if (key.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(key, -1))
   }
 
   function move(event) {
+    if (!mouseMoveThrottleOptOut && !_mouseMove.storedEvent) {
+      return
+    }
+
     let anchor = key.getState(view.state), $anchor
     if (anchor != null) {
       // Continuing an existing cross-cell selection
@@ -168,9 +185,10 @@ export function handleMouseDown(view, startEvent) {
     }
     if ($anchor) setCellSelection($anchor, event)
   }
+
   view.root.addEventListener("mouseup", stop)
   view.root.addEventListener("dragstart", stop)
-  view.root.addEventListener("mousemove", move)
+  view.root.addEventListener("mousemove", _mouseMove)
 }
 
 // Check whether the cursor is at the end of a cell (so that further
