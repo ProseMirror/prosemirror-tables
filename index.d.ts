@@ -58,7 +58,7 @@ export interface CellSelectionJSON {
   head: number;
 }
 
-export class CellSelection<S extends Schema = any> {
+export class CellSelection<S extends Schema = any> extends Selection<S> {
   constructor($anchorCell: ResolvedPos<S>, $headCell?: ResolvedPos<S>);
 
   from: number;
