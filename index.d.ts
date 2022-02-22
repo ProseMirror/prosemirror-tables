@@ -193,6 +193,12 @@ export function mergeCells<S extends Schema = any>(
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
 
+export function removeRow<S extends Schema = any>(
+  tr: Transaction<S>,
+  rect: TableRect,
+  row: number,
+): void;
+
 export function deleteRow<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
@@ -223,6 +229,12 @@ export function addRow<S extends Schema = any>(
   rect: TableRect,
   row: number
 ): Transaction<S>;
+
+export function removeColumn<S extends Schema = any>(
+  tr: Transaction<S>,
+  rect: TableRect,
+  col: number,
+): void;
 
 export function deleteColumn<S extends Schema = any>(
   state: EditorState<S>,
