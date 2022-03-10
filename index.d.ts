@@ -248,6 +248,7 @@ export function addColumn<S extends Schema = any>(
 export function columnResizing<S extends Schema = any>(props: {
   handleWidth?: number;
   cellMinWidth?: number;
+  maxTableWidth?: number;
   View?: NodeView<S>;
 }): Plugin<S>;
 
@@ -261,6 +262,7 @@ export function updateColumnsOnResize(
   colgroup: Element,
   table: Element,
   cellMinWidth: number,
+  maxTableWidth?: number,
   overrideCol?: number,
   overrideValue?: number
 ): void;
