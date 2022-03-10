@@ -1,6 +1,6 @@
 /node_modules
 /test
-
+.github
 /demo.js
 /demo_bundle.js
 /index.html

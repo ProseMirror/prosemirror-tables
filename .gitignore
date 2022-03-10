@@ -2,3 +2,5 @@
 .tern-port
 /dist
 /demo_bundle.js
+.idea
+.vscode
