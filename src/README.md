@@ -1,4 +1,4 @@
-# ProseMirror table module
+# ProseMirror table module (PolicyCo Fork)
 
 This module defines a schema extension to support tables with
 rowspan/colspan support, a custom selection class for cell selections

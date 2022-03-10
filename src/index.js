@@ -16,7 +16,8 @@ import {fixTables, fixTablesKey} from "./fixtables"
 // Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
 // that, when added to an editor, enables cell-selection, handles
 // cell-based copy/paste, and makes sure tables stay well-formed (each
-// row has the same width, and cells don't overlap).
+// row has the same width, and cells don't overlap). Make sure you load
+// `style/tables.css` (or define your own styling for the tables).
 //
 // You should probably put this plugin near the end of your array of
 // plugins, since it handles mouse and arrow key events in tables

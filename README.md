@@ -1,4 +1,4 @@
-# ProseMirror table module
+# ProseMirror table module (PolicyCo Fork)
 
 This module defines a schema extension to support tables with
 rowspan/colspan support, a custom selection class for cell selections
@@ -146,7 +146,7 @@ available to users.
    into smaller cells. Use the first cell type for the new cells.
 
 
- * **`splitCellWithType`**`(getType: fn({row: number, col: number, node: Node}) → NodeType) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+ * **`splitCellWithType`**`(getCellType: fn({row: number, col: number, node: Node}) → NodeType) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
    Split a selected cell, whose rowpan or colspan is greater than one,
    into smaller cells with the cell type (th, td) returned by getType function.
 
