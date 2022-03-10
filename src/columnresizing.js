@@ -82,8 +82,9 @@ function handleMouseMove(view, event, handleWidth, cellMinWidth, lastColumnResiz
         cell = -1;
     if (target) {
       let { left, right } = target.getBoundingClientRect();
-      if (event.clientX - left <= handleWidth) cell = edgeCell(view, event, 'left');
-      else if (right - event.clientX <= handleWidth) cell = edgeCell(view, event, 'right');
+      if (event.clientX < left) cell = edgeCell(view, event, 'right', handleWidth);
+      else if (event.clientX - left <= handleWidth) cell = edgeCell(view, event, 'left', handleWidth);
+      else if (right - event.clientX <= handleWidth) cell = edgeCell(view, event, 'right', handleWidth);
     }
 
     if (cell != pluginState.activeHandle) {
@@ -158,13 +159,17 @@ function currentColWidth(view, cellPos, { colspan, colwidth }) {
 }
 
 function domCellAround(target) {
-  while (target && target.nodeName != 'TD' && target.nodeName != 'TH')
+  while (target && target.classList && target.nodeName != 'TD' && target.nodeName != 'TH')
     target = target.classList.contains('ProseMirror') ? null : target.parentNode;
   return target;
 }
 
-function edgeCell(view, event, side) {
-  let found = view.posAtCoords({ left: event.clientX, top: event.clientY });
+function edgeCell(view, event, side, handleWidth) {
+  // posAtCoords returns inconsistent positions when cursor is moving
+  // across a collapsed table border. Use an offset to adjust the
+  // target viewport coordinates away from the table border.
+  const offset = side == 'right' ? -handleWidth : handleWidth;
+  let found = view.posAtCoords({ left: event.clientX + offset, top: event.clientY });
   if (!found) return -1;
   let { pos } = found;
   let $cell = cellAround(view.state.doc.resolve(pos));

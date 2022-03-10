@@ -112,7 +112,11 @@ export function handlePaste(view, _, slice) {
 }
 
 export function handleMouseDown(view, startEvent) {
-  if (startEvent.ctrlKey || startEvent.metaKey) return
+  if (startEvent.ctrlKey ||
+      startEvent.metaKey ||
+      startEvent.which !== 1 /*not left click*/) {
+    return;
+  }
 
   let startDOMCell = domInCell(view, startEvent.target), $anchor
   if (startEvent.shiftKey && (view.state.selection instanceof CellSelection)) {

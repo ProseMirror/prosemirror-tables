@@ -21,7 +21,7 @@ import {
   Schema,
   NodeType
 } from 'prosemirror-model';
-import { Mappable } from 'prosemirror-transform';
+import { Mappable, Mapping } from 'prosemirror-transform';
 import { NodeView } from 'prosemirror-view';
 
 export interface TableEditingOptions {
@@ -58,7 +58,7 @@ export interface CellSelectionJSON {
   head: number;
 }
 
-export class CellSelection<S extends Schema = any> {
+export class CellSelection<S extends Schema = any> extends Selection<S> {
   constructor($anchorCell: ResolvedPos<S>, $headCell?: ResolvedPos<S>);
 
   from: number;
@@ -83,7 +83,7 @@ export class CellSelection<S extends Schema = any> {
   isColSelection(): boolean;
   eq(other: Selection<S>): boolean;
   toJSON(): CellSelectionJSON;
-  getBookmark(): { anchor: number; head: number };
+  getBookmark(): CellBookmark;
 
   static colSelection<S extends Schema = any>(
     anchorCell: ResolvedPos<S>,
@@ -131,6 +131,13 @@ export class TableMap {
   positionAt(row: number, col: number, table: ProsemirrorNode): number;
 
   static get(table: ProsemirrorNode): TableMap;
+}
+
+export interface CellBookmark<S extends Schema = any> {
+  anchor: number
+  head: number
+  map(mapping: Mapping): CellBookmark<S>;
+  resolve(doc: ProsemirrorNode<S>): Selection<S>;
 }
 
 export function tableEditing(options?: TableEditingOptions): Plugin;
@@ -193,6 +200,12 @@ export function mergeCells<S extends Schema = any>(
   dispatch?: (tr: Transaction<S>) => void
 ): boolean;
 
+export function removeRow<S extends Schema = any>(
+    tr: Transaction<S>,
+    rect: TableRect,
+    row: number,
+): void;
+
 export function deleteRow<S extends Schema = any>(
   state: EditorState<S>,
   dispatch?: (tr: Transaction<S>) => void
@@ -223,6 +236,12 @@ export function addRow<S extends Schema = any>(
   rect: TableRect,
   row: number
 ): Transaction<S>;
+
+export function removeColumn<S extends Schema = any>(
+    tr: Transaction<S>,
+    rect: TableRect,
+    col: number,
+): void;
 
 export function deleteColumn<S extends Schema = any>(
   state: EditorState<S>,
@@ -272,6 +291,9 @@ export function cellAround<S extends Schema = any>(
 ): ResolvedPos<S> | null;
 
 export function isInTable(state: EditorState): boolean;
+
+export function pointsAtCell<S extends Schema = any>($pos: ResolvedPos<S>): false | null | ProsemirrorNode
+export function setAttr<T extends any>(attrs: Record<string, T>, name: string, value: T): Record<string, T>
 
 export function removeColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
 export function addColSpan<T extends {}>(attrs: T, pos: number, n?: number):  T;
