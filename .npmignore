@@ -1,2 +1,9 @@
 /node_modules
 /test
+
+/demo.js
+/demo_bundle.js
+/index.html
+/rollup.demo.config.js
+
+/src/README.md
