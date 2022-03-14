@@ -38,7 +38,7 @@ export function selectedRect(state) {
 // Add a column at the given position in a table.
 export function addColumn(tr, {map, tableStart, table}, col) {
   let refColumn = col > 0 ? -1 : 0
-  if (columnIsHeader(map, table, col + refColumn))
+  if (map.height > 1 && columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0
 
   for (let row = 0; row < map.height; row++) {
