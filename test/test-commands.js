@@ -28,6 +28,11 @@ describe("addColumnAfter", () => {
           addColumnAfter,
           table(tr(c11, cEmpty))))
 
+  it("can add a second header cell", () =>
+     test(table(tr(hCursor)),
+          addColumnAfter,
+          table(tr(h11, hEmpty))));
+
   it("can grow a colspan cell", () =>
      test(table(tr(cCursor, c11), tr(c(2, 1))),
           addColumnAfter,
