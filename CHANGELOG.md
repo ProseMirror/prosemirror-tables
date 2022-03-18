@@ -1,3 +1,7 @@
+## 1.2.1 (2022-03-10)
+
+Add colwidth and table width to the spec.
+
 ## 1.2.0 (2022-03-10)
 
 Add `maxTableWidth` as an input into `columnResizing`.
