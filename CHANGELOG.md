@@ -1,4 +1,8 @@
-## 1.2.1 (2022-03-10)
+## 1.2.2 (2022-03-21)
+
+Fix table width to account for table headers.
+
+## 1.2.1 (2022-03-18)
 
 Add colwidth and table width to the spec.
 

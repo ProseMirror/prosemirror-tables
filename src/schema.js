@@ -90,12 +90,14 @@ export function tableNodes(options) {
               return true;
             }
           }
-          if (initialRow && n.type.name === 'table_cell') {
+          if (initialRow && (n.type.name === 'table_cell' || n.type.name === 'table_header')) {
             totalWidth += n.attrs.colwidth[0];
           }
         });
 
-        return ["table", { style: `width: ${totalWidth}px` }, ["tbody", 0]];
+        const attrs = totalWidth > 0 ? { style: `width: ${totalWidth}px` } : undefined;
+
+        return ["table", attrs, ["tbody", 0]];
       }
     },
     table_row: {
