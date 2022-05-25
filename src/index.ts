@@ -40,10 +40,10 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
         return null;
       },
       apply(tr, cur) {
-        let set = tr.getMeta(tableEditingKey);
+        const set = tr.getMeta(tableEditingKey);
         if (set != null) return set == -1 ? null : set;
         if (cur == null || !tr.docChanged) return cur;
-        let { deleted, pos } = tr.mapping.mapResult(cur);
+        const { deleted, pos } = tr.mapping.mapResult(cur);
         return deleted ? null : pos;
       },
     },

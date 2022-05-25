@@ -24,14 +24,14 @@ export function cellWrapping($pos) {
 }
 
 export function isInTable(state) {
-  let $head = state.selection.$head;
+  const $head = state.selection.$head;
   for (let d = $head.depth; d > 0; d--)
     if ($head.node(d).type.spec.tableRole == 'row') return true;
   return false;
 }
 
 export function selectionCell(state) {
-  let sel = state.selection;
+  const sel = state.selection;
   if (sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos
       ? sel.$anchorCell
@@ -48,7 +48,7 @@ function cellNear($pos) {
     after;
     after = after.firstChild, pos++
   ) {
-    let role = after.type.spec.tableRole;
+    const role = after.type.spec.tableRole;
     if (role == 'cell' || role == 'header_cell') return $pos.doc.resolve(pos);
   }
   for (
@@ -56,7 +56,7 @@ function cellNear($pos) {
     before;
     before = before.lastChild, pos--
   ) {
-    let role = before.type.spec.tableRole;
+    const role = before.type.spec.tableRole;
     if (role == 'cell' || role == 'header_cell')
       return $pos.doc.resolve(pos - before.nodeSize);
   }
@@ -83,21 +83,21 @@ export function colCount($pos) {
 }
 
 export function nextCell($pos, axis, dir) {
-  let start = $pos.start(-1),
+  const start = $pos.start(-1),
     map = TableMap.get($pos.node(-1));
-  let moved = map.nextCell($pos.pos - start, axis, dir);
+  const moved = map.nextCell($pos.pos - start, axis, dir);
   return moved == null ? null : $pos.node(0).resolve(start + moved);
 }
 
 export function setAttr(attrs, name, value) {
-  let result = {};
-  for (let prop in attrs) result[prop] = attrs[prop];
+  const result = {};
+  for (const prop in attrs) result[prop] = attrs[prop];
   result[name] = value;
   return result;
 }
 
 export function removeColSpan(attrs, pos, n = 1) {
-  let result = setAttr(attrs, 'colspan', attrs.colspan - n);
+  const result = setAttr(attrs, 'colspan', attrs.colspan - n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
@@ -107,7 +107,7 @@ export function removeColSpan(attrs, pos, n = 1) {
 }
 
 export function addColSpan(attrs, pos, n = 1) {
-  let result = setAttr(attrs, 'colspan', attrs.colspan + n);
+  const result = setAttr(attrs, 'colspan', attrs.colspan + n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);
@@ -116,7 +116,7 @@ export function addColSpan(attrs, pos, n = 1) {
 }
 
 export function columnIsHeader(map, table, col) {
-  let headerCell = tableNodeTypes(table.type.schema).header_cell;
+  const headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let row = 0; row < map.height; row++)
     if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
       return false;

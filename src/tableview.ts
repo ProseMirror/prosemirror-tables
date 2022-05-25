@@ -1,4 +1,11 @@
 export class TableView {
+  node;
+  readonly cellMinWidth;
+  readonly dom;
+  readonly colgroup;
+  readonly contentDOM;
+  readonly table;
+
   constructor(node, cellMinWidth) {
     this.node = node;
     this.cellMinWidth = cellMinWidth;
@@ -30,19 +37,19 @@ export function updateColumns(
   colgroup,
   table,
   cellMinWidth,
-  overrideCol,
-  overrideValue,
+  overrideCol?,
+  overrideValue?,
 ) {
   let totalWidth = 0,
     fixedWidth = true;
-  let nextDOM = colgroup.firstChild,
-    row = node.firstChild;
+  let nextDOM = colgroup.firstChild;
+  const row = node.firstChild;
   for (let i = 0, col = 0; i < row.childCount; i++) {
-    let { colspan, colwidth } = row.child(i).attrs;
+    const { colspan, colwidth } = row.child(i).attrs;
     for (let j = 0; j < colspan; j++, col++) {
-      let hasWidth =
+      const hasWidth =
         overrideCol == col ? overrideValue : colwidth && colwidth[j];
-      let cssWidth = hasWidth ? hasWidth + 'px' : '';
+      const cssWidth = hasWidth ? hasWidth + 'px' : '';
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
@@ -56,7 +63,7 @@ export function updateColumns(
   }
 
   while (nextDOM) {
-    let after = nextDOM.nextSibling;
+    const after = nextDOM.nextSibling;
     nextDOM.parentNode.removeChild(nextDOM);
     nextDOM = after;
   }
