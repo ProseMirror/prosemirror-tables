@@ -7,6 +7,7 @@
   "style": "style/tables.css",
   "typings": "./index.d.ts",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/prosemirror/prosemirror-tables.git"
@@ -36,7 +37,7 @@
     "eslint": "^8.16.0",
     "eslint-plugin-jest": "^26.2.2",
     "ist": "^1.1.1",
-    "mocha": "^3.4.2",
+    "mocha": "^10.0.0",
     "prettier": "^2.6.2",
     "prosemirror-commands": "^1.1.1",
     "prosemirror-example-setup": "^1.1.1",
