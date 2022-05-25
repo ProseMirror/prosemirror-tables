@@ -35,6 +35,7 @@
     "builddocs": "^0.3.0",
     "ist": "^1.1.1",
     "mocha": "^3.4.2",
+    "prettier": "^2.6.2",
     "prosemirror-commands": "^1.1.1",
     "prosemirror-example-setup": "^1.1.1",
     "prosemirror-menu": "^1.1.0",
@@ -54,6 +55,7 @@
     "build": "rollup -c",
     "watch": "rollup -w -c",
     "prepare": "npm run build",
-    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md"
+    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
+    "lint": "prettier --write 'src/*.js'"
   }
 }
