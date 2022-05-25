@@ -2,7 +2,6 @@ import { EditorView } from 'prosemirror-view';
 import { EditorState } from 'prosemirror-state';
 import { DOMParser, Schema } from 'prosemirror-model';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
-import { baseKeymap } from 'prosemirror-commands';
 import { keymap } from 'prosemirror-keymap';
 import { exampleSetup, buildMenuItems } from 'prosemirror-example-setup';
 import { MenuItem, Dropdown } from 'prosemirror-menu';
