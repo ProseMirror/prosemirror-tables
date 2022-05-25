@@ -33,6 +33,7 @@
     "@types/prosemirror-model": "^1.7.0",
     "@types/prosemirror-state": "^1.2.0",
     "builddocs": "^0.3.0",
+    "eslint": "^8.16.0",
     "ist": "^1.1.1",
     "mocha": "^3.4.2",
     "prettier": "^2.6.2",
@@ -56,6 +57,6 @@
     "watch": "rollup -w -c",
     "prepare": "npm run build",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
-    "lint": "prettier --write 'src/*.js'"
+    "lint": "eslint ./src/  --ext .js,.jsx,.ts,.tsx"
   }
 }

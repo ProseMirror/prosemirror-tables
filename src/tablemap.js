@@ -13,6 +13,7 @@ let readFromCache, addToCache;
 // Prefer using a weak map to cache table maps. Fall back on a
 // fixed-size cache if that's not supported.
 if (typeof WeakMap != 'undefined') {
+  // eslint-disable-next-line
   let cache = new WeakMap();
   readFromCache = (key) => cache.get(key);
   addToCache = (key, value) => {
