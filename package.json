@@ -30,6 +30,7 @@
     "prosemirror-view": "^1.13.3"
   },
   "devDependencies": {
+    "@prosemirror/buildhelper": "^0.1.5",
     "@rollup/plugin-buble": "^0.20.0",
     "@types/prosemirror-model": "^1.7.0",
     "@types/prosemirror-state": "^1.2.0",
@@ -57,7 +58,8 @@
     "watch_demo": "rollup -w -c rollup.demo.config.js",
     "build": "rollup -c",
     "watch": "rollup -w -c",
-    "prepare": "yarn build",
+    "prepare2": "yarn build",
+    "prepare": "pm-buildhelper src/index.ts",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
     "lint": "eslint ./src/ ./test/  --ext .js,.jsx"
   }

@@ -233,4 +233,3 @@ start of the table, rather than the start of the document.
  * `static `**`get`**`(table: Node) → TableMap`\
    Find the table map for the given table node.
 
-
