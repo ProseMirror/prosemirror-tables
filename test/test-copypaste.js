@@ -1,8 +1,8 @@
-const ist = require('ist');
-const { EditorState } = require('prosemirror-state');
-const { Fragment } = require('prosemirror-model');
+import ist from 'ist';
+import { EditorState } from 'prosemirror-state';
+import { Fragment } from 'prosemirror-model';
 
-const {
+import {
   doc,
   table,
   p,
@@ -15,14 +15,14 @@ const {
   c,
   cAnchor,
   eq,
-} = require('./build');
-const {
+} from './build';
+import {
   cellAround,
   TableMap,
-  __pastedCells: pastedCells,
-  __insertCells: insertCells,
-  __clipCells: clipCells,
-} = require('../dist/');
+  __pastedCells as pastedCells,
+  __insertCells as insertCells,
+  __clipCells as clipCells,
+} from '../src/';
 
 describe('pastedCells', () => {
   function test(slice, width, height, content) {

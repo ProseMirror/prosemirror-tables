@@ -34,6 +34,7 @@
     "@types/prosemirror-state": "^1.2.0",
     "builddocs": "^0.3.0",
     "eslint": "^8.16.0",
+    "eslint-plugin-jest": "^26.2.2",
     "ist": "^1.1.1",
     "mocha": "^3.4.2",
     "prettier": "^2.6.2",
@@ -57,6 +58,6 @@
     "watch": "rollup -w -c",
     "prepare": "npm run build",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
-    "lint": "eslint ./src/  --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint ./src/ ./test/  --ext .js,.jsx"
   }
 }

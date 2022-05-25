@@ -1,8 +1,8 @@
-const ist = require('ist');
-const { EditorState, NodeSelection } = require('prosemirror-state');
-const { Slice } = require('prosemirror-model');
+import ist from 'ist';
+import { EditorState, NodeSelection } from 'prosemirror-state';
+import { Slice } from 'prosemirror-model';
 
-const {
+import {
   doc,
   table,
   tr,
@@ -15,15 +15,15 @@ const {
   c,
   eq,
   selectionFor,
-} = require('./build');
-const {
+} from './build';
+import {
   CellSelection,
   addRowBefore,
   addRowAfter,
   addColumnBefore,
   addColumnAfter,
   tableEditing,
-} = require('../dist/');
+} from '../src/';
 
 describe('CellSelection', () => {
   let t = doc(

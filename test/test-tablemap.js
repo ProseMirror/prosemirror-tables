@@ -1,7 +1,7 @@
-const ist = require('ist');
+import ist from 'ist';
 
-const { table, tr, c, c11 } = require('./build');
-const { TableMap } = require('../dist/');
+import { table, tr, c, c11 } from './build';
+import { TableMap } from '../src/';
 
 function eqRect(a, b) {
   return (

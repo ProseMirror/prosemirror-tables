@@ -1,7 +1,7 @@
-const ist = require('ist');
-const { EditorState } = require('prosemirror-state');
+import ist from 'ist';
+import { EditorState } from 'prosemirror-state';
 
-const {
+import {
   doc,
   table,
   tr,
@@ -20,8 +20,8 @@ const {
   cAnchor,
   eq,
   selectionFor,
-} = require('./build');
-const {
+} from './build';
+import {
   addColumnAfter,
   addColumnBefore,
   deleteColumn,
@@ -35,7 +35,7 @@ const {
   toggleHeader,
   toggleHeaderRow,
   toggleHeaderColumn,
-} = require('../dist/');
+} from '../src/';
 
 function test(doc, command, result) {
   let state = EditorState.create({ doc, selection: selectionFor(doc) });

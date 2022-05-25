@@ -1,7 +1,7 @@
-const { Schema } = require('prosemirror-model');
-const { TextSelection, NodeSelection } = require('prosemirror-state');
-const { schema: baseSchema } = require('prosemirror-schema-basic');
-const { tableNodes, cellAround, CellSelection } = require('../dist/');
+import { Schema } from 'prosemirror-model';
+import { TextSelection, NodeSelection } from 'prosemirror-state';
+import { schema as baseSchema } from 'prosemirror-schema-basic';
+import { tableNodes, cellAround, CellSelection } from '../dist/';
 
 let schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
@@ -16,12 +16,14 @@ let schema = new Schema({
   marks: baseSchema.spec.marks,
 });
 
-let e = (module.exports = require('prosemirror-test-builder').builders(schema, {
+import { builders } from 'prosemirror-test-builder';
+
+export const e = builders(schema, {
   p: { nodeType: 'paragraph' },
   tr: { nodeType: 'table_row' },
   td: { nodeType: 'table_cell' },
   th: { nodeType: 'table_header' },
-}));
+});
 
 e.c = function (colspan, rowspan) {
   return e.td({ colspan, rowspan }, e.p('x'));

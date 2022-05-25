@@ -1,7 +1,7 @@
-const ist = require('ist');
-const { EditorState } = require('prosemirror-state');
+import ist from 'ist';
+import { EditorState } from 'prosemirror-state';
 
-const {
+import {
   doc,
   table,
   tr,
@@ -13,8 +13,9 @@ const {
   h11,
   hEmpty,
   eq,
-} = require('./build');
-const { fixTables } = require('../dist/');
+} from './build';
+
+import { fixTables } from '../src/';
 
 let cw100 = td({ colwidth: [100] }, p('x')),
   cw200 = td({ colwidth: [200] }, p('x'));
