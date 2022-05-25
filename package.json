@@ -7,6 +7,7 @@
   "style": "style/tables.css",
   "typings": "./index.d.ts",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/prosemirror/prosemirror-tables.git"
@@ -33,8 +34,11 @@
     "@types/prosemirror-model": "^1.7.0",
     "@types/prosemirror-state": "^1.2.0",
     "builddocs": "^0.3.0",
+    "eslint": "^8.16.0",
+    "eslint-plugin-jest": "^26.2.2",
     "ist": "^1.1.1",
-    "mocha": "^3.4.2",
+    "mocha": "^10.0.0",
+    "prettier": "^2.6.2",
     "prosemirror-commands": "^1.1.1",
     "prosemirror-example-setup": "^1.1.1",
     "prosemirror-menu": "^1.1.0",
@@ -54,6 +58,7 @@
     "build": "rollup -c",
     "watch": "rollup -w -c",
     "prepare": "npm run build",
-    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md"
+    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
+    "lint": "eslint ./src/ ./test/  --ext .js,.jsx"
   }
 }
