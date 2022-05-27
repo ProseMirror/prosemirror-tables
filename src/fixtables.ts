@@ -39,7 +39,7 @@ function changedDescendants(old, cur, offset, f) {
 // provided, that is assumed to hold a previous, known-good state,
 // which will be used to avoid re-scanning unchanged parts of the
 // document.
-export function fixTables(state, oldState) {
+export function fixTables(state, oldState?) {
   let tr;
   const check = (node, pos) => {
     if (node.type.spec.tableRole == 'table')

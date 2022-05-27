@@ -24,7 +24,7 @@ import {
 } from './src/commands';
 import { tableEditing, columnResizing, tableNodes, fixTables } from './src';
 
-let schema = new Schema({
+const schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
     tableNodes({
       tableGroup: 'block',
@@ -46,11 +46,11 @@ let schema = new Schema({
   marks: baseSchema.spec.marks,
 });
 
-let menu = buildMenuItems(schema).fullMenu;
+const menu = buildMenuItems(schema).fullMenu;
 function item(label, cmd) {
   return new MenuItem({ label, select: cmd, run: cmd });
 }
-let tableMenu = [
+const tableMenu = [
   item('Insert column before', addColumnBefore),
   item('Insert column after', addColumnAfter),
   item('Delete column', deleteColumn),
@@ -68,7 +68,7 @@ let tableMenu = [
 ];
 menu.splice(2, 0, [new Dropdown(tableMenu, { label: 'Table' })]);
 
-let doc = DOMParser.fromSchema(schema).parse(
+const doc = DOMParser.fromSchema(schema).parse(
   document.querySelector('#content'),
 );
 let state = EditorState.create({
@@ -82,10 +82,12 @@ let state = EditorState.create({
     }),
   ].concat(exampleSetup({ schema, menuContent: menu })),
 });
-let fix = fixTables(state);
+const fix = fixTables(state);
 if (fix) state = state.apply(fix.setMeta('addToHistory', false));
 
+// eslint-disable-next-line
+// @ts-ignore
 window.view = new EditorView(document.querySelector('#editor'), { state });
 
-document.execCommand('enableObjectResizing', false, false);
-document.execCommand('enableInlineTableEditing', false, false);
+document.execCommand('enableObjectResizing', false, 'false');
+document.execCommand('enableInlineTableEditing', false, 'false');

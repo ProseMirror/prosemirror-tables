@@ -97,7 +97,8 @@ export function setAttr(attrs, name, value) {
 }
 
 export function removeColSpan(attrs, pos, n = 1) {
-  const result = setAttr(attrs, 'colspan', attrs.colspan - n);
+  // eslint-disable-next-line
+  const result: any = setAttr(attrs, 'colspan', attrs.colspan - n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
@@ -107,7 +108,8 @@ export function removeColSpan(attrs, pos, n = 1) {
 }
 
 export function addColSpan(attrs, pos, n = 1) {
-  const result = setAttr(attrs, 'colspan', attrs.colspan + n);
+  // eslint-disable-next-line
+  const result: any = setAttr(attrs, 'colspan', attrs.colspan + n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);

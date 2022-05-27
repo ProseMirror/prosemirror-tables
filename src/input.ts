@@ -63,7 +63,7 @@ function arrow(axis, dir) {
     } else {
       const $cell = state.doc.resolve(end),
         $next = nextCell($cell, axis, dir);
-      let  newSel;
+      let newSel;
       if ($next) newSel = Selection.near($next, 1);
       else if (dir < 0)
         newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1);
@@ -158,8 +158,8 @@ export function handlePaste(view, _, slice) {
   }
 }
 
-export function handleMouseDown(view, startEvent) {
-  if (startEvent.ctrlKey || startEvent.metaKey) return;
+export function handleMouseDown(view, startEvent): boolean {
+  if (startEvent.ctrlKey || startEvent.metaKey) return false;
 
   const startDOMCell = domInCell(view, startEvent.target);
   let $anchor;
@@ -179,7 +179,7 @@ export function handleMouseDown(view, startEvent) {
     startEvent.preventDefault();
   } else if (!startDOMCell) {
     // Not in a cell, let the default behavior happen.
-    return;
+    return false;
   }
 
   // Create and dispatch a cell selection between the given anchor and
@@ -224,6 +224,7 @@ export function handleMouseDown(view, startEvent) {
   view.root.addEventListener('mouseup', stop);
   view.root.addEventListener('dragstart', stop);
   view.root.addEventListener('mousemove', move);
+  return false;
 }
 
 // Check whether the cursor is at the end of a cell (so that further
