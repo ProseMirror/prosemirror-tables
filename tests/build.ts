@@ -3,8 +3,9 @@ import { TextSelection, NodeSelection } from 'prosemirror-state';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { tableNodes, cellAround, CellSelection } from '../src/';
 
-let schema = new Schema({
-  nodes: baseSchema.spec.nodes.append(
+const schema = new Schema({
+  // eslint-disable-next-line
+  nodes: (baseSchema.spec.nodes as any).append(
     tableNodes({
       tableGroup: 'block',
       cellContent: 'block+',
@@ -53,14 +54,20 @@ export const eq = function (a, b) {
 };
 
 export const selectionFor = function (doc) {
-  let cursor = doc.tag.cursor;
-  if (cursor != null) return new TextSelection(doc.resolve(cursor));
-  let $anchor = resolveCell(doc, doc.tag.anchor);
+  const cursor = doc.tag.cursor;
+  if (cursor != null) {
+    return new TextSelection(doc.resolve(cursor));
+  }
+  const $anchor = resolveCell(doc, doc.tag.anchor);
   if ($anchor)
     return new CellSelection(
       $anchor,
       resolveCell(doc, doc.tag.head) || undefined,
     );
-  let node = doc.tag.node;
-  if (node != null) return new NodeSelection(doc.resolve(node));
+  const node = doc.tag.node;
+  if (!node) {
+    throw new Error('There is no selection tag set');
+  }
+
+  return new NodeSelection(doc.resolve(node));
 };

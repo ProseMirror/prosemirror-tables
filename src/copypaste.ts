@@ -10,7 +10,7 @@
 // clipped to the selection's rectangle, optionally repeating the
 // pasted cells when they are smaller than the selection.
 
-import { Slice, Fragment } from 'prosemirror-model';
+import { Slice, Fragment, Node as PMNode } from 'prosemirror-model';
 import { Transform } from 'prosemirror-transform';
 
 import { setAttr, removeColSpan } from './util';
@@ -38,7 +38,7 @@ export function pastedCells(slice) {
   const first = content.firstChild,
     role = first.type.spec.tableRole;
   const schema = first.type.schema,
-    rows = [];
+    rows: Fragment[] = [];
   if (role == 'row') {
     for (let i = 0; i < content.childCount; i++) {
       let cells = content.child(i).content;
@@ -70,7 +70,7 @@ export function pastedCells(slice) {
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
 function ensureRectangular(schema, rows) {
-  const widths = [];
+  const widths: number[] = [];
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     for (let j = row.childCount - 1; j >= 0; j--) {
@@ -85,7 +85,7 @@ function ensureRectangular(schema, rows) {
     if (r >= rows.length) rows.push(Fragment.empty);
     if (widths[r] < width) {
       const empty = tableNodeTypes(schema).cell.createAndFill(),
-        cells = [];
+        cells: PMNode[]  = [];
       for (let i = widths[r]; i < width; i++) cells.push(empty);
       rows[r] = rows[r].append(Fragment.from(cells));
     }
@@ -105,26 +105,29 @@ export function fitSlice(nodeType, slice) {
 // they stick out.
 export function clipCells({ width, height, rows }, newWidth, newHeight) {
   if (width != newWidth) {
-    const added = [],
-      newRows = [];
+    const added: number[] = [],
+      newRows: Fragment[] = [];
     for (let row = 0; row < rows.length; row++) {
       const frag = rows[row],
-        cells = [];
-      for (let col = added[row] || 0, i = 0; col < newWidth; i++) {
+        cells: PMNode[] = [];
+      for (let col: number = added[row] || 0, i = 0; col < newWidth; i++) {
         let cell = frag.child(i % frag.childCount);
-        if (col + cell.attrs.colspan > newWidth)
+        if (col + cell.attrs.colspan > newWidth) {
+          const colspan: number = (cell?.attrs?.colspan || 0);
           cell = cell.type.create(
             removeColSpan(
               cell.attrs,
               cell.attrs.colspan,
-              col + cell.attrs.colspan - newWidth,
+              col + colspan - newWidth,
             ),
             cell.content,
           );
+        }
         cells.push(cell);
         col += cell.attrs.colspan;
-        for (let j = 1; j < cell.attrs.rowspan; j++)
+        for (let j = 1; j < cell.attrs.rowspan; j++) {
           added[row + j] = (added[row + j] || 0) + cell.attrs.colspan;
+        }
       }
       newRows.push(Fragment.from(cells));
     }
@@ -133,9 +136,9 @@ export function clipCells({ width, height, rows }, newWidth, newHeight) {
   }
 
   if (height != newHeight) {
-    const newRows = [];
+    const newRows: Fragment[] = [];
     for (let row = 0, i = 0; row < newHeight; row++, i++) {
-      const cells = [],
+      const cells: PMNode[] = [],
         source = rows[i % height];
       for (let j = 0; j < source.childCount; j++) {
         let cell = source.child(j);
@@ -169,17 +172,19 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
     for (let row = 0, rowEnd = 0; row < map.height; row++) {
       const rowNode = table.child(row);
       rowEnd += rowNode.nodeSize;
-      const cells = [];
+      const cells: PMNode[] = [];
       let add;
       if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell)
         add = empty || (empty = types.cell.createAndFill());
       else add = emptyHead || (emptyHead = types.header_cell.createAndFill());
-      for (let i = map.width; i < width; i++) cells.push(add);
+      for (let i = map.width; i < width; i++) { 
+        cells.push(add); 
+      }
       tr.insert(tr.mapping.slice(mapFrom).map(rowEnd - 1 + start), cells);
     }
   }
   if (height > map.height) {
-    const cells = [];
+    const cells: PMNode[] = [];
     for (
       let i = 0, start = (map.height - 1) * map.width;
       i < Math.max(map.width, width);
@@ -197,8 +202,10 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
     }
 
     const emptyRow = types.row.create(null, Fragment.from(cells)),
-      rows = [];
-    for (let i = map.height; i < height; i++) rows.push(emptyRow);
+      rows: PMNode[] = [];
+    for (let i = map.height; i < height; i++) {
+      rows.push(emptyRow);
+    }
     tr.insert(tr.mapping.slice(mapFrom).map(start + table.nodeSize - 2), rows);
   }
   return !!(empty || emptyHead);

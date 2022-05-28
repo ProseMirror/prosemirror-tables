@@ -4,6 +4,7 @@
 // reported by `TableMap`.
 
 import { PluginKey } from 'prosemirror-state';
+import { Node as PMNode } from 'prosemirror-model';
 import { TableMap } from './tablemap';
 import { setAttr, removeColSpan } from './util';
 import { tableNodeTypes } from './schema';
@@ -61,7 +62,7 @@ export function fixTable(state, table, tablePos, tr) {
 
   // Track which rows we must add cells to, so that we can adjust that
   // when fixing collisions.
-  const mustAdd = [];
+  const mustAdd: number[] = [];
   for (let i = 0; i < map.height; i++) mustAdd.push(0);
   for (let i = 0; i < map.problems.length; i++) {
     const prob = map.problems[i];
@@ -111,7 +112,7 @@ export function fixTable(state, table, tablePos, tr) {
       if (row.firstChild) {
         tableNodeType = row.firstChild.type.spec.tableRole;
       }
-      const nodes = [];
+      const nodes: PMNode[] = [];
       for (let j = 0; j < add; j++)
         nodes.push(tableNodeTypes(state.schema)[tableNodeType].createAndFill());
       const side = (i == 0 || first == i - 1) && last == i ? pos + 1 : end - 1;

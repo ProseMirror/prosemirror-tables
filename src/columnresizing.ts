@@ -17,9 +17,9 @@ export function columnResizing({
     key,
     state: {
       init(_, state) {
-        this.spec.props.nodeViews[tableNodeTypes(state.schema).table.name] = (
-          node,
-        ) => new View(node, cellMinWidth);
+        const tableNodeTypeName = tableNodeTypes(state.schema).table.name;
+        const nodeViews = plugin?.spec?.props?.nodeViews || [];
+        nodeViews[tableNodeTypeName] = (node) => new View(node, cellMinWidth);
         return new ResizeState(-1, false);
       },
       apply(tr, prev) {
@@ -259,13 +259,13 @@ function displayColumnWidth(view, cell, width, cellMinWidth) {
 }
 
 function zeroes(n) {
-  const result = [];
+  const result: number[] = [];
   for (let i = 0; i < n; i++) result.push(0);
   return result;
 }
 
 function handleDecorations(state, cell) {
-  const decorations = [];
+  const decorations: Decoration[] = [];
   const $cell = state.doc.resolve(cell);
   const table = $cell.node(-1),
     map = TableMap.get(table),

@@ -39,7 +39,7 @@ import {
 
 function test(doc, command, result) {
   let state = EditorState.create({ doc, selection: selectionFor(doc) });
-  let ran = command(state, (tr) => (state = state.apply(tr)));
+  const ran = command(state, (tr) => (state = state.apply(tr)));
   if (result == null) ist(ran, false);
   else ist(state.doc, result, eq);
 }
@@ -607,7 +607,7 @@ describe('splitCell', () => {
 });
 
 describe('setCellAttr', () => {
-  let cAttr = td({ test: 'value' }, p('x'));
+  const cAttr = td({ test: 'value' }, p('x'));
 
   it('can set an attribute on a parent cell', () =>
     test(

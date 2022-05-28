@@ -10,7 +10,7 @@ import {
   SelectionRange,
 } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
-import { Fragment, Slice, ResolvedPos } from 'prosemirror-model';
+import { Fragment, Slice, ResolvedPos, Node as PMNode } from 'prosemirror-model';
 
 import { inSameTable, pointsAtCell, setAttr, removeColSpan } from './util';
 import { TableMap } from './tablemap';
@@ -21,8 +21,8 @@ import { TableMap } from './tablemap';
 // selects across cells, and will be drawn by giving selected cells a
 // `selectedCell` CSS class.
 export class CellSelection extends Selection {
-  readonly $anchorCell: ResolvedPos;
-  readonly $headCell: ResolvedPos;
+  public readonly $anchorCell: ResolvedPos;
+  public readonly $headCell: ResolvedPos;
   // :: (ResolvedPos, ?ResolvedPos)
   // A table selection is identified by its anchor and head cells. The
   // positions given to this constructor should point _before_ two
@@ -92,9 +92,9 @@ export class CellSelection extends Selection {
       this.$headCell.pos - start,
     );
     const seen = {},
-      rows = [];
+      rows: PMNode[] = [];
     for (let row = rect.top; row < rect.bottom; row++) {
-      const rowContent = [];
+      const rowContent: PMNode[] = [];
       for (
         let index = row * map.width + rect.left, col = rect.left;
         col < rect.right;
@@ -104,33 +104,43 @@ export class CellSelection extends Selection {
         if (!seen[pos]) {
           seen[pos] = true;
           const cellRect = map.findCell(pos);
-          let cell = table.nodeAt(pos);
+          let cell: PMNode | null | undefined  = table.nodeAt(pos);
+
           const extraLeft = rect.left - cellRect.left,
             extraRight = cellRect.right - rect.right;
-          if (extraLeft > 0 || extraRight > 0) {
+          if (cell && (extraLeft > 0 || extraRight > 0) ){
             let attrs = cell.attrs;
             if (extraLeft > 0) attrs = removeColSpan(attrs, 0, extraLeft);
-            if (extraRight > 0)
+            if (extraRight > 0) 
               attrs = removeColSpan(
                 attrs,
                 attrs.colspan - extraRight,
                 extraRight,
               );
-            if (cellRect.left < rect.left)
+            if (cellRect.left < rect.left) {
               cell = cell.type.createAndFill(attrs);
-            else cell = cell.type.create(attrs, cell.content);
+            } else {
+              cell = cell.type.create(attrs, cell.content);
+            }
           }
-          if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
+          if (cell && (cellRect.top < rect.top || cellRect.bottom > rect.bottom) ){
             const attrs = setAttr(
-              cell.attrs,
+              cell?.attrs || {},
               'rowspan',
               Math.min(cellRect.bottom, rect.bottom) -
                 Math.max(cellRect.top, rect.top),
             );
-            if (cellRect.top < rect.top) cell = cell.type.createAndFill(attrs);
-            else cell = cell.type.create(attrs, cell.content);
+
+            if (cellRect.top < rect.top) {
+              cell = cell.type.createAndFill(attrs);
+            } else  {
+              cell = cell.type.create(attrs, cell.content);
+            }
           }
-          rowContent.push(cell);
+
+          if (cell) {
+            rowContent.push(cell);
+          }
         }
       }
       rows.push(table.child(row).copy(Fragment.from(rowContent)));
@@ -182,8 +192,8 @@ export class CellSelection extends Selection {
     const anchorTop = this.$anchorCell.index(-1),
       headTop = this.$headCell.index(-1);
     if (Math.min(anchorTop, headTop) > 0) return false;
-    const anchorBot = anchorTop + this.$anchorCell.nodeAfter.attrs.rowspan,
-      headBot = headTop + this.$headCell.nodeAfter.attrs.rowspan;
+    const anchorBot = anchorTop + this.$anchorCell.nodeAfter?.attrs.rowspan,
+      headBot = headTop + this.$headCell.nodeAfter?.attrs.rowspan;
     return Math.max(anchorBot, headBot) == this.$headCell.node(-1).childCount;
   }
 
@@ -223,8 +233,8 @@ export class CellSelection extends Selection {
     const anchorLeft = map.colCount(this.$anchorCell.pos - start),
       headLeft = map.colCount(this.$headCell.pos - start);
     if (Math.min(anchorLeft, headLeft) > 0) return false;
-    const anchorRight = anchorLeft + this.$anchorCell.nodeAfter.attrs.colspan,
-      headRight = headLeft + this.$headCell.nodeAfter.attrs.colspan;
+    const anchorRight = anchorLeft + this.$anchorCell.nodeAfter?.attrs.colspan,
+      headRight = headLeft + this.$headCell.nodeAfter?.attrs.colspan;
     return Math.max(anchorRight, headRight) == map.width;
   }
 
@@ -317,7 +327,7 @@ class CellBookmark {
 
 export function drawCellSelection(state) {
   if (!(state.selection instanceof CellSelection)) return null;
-  const cells = [];
+  const cells: Decoration[] = [];
   state.selection.forEachCell((node, pos) => {
     cells.push(
       Decoration.node(pos, pos + node.nodeSize, { class: 'selectedCell' }),
@@ -373,8 +383,7 @@ function isTextSelectionAcrossCells({ $from, $to }) {
 export function normalizeSelection(state, tr, allowTableNodeSelection) {
   const sel = (tr || state).selection,
     doc = (tr || state).doc;
-  let normalize,
-    role;
+  let normalize, role;
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
     if (role == 'cell' || role == 'header_cell') {
       normalize = CellSelection.create(doc, sel.from);

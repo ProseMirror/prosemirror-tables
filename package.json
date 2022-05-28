@@ -7,6 +7,7 @@
   "style": "style/tables.css",
   "typings": "./index.d.ts",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/prosemirror/prosemirror-tables.git"
@@ -30,8 +31,9 @@
   },
   "devDependencies": {
     "@prosemirror/buildhelper": "^0.1.5",
-    "@rollup/plugin-buble": "^0.20.0",
+    "@rollup/plugin-buble": "^0.21.3",
     "@rollup/plugin-typescript": "^8.3.2",
+    "@types/jest": "^27.5.1",
     "@types/prosemirror-keymap": "^1.0.4",
     "@types/prosemirror-model": "^1.7.0",
     "@types/prosemirror-schema-basic": "^1.0.2",
@@ -42,7 +44,7 @@
     "eslint": "^8.16.0",
     "eslint-plugin-jest": "^26.2.2",
     "ist": "^1.1.1",
-    "mocha": "^10.0.0",
+    "jest": "^28.1.0",
     "prettier": "^2.6.2",
     "prosemirror-commands": "^1.1.1",
     "prosemirror-example-setup": "^1.1.1",
@@ -52,19 +54,30 @@
     "rollup": "^2.74.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "typescript": "^4.2.3",
-    "typings-tester": "^0.3.2"
+    "ts-jest": "^28.0.2",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "mocha test/test-*.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "jest",
     "build_demo": "rollup -c rollup.demo.config.js",
-    "build2": "pm-buildhelper ./demo.ts",
     "watch_demo": "rollup -w -c rollup.demo.config.js",
-    "build": "rollup -c",
-    "watch": "rollup -w -c",
-    "prepare": "pm-buildhelper src/index.ts",
-    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
-    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx"
+    "build": "pm-buildhelper src/index.ts",
+    "prepare": "yarn lint && yarn typecheck && yarn build",
+    "build_readme": "builddocs --name tables --format markdown --main src/README.md --filename src/index.ts",
+    "lint": "eslint src/ tests/ --ext .ts,.tsx"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": ["dist"],
+    "transformIgnorePatterns": ["^.+\\.js$"],
+    "testMatch": ["**/tests/test-*.ts"],
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "./tsconfig.tests.json"
+      }
+    }
   }
 }

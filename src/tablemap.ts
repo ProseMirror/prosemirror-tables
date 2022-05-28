@@ -1,3 +1,4 @@
+import type { Node as PMNode } from 'prosemirror-model';
 // Because working with row and column-spanning cells is not quite
 // trivial, this code builds up a descriptive structure for a given
 // table node. The structures are cached with the (persistent) table
@@ -21,7 +22,7 @@ if (typeof WeakMap != 'undefined') {
     return value;
   };
 } else {
-  const cache = [],
+  const cache: PMNode[] = [],
     cacheSize = 10;
   let cachePos = 0;
   readFromCache = (key) => {
@@ -144,7 +145,7 @@ export class TableMap {
   // Return the position of all cells that have the top left corner in
   // the given rectangle.
   cellsInRect(rect) {
-    const result = [],
+    const result: number[] = [],
       seen = {};
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
@@ -192,10 +193,16 @@ function computeMap(table) {
     throw new RangeError('Not a table node: ' + table.type.name);
   const width = findWidth(table),
     height = table.childCount;
-  const map = [],
-    colWidths = [];
+  const map: number[] = [],
+    colWidths: number[] = [];
+  type Problems = {
+    type: string;
+    n: number;
+    pos?: number;
+    row?: number;
+  };
   let mapPos = 0,
-    problems = null;
+    problems: Problems[] | null = null;
   for (let i = 0, e = width * height; i < e; i++) map[i] = 0;
 
   for (let row = 0, pos = 0; row < height; row++) {
@@ -318,7 +325,7 @@ function findBadColWidths(map, colWidths, table) {
 
 function freshColWidth(attrs) {
   if (attrs.colwidth) return attrs.colwidth.slice();
-  const result = [];
+  const result: number[] = [];
   for (let i = 0; i < attrs.colspan; i++) result.push(0);
   return result;
 }

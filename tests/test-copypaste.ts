@@ -25,9 +25,12 @@ import {
 } from '../src/';
 
 describe('pastedCells', () => {
-  function test(slice, width, height, content) {
-    let result = pastedCells(slice.slice(slice.tag.a, slice.tag.b));
+  function test(slice, width, height?, content?) {
+    const result = pastedCells(slice.slice(slice.tag.a, slice.tag.b));
     if (width == null) return ist(result, null);
+    if (!result) {
+      return;
+    }
     ist(result.rows.length, result.height);
     ist(result.width, width);
     ist(result.height, height);
@@ -81,8 +84,12 @@ describe('pastedCells', () => {
 
 describe('clipCells', () => {
   function test(slice, width, height, content) {
-    let result = clipCells(
-      pastedCells(slice.slice(slice.tag.a, slice.tag.b)),
+    const pastedSlice = pastedCells(slice.slice(slice.tag.a, slice.tag.b));
+    if (!pastedSlice) {
+      return;
+    }
+    const result = clipCells(
+      pastedSlice,
       width,
       height,
     );
@@ -132,7 +139,7 @@ describe('clipCells', () => {
 describe('insertCells', () => {
   function test(table, cells, result) {
     let state = EditorState.create({ doc: table });
-    let $cell = cellAround(table.resolve(table.tag.anchor)),
+    const $cell = cellAround(table.resolve(table.tag.anchor)),
       map = TableMap.get(table);
     insertCells(
       state,

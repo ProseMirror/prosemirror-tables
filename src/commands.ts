@@ -1,7 +1,7 @@
 // This file defines a number of table-related commands.
 
 import { TextSelection } from 'prosemirror-state';
-import { Fragment } from 'prosemirror-model';
+import { Fragment, NodeSpec, Node as PMNode } from 'prosemirror-model';
 
 import { Rect, TableMap } from './tablemap';
 import { CellSelection } from './cellselection';
@@ -42,9 +42,10 @@ export function selectedRect(state) {
 
 // Add a column at the given position in a table.
 export function addColumn(tr, { map, tableStart, table }, col) {
-  let refColumn = col > 0 ? -1 : 0;
-  if (columnIsHeader(map, table, col + refColumn))
+  let refColumn: number | null = col > 0 ? -1 : 0;
+  if (columnIsHeader(map, table, col + refColumn)) {
     refColumn = col == 0 || col == map.width ? null : 0;
+  }
 
   for (let row = 0; row < map.height; row++) {
     const index = row * map.width + col;
@@ -149,10 +150,11 @@ export function rowIsHeader(map, table, row) {
 export function addRow(tr, { map, tableStart, table }, row) {
   let rowPos = tableStart;
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize;
-  const cells = [];
-  let refRow = row > 0 ? -1 : 0;
-  if (rowIsHeader(map, table, row + refRow))
+  const cells: PMNode[] = [];
+  let refRow: number | null = row > 0 ? -1 : 0;
+  if (rowIsHeader(map, table, row + refRow)) {
     refRow = row == 0 || row == map.height ? null : 0;
+  }
   for (let col = 0, index = map.width * row; col < map.width; col++, index++) {
     // Covered by a rowspan cell
     if (
@@ -169,7 +171,7 @@ export function addRow(tr, { map, tableStart, table }, row) {
       );
       col += attrs.colspan - 1;
     } else {
-      const type =
+      const type: NodeSpec =
         refRow == null
           ? tableNodeTypes(table.type.schema).cell
           : table.nodeAt(map.map[index + refRow * map.width]).type;
@@ -307,7 +309,7 @@ export function mergeCells(state, dispatch) {
   if (dispatch) {
     const tr = state.tr;
     const seen = {};
-    let  content = Fragment.empty,
+    let content = Fragment.empty,
       mergedPos,
       mergedCell;
     for (let row = rect.top; row < rect.bottom; row++) {
@@ -382,7 +384,7 @@ export function splitCellWithType(getCellType) {
     }
     if (dispatch) {
       let baseAttrs = cellNode.attrs;
-      const attrs = [],
+      const attrs: unknown[] = [],
         colwidth = baseAttrs.colwidth;
       if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, 'rowspan', 1);
       if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, 'colspan', 1);
