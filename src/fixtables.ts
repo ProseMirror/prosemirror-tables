@@ -27,9 +27,11 @@ function changedDescendants(old, cur, offset, f) {
       }
     }
     f(child, offset);
-    if (j < oldSize && old.child(j).sameMarkup(child))
+    if (j < oldSize && old.child(j).sameMarkup(child)) {
       changedDescendants(old.child(j), child, offset + 1, f);
-    else child.nodesBetween(0, child.content.size, f, offset + 1);
+    } else {
+      child.nodesBetween(0, child.content.size, f, offset + 1);
+    }
     offset += child.nodeSize;
   }
 }
@@ -43,12 +45,15 @@ function changedDescendants(old, cur, offset, f) {
 export function fixTables(state, oldState?) {
   let tr;
   const check = (node, pos) => {
-    if (node.type.spec.tableRole == 'table')
+    if (node.type.spec.tableRole == 'table') {
       tr = fixTable(state, node, pos, tr);
+    }
   };
-  if (!oldState) state.doc.descendants(check);
-  else if (oldState.doc != state.doc)
+  if (!oldState) {
+    state.doc.descendants(check);
+  } else if (oldState.doc != state.doc) {
     changedDescendants(oldState.doc, state.doc, 0, check);
+  }
   return tr;
 }
 
@@ -57,19 +62,26 @@ export function fixTables(state, oldState?) {
 // it was given, if non-null, or create a new one if necessary.
 export function fixTable(state, table, tablePos, tr) {
   const map = TableMap.get(table);
-  if (!map.problems) return tr;
-  if (!tr) tr = state.tr;
+  if (!map.problems) {
+    return tr;
+  }
+  if (!tr) {
+    tr = state.tr;
+  }
 
   // Track which rows we must add cells to, so that we can adjust that
   // when fixing collisions.
   const mustAdd: number[] = [];
-  for (let i = 0; i < map.height; i++) mustAdd.push(0);
+  for (let i = 0; i < map.height; i++) {
+    mustAdd.push(0);
+  }
   for (let i = 0; i < map.problems.length; i++) {
     const prob = map.problems[i];
     if (prob.type == 'collision') {
       const cell = table.nodeAt(prob.pos);
-      for (let j = 0; j < cell.attrs.rowspan; j++)
+      for (let j = 0; j < cell.attrs.rowspan; j++) {
         mustAdd[prob.row + j] += prob.n;
+      }
       tr.setNodeMarkup(
         tr.mapping.map(tablePos + 1 + prob.pos),
         null,
@@ -94,11 +106,14 @@ export function fixTable(state, table, tablePos, tr) {
     }
   }
   let first, last;
-  for (let i = 0; i < mustAdd.length; i++)
+  for (let i = 0; i < mustAdd.length; i++) {
     if (mustAdd[i]) {
-      if (first == null) first = i;
+      if (first == null) {
+        first = i;
+      }
       last = i;
     }
+  }
   // Add the necessary cells, using a heuristic for whether to add the
   // cells at the start or end of the rows (if it looks like a 'bite'
   // was taken out of the table, add cells at the start of the row
@@ -113,8 +128,9 @@ export function fixTable(state, table, tablePos, tr) {
         tableNodeType = row.firstChild.type.spec.tableRole;
       }
       const nodes: PMNode[] = [];
-      for (let j = 0; j < add; j++)
+      for (let j = 0; j < add; j++) {
         nodes.push(tableNodeTypes(state.schema)[tableNodeType].createAndFill());
+      }
       const side = (i == 0 || first == i - 1) && last == i ? pos + 1 : end - 1;
       tr.insert(tr.mapping.map(side), nodes);
     }

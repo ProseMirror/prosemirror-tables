@@ -10,7 +10,12 @@ import {
   SelectionRange,
 } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
-import { Fragment, Slice, ResolvedPos, Node as PMNode } from 'prosemirror-model';
+import {
+  Fragment,
+  Slice,
+  ResolvedPos,
+  Node as PMNode,
+} from 'prosemirror-model';
 
 import { inSameTable, pointsAtCell, setAttr, removeColSpan } from './util';
 import { TableMap } from './tablemap';
@@ -71,11 +76,13 @@ export class CellSelection extends Selection {
       inSameTable($anchorCell, $headCell)
     ) {
       const tableChanged = this.$anchorCell.node(-1) != $anchorCell.node(-1);
-      if (tableChanged && this.isRowSelection())
+      if (tableChanged && this.isRowSelection()) {
         return CellSelection.rowSelection($anchorCell, $headCell);
-      else if (tableChanged && this.isColSelection())
+      } else if (tableChanged && this.isColSelection()) {
         return CellSelection.colSelection($anchorCell, $headCell);
-      else return new CellSelection($anchorCell, $headCell);
+      } else {
+        return new CellSelection($anchorCell, $headCell);
+      }
     }
     return TextSelection.between($anchorCell, $headCell);
   }
@@ -104,26 +111,32 @@ export class CellSelection extends Selection {
         if (!seen[pos]) {
           seen[pos] = true;
           const cellRect = map.findCell(pos);
-          let cell: PMNode | null | undefined  = table.nodeAt(pos);
+          let cell: PMNode | null | undefined = table.nodeAt(pos);
 
           const extraLeft = rect.left - cellRect.left,
             extraRight = cellRect.right - rect.right;
-          if (cell && (extraLeft > 0 || extraRight > 0) ){
+          if (cell && (extraLeft > 0 || extraRight > 0)) {
             let attrs = cell.attrs;
-            if (extraLeft > 0) attrs = removeColSpan(attrs, 0, extraLeft);
-            if (extraRight > 0) 
+            if (extraLeft > 0) {
+              attrs = removeColSpan(attrs, 0, extraLeft);
+            }
+            if (extraRight > 0) {
               attrs = removeColSpan(
                 attrs,
                 attrs.colspan - extraRight,
                 extraRight,
               );
+            }
             if (cellRect.left < rect.left) {
               cell = cell.type.createAndFill(attrs);
             } else {
               cell = cell.type.create(attrs, cell.content);
             }
           }
-          if (cell && (cellRect.top < rect.top || cellRect.bottom > rect.bottom) ){
+          if (
+            cell &&
+            (cellRect.top < rect.top || cellRect.bottom > rect.bottom)
+          ) {
             const attrs = setAttr(
               cell?.attrs || {},
               'rowspan',
@@ -133,7 +146,7 @@ export class CellSelection extends Selection {
 
             if (cellRect.top < rect.top) {
               cell = cell.type.createAndFill(attrs);
-            } else  {
+            } else {
               cell = cell.type.create(attrs, cell.content);
             }
           }
@@ -167,7 +180,9 @@ export class CellSelection extends Selection {
       tr.doc.resolve(tr.mapping.slice(mapFrom).map(this.to)),
       -1,
     );
-    if (sel) tr.setSelection(sel);
+    if (sel) {
+      tr.setSelection(sel);
+    }
   }
 
   replaceWith(tr, node) {
@@ -181,8 +196,9 @@ export class CellSelection extends Selection {
     const cells = map.cellsInRect(
       map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start),
     );
-    for (let i = 0; i < cells.length; i++)
+    for (let i = 0; i < cells.length; i++) {
       f(table.nodeAt(cells[i]), start + cells[i]);
+    }
   }
 
   // :: () → bool
@@ -191,7 +207,9 @@ export class CellSelection extends Selection {
   isColSelection() {
     const anchorTop = this.$anchorCell.index(-1),
       headTop = this.$headCell.index(-1);
-    if (Math.min(anchorTop, headTop) > 0) return false;
+    if (Math.min(anchorTop, headTop) > 0) {
+      return false;
+    }
     const anchorBot = anchorTop + this.$anchorCell.nodeAfter?.attrs.rowspan,
       headBot = headTop + this.$headCell.nodeAfter?.attrs.rowspan;
     return Math.max(anchorBot, headBot) == this.$headCell.node(-1).childCount;
@@ -207,19 +225,23 @@ export class CellSelection extends Selection {
       headRect = map.findCell($headCell.pos - start);
     const doc = $anchorCell.node(0);
     if (anchorRect.top <= headRect.top) {
-      if (anchorRect.top > 0)
+      if (anchorRect.top > 0) {
         $anchorCell = doc.resolve(start + map.map[anchorRect.left]);
-      if (headRect.bottom < map.height)
+      }
+      if (headRect.bottom < map.height) {
         $headCell = doc.resolve(
           start + map.map[map.width * (map.height - 1) + headRect.right - 1],
         );
+      }
     } else {
-      if (headRect.top > 0)
+      if (headRect.top > 0) {
         $headCell = doc.resolve(start + map.map[headRect.left]);
-      if (anchorRect.bottom < map.height)
+      }
+      if (anchorRect.bottom < map.height) {
         $anchorCell = doc.resolve(
           start + map.map[map.width * (map.height - 1) + anchorRect.right - 1],
         );
+      }
     }
     return new CellSelection($anchorCell, $headCell);
   }
@@ -232,7 +254,9 @@ export class CellSelection extends Selection {
       start = this.$anchorCell.start(-1);
     const anchorLeft = map.colCount(this.$anchorCell.pos - start),
       headLeft = map.colCount(this.$headCell.pos - start);
-    if (Math.min(anchorLeft, headLeft) > 0) return false;
+    if (Math.min(anchorLeft, headLeft) > 0) {
+      return false;
+    }
     const anchorRight = anchorLeft + this.$anchorCell.nodeAfter?.attrs.colspan,
       headRight = headLeft + this.$headCell.nodeAfter?.attrs.colspan;
     return Math.max(anchorRight, headRight) == map.width;
@@ -256,19 +280,23 @@ export class CellSelection extends Selection {
       headRect = map.findCell($headCell.pos - start);
     const doc = $anchorCell.node(0);
     if (anchorRect.left <= headRect.left) {
-      if (anchorRect.left > 0)
+      if (anchorRect.left > 0) {
         $anchorCell = doc.resolve(start + map.map[anchorRect.top * map.width]);
-      if (headRect.right < map.width)
+      }
+      if (headRect.right < map.width) {
         $headCell = doc.resolve(
           start + map.map[map.width * (headRect.top + 1) - 1],
         );
+      }
     } else {
-      if (headRect.left > 0)
+      if (headRect.left > 0) {
         $headCell = doc.resolve(start + map.map[headRect.top * map.width]);
-      if (anchorRect.right < map.width)
+      }
+      if (anchorRect.right < map.width) {
         $anchorCell = doc.resolve(
           start + map.map[map.width * (anchorRect.top + 1) - 1],
         );
+      }
     }
     return new CellSelection($anchorCell, $headCell);
   }
@@ -319,14 +347,18 @@ class CellBookmark {
       $anchorCell.index() < $anchorCell.parent.childCount &&
       $headCell.index() < $headCell.parent.childCount &&
       inSameTable($anchorCell, $headCell)
-    )
+    ) {
       return new CellSelection($anchorCell, $headCell);
-    else return Selection.near($headCell, 1);
+    } else {
+      return Selection.near($headCell, 1);
+    }
   }
 }
 
 export function drawCellSelection(state) {
-  if (!(state.selection instanceof CellSelection)) return null;
+  if (!(state.selection instanceof CellSelection)) {
+    return null;
+  }
   const cells: Decoration[] = [];
   state.selection.forEachCell((node, pos) => {
     cells.push(
@@ -337,14 +369,22 @@ export function drawCellSelection(state) {
 }
 
 function isCellBoundarySelection({ $from, $to }) {
-  if ($from.pos == $to.pos || $from.pos < $from.pos - 6) return false; // Cheap elimination
+  if ($from.pos == $to.pos || $from.pos < $from.pos - 6) {
+    return false;
+  } // Cheap elimination
   let afterFrom = $from.pos,
     beforeTo = $to.pos,
     depth = $from.depth;
-  for (; depth >= 0; depth--, afterFrom++)
-    if ($from.after(depth + 1) < $from.end(depth)) break;
-  for (let d = $to.depth; d >= 0; d--, beforeTo--)
-    if ($to.before(d + 1) > $to.start(d)) break;
+  for (; depth >= 0; depth--, afterFrom++) {
+    if ($from.after(depth + 1) < $from.end(depth)) {
+      break;
+    }
+  }
+  for (let d = $to.depth; d >= 0; d--, beforeTo--) {
+    if ($to.before(d + 1) > $to.start(d)) {
+      break;
+    }
+  }
   return (
     afterFrom == beforeTo &&
     /row|table/.test($from.node(depth).type.spec.tableRole)
@@ -401,6 +441,8 @@ export function normalizeSelection(state, tr, allowTableNodeSelection) {
   } else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) {
     normalize = TextSelection.create(doc, sel.$from.start(), sel.$from.end());
   }
-  if (normalize) (tr || (tr = state.tr)).setSelection(normalize);
+  if (normalize) {
+    (tr || (tr = state.tr)).setSelection(normalize);
+  }
   return tr;
 }

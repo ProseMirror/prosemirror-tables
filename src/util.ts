@@ -8,9 +8,11 @@ import { tableNodeTypes } from './schema';
 export const key = new PluginKey('selectingCells');
 
 export function cellAround($pos) {
-  for (let d = $pos.depth - 1; d > 0; d--)
-    if ($pos.node(d).type.spec.tableRole == 'row')
+  for (let d = $pos.depth - 1; d > 0; d--) {
+    if ($pos.node(d).type.spec.tableRole == 'row') {
       return $pos.node(0).resolve($pos.before(d + 1));
+    }
+  }
   return null;
 }
 
@@ -18,15 +20,20 @@ export function cellWrapping($pos) {
   for (let d = $pos.depth; d > 0; d--) {
     // Sometimes the cell can be in the same depth.
     const role = $pos.node(d).type.spec.tableRole;
-    if (role === 'cell' || role === 'header_cell') return $pos.node(d);
+    if (role === 'cell' || role === 'header_cell') {
+      return $pos.node(d);
+    }
   }
   return null;
 }
 
 export function isInTable(state) {
   const $head = state.selection.$head;
-  for (let d = $head.depth; d > 0; d--)
-    if ($head.node(d).type.spec.tableRole == 'row') return true;
+  for (let d = $head.depth; d > 0; d--) {
+    if ($head.node(d).type.spec.tableRole == 'row') {
+      return true;
+    }
+  }
   return false;
 }
 
@@ -49,7 +56,9 @@ function cellNear($pos) {
     after = after.firstChild, pos++
   ) {
     const role = after.type.spec.tableRole;
-    if (role == 'cell' || role == 'header_cell') return $pos.doc.resolve(pos);
+    if (role == 'cell' || role == 'header_cell') {
+      return $pos.doc.resolve(pos);
+    }
   }
   for (
     let before = $pos.nodeBefore, pos = $pos.pos;
@@ -57,8 +66,9 @@ function cellNear($pos) {
     before = before.lastChild, pos--
   ) {
     const role = before.type.spec.tableRole;
-    if (role == 'cell' || role == 'header_cell')
+    if (role == 'cell' || role == 'header_cell') {
       return $pos.doc.resolve(pos - before.nodeSize);
+    }
   }
 }
 
@@ -91,7 +101,9 @@ export function nextCell($pos, axis, dir) {
 
 export function setAttr(attrs, name, value) {
   const result = {};
-  for (const prop in attrs) result[prop] = attrs[prop];
+  for (const prop in attrs) {
+    result[prop] = attrs[prop];
+  }
   result[name] = value;
   return result;
 }
@@ -102,7 +114,9 @@ export function removeColSpan(attrs, pos, n = 1) {
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
-    if (!result.colwidth.some((w) => w > 0)) result.colwidth = null;
+    if (!result.colwidth.some((w) => w > 0)) {
+      result.colwidth = null;
+    }
   }
   return result;
 }
@@ -112,15 +126,19 @@ export function addColSpan(attrs, pos, n = 1) {
   const result: any = setAttr(attrs, 'colspan', attrs.colspan + n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
-    for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);
+    for (let i = 0; i < n; i++) {
+      result.colwidth.splice(pos, 0, 0);
+    }
   }
   return result;
 }
 
 export function columnIsHeader(map, table, col) {
   const headerCell = tableNodeTypes(table.type.schema).header_cell;
-  for (let row = 0; row < map.height; row++)
-    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+  for (let row = 0; row < map.height; row++) {
+    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell) {
       return false;
+    }
+  }
   return true;
 }

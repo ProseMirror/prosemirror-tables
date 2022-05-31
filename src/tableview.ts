@@ -18,7 +18,9 @@ export class TableView {
   }
 
   update(node) {
-    if (node.type != this.node.type) return false;
+    if (node.type != this.node.type) {
+      return false;
+    }
     this.node = node;
     updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
     return true;
@@ -51,12 +53,17 @@ export function updateColumns(
         overrideCol == col ? overrideValue : colwidth && colwidth[j];
       const cssWidth = hasWidth ? hasWidth + 'px' : '';
       totalWidth += hasWidth || cellMinWidth;
-      if (!hasWidth) fixedWidth = false;
+      if (!hasWidth) {
+        fixedWidth = false;
+      }
       if (!nextDOM) {
-        colgroup.appendChild(document.createElement('col')).style.width =
-          cssWidth;
+        colgroup.appendChild(
+          document.createElement('col'),
+        ).style.width = cssWidth;
       } else {
-        if (nextDOM.style.width != cssWidth) nextDOM.style.width = cssWidth;
+        if (nextDOM.style.width != cssWidth) {
+          nextDOM.style.width = cssWidth;
+        }
         nextDOM = nextDOM.nextSibling;
       }
     }

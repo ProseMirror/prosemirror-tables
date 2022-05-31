@@ -40,8 +40,11 @@ import {
 function test(doc, command, result) {
   let state = EditorState.create({ doc, selection: selectionFor(doc) });
   const ran = command(state, (tr) => (state = state.apply(tr)));
-  if (result == null) ist(ran, false);
-  else ist(state.doc, result, eq);
+  if (result == null) {
+    ist(ran, false);
+  } else {
+    ist(state.doc, result, eq);
+  }
 }
 
 describe('addColumnAfter', () => {

@@ -36,8 +36,12 @@ export const handleKeyDown = keydownHandler({
 });
 
 function maybeSetSelection(state, dispatch, selection) {
-  if (selection.eq(state.selection)) return false;
-  if (dispatch) dispatch(state.tr.setSelection(selection).scrollIntoView());
+  if (selection.eq(state.selection)) {
+    return false;
+  }
+  if (dispatch) {
+    dispatch(state.tr.setSelection(selection).scrollIntoView());
+  }
   return true;
 }
 
@@ -51,9 +55,13 @@ function arrow(axis, dir) {
         Selection.near(sel.$headCell, dir),
       );
     }
-    if (axis != 'horiz' && !sel.empty) return false;
+    if (axis != 'horiz' && !sel.empty) {
+      return false;
+    }
     const end = atEndOfCell(view, axis, dir);
-    if (end == null) return false;
+    if (end == null) {
+      return false;
+    }
     if (axis == 'horiz') {
       return maybeSetSelection(
         state,
@@ -64,10 +72,13 @@ function arrow(axis, dir) {
       const $cell = state.doc.resolve(end),
         $next = nextCell($cell, axis, dir);
       let newSel;
-      if ($next) newSel = Selection.near($next, 1);
-      else if (dir < 0)
+      if ($next) {
+        newSel = Selection.near($next, 1);
+      } else if (dir < 0) {
         newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1);
-      else newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1);
+      } else {
+        newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1);
+      }
       return maybeSetSelection(state, dispatch, newSel);
     }
   };
@@ -78,11 +89,15 @@ function shiftArrow(axis, dir) {
     let sel = state.selection;
     if (!(sel instanceof CellSelection)) {
       const end = atEndOfCell(view, axis, dir);
-      if (end == null) return false;
+      if (end == null) {
+        return false;
+      }
       sel = new CellSelection(state.doc.resolve(end));
     }
     const $head = nextCell(sel.$headCell, axis, dir);
-    if (!$head) return false;
+    if (!$head) {
+      return false;
+    }
     return maybeSetSelection(
       state,
       dispatch,
@@ -93,19 +108,24 @@ function shiftArrow(axis, dir) {
 
 function deleteCellSelection(state, dispatch) {
   const sel = state.selection;
-  if (!(sel instanceof CellSelection)) return false;
+  if (!(sel instanceof CellSelection)) {
+    return false;
+  }
   if (dispatch) {
     const tr = state.tr,
       baseContent = tableNodeTypes(state.schema).cell.createAndFill().content;
     sel.forEachCell((cell, pos) => {
-      if (!cell.content.eq(baseContent))
+      if (!cell.content.eq(baseContent)) {
         tr.replace(
           tr.mapping.map(pos + 1),
           tr.mapping.map(pos + cell.nodeSize - 1),
           new Slice(baseContent, 0, 0),
         );
+      }
     });
-    if (tr.docChanged) dispatch(tr);
+    if (tr.docChanged) {
+      dispatch(tr);
+    }
   }
   return true;
 }
@@ -113,17 +133,21 @@ function deleteCellSelection(state, dispatch) {
 export function handleTripleClick(view, pos) {
   const doc = view.state.doc,
     $cell = cellAround(doc.resolve(pos));
-  if (!$cell) return false;
+  if (!$cell) {
+    return false;
+  }
   view.dispatch(view.state.tr.setSelection(new CellSelection($cell)));
   return true;
 }
 
 export function handlePaste(view, _, slice) {
-  if (!isInTable(view.state)) return false;
+  if (!isInTable(view.state)) {
+    return false;
+  }
   let cells = pastedCells(slice);
   const sel = view.state.selection;
   if (sel instanceof CellSelection) {
-    if (!cells)
+    if (!cells) {
       cells = {
         width: 1,
         height: 1,
@@ -133,6 +157,7 @@ export function handlePaste(view, _, slice) {
           ),
         ],
       };
+    }
     const table = sel.$anchorCell.node(-1),
       start = sel.$anchorCell.start(-1);
     const rect = TableMap.get(table).rectBetween(
@@ -159,7 +184,9 @@ export function handlePaste(view, _, slice) {
 }
 
 export function handleMouseDown(view, startEvent): boolean {
-  if (startEvent.ctrlKey || startEvent.metaKey) return false;
+  if (startEvent.ctrlKey || startEvent.metaKey) {
+    return false;
+  }
 
   const startDOMCell = domInCell(view, startEvent.target);
   let $anchor;
@@ -188,13 +215,18 @@ export function handleMouseDown(view, startEvent): boolean {
     let $head = cellUnderMouse(view, event);
     const starting = key.getState(view.state) == null;
     if (!$head || !inSameTable($anchor, $head)) {
-      if (starting) $head = $anchor;
-      else return;
+      if (starting) {
+        $head = $anchor;
+      } else {
+        return;
+      }
     }
     const selection = new CellSelection($anchor, $head);
     if (starting || !view.state.selection.eq(selection)) {
       const tr = view.state.tr.setSelection(selection);
-      if (starting) tr.setMeta(key, $anchor.pos);
+      if (starting) {
+        tr.setMeta(key, $anchor.pos);
+      }
       view.dispatch(tr);
     }
   }
@@ -204,8 +236,9 @@ export function handleMouseDown(view, startEvent): boolean {
     view.root.removeEventListener('mouseup', stop);
     view.root.removeEventListener('dragstart', stop);
     view.root.removeEventListener('mousemove', move);
-    if (key.getState(view.state) != null)
+    if (key.getState(view.state) != null) {
       view.dispatch(view.state.tr.setMeta(key, -1));
+    }
   }
 
   function move(event) {
@@ -217,9 +250,13 @@ export function handleMouseDown(view, startEvent): boolean {
     } else if (domInCell(view, event.target) != startDOMCell) {
       // Moving out of the initial cell -- start a new cell selection
       $anchor = cellUnderMouse(view, startEvent);
-      if (!$anchor) return stop();
+      if (!$anchor) {
+        return stop();
+      }
     }
-    if ($anchor) setCellSelection($anchor, event);
+    if ($anchor) {
+      setCellSelection($anchor, event);
+    }
   }
   view.root.addEventListener('mouseup', stop);
   view.root.addEventListener('dragstart', stop);
@@ -230,12 +267,16 @@ export function handleMouseDown(view, startEvent): boolean {
 // Check whether the cursor is at the end of a cell (so that further
 // motion would move out of the cell)
 function atEndOfCell(view, axis, dir) {
-  if (!(view.state.selection instanceof TextSelection)) return null;
+  if (!(view.state.selection instanceof TextSelection)) {
+    return null;
+  }
   const { $head } = view.state.selection;
   for (let d = $head.depth - 1; d >= 0; d--) {
     const parent = $head.node(d),
       index = dir < 0 ? $head.index(d) : $head.indexAfter(d);
-    if (index != (dir < 0 ? 0 : parent.childCount)) return null;
+    if (index != (dir < 0 ? 0 : parent.childCount)) {
+      return null;
+    }
     if (
       parent.type.spec.tableRole == 'cell' ||
       parent.type.spec.tableRole == 'header_cell'
@@ -250,8 +291,11 @@ function atEndOfCell(view, axis, dir) {
 }
 
 function domInCell(view, dom) {
-  for (; dom && dom != view.dom; dom = dom.parentNode)
-    if (dom.nodeName == 'TD' || dom.nodeName == 'TH') return dom;
+  for (; dom && dom != view.dom; dom = dom.parentNode) {
+    if (dom.nodeName == 'TD' || dom.nodeName == 'TH') {
+      return dom;
+    }
+  }
 }
 
 function cellUnderMouse(view, event) {
@@ -259,6 +303,8 @@ function cellUnderMouse(view, event) {
     left: event.clientX,
     top: event.clientY,
   });
-  if (!mousePos) return null;
+  if (!mousePos) {
+    return null;
+  }
   return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;
 }

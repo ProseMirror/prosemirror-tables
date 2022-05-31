@@ -24,7 +24,9 @@ import { tableNodeTypes } from './schema';
 // Get a rectangular area of cells from a slice, or null if the outer
 // nodes of the slice aren't table cells or rows.
 export function pastedCells(slice) {
-  if (!slice.size) return null;
+  if (!slice.size) {
+    return null;
+  }
   let { content, openStart, openEnd } = slice;
   while (
     content.childCount == 1 &&
@@ -44,11 +46,12 @@ export function pastedCells(slice) {
       let cells = content.child(i).content;
       const left = i ? 0 : Math.max(0, openStart - 1);
       const right = i < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1);
-      if (left || right)
+      if (left || right) {
         cells = fitSlice(
           tableNodeTypes(schema).row,
           new Slice(cells, left, right),
         ).content;
+      }
       rows.push(cells);
     }
   } else if (role == 'cell' || role == 'header_cell') {
@@ -75,18 +78,25 @@ function ensureRectangular(schema, rows) {
     const row = rows[i];
     for (let j = row.childCount - 1; j >= 0; j--) {
       const { rowspan, colspan } = row.child(j).attrs;
-      for (let r = i; r < i + rowspan; r++)
+      for (let r = i; r < i + rowspan; r++) {
         widths[r] = (widths[r] || 0) + colspan;
+      }
     }
   }
   let width = 0;
-  for (let r = 0; r < widths.length; r++) width = Math.max(width, widths[r]);
   for (let r = 0; r < widths.length; r++) {
-    if (r >= rows.length) rows.push(Fragment.empty);
+    width = Math.max(width, widths[r]);
+  }
+  for (let r = 0; r < widths.length; r++) {
+    if (r >= rows.length) {
+      rows.push(Fragment.empty);
+    }
     if (widths[r] < width) {
       const empty = tableNodeTypes(schema).cell.createAndFill(),
-        cells: PMNode[]  = [];
-      for (let i = widths[r]; i < width; i++) cells.push(empty);
+        cells: PMNode[] = [];
+      for (let i = widths[r]; i < width; i++) {
+        cells.push(empty);
+      }
       rows[r] = rows[r].append(Fragment.from(cells));
     }
   }
@@ -113,7 +123,7 @@ export function clipCells({ width, height, rows }, newWidth, newHeight) {
       for (let col: number = added[row] || 0, i = 0; col < newWidth; i++) {
         let cell = frag.child(i % frag.childCount);
         if (col + cell.attrs.colspan > newWidth) {
-          const colspan: number = (cell?.attrs?.colspan || 0);
+          const colspan: number = cell?.attrs?.colspan || 0;
           cell = cell.type.create(
             removeColSpan(
               cell.attrs,
@@ -142,7 +152,7 @@ export function clipCells({ width, height, rows }, newWidth, newHeight) {
         source = rows[i % height];
       for (let j = 0; j < source.childCount; j++) {
         let cell = source.child(j);
-        if (row + cell.attrs.rowspan > newHeight)
+        if (row + cell.attrs.rowspan > newHeight) {
           cell = cell.type.create(
             setAttr(
               cell.attrs,
@@ -151,6 +161,7 @@ export function clipCells({ width, height, rows }, newWidth, newHeight) {
             ),
             cell.content,
           );
+        }
         cells.push(cell);
       }
       newRows.push(Fragment.from(cells));
@@ -174,11 +185,13 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
       rowEnd += rowNode.nodeSize;
       const cells: PMNode[] = [];
       let add;
-      if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell)
+      if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell) {
         add = empty || (empty = types.cell.createAndFill());
-      else add = emptyHead || (emptyHead = types.header_cell.createAndFill());
-      for (let i = map.width; i < width; i++) { 
-        cells.push(add); 
+      } else {
+        add = emptyHead || (emptyHead = types.header_cell.createAndFill());
+      }
+      for (let i = map.width; i < width; i++) {
+        cells.push(add);
       }
       tr.insert(tr.mapping.slice(mapFrom).map(rowEnd - 1 + start), cells);
     }
@@ -215,7 +228,9 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
 // any rowspan cells by splitting cells that cross it. Return true if
 // something changed.
 function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
-  if (top == 0 || top == map.height) return false;
+  if (top == 0 || top == map.height) {
+    return false;
+  }
   let found = false;
   for (let col = left; col < right; col++) {
     const index = top * map.width + col,
@@ -245,7 +260,9 @@ function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
 // cross any colspan cells by splitting cells that cross it. Return
 // true if something changed.
 function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
-  if (left == 0 || left == map.width) return false;
+  if (left == 0 || left == map.width) {
+    return false;
+  }
   let found = false;
   for (let row = top; row < bottom; row++) {
     const index = row * map.width + left,
@@ -293,17 +310,27 @@ export function insertCells(state, dispatch, tableStart, rect, cells) {
   // crossing the boundaries of the rectangle that we want to
   // insert into. If anything about it changes, recompute the table
   // map so that subsequent operations can see the current shape.
-  if (growTable(tr, map, table, tableStart, right, bottom, mapFrom)) recomp();
-  if (isolateHorizontal(tr, map, table, tableStart, left, right, top, mapFrom))
+  if (growTable(tr, map, table, tableStart, right, bottom, mapFrom)) {
     recomp();
+  }
+  if (
+    isolateHorizontal(tr, map, table, tableStart, left, right, top, mapFrom)
+  ) {
+    recomp();
+  }
   if (
     isolateHorizontal(tr, map, table, tableStart, left, right, bottom, mapFrom)
-  )
+  ) {
     recomp();
-  if (isolateVertical(tr, map, table, tableStart, top, bottom, left, mapFrom))
+  }
+  if (isolateVertical(tr, map, table, tableStart, top, bottom, left, mapFrom)) {
     recomp();
-  if (isolateVertical(tr, map, table, tableStart, top, bottom, right, mapFrom))
+  }
+  if (
+    isolateVertical(tr, map, table, tableStart, top, bottom, right, mapFrom)
+  ) {
     recomp();
+  }
 
   for (let row = top; row < bottom; row++) {
     const from = map.positionAt(row, left, table),

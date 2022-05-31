@@ -26,11 +26,16 @@ if (typeof WeakMap != 'undefined') {
     cacheSize = 10;
   let cachePos = 0;
   readFromCache = (key) => {
-    for (let i = 0; i < cache.length; i += 2)
-      if (cache[i] == key) return cache[i + 1];
+    for (let i = 0; i < cache.length; i += 2) {
+      if (cache[i] == key) {
+        return cache[i + 1];
+      }
+    }
   };
   addToCache = (key, value) => {
-    if (cachePos == cacheSize) cachePos = 0;
+    if (cachePos == cacheSize) {
+      cachePos = 0;
+    }
     cache[cachePos++] = key;
     return (cache[cachePos++] = value);
   };
@@ -78,19 +83,23 @@ export class TableMap {
   findCell(pos) {
     for (let i = 0; i < this.map.length; i++) {
       const curPos = this.map[i];
-      if (curPos != pos) continue;
+      if (curPos != pos) {
+        continue;
+      }
       const left = i % this.width,
         top = (i / this.width) | 0;
       let right = left + 1,
         bottom = top + 1;
-      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++)
+      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++) {
         right++;
+      }
       for (
         let j = 1;
         bottom < this.height && this.map[i + this.width * j] == curPos;
         j++
-      )
+      ) {
         bottom++;
+      }
       return new Rect(left, top, right, bottom);
     }
     throw new RangeError('No cell with offset ' + pos + ' found');
@@ -99,8 +108,11 @@ export class TableMap {
   // :: (number) → number
   // Find the left side of the cell at the given position.
   colCount(pos) {
-    for (let i = 0; i < this.map.length; i++)
-      if (this.map[i] == pos) return i % this.width;
+    for (let i = 0; i < this.map.length; i++) {
+      if (this.map[i] == pos) {
+        return i % this.width;
+      }
+    }
     throw new RangeError('No cell with offset ' + pos + ' found');
   }
 
@@ -110,10 +122,14 @@ export class TableMap {
   nextCell(pos, axis, dir) {
     const { left, right, top, bottom } = this.findCell(pos);
     if (axis == 'horiz') {
-      if (dir < 0 ? left == 0 : right == this.width) return null;
+      if (dir < 0 ? left == 0 : right == this.width) {
+        return null;
+      }
       return this.map[top * this.width + (dir < 0 ? left - 1 : right)];
     } else {
-      if (dir < 0 ? top == 0 : bottom == this.height) return null;
+      if (dir < 0 ? top == 0 : bottom == this.height) {
+        return null;
+      }
       return this.map[left + this.width * (dir < 0 ? top - 1 : bottom)];
     }
   }
@@ -151,13 +167,16 @@ export class TableMap {
       for (let col = rect.left; col < rect.right; col++) {
         const index = row * this.width + col,
           pos = this.map[index];
-        if (seen[pos]) continue;
+        if (seen[pos]) {
+          continue;
+        }
         seen[pos] = true;
         if (
           (col != rect.left || !col || this.map[index - 1] != pos) &&
           (row != rect.top || !row || this.map[index - this.width] != pos)
-        )
+        ) {
           result.push(pos);
+        }
       }
     }
     return result;
@@ -173,7 +192,9 @@ export class TableMap {
         let index = col + row * this.width;
         const rowEndIndex = (row + 1) * this.width;
         // Skip past cells from previous rows (via rowspan)
-        while (index < rowEndIndex && this.map[index] < rowStart) index++;
+        while (index < rowEndIndex && this.map[index] < rowStart) {
+          index++;
+        }
         return index == rowEndIndex ? rowEnd - 1 : this.map[index];
       }
       rowStart = rowEnd;
@@ -189,8 +210,9 @@ export class TableMap {
 
 // Compute a table map.
 function computeMap(table) {
-  if (table.type.spec.tableRole != 'table')
+  if (table.type.spec.tableRole != 'table') {
     throw new RangeError('Not a table node: ' + table.type.name);
+  }
   const width = findWidth(table),
     height = table.childCount;
   const map: number[] = [],
@@ -203,14 +225,20 @@ function computeMap(table) {
   };
   let mapPos = 0,
     problems: Problems[] | null = null;
-  for (let i = 0, e = width * height; i < e; i++) map[i] = 0;
+  for (let i = 0, e = width * height; i < e; i++) {
+    map[i] = 0;
+  }
 
   for (let row = 0, pos = 0; row < height; row++) {
     const rowNode = table.child(row);
     pos++;
     for (let i = 0; ; i++) {
-      while (mapPos < map.length && map[mapPos] != 0) mapPos++;
-      if (i == rowNode.childCount) break;
+      while (mapPos < map.length && map[mapPos] != 0) {
+        mapPos++;
+      }
+      if (i == rowNode.childCount) {
+        break;
+      }
       const cellNode = rowNode.child(i),
         { colspan, rowspan, colwidth } = cellNode.attrs;
       for (let h = 0; h < rowspan; h++) {
@@ -224,14 +252,16 @@ function computeMap(table) {
         }
         const start = mapPos + h * width;
         for (let w = 0; w < colspan; w++) {
-          if (map[start + w] == 0) map[start + w] = pos;
-          else
+          if (map[start + w] == 0) {
+            map[start + w] = pos;
+          } else {
             (problems || (problems = [])).push({
               type: 'collision',
               row,
               pos,
               n: colspan - w,
             });
+          }
           const colW = colwidth && colwidth[w];
           if (colW) {
             const widthIndex = ((start + w) % width) * 2,
@@ -253,9 +283,14 @@ function computeMap(table) {
     }
     const expectedPos = (row + 1) * width;
     let missing = 0;
-    while (mapPos < expectedPos) if (map[mapPos++] == 0) missing++;
-    if (missing)
+    while (mapPos < expectedPos) {
+      if (map[mapPos++] == 0) {
+        missing++;
+      }
+    }
+    if (missing) {
       (problems || (problems = [])).push({ type: 'missing', row, n: missing });
+    }
     pos++;
   }
 
@@ -265,9 +300,14 @@ function computeMap(table) {
   // For columns that have defined widths, but whose widths disagree
   // between rows, fix up the cells whose width doesn't match the
   // computed one.
-  for (let i = 0; !badWidths && i < colWidths.length; i += 2)
-    if (colWidths[i] != null && colWidths[i + 1] < height) badWidths = true;
-  if (badWidths) findBadColWidths(tableMap, colWidths, table);
+  for (let i = 0; !badWidths && i < colWidths.length; i += 2) {
+    if (colWidths[i] != null && colWidths[i + 1] < height) {
+      badWidths = true;
+    }
+  }
+  if (badWidths) {
+    findBadColWidths(tableMap, colWidths, table);
+  }
 
   return tableMap;
 }
@@ -278,30 +318,42 @@ function findWidth(table) {
   for (let row = 0; row < table.childCount; row++) {
     const rowNode = table.child(row);
     let rowWidth = 0;
-    if (hasRowSpan)
+    if (hasRowSpan) {
       for (let j = 0; j < row; j++) {
         const prevRow = table.child(j);
         for (let i = 0; i < prevRow.childCount; i++) {
           const cell = prevRow.child(i);
-          if (j + cell.attrs.rowspan > row) rowWidth += cell.attrs.colspan;
+          if (j + cell.attrs.rowspan > row) {
+            rowWidth += cell.attrs.colspan;
+          }
         }
       }
+    }
     for (let i = 0; i < rowNode.childCount; i++) {
       const cell = rowNode.child(i);
       rowWidth += cell.attrs.colspan;
-      if (cell.attrs.rowspan > 1) hasRowSpan = true;
+      if (cell.attrs.rowspan > 1) {
+        hasRowSpan = true;
+      }
     }
-    if (width == -1) width = rowWidth;
-    else if (width != rowWidth) width = Math.max(width, rowWidth);
+    if (width == -1) {
+      width = rowWidth;
+    } else if (width != rowWidth) {
+      width = Math.max(width, rowWidth);
+    }
   }
   return width;
 }
 
 function findBadColWidths(map, colWidths, table) {
-  if (!map.problems) map.problems = [];
+  if (!map.problems) {
+    map.problems = [];
+  }
   for (let i = 0, seen = {}; i < map.map.length; i++) {
     const pos = map.map[i];
-    if (seen[pos]) continue;
+    if (seen[pos]) {
+      continue;
+    }
     seen[pos] = true;
     const node = table.nodeAt(pos);
     let updated = null;
@@ -311,21 +363,27 @@ function findBadColWidths(map, colWidths, table) {
       if (
         colWidth != null &&
         (!node.attrs.colwidth || node.attrs.colwidth[j] != colWidth)
-      )
+      ) {
         (updated || (updated = freshColWidth(node.attrs)))[j] = colWidth;
+      }
     }
-    if (updated)
+    if (updated) {
       map.problems.unshift({
         type: 'colwidth mismatch',
         pos,
         colwidth: updated,
       });
+    }
   }
 }
 
 function freshColWidth(attrs) {
-  if (attrs.colwidth) return attrs.colwidth.slice();
+  if (attrs.colwidth) {
+    return attrs.colwidth.slice();
+  }
   const result: number[] = [];
-  for (let i = 0; i < attrs.colspan; i++) result.push(0);
+  for (let i = 0; i < attrs.colspan; i++) {
+    result.push(0);
+  }
   return result;
 }

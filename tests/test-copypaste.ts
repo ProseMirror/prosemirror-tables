@@ -27,15 +27,18 @@ import {
 describe('pastedCells', () => {
   function test(slice, width, height?, content?) {
     const result = pastedCells(slice.slice(slice.tag.a, slice.tag.b));
-    if (width == null) return ist(result, null);
+    if (width == null) {
+      return ist(result, null);
+    }
     if (!result) {
       return;
     }
     ist(result.rows.length, result.height);
     ist(result.width, width);
     ist(result.height, height);
-    if (content)
+    if (content) {
       result.rows.forEach((row, i) => ist(row, Fragment.from(content[i]), eq));
+    }
   }
 
   it('returns simple cells', () =>
@@ -88,16 +91,13 @@ describe('clipCells', () => {
     if (!pastedSlice) {
       return;
     }
-    const result = clipCells(
-      pastedSlice,
-      width,
-      height,
-    );
+    const result = clipCells(pastedSlice, width, height);
     ist(result.rows.length, result.height);
     ist(result.width, width);
     ist(result.height, height);
-    if (content)
+    if (content) {
       result.rows.forEach((row, i) => ist(row, Fragment.from(content[i]), eq));
+    }
   }
 
   it('can clip off excess cells', () =>

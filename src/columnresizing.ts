@@ -57,8 +57,9 @@ export function columnResizing({
 
       decorations(state) {
         const pluginState = key.getState(state);
-        if (pluginState.activeHandle > -1)
+        if (pluginState.activeHandle > -1) {
           return handleDecorations(state, pluginState.activeHandle);
+        }
       },
 
       nodeViews: {},
@@ -78,13 +79,17 @@ class ResizeState {
 
   apply(tr) {
     const action = tr.getMeta(key);
-    if (action && action.setHandle != null)
+    if (action && action.setHandle != null) {
       return new ResizeState(action.setHandle, null);
-    if (action && action.setDragging !== undefined)
+    }
+    if (action && action.setDragging !== undefined) {
       return new ResizeState(this.activeHandle, action.setDragging);
+    }
     if (this.activeHandle > -1 && tr.docChanged) {
       let handle = tr.mapping.map(this.activeHandle, -1);
-      if (!pointsAtCell(tr.doc.resolve(handle))) handle = null;
+      if (!pointsAtCell(tr.doc.resolve(handle))) {
+        handle = null;
+      }
       return new ResizeState(handle, this.dragging);
     }
     return this;
@@ -105,10 +110,11 @@ function handleMouseMove(
     let cell = -1;
     if (target) {
       const { left, right } = target.getBoundingClientRect();
-      if (event.clientX - left <= handleWidth)
+      if (event.clientX - left <= handleWidth) {
         cell = edgeCell(view, event, 'left');
-      else if (right - event.clientX <= handleWidth)
+      } else if (right - event.clientX <= handleWidth) {
         cell = edgeCell(view, event, 'right');
+      }
     }
 
     if (cell != pluginState.activeHandle) {
@@ -132,13 +138,16 @@ function handleMouseMove(
 
 function handleMouseLeave(view) {
   const pluginState = key.getState(view.state);
-  if (pluginState.activeHandle > -1 && !pluginState.dragging)
+  if (pluginState.activeHandle > -1 && !pluginState.dragging) {
     updateHandle(view, -1);
+  }
 }
 
 function handleMouseDown(view, event, cellMinWidth) {
   const pluginState = key.getState(view.state);
-  if (pluginState.activeHandle == -1 || pluginState.dragging) return false;
+  if (pluginState.activeHandle == -1 || pluginState.dragging) {
+    return false;
+  }
 
   const cell = view.state.doc.nodeAt(pluginState.activeHandle);
   const width = currentColWidth(view, pluginState.activeHandle, cell.attrs);
@@ -162,7 +171,9 @@ function handleMouseDown(view, event, cellMinWidth) {
     }
   }
   function move(event) {
-    if (!event.which) return finish(event);
+    if (!event.which) {
+      return finish(event);
+    }
     const pluginState = key.getState(view.state);
     const dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
     displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth);
@@ -176,35 +187,46 @@ function handleMouseDown(view, event, cellMinWidth) {
 
 function currentColWidth(view, cellPos, { colspan, colwidth }) {
   const width = colwidth && colwidth[colwidth.length - 1];
-  if (width) return width;
+  if (width) {
+    return width;
+  }
   const dom = view.domAtPos(cellPos);
   const node = dom.node.childNodes[dom.offset];
   let domWidth = node.offsetWidth,
     parts = colspan;
-  if (colwidth)
-    for (let i = 0; i < colspan; i++)
+  if (colwidth) {
+    for (let i = 0; i < colspan; i++) {
       if (colwidth[i]) {
         domWidth -= colwidth[i];
         parts--;
       }
+    }
+  }
   return domWidth / parts;
 }
 
 function domCellAround(target) {
-  while (target && target.nodeName != 'TD' && target.nodeName != 'TH')
+  while (target && target.nodeName != 'TD' && target.nodeName != 'TH') {
     target = target.classList.contains('ProseMirror')
       ? null
       : target.parentNode;
+  }
   return target;
 }
 
 function edgeCell(view, event, side) {
   const found = view.posAtCoords({ left: event.clientX, top: event.clientY });
-  if (!found) return -1;
+  if (!found) {
+    return -1;
+  }
   const { pos } = found;
   const $cell = cellAround(view.state.doc.resolve(pos));
-  if (!$cell) return -1;
-  if (side == 'right') return $cell.pos;
+  if (!$cell) {
+    return -1;
+  }
+  if (side == 'right') {
+    return $cell.pos;
+  }
   const map = TableMap.get($cell.node(-1)),
     start = $cell.start(-1);
   const index = map.map.indexOf($cell.pos - start);
@@ -231,18 +253,24 @@ function updateColumnWidth(view, cell, width) {
   for (let row = 0; row < map.height; row++) {
     const mapIndex = row * map.width + col;
     // Rowspanning cell that has already been handled
-    if (row && map.map[mapIndex] == map.map[mapIndex - map.width]) continue;
+    if (row && map.map[mapIndex] == map.map[mapIndex - map.width]) {
+      continue;
+    }
     const pos = map.map[mapIndex],
       { attrs } = table.nodeAt(pos);
     const index = attrs.colspan == 1 ? 0 : col - map.colCount(pos);
-    if (attrs.colwidth && attrs.colwidth[index] == width) continue;
+    if (attrs.colwidth && attrs.colwidth[index] == width) {
+      continue;
+    }
     const colwidth = attrs.colwidth
       ? attrs.colwidth.slice()
       : zeroes(attrs.colspan);
     colwidth[index] = width;
     tr.setNodeMarkup(start + pos, null, setAttr(attrs, 'colwidth', colwidth));
   }
-  if (tr.docChanged) view.dispatch(tr);
+  if (tr.docChanged) {
+    view.dispatch(tr);
+  }
 }
 
 function displayColumnWidth(view, cell, width, cellMinWidth) {
@@ -254,13 +282,17 @@ function displayColumnWidth(view, cell, width, cellMinWidth) {
     $cell.nodeAfter.attrs.colspan -
     1;
   let dom = view.domAtPos($cell.start(-1)).node;
-  while (dom.nodeName != 'TABLE') dom = dom.parentNode;
+  while (dom.nodeName != 'TABLE') {
+    dom = dom.parentNode;
+  }
   updateColumns(table, dom.firstChild, dom, cellMinWidth, col, width);
 }
 
 function zeroes(n) {
   const result: number[] = [];
-  for (let i = 0; i < n; i++) result.push(0);
+  for (let i = 0; i < n; i++) {
+    result.push(0);
+  }
   return result;
 }
 

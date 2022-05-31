@@ -41,8 +41,12 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
       },
       apply(tr, cur) {
         const set = tr.getMeta(tableEditingKey);
-        if (set != null) return set == -1 ? null : set;
-        if (cur == null || !tr.docChanged) return cur;
+        if (set != null) {
+          return set == -1 ? null : set;
+        }
+        if (cur == null || !tr.docChanged) {
+          return cur;
+        }
         const { deleted, pos } = tr.mapping.mapResult(cur);
         return deleted ? null : pos;
       },
@@ -56,8 +60,9 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
       },
 
       createSelectionBetween(view) {
-        if (tableEditingKey.getState(view.state) != null)
+        if (tableEditingKey.getState(view.state) != null) {
           return view.state.selection;
+        }
       },
 
       handleTripleClick,

@@ -64,7 +64,8 @@
     "build_demo": "rollup -c rollup.demo.config.js",
     "watch_demo": "rollup -w -c rollup.demo.config.js",
     "build": "pm-buildhelper src/index.ts",
-    "prepare": "yarn lint && yarn typecheck && yarn build",
+    "clean": "rm -rf dist/",
+    "prepare": "yarn lint && yarn typecheck && yarn clean & yarn build",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md --filename src/index.ts",
     "lint": "eslint src/ tests/ --ext .ts,.tsx"
   },

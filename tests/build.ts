@@ -21,7 +21,9 @@ import buildersPkg from 'prosemirror-test-builder';
 const { builders } = buildersPkg;
 
 function resolveCell(doc, tag) {
-  if (tag == null) return null;
+  if (tag == null) {
+    return null;
+  }
   return cellAround(doc.resolve(tag));
 }
 
@@ -59,11 +61,12 @@ export const selectionFor = function (doc) {
     return new TextSelection(doc.resolve(cursor));
   }
   const $anchor = resolveCell(doc, doc.tag.anchor);
-  if ($anchor)
+  if ($anchor) {
     return new CellSelection(
       $anchor,
       resolveCell(doc, doc.tag.head) || undefined,
     );
+  }
   const node = doc.tag.node;
   if (!node) {
     throw new Error('There is no selection tag set');

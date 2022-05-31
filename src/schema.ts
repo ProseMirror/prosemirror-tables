@@ -15,7 +15,9 @@ function getCellAttrs(dom, extraAttrs) {
   for (const prop in extraAttrs) {
     const getter = extraAttrs[prop].getFromDOM;
     const value = getter && getter(dom);
-    if (value != null) result[prop] = value;
+    if (value != null) {
+      result[prop] = value;
+    }
   }
   return result;
 }
@@ -23,13 +25,20 @@ function getCellAttrs(dom, extraAttrs) {
 function setCellAttrs(node, extraAttrs) {
   // eslint-disable-next-line
   const attrs: any = {};
-  if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan;
-  if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan;
-  if (node.attrs.colwidth)
+  if (node.attrs.colspan != 1) {
+    attrs.colspan = node.attrs.colspan;
+  }
+  if (node.attrs.rowspan != 1) {
+    attrs.rowspan = node.attrs.rowspan;
+  }
+  if (node.attrs.colwidth) {
     attrs['data-colwidth'] = node.attrs.colwidth.join(',');
+  }
   for (const prop in extraAttrs) {
     const setter = extraAttrs[prop].setDOMAttr;
-    if (setter) setter(node.attrs[prop], attrs);
+    if (setter) {
+      setter(node.attrs[prop], attrs);
+    }
   }
   return attrs;
 }
@@ -71,8 +80,9 @@ export function tableNodes(options) {
     rowspan: { default: 1 },
     colwidth: { default: null },
   };
-  for (const prop in extraAttrs)
+  for (const prop in extraAttrs) {
     cellAttrs[prop] = { default: extraAttrs[prop].default };
+  }
 
   return {
     table: {
@@ -127,7 +137,9 @@ export function tableNodeTypes(schema) {
     for (const name in schema.nodes) {
       const type = schema.nodes[name],
         role = type.spec.tableRole;
-      if (role) result[role] = type;
+      if (role) {
+        result[role] = type;
+      }
     }
   }
   return result;
