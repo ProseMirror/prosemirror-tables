@@ -60,6 +60,8 @@ export function columnResizing({
         if (pluginState.activeHandle > -1) {
           return handleDecorations(state, pluginState.activeHandle);
         }
+
+        return null;
       },
 
       nodeViews: {},

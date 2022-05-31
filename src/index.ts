@@ -63,6 +63,8 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
         if (tableEditingKey.getState(view.state) != null) {
           return view.state.selection;
         }
+
+        return null;
       },
 
       handleTripleClick,

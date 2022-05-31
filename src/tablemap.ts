@@ -31,6 +31,7 @@ if (typeof WeakMap != 'undefined') {
         return cache[i + 1];
       }
     }
+    return null;
   };
   addToCache = (key, value) => {
     if (cachePos == cacheSize) {

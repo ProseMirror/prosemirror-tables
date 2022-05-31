@@ -33,7 +33,7 @@ export class CellSelection extends Selection {
   // positions given to this constructor should point _before_ two
   // cells in the same table. They may be the same, to select a single
   // cell.
-  constructor($anchorCell, $headCell = $anchorCell) {
+  constructor($anchorCell: ResolvedPos, $headCell = $anchorCell) {
     const table = $anchorCell.node(-1),
       map = TableMap.get(table),
       start = $anchorCell.start(-1);
@@ -53,7 +53,7 @@ export class CellSelection extends Selection {
         from = pos + start + 1;
       return new SelectionRange(
         doc.resolve(from),
-        doc.resolve(from + cell.content.size),
+        doc.resolve(from + (cell?.content.size || 0)),
       );
     });
     super(ranges[0].$from, ranges[0].$to, ranges);
