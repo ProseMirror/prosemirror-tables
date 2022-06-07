@@ -4,7 +4,7 @@
 // transaction, the shapes of tables are normalized to be rectangular
 // and not contain overlapping cells.
 
-import { Plugin } from 'prosemirror-state';
+import { Plugin, Selection, Transaction } from 'prosemirror-state';
 
 import {
   handleTripleClick,
@@ -16,6 +16,8 @@ import { key as tableEditingKey } from './util';
 import { drawCellSelection, normalizeSelection } from './cellselection';
 import { fixTables, fixTablesKey } from './fixtables';
 
+
+type TableEditingPluginState = number | null;
 // :: () → Plugin
 //
 // Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
@@ -28,7 +30,7 @@ import { fixTables, fixTablesKey } from './fixtables';
 // rather broadly, and other plugins, like the gap cursor or the
 // column-width dragging plugin, might want to get a turn first to
 // perform more specific behavior.
-export function tableEditing({ allowTableNodeSelection = false } = {}) {
+export function tableEditing({ allowTableNodeSelection = false } = {}): Plugin {
   return new Plugin({
     key: tableEditingKey,
 
@@ -36,10 +38,10 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
     // cell-selection is happening, so that it can continue even as
     // transactions (which might move its anchor cell) come in.
     state: {
-      init() {
+      init(): TableEditingPluginState {
         return null;
       },
-      apply(tr, cur) {
+      apply(tr, cur): TableEditingPluginState {
         const set = tr.getMeta(tableEditingKey);
         if (set != null) {
           return set == -1 ? null : set;
@@ -59,7 +61,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
         mousedown: handleMouseDown,
       },
 
-      createSelectionBetween(view) {
+      createSelectionBetween(view): Selection | null {
         if (tableEditingKey.getState(view.state) != null) {
           return view.state.selection;
         }
@@ -74,7 +76,7 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
       handlePaste,
     },
 
-    appendTransaction(_, oldState, state) {
+    appendTransaction(_, oldState, state): Transaction {
       return normalizeSelection(
         state,
         fixTables(state, oldState),

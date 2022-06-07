@@ -15,17 +15,17 @@ let readFromCache, addToCache;
 // fixed-size cache if that's not supported.
 if (typeof WeakMap != 'undefined') {
   // eslint-disable-next-line
-  let cache = new WeakMap();
-  readFromCache = (key) => cache.get(key);
-  addToCache = (key, value) => {
+  let cache = new WeakMap<TableMap>();
+  readFromCache = (key): TableMap | null => cache.get(key);
+  addToCache = (key, value): TableMap => {
     cache.set(key, value);
     return value;
   };
 } else {
-  const cache: PMNode[] = [],
+  const cache: TableMap[] = [],
     cacheSize = 10;
   let cachePos = 0;
-  readFromCache = (key) => {
+  readFromCache = (key): TableMap | null => {
     for (let i = 0; i < cache.length; i += 2) {
       if (cache[i] == key) {
         return cache[i + 1];
@@ -33,7 +33,7 @@ if (typeof WeakMap != 'undefined') {
     }
     return null;
   };
-  addToCache = (key, value) => {
+  addToCache = (key, value): TableMap => {
     if (cachePos == cacheSize) {
       cachePos = 0;
     }
@@ -81,7 +81,7 @@ export class TableMap {
 
   // :: (number) → Rect
   // Find the dimensions of the cell at the given position.
-  findCell(pos) {
+  findCell(pos): Rect {
     for (let i = 0; i < this.map.length; i++) {
       const curPos = this.map[i];
       if (curPos != pos) {
@@ -108,7 +108,7 @@ export class TableMap {
 
   // :: (number) → number
   // Find the left side of the cell at the given position.
-  colCount(pos) {
+  colCount(pos): number {
     for (let i = 0; i < this.map.length; i++) {
       if (this.map[i] == pos) {
         return i % this.width;
@@ -120,7 +120,7 @@ export class TableMap {
   // :: (number, string, number) → ?number
   // Find the next cell in the given direction, starting from the cell
   // at `pos`, if any.
-  nextCell(pos, axis, dir) {
+  nextCell(pos, axis, dir): number | null {
     const { left, right, top, bottom } = this.findCell(pos);
     if (axis == 'horiz') {
       if (dir < 0 ? left == 0 : right == this.width) {
@@ -137,7 +137,7 @@ export class TableMap {
 
   // :: (number, number) → Rect
   // Get the rectangle spanning the two given cells.
-  rectBetween(a, b) {
+  rectBetween(a, b): Rect {
     const {
       left: leftA,
       right: rightA,
@@ -161,7 +161,7 @@ export class TableMap {
   // :: (Rect) → [number]
   // Return the position of all cells that have the top left corner in
   // the given rectangle.
-  cellsInRect(rect) {
+  cellsInRect(rect: Rect): number[] {
     const result: number[] = [],
       seen = {};
     for (let row = rect.top; row < rect.bottom; row++) {
@@ -186,7 +186,7 @@ export class TableMap {
   // :: (number, number, Node) → number
   // Return the position at which the cell at the given row and column
   // starts, or would start, if a cell started there.
-  positionAt(row, col, table) {
+  positionAt(row, col, table): number {
     for (let i = 0, rowStart = 0; ; i++) {
       const rowEnd = rowStart + table.child(i).nodeSize;
       if (i == row) {
@@ -204,13 +204,13 @@ export class TableMap {
 
   // :: (Node) → TableMap
   // Find the table map for the given table node.
-  static get(table) {
+  static get(table: PMNode): TableMap {
     return readFromCache(table) || addToCache(table, computeMap(table));
   }
 }
 
 // Compute a table map.
-function computeMap(table) {
+function computeMap(table): TableMap {
   if (table.type.spec.tableRole != 'table') {
     throw new RangeError('Not a table node: ' + table.type.name);
   }
@@ -313,7 +313,7 @@ function computeMap(table) {
   return tableMap;
 }
 
-function findWidth(table) {
+function findWidth(table: PMNode): number {
   let width = -1,
     hasRowSpan = false;
   for (let row = 0; row < table.childCount; row++) {
@@ -346,7 +346,7 @@ function findWidth(table) {
   return width;
 }
 
-function findBadColWidths(map, colWidths, table) {
+function findBadColWidths(map, colWidths, table): void {
   if (!map.problems) {
     map.problems = [];
   }
@@ -357,7 +357,7 @@ function findBadColWidths(map, colWidths, table) {
     }
     seen[pos] = true;
     const node = table.nodeAt(pos);
-    let updated = null;
+    let updated: number[] | null = null;
     for (let j = 0; j < node.attrs.colspan; j++) {
       const col = (i + j) % map.width,
         colWidth = colWidths[col * 2];
@@ -378,7 +378,7 @@ function findBadColWidths(map, colWidths, table) {
   }
 }
 
-function freshColWidth(attrs) {
+function freshColWidth(attrs): number[] {
   if (attrs.colwidth) {
     return attrs.colwidth.slice();
   }

@@ -1,7 +1,7 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
-import { Slice, Fragment } from 'prosemirror-model';
+import { Slice, Fragment, ResolvedPos } from 'prosemirror-model';
 import { Selection, TextSelection } from 'prosemirror-state';
 import { keydownHandler } from 'prosemirror-keymap';
 
@@ -17,6 +17,7 @@ import { CellSelection } from './cellselection';
 import { TableMap } from './tablemap';
 import { pastedCells, fitSlice, clipCells, insertCells } from './copypaste';
 import { tableNodeTypes } from './schema';
+import type { Command } from 'prosemirror-commands';
 
 export const handleKeyDown = keydownHandler({
   ArrowLeft: arrow('horiz', -1),
@@ -35,7 +36,7 @@ export const handleKeyDown = keydownHandler({
   'Mod-Delete': deleteCellSelection,
 });
 
-function maybeSetSelection(state, dispatch, selection) {
+function maybeSetSelection(state, dispatch, selection): boolean {
   if (selection.eq(state.selection)) {
     return false;
   }
@@ -45,7 +46,7 @@ function maybeSetSelection(state, dispatch, selection) {
   return true;
 }
 
-function arrow(axis, dir) {
+function arrow(axis, dir): Command {
   return (state, dispatch, view) => {
     const sel = state.selection;
     if (sel instanceof CellSelection) {
@@ -84,16 +85,19 @@ function arrow(axis, dir) {
   };
 }
 
-function shiftArrow(axis, dir) {
+function shiftArrow(axis, dir): Command {
   return (state, dispatch, view) => {
-    let sel = state.selection;
-    if (!(sel instanceof CellSelection)) {
+    let sel: CellSelection;
+    if (!(state.selection instanceof CellSelection)) {
       const end = atEndOfCell(view, axis, dir);
       if (end == null) {
         return false;
       }
       sel = new CellSelection(state.doc.resolve(end));
+    } else {
+      sel = state.selection;
     }
+
     const $head = nextCell(sel.$headCell, axis, dir);
     if (!$head) {
       return false;
@@ -106,7 +110,7 @@ function shiftArrow(axis, dir) {
   };
 }
 
-function deleteCellSelection(state, dispatch) {
+function deleteCellSelection(state, dispatch): boolean {
   const sel = state.selection;
   if (!(sel instanceof CellSelection)) {
     return false;
@@ -130,7 +134,7 @@ function deleteCellSelection(state, dispatch) {
   return true;
 }
 
-export function handleTripleClick(view, pos) {
+export function handleTripleClick(view, pos): boolean {
   const doc = view.state.doc,
     $cell = cellAround(doc.resolve(pos));
   if (!$cell) {
@@ -140,7 +144,7 @@ export function handleTripleClick(view, pos) {
   return true;
 }
 
-export function handlePaste(view, _, slice) {
+export function handlePaste(view, _, slice): boolean {
   if (!isInTable(view.state)) {
     return false;
   }
@@ -198,7 +202,7 @@ export function handleMouseDown(view, startEvent): boolean {
     startEvent.shiftKey &&
     startDOMCell &&
     ($anchor = cellAround(view.state.selection.$anchor)) != null &&
-    cellUnderMouse(view, startEvent).pos != $anchor.pos
+    cellUnderMouse(view, startEvent)?.pos != $anchor.pos
   ) {
     // Adding to a selection that starts in another cell (causing a
     // cell selection to be created).
@@ -211,7 +215,7 @@ export function handleMouseDown(view, startEvent): boolean {
 
   // Create and dispatch a cell selection between the given anchor and
   // the position under the mouse.
-  function setCellSelection($anchor, event) {
+  function setCellSelection($anchor, event): void {
     let $head = cellUnderMouse(view, event);
     const starting = key.getState(view.state) == null;
     if (!$head || !inSameTable($anchor, $head)) {
@@ -232,7 +236,7 @@ export function handleMouseDown(view, startEvent): boolean {
   }
 
   // Stop listening to mouse motion events.
-  function stop() {
+  function stop(): void {
     view.root.removeEventListener('mouseup', stop);
     view.root.removeEventListener('dragstart', stop);
     view.root.removeEventListener('mousemove', move);
@@ -241,7 +245,7 @@ export function handleMouseDown(view, startEvent): boolean {
     }
   }
 
-  function move(event) {
+  function move(event): void {
     const anchor = key.getState(view.state);
     let $anchor;
     if (anchor != null) {
@@ -266,7 +270,7 @@ export function handleMouseDown(view, startEvent): boolean {
 
 // Check whether the cursor is at the end of a cell (so that further
 // motion would move out of the cell)
-function atEndOfCell(view, axis, dir) {
+function atEndOfCell(view, axis, dir): number | null {
   if (!(view.state.selection instanceof TextSelection)) {
     return null;
   }
@@ -290,21 +294,22 @@ function atEndOfCell(view, axis, dir) {
   return null;
 }
 
-function domInCell(view, dom) {
+function domInCell(view, dom): HTMLElement | null {
   for (; dom && dom != view.dom; dom = dom.parentNode) {
     if (dom.nodeName == 'TD' || dom.nodeName == 'TH') {
       return dom;
     }
   }
+  return null;
 }
 
-function cellUnderMouse(view, event) {
+function cellUnderMouse(view, event): ResolvedPos | undefined {
   const mousePos = view.posAtCoords({
     left: event.clientX,
     top: event.clientY,
   });
   if (!mousePos) {
-    return null;
+    return undefined;
   }
-  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;
+  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : undefined;
 }

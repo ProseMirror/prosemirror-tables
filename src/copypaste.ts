@@ -18,12 +18,17 @@ import { TableMap } from './tablemap';
 import { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
 
+type TableRectangularArea = {
+  width: number;
+  height: number;
+  rows: Array<Fragment>;
+};
 // Utilities to help with copying and pasting table cells
 
 // : (Slice) → ?{width: number, height: number, rows: [Fragment]}
 // Get a rectangular area of cells from a slice, or null if the outer
 // nodes of the slice aren't table cells or rows.
-export function pastedCells(slice) {
+export function pastedCells(slice): TableRectangularArea | null {
   if (!slice.size) {
     return null;
   }
@@ -72,7 +77,7 @@ export function pastedCells(slice) {
 // : (Schema, [Fragment]) → {width: number, height: number, rows: [Fragment]}
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
-function ensureRectangular(schema, rows) {
+function ensureRectangular(schema, rows): TableRectangularArea | null  {
   const widths: number[] = [];
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -103,7 +108,7 @@ function ensureRectangular(schema, rows) {
   return { height: rows.length, width, rows };
 }
 
-export function fitSlice(nodeType, slice) {
+export function fitSlice(nodeType, slice): PMNode {
   const node = nodeType.createAndFill();
   const tr = new Transform(node).replace(0, node.content.size, slice);
   return tr.doc;
@@ -113,7 +118,7 @@ export function fitSlice(nodeType, slice) {
 // Clip or extend (repeat) the given set of cells to cover the given
 // width and height. Will clip rowspan/colspan cells at the edges when
 // they stick out.
-export function clipCells({ width, height, rows }, newWidth, newHeight) {
+export function clipCells({ width, height, rows }, newWidth, newHeight): TableRectangularArea | null {
   if (width != newWidth) {
     const added: number[] = [],
       newRows: Fragment[] = [];
@@ -175,7 +180,7 @@ export function clipCells({ width, height, rows }, newWidth, newHeight) {
 
 // Make sure a table has at least the given width and height. Return
 // true if something was changed.
-function growTable(tr, map, table, start, width, height, mapFrom) {
+function growTable(tr, map, table, start, width, height, mapFrom): boolean {
   const schema = tr.doc.type.schema,
     types = tableNodeTypes(schema);
   let empty, emptyHead;
@@ -227,7 +232,7 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
 // Make sure the given line (left, top) to (right, top) doesn't cross
 // any rowspan cells by splitting cells that cross it. Return true if
 // something changed.
-function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
+function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom): boolean {
   if (top == 0 || top == map.height) {
     return false;
   }
@@ -259,7 +264,7 @@ function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
 // Make sure the given line (left, top) to (left, bottom) doesn't
 // cross any colspan cells by splitting cells that cross it. Return
 // true if something changed.
-function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
+function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom): boolean{
   if (left == 0 || left == map.width) {
     return false;
   }
@@ -293,7 +298,7 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
 
 // Insert the given set of cells (as returned by `pastedCells`) into a
 // table, at the position pointed at by rect.
-export function insertCells(state, dispatch, tableStart, rect, cells) {
+export function insertCells(state, dispatch, tableStart, rect, cells): void {
   let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc,
     map = TableMap.get(table);
   const { top, left } = rect;
@@ -301,7 +306,7 @@ export function insertCells(state, dispatch, tableStart, rect, cells) {
     bottom = top + cells.height;
   const tr = state.tr;
   let mapFrom = 0;
-  function recomp() {
+  function recomp(): void {
     table = tableStart ? tr.doc.nodeAt(tableStart - 1) : tr.doc;
     map = TableMap.get(table);
     mapFrom = tr.mapping.maps.length;

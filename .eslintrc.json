@@ -5,6 +5,7 @@
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "rules": {
     "curly": "error",
-    "brace-style": ["error", "1tbs"]
+    "brace-style": ["error", "1tbs"],
+    "@typescript-eslint/explicit-function-return-type": "error"
   }
 }

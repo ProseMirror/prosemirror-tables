@@ -3,7 +3,7 @@
 // rowspans) and that each row has the same width. Uses the problems
 // reported by `TableMap`.
 
-import { PluginKey } from 'prosemirror-state';
+import { PluginKey, Transaction } from 'prosemirror-state';
 import { Node as PMNode } from 'prosemirror-model';
 import { TableMap } from './tablemap';
 import { setAttr, removeColSpan } from './util';
@@ -14,7 +14,7 @@ export const fixTablesKey = new PluginKey('fix-tables');
 // Helper for iterating through the nodes in a document that changed
 // compared to the given previous document. Useful for avoiding
 // duplicate work on each transaction.
-function changedDescendants(old, cur, offset, f) {
+function changedDescendants(old, cur, offset, f): void {
   const oldSize = old.childCount,
     curSize = cur.childCount;
   outer: for (let i = 0, j = 0; i < curSize; i++) {
@@ -42,9 +42,9 @@ function changedDescendants(old, cur, offset, f) {
 // provided, that is assumed to hold a previous, known-good state,
 // which will be used to avoid re-scanning unchanged parts of the
 // document.
-export function fixTables(state, oldState?) {
+export function fixTables(state, oldState?): Transaction {
   let tr;
-  const check = (node, pos) => {
+  const check = (node, pos): void => {
     if (node.type.spec.tableRole == 'table') {
       tr = fixTable(state, node, pos, tr);
     }
@@ -60,7 +60,7 @@ export function fixTables(state, oldState?) {
 // : (EditorState, Node, number, ?Transaction) → ?Transaction
 // Fix the given table, if necessary. Will append to the transaction
 // it was given, if non-null, or create a new one if necessary.
-export function fixTable(state, table, tablePos, tr) {
+export function fixTable(state, table, tablePos, tr): Transaction {
   const map = TableMap.get(table);
   if (!map.problems) {
     return tr;

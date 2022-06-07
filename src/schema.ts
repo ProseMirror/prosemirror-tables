@@ -1,6 +1,12 @@
+import type { Node as PMNode, NodeSpec, DOMOutputSpec } from 'prosemirror-model';
 // Helper for creating a schema that supports tables.
 
-function getCellAttrs(dom, extraAttrs) {
+type TableAttributes = {
+  colspan: number;
+  rowspan: number;
+  colwidth: number[];
+};
+function getCellAttrs(dom, extraAttrs): TableAttributes {
   const widthAttr = dom.getAttribute('data-colwidth');
   const widths =
     widthAttr && /^\d+(,\d+)*$/.test(widthAttr)
@@ -22,7 +28,13 @@ function getCellAttrs(dom, extraAttrs) {
   return result;
 }
 
-function setCellAttrs(node, extraAttrs) {
+//{ [attr: string]: string; }
+type TableDOMAttributes = {
+  colspan: string;
+  rowspan: string;
+  'data-colwidth': string;
+};
+function setCellAttrs(node, extraAttrs): TableDOMAttributes {
   // eslint-disable-next-line
   const attrs: any = {};
   if (node.attrs.colspan != 1) {
@@ -43,6 +55,9 @@ function setCellAttrs(node, extraAttrs) {
   return attrs;
 }
 
+type TableNodesType = {
+  [key: string]: NodeSpec;
+};
 // :: (Object) → Object
 //
 // This function creates a set of [node
@@ -73,7 +88,7 @@ function setCellAttrs(node, extraAttrs) {
 //       setDOMAttr:: ?(value: any, attrs: Object)
 //       A function to add the attribute's value to an attribute
 //       object that's used to render the cell's DOM.
-export function tableNodes(options) {
+export function tableNodes(options): TableNodesType {
   const extraAttrs = options.cellAttributes || {};
   const cellAttrs = {
     colspan: { default: 1 },
@@ -91,7 +106,7 @@ export function tableNodes(options) {
       isolating: true,
       group: options.tableGroup,
       parseDOM: [{ tag: 'table' }],
-      toDOM() {
+      toDOM(): DOMOutputSpec {
         return ['table', ['tbody', 0]];
       },
     },
@@ -99,7 +114,7 @@ export function tableNodes(options) {
       content: '(table_cell | table_header)*',
       tableRole: 'row',
       parseDOM: [{ tag: 'tr' }],
-      toDOM() {
+      toDOM(): DOMOutputSpec {
         return ['tr', 0];
       },
     },
@@ -111,7 +126,7 @@ export function tableNodes(options) {
       parseDOM: [
         { tag: 'td', getAttrs: (dom) => getCellAttrs(dom, extraAttrs) },
       ],
-      toDOM(node) {
+      toDOM(node: PMNode): DOMOutputSpec {
         return ['td', setCellAttrs(node, extraAttrs), 0];
       },
     },
@@ -123,14 +138,14 @@ export function tableNodes(options) {
       parseDOM: [
         { tag: 'th', getAttrs: (dom) => getCellAttrs(dom, extraAttrs) },
       ],
-      toDOM(node) {
+      toDOM(node: PMNode): DOMOutputSpec {
         return ['th', setCellAttrs(node, extraAttrs), 0];
       },
     },
   };
 }
 
-export function tableNodeTypes(schema) {
+export function tableNodeTypes(schema): TableNodesType {
   let result = schema.cached.tableNodeTypes;
   if (!result) {
     result = schema.cached.tableNodeTypes = {};

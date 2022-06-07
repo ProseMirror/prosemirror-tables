@@ -104,7 +104,7 @@ function handleMouseMove(
   handleWidth,
   cellMinWidth,
   lastColumnResizable,
-) {
+): void {
   const pluginState = key.getState(view.state);
 
   if (!pluginState.dragging) {
@@ -138,14 +138,14 @@ function handleMouseMove(
   }
 }
 
-function handleMouseLeave(view) {
+function handleMouseLeave(view): void {
   const pluginState = key.getState(view.state);
   if (pluginState.activeHandle > -1 && !pluginState.dragging) {
     updateHandle(view, -1);
   }
 }
 
-function handleMouseDown(view, event, cellMinWidth) {
+function handleMouseDown(view, event, cellMinWidth): boolean {
   const pluginState = key.getState(view.state);
   if (pluginState.activeHandle == -1 || pluginState.dragging) {
     return false;
@@ -159,7 +159,7 @@ function handleMouseDown(view, event, cellMinWidth) {
     }),
   );
 
-  function finish(event) {
+  function finish(event): void {
     window.removeEventListener('mouseup', finish);
     window.removeEventListener('mousemove', move);
     const pluginState = key.getState(view.state);
@@ -172,7 +172,7 @@ function handleMouseDown(view, event, cellMinWidth) {
       view.dispatch(view.state.tr.setMeta(key, { setDragging: null }));
     }
   }
-  function move(event) {
+  function move(event): void {
     if (!event.which) {
       return finish(event);
     }
@@ -187,7 +187,7 @@ function handleMouseDown(view, event, cellMinWidth) {
   return true;
 }
 
-function currentColWidth(view, cellPos, { colspan, colwidth }) {
+function currentColWidth(view, cellPos, { colspan, colwidth }): number {
   const width = colwidth && colwidth[colwidth.length - 1];
   if (width) {
     return width;
@@ -207,7 +207,7 @@ function currentColWidth(view, cellPos, { colspan, colwidth }) {
   return domWidth / parts;
 }
 
-function domCellAround(target) {
+function domCellAround(target): HTMLElement | null {
   while (target && target.nodeName != 'TD' && target.nodeName != 'TH') {
     target = target.classList.contains('ProseMirror')
       ? null
@@ -216,7 +216,7 @@ function domCellAround(target) {
   return target;
 }
 
-function edgeCell(view, event, side) {
+function edgeCell(view, event, side): number {
   const found = view.posAtCoords({ left: event.clientX, top: event.clientY });
   if (!found) {
     return -1;
@@ -235,16 +235,16 @@ function edgeCell(view, event, side) {
   return index % map.width == 0 ? -1 : start + map.map[index - 1];
 }
 
-function draggedWidth(dragging, event, cellMinWidth) {
+function draggedWidth(dragging, event, cellMinWidth): number {
   const offset = event.clientX - dragging.startX;
   return Math.max(cellMinWidth, dragging.startWidth + offset);
 }
 
-function updateHandle(view, value) {
+function updateHandle(view, value): void {
   view.dispatch(view.state.tr.setMeta(key, { setHandle: value }));
 }
 
-function updateColumnWidth(view, cell, width) {
+function updateColumnWidth(view, cell, width): void {
   const $cell = view.state.doc.resolve(cell);
   const table = $cell.node(-1),
     map = TableMap.get(table),
@@ -275,7 +275,7 @@ function updateColumnWidth(view, cell, width) {
   }
 }
 
-function displayColumnWidth(view, cell, width, cellMinWidth) {
+function displayColumnWidth(view, cell, width, cellMinWidth): void {
   const $cell = view.state.doc.resolve(cell);
   const table = $cell.node(-1),
     start = $cell.start(-1);
@@ -290,7 +290,7 @@ function displayColumnWidth(view, cell, width, cellMinWidth) {
   updateColumns(table, dom.firstChild, dom, cellMinWidth, col, width);
 }
 
-function zeroes(n) {
+function zeroes(n): number[] {
   const result: number[] = [];
   for (let i = 0; i < n; i++) {
     result.push(0);
@@ -298,7 +298,7 @@ function zeroes(n) {
   return result;
 }
 
-function handleDecorations(state, cell) {
+function handleDecorations(state, cell): DecorationSet {
   const decorations: Decoration[] = [];
   const $cell = state.doc.resolve(cell);
   const table = $cell.node(-1),
