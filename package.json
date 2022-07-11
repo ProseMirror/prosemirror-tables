@@ -65,6 +65,7 @@
     "watch": "rollup -w -c",
     "prepare": "yarn build",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
-    "lint": "eslint ./src/ ./test/  --ext .js,.jsx"
+    "format": "prettier --write .",
+    "lint": "eslint ./src/ ./test/  --ext .js,.jsx && prettier --check ."
   }
 }
