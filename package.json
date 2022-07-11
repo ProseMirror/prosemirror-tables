@@ -2,12 +2,19 @@
   "name": "prosemirror-tables",
   "version": "1.1.1",
   "description": "ProseMirror's rowspan/colspan tables component",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "style": "style/tables.css",
   "typings": "./index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style/tables.css": "./style/tables.css"
+  },
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git://github.com/prosemirror/prosemirror-tables.git"
