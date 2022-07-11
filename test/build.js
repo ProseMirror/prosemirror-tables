@@ -1,7 +1,8 @@
 import { Schema } from 'prosemirror-model';
-import { TextSelection, NodeSelection } from 'prosemirror-state';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
-import { tableNodes, cellAround, CellSelection } from '../src/';
+import { NodeSelection, TextSelection } from 'prosemirror-state';
+import { builders } from 'prosemirror-test-builder';
+import { cellAround, CellSelection, tableNodes } from '../src/';
 
 let schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
@@ -15,9 +16,6 @@ let schema = new Schema({
   ),
   marks: baseSchema.spec.marks,
 });
-
-import buildersPkg from 'prosemirror-test-builder';
-const { builders } = buildersPkg;
 
 function resolveCell(doc, tag) {
   if (tag == null) return null;
