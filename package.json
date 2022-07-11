@@ -37,7 +37,6 @@
     "prosemirror-view": "^1.13.3"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.20.0",
     "@types/prosemirror-model": "^1.7.0",
     "@types/prosemirror-state": "^1.2.0",
     "builddocs": "^1.0.3",
