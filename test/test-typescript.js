@@ -1,7 +1,9 @@
-const { checkDirectory } = require('typings-tester');
+import { checkDirectory } from 'typings-tester';
+import path from 'path';
 
-describe('TypeScript definitions', function() {
+describe('TypeScript definitions', function () {
   it('should compile against index.d.ts', () => {
-    checkDirectory(__dirname + '/typescript')
-  })
-})
+    const __dirname = path.resolve();
+    checkDirectory(__dirname + '/typescript');
+  });
+});

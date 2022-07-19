@@ -1,11 +1,19 @@
 {
   "name": "prosemirror-tables",
-  "version": "1.1.1",
+  "version": "1.2.2",
   "description": "ProseMirror's rowspan/colspan tables component",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "style": "style/tables.css",
   "typings": "./index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style/tables.css": "./style/tables.css"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -29,21 +37,23 @@
     "prosemirror-view": "^1.13.3"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.20.0",
     "@types/prosemirror-model": "^1.7.0",
     "@types/prosemirror-state": "^1.2.0",
-    "builddocs": "^0.3.0",
+    "builddocs": "^1.0.3",
+    "eslint": "^8.16.0",
+    "eslint-plugin-jest": "^26.2.2",
     "ist": "^1.1.1",
-    "mocha": "^3.4.2",
+    "mocha": "^10.0.0",
+    "prettier": "^2.6.2",
     "prosemirror-commands": "^1.1.1",
     "prosemirror-example-setup": "^1.1.1",
     "prosemirror-menu": "^1.1.0",
     "prosemirror-schema-basic": "^1.1.1",
     "prosemirror-test-builder": "^1.0.2",
-    "rollup": "^1.26.3",
+    "rollup": "^2.74.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "typescript": "^3.7.2",
+    "typescript": "^4.0.0",
     "typings-tester": "^0.3.2"
   },
   "scripts": {
@@ -53,7 +63,9 @@
     "watch_demo": "rollup -w -c rollup.demo.config.js",
     "build": "rollup -c",
     "watch": "rollup -w -c",
-    "prepare": "npm run build",
-    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md"
+    "prepare": "yarn build",
+    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
+    "format": "prettier --write .",
+    "lint": "eslint ./src/ ./test/  --ext .js,.jsx && prettier --check ."
   }
 }
