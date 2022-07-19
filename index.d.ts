@@ -21,7 +21,7 @@ import {
   Schema,
   NodeType,
 } from 'prosemirror-model';
-import { Mappable } from 'prosemirror-transform';
+import { Mappable, Mapping } from 'prosemirror-transform';
 import { EditorView, NodeView } from 'prosemirror-view';
 
 export interface TableEditingOptions {
@@ -58,20 +58,13 @@ export interface CellSelectionJSON {
   head: number;
 }
 
-export class CellSelection {
+export class CellSelection extends Selection {
   constructor($anchorCell: ResolvedPos, $headCell?: ResolvedPos);
 
-  from: number;
-  to: number;
-  $from: ResolvedPos;
-  $to: ResolvedPos;
-  anchor: number;
-  head: number;
   $anchor: ResolvedPos;
   $head: ResolvedPos;
   $anchorCell: ResolvedPos;
   $headCell: ResolvedPos;
-  empty: boolean;
   ranges: Array<SelectionRange>;
 
   map(doc: ProsemirrorNode, mapping: Mappable): any;
@@ -83,7 +76,7 @@ export class CellSelection {
   isColSelection(): boolean;
   eq(other: Selection): boolean;
   toJSON(): CellSelectionJSON;
-  getBookmark(): { anchor: number; head: number };
+  getBookmark(): CellBookmark;
 
   static colSelection(
     anchorCell: ResolvedPos,
@@ -128,6 +121,13 @@ export class TableMap {
   positionAt(row: number, col: number, table: ProsemirrorNode): number;
 
   static get(table: ProsemirrorNode): TableMap;
+}
+
+export interface CellBookmark {
+  anchor: number;
+  head: number;
+  map(mapping: Mapping): CellBookmark;
+  resolve(doc: ProsemirrorNode): Selection;
 }
 
 export function tableEditing(options?: TableEditingOptions): Plugin;
