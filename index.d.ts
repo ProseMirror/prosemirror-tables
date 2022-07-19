@@ -58,20 +58,13 @@ export interface CellSelectionJSON {
   head: number;
 }
 
-export class CellSelection {
+export class CellSelection extends Selection {
   constructor($anchorCell: ResolvedPos, $headCell?: ResolvedPos);
 
-  from: number;
-  to: number;
-  $from: ResolvedPos;
-  $to: ResolvedPos;
-  anchor: number;
-  head: number;
   $anchor: ResolvedPos;
   $head: ResolvedPos;
   $anchorCell: ResolvedPos;
   $headCell: ResolvedPos;
-  empty: boolean;
   ranges: Array<SelectionRange>;
 
   map(doc: ProsemirrorNode, mapping: Mappable): any;
