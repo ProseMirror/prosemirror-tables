@@ -4,12 +4,17 @@
 // transaction, the shapes of tables are normalized to be rectangular
 // and not contain overlapping cells.
 
-import {Plugin} from "prosemirror-state"
+import { Plugin } from 'prosemirror-state';
 
-import {handleTripleClick, handleKeyDown, handlePaste, handleMouseDown} from "./input"
-import {key as tableEditingKey} from "./util"
-import {drawCellSelection, normalizeSelection} from "./cellselection"
-import {fixTables, fixTablesKey} from "./fixtables"
+import {
+  handleTripleClick,
+  handleKeyDown,
+  handlePaste,
+  handleMouseDown,
+} from './input';
+import { key as tableEditingKey } from './util';
+import { drawCellSelection, normalizeSelection } from './cellselection';
+import { fixTables, fixTablesKey } from './fixtables';
 
 // :: () → Plugin
 //
@@ -31,47 +36,75 @@ export function tableEditing({ allowTableNodeSelection = false } = {}) {
     // cell-selection is happening, so that it can continue even as
     // transactions (which might move its anchor cell) come in.
     state: {
-      init() { return null },
+      init() {
+        return null;
+      },
       apply(tr, cur) {
-        let set = tr.getMeta(tableEditingKey)
-        if (set != null) return set == -1 ? null : set
-        if (cur == null || !tr.docChanged) return cur
-        let {deleted, pos} = tr.mapping.mapResult(cur)
-        return deleted ? null : pos
-      }
+        let set = tr.getMeta(tableEditingKey);
+        if (set != null) return set == -1 ? null : set;
+        if (cur == null || !tr.docChanged) return cur;
+        let { deleted, pos } = tr.mapping.mapResult(cur);
+        return deleted ? null : pos;
+      },
     },
 
     props: {
       decorations: drawCellSelection,
 
       handleDOMEvents: {
-        mousedown: handleMouseDown
+        mousedown: handleMouseDown,
       },
 
       createSelectionBetween(view) {
-        if (tableEditingKey.getState(view.state) != null) return view.state.selection
+        if (tableEditingKey.getState(view.state) != null)
+          return view.state.selection;
       },
 
       handleTripleClick,
 
       handleKeyDown,
 
-      handlePaste
+      handlePaste,
     },
 
     appendTransaction(_, oldState, state) {
-      return normalizeSelection(state, fixTables(state, oldState), allowTableNodeSelection)
-    }
-  })
+      return normalizeSelection(
+        state,
+        fixTables(state, oldState),
+        allowTableNodeSelection,
+      );
+    },
+  });
 }
 
-export {fixTables, handlePaste, fixTablesKey}
-export {cellAround, isInTable, selectionCell, moveCellForward, inSameTable, findCell, colCount, nextCell, setAttr, pointsAtCell, removeColSpan, addColSpan, columnIsHeader} from "./util";
-export {tableNodes, tableNodeTypes} from "./schema"
-export {CellSelection} from "./cellselection"
-export {TableMap} from "./tablemap"
-export {tableEditingKey};
-export * from "./commands"
-export {columnResizing, key as columnResizingPluginKey} from "./columnresizing"
-export {updateColumns as updateColumnsOnResize, TableView} from "./tableview"
-export {pastedCells as __pastedCells, insertCells as __insertCells, clipCells as __clipCells} from "./copypaste"
+export { fixTables, handlePaste, fixTablesKey };
+export {
+  cellAround,
+  isInTable,
+  selectionCell,
+  moveCellForward,
+  inSameTable,
+  findCell,
+  colCount,
+  nextCell,
+  setAttr,
+  pointsAtCell,
+  removeColSpan,
+  addColSpan,
+  columnIsHeader,
+} from './util';
+export { tableNodes, tableNodeTypes } from './schema';
+export { CellSelection } from './cellselection';
+export { TableMap } from './tablemap';
+export { tableEditingKey };
+export * from './commands';
+export {
+  columnResizing,
+  key as columnResizingPluginKey,
+} from './columnresizing';
+export { updateColumns as updateColumnsOnResize, TableView } from './tableview';
+export {
+  pastedCells as __pastedCells,
+  insertCells as __insertCells,
+  clipCells as __clipCells,
+} from './copypaste';

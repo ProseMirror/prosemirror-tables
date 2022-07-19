@@ -7,14 +7,17 @@
   width: 100%;
   overflow: hidden;
 }
-.ProseMirror td, .ProseMirror th {
+.ProseMirror td,
+.ProseMirror th {
   vertical-align: top;
   box-sizing: border-box;
   position: relative;
 }
 .ProseMirror .column-resize-handle {
   position: absolute;
-  right: -2px; top: 0; bottom: 0;
+  right: -2px;
+  top: 0;
+  bottom: 0;
   width: 4px;
   z-index: 20;
   background-color: #adf;
@@ -28,8 +31,11 @@
 .ProseMirror .selectedCell:after {
   z-index: 2;
   position: absolute;
-  content: "";
-  left: 0; right: 0; top: 0; bottom: 0;
+  content: '';
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   background: rgba(200, 200, 255, 0.4);
   pointer-events: none;
 }
