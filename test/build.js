@@ -1,54 +1,64 @@
-const {Schema} = require("prosemirror-model")
-const {TextSelection, NodeSelection} = require("prosemirror-state")
-const {schema: baseSchema} = require("prosemirror-schema-basic")
-const {tableNodes, cellAround, CellSelection} = require("../dist/")
+import { Schema } from 'prosemirror-model';
+import { schema as baseSchema } from 'prosemirror-schema-basic';
+import { NodeSelection, TextSelection } from 'prosemirror-state';
+import { builders } from 'prosemirror-test-builder';
+import { cellAround, CellSelection, tableNodes } from '../src/';
 
 let schema = new Schema({
-  nodes: baseSchema.spec.nodes.append(tableNodes({
-    tableGroup: "block",
-    cellContent: "block+",
-    cellAttributes: {
-      test: {default: "default"}
-    }
-  })),
-  marks: baseSchema.spec.marks
-})
-
-let e = module.exports = require("prosemirror-test-builder").builders(schema, {
-  p: {nodeType: "paragraph"},
-  tr: {nodeType: "table_row"},
-  td: {nodeType: "table_cell"},
-  th: {nodeType: "table_header"}
-})
-
-e.c = function(colspan, rowspan) {
-  return e.td({colspan, rowspan}, e.p("x"))
-}
-e.c11 = e.c(1, 1)
-e.cEmpty = e.td(e.p())
-e.cCursor = e.td(e.p("x<cursor>"))
-e.cAnchor = e.td(e.p("x<anchor>"))
-e.cHead = e.td(e.p("x<head>"))
-
-e.h = function(colspan, rowspan) {
-  return e.th({colspan, rowspan}, e.p("x"))
-}
-e.h11 = e.h(1, 1)
-e.hEmpty = e.th(e.p())
-e.hCursor = e.th(e.p("x<cursor>"))
-
-e.eq = function(a, b) { return a.eq(b) }
+  nodes: baseSchema.spec.nodes.append(
+    tableNodes({
+      tableGroup: 'block',
+      cellContent: 'block+',
+      cellAttributes: {
+        test: { default: 'default' },
+      },
+    }),
+  ),
+  marks: baseSchema.spec.marks,
+});
 
 function resolveCell(doc, tag) {
-  if (tag == null) return null
-  return cellAround(doc.resolve(tag))
+  if (tag == null) return null;
+  return cellAround(doc.resolve(tag));
 }
 
-e.selectionFor = function(doc) {
-  let cursor = doc.tag.cursor
-  if (cursor != null) return new TextSelection(doc.resolve(cursor))
-  let $anchor = resolveCell(doc, doc.tag.anchor)
-  if ($anchor) return new CellSelection($anchor, resolveCell(doc, doc.tag.head) || undefined)
-  let node = doc.tag.node
-  if (node != null) return new NodeSelection(doc.resolve(node))
-}
+export const { doc, table, tr, p, td, th } = builders(schema, {
+  p: { nodeType: 'paragraph' },
+  tr: { nodeType: 'table_row' },
+  td: { nodeType: 'table_cell' },
+  th: { nodeType: 'table_header' },
+});
+
+export const c = function (colspan, rowspan) {
+  return td({ colspan, rowspan }, p('x'));
+};
+
+export const c11 = c(1, 1);
+export const cEmpty = td(p());
+export const cCursor = td(p('x<cursor>'));
+export const cAnchor = td(p('x<anchor>'));
+export const cHead = td(p('x<head>'));
+
+export const h = function (colspan, rowspan) {
+  return th({ colspan, rowspan }, p('x'));
+};
+export const h11 = h(1, 1);
+export const hEmpty = th(p());
+export const hCursor = th(p('x<cursor>'));
+
+export const eq = function (a, b) {
+  return a.eq(b);
+};
+
+export const selectionFor = function (doc) {
+  let cursor = doc.tag.cursor;
+  if (cursor != null) return new TextSelection(doc.resolve(cursor));
+  let $anchor = resolveCell(doc, doc.tag.anchor);
+  if ($anchor)
+    return new CellSelection(
+      $anchor,
+      resolveCell(doc, doc.tag.head) || undefined,
+    );
+  let node = doc.tag.node;
+  if (node != null) return new NodeSelection(doc.resolve(node));
+};
