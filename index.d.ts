@@ -264,6 +264,13 @@ export function updateColumnsOnResize(
   overrideValue?: number,
 ): void;
 
+export class TableView {
+  constructor(node: ProsemirrorNode, cellMinWidth: number);
+
+  update: (node: Node) => boolean;
+  ignoreMutation: (mutation: MutationRecord) => boolean;
+}
+
 export function cellAround(pos: ResolvedPos): ResolvedPos | null;
 
 export function isInTable(state: EditorState): boolean;
