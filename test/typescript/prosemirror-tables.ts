@@ -1,5 +1,12 @@
-import { TableMap, toggleHeader, TableRect, tableEditing } from '../../';
+import {
+  TableMap,
+  toggleHeader,
+  TableRect,
+  tableEditing,
+  CellSelection,
+} from '../../';
 import { Node as ProsemirrorNode } from 'prosemirror-model';
+import { EditorState } from 'prosemirror-state';
 
 const tableEditing1 = tableEditing();
 const tableWithNodeSelection = tableEditing({ allowTableNodeSelection: true });
@@ -21,3 +28,8 @@ const tableRect: TableRect = {
   map,
   table,
 };
+
+EditorState.create({
+  doc: table,
+  selection: CellSelection.create(table, 0),
+});

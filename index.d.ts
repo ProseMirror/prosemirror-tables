@@ -21,7 +21,7 @@ import {
   Schema,
   NodeType,
 } from 'prosemirror-model';
-import { Mappable, Mapping } from 'prosemirror-transform';
+import { Mappable } from 'prosemirror-transform';
 import { EditorView, NodeView } from 'prosemirror-view';
 
 export interface TableEditingOptions {
@@ -126,7 +126,7 @@ export class TableMap {
 export interface CellBookmark {
   anchor: number;
   head: number;
-  map(mapping: Mapping): CellBookmark;
+  map(mapping: Mappable): CellBookmark;
   resolve(doc: ProsemirrorNode): Selection;
 }
 
