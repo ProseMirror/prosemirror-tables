@@ -267,6 +267,7 @@ export function updateColumnsOnResize(
 export function cellAround(pos: ResolvedPos): ResolvedPos | null;
 
 export function isInTable(state: EditorState): boolean;
+export function pointsAtCell($pos: ResolvedPos): false | null | ProsemirrorNode;
 
 export function removeColSpan<T extends {}>(
   attrs: T,
