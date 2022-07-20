@@ -53,8 +53,7 @@
     "rollup": "^2.74.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "typescript": "^4.0.0",
-    "typings-tester": "^0.3.2"
+    "typescript": "^4.0.0"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
