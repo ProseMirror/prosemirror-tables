@@ -18,7 +18,7 @@ function getCellAttrs(dom, extraAttrs) {
 }
 
 function getColwidth(colwidths) {
- return colwidths?.length ? colwidths.reduce((total, n) => total + n, 0) : 0;
+ return colwidths && colwidths.length ? colwidths.reduce((total, n) => total + n, 0) : 0;
 }
 
 function setCellAttrs(node, extraAttrs) {
