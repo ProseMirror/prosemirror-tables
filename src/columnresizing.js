@@ -188,7 +188,7 @@ function currentColWidth(view, cellPos, { colspan, colwidth }) {
 
 function domCellAround(target) {
   while (target && target.nodeName != 'TD' && target.nodeName != 'TH')
-    target = target.classList.contains('ProseMirror')
+    target = target.classList && target.classList.contains('ProseMirror')
       ? null
       : target.parentNode;
   return target;
