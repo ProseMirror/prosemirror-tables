@@ -1,3 +1,7 @@
+## 1.2.4 (2022-08-10)
+
+add getColWidth function.
+
 ## 1.2.2 (2022-03-21)
 
 Fix table width to account for table headers.

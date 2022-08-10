@@ -17,16 +17,12 @@ function getCellAttrs(dom, extraAttrs) {
   return result
 }
 
-function getColwidth(colwidths) {
- return colwidths && colwidths.length ? colwidths.reduce((total, n) => total + n, 0) : 0;
-}
-
 function setCellAttrs(node, extraAttrs) {
   let attrs = {}
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan
   if (node.attrs.colwidth) {
-    attrs.colwidth = getColwidth(node.attrs.colwidth);
+    attrs.colwidth = getColWidth(node.attrs.colwidth);
     attrs["data-colwidth"] = node.attrs.colwidth.join(",")
   }
   for (let prop in extraAttrs) {
@@ -34,6 +30,10 @@ function setCellAttrs(node, extraAttrs) {
     if (setter) setter(node.attrs[prop], attrs)
   }
   return attrs
+}
+
+export function getColWidth(colwidths) {
+  return colwidths && colwidths.length ? colwidths.reduce((total, n) => total + n, 0) : 0;
 }
 
 // :: (Object) → Object
@@ -96,7 +96,7 @@ export function tableNodes(options) {
             }
           }
           if (initialRow && (n.type.name === 'table_cell' || n.type.name === 'table_header')) {
-            totalWidth += getColwidth(n.attrs.colwidth);
+            totalWidth += getColWidth(n.attrs.colwidth);
           }
         });
 

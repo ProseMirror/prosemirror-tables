@@ -332,3 +332,5 @@ export function fixTables<S extends Schema = any>(
   state: EditorState<S>,
   oldState?: EditorState<S>
 ): null | Transaction<S>;
+
+export function getColWidth(colwidth: number[]): number;
