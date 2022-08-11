@@ -17,13 +17,14 @@ function getCellAttrs(dom, extraAttrs) {
   return result
 }
 
-function setCellAttrs(node, extraAttrs) {
+function setCellAttrs(node, extraAttrs, conversionFactor = 1) {
   let attrs = {}
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan
   if (node.attrs.colwidth) {
-    attrs.colwidth = getColWidth(node.attrs.colwidth);
-    attrs["data-colwidth"] = node.attrs.colwidth.join(",")
+    const widths = node.attrs.colwidth.map(w => w * conversionFactor);
+    attrs.colwidth = getColWidth(widths);
+    attrs["data-colwidth"] = widths.join(",")
   }
   for (let prop in extraAttrs) {
     let setter = extraAttrs[prop].setDOMAttr
@@ -57,6 +58,9 @@ export function getColWidth(colwidths) {
 //     Additional attributes to add to cells. Maps attribute names to
 //     objects with the following properties:
 //
+//     maxTableWidth:: ?number
+//     Maximum with a table is allowed to be
+//
 //       default:: any
 //       The attribute's default value.
 //
@@ -67,14 +71,16 @@ export function getColWidth(colwidths) {
 //       A function to add the attribute's value to an attribute
 //       object that's used to render the cell's DOM.
 export function tableNodes(options) {
-  let extraAttrs = options.cellAttributes || {}
-  let cellAttrs = {
+  let tableConversionFactor = 1;
+  const extraAttrs = options.cellAttributes || {}
+  const cellAttrs = {
     colspan: {default: 1},
     rowspan: {default: 1},
     colwidth: {default: null}
   }
-  for (let prop in extraAttrs)
+  for (let prop in extraAttrs) {
     cellAttrs[prop] = {default: extraAttrs[prop].default}
+  }
 
   return {
     table: {
@@ -84,8 +90,13 @@ export function tableNodes(options) {
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
       toDOM(node) {
-        let totalWidth = 0;
+        let attrs;
         let initialRow = false;
+        let totalWidth = 0;
+        const colWidths = [];
+        const content = [["tbody", 0]];
+        tableConversionFactor = 1;
+
         node.descendants((n) => {
           if (n.type.name === 'table_row') {
             if (initialRow) {
@@ -97,12 +108,19 @@ export function tableNodes(options) {
           }
           if (initialRow && (n.type.name === 'table_cell' || n.type.name === 'table_header')) {
             totalWidth += getColWidth(n.attrs.colwidth);
+            colWidths.push(...n.attrs.colwidth);
           }
         });
 
-        const attrs = totalWidth > 0 ? { style: `width: ${totalWidth}px` } : undefined;
+        if (totalWidth > 0) {
+          tableConversionFactor = options.maxTableWidth && totalWidth > options.maxTableWidth ? options.maxTableWidth / totalWidth : 1;
 
-        return ["table", attrs, ["tbody", 0]];
+          attrs = { style: `width: ${totalWidth * tableConversionFactor}px` };
+          const cols = colWidths.map(width =>(["col", {style: `width: ${width * tableConversionFactor}px`}]));
+          content.unshift(["colgroup", ...cols]);
+        }
+
+        return ["table", attrs, ...content];
       }
     },
     table_row: {
@@ -117,7 +135,9 @@ export function tableNodes(options) {
       tableRole: "cell",
       isolating: true,
       parseDOM: [{tag: "td", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
-      toDOM(node) { return ["td", setCellAttrs(node, extraAttrs), 0] }
+      toDOM(node) {
+        return ["td", setCellAttrs(node, extraAttrs, tableConversionFactor), 0];
+      }
     },
     table_header: {
       content: options.cellContent,
@@ -125,7 +145,7 @@ export function tableNodes(options) {
       tableRole: "header_cell",
       isolating: true,
       parseDOM: [{tag: "th", getAttrs: dom => getCellAttrs(dom, extraAttrs)}],
-      toDOM(node) { return ["th", setCellAttrs(node, extraAttrs), 0] }
+      toDOM(node) { return ["th", setCellAttrs(node, extraAttrs, tableConversionFactor), 0] }
     }
   }
 }

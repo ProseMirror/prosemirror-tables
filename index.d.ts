@@ -32,6 +32,7 @@ export interface TableNodesOptions {
   tableGroup?: string;
   cellContent: string;
   cellAttributes: { [key: string]: CellAttributes };
+  maxTableWidth?: number;
 }
 
 export type getFromDOM = (dom: Element) => any;

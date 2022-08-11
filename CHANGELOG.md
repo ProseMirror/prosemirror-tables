@@ -1,3 +1,7 @@
+## 1.2.5 (2022-08-11)
+
+add maxTableWidth to TableNodesOptions
+
 ## 1.2.4 (2022-08-10)
 
 add getColWidth function.
