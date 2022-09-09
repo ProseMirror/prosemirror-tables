@@ -95,6 +95,7 @@ export function tableNodes(options) {
         let totalWidth = 0;
         const colWidths = [];
         const content = [["tbody", 0]];
+        const wrapperAttrs = { class: 'tableWrapper' };
         tableConversionFactor = 1;
 
         node.descendants((n) => {
@@ -120,7 +121,7 @@ export function tableNodes(options) {
           content.unshift(["colgroup", ...cols]);
         }
 
-        return ["table", attrs, ...content];
+        return ["div", wrapperAttrs, ["table", attrs, ...content]];
       }
     },
     table_row: {
