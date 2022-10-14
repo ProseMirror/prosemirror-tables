@@ -1,6 +1,7 @@
 import ist from 'ist';
 import { EditorState, NodeSelection } from 'prosemirror-state';
 import { Slice } from 'prosemirror-model';
+import { describe, it } from 'mocha';
 
 import {
   doc,
@@ -34,7 +35,7 @@ describe('CellSelection', () => {
     ),
   );
 
-  function run(anchor, head, command) {
+  function run(anchor, head, command): EditorState {
     let state = EditorState.create({
       doc: t,
       selection: CellSelection.create(t, anchor, head),
@@ -59,19 +60,19 @@ describe('CellSelection', () => {
   });
 
   it('extends a row selection when adding a row', () => {
-    let sel = run(34, 6, addRowBefore).selection;
+    let sel = run(34, 6, addRowBefore).selection as CellSelection;
     ist(sel.$anchorCell.pos, 48);
     ist(sel.$headCell.pos, 6);
-    sel = run(6, 30, addRowAfter).selection;
+    sel = run(6, 30, addRowAfter).selection as CellSelection;
     ist(sel.$anchorCell.pos, 6);
     ist(sel.$headCell.pos, 44);
   });
 
   it('extends a col selection when adding a column', () => {
-    let sel = run(16, 24, addColumnAfter).selection;
+    let sel = run(16, 24, addColumnAfter).selection as CellSelection;
     ist(sel.$anchorCell.pos, 20);
     ist(sel.$headCell.pos, 32);
-    sel = run(24, 30, addColumnBefore).selection;
+    sel = run(24, 30, addColumnBefore).selection as CellSelection;
     ist(sel.$anchorCell.pos, 32);
     ist(sel.$headCell.pos, 38);
   });

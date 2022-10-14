@@ -1,20 +1,33 @@
 // Various helper function for working with tables
 
-import { PluginKey } from 'prosemirror-state';
+import { EditorState, NodeSelection, PluginKey } from 'prosemirror-state';
 
-import { TableMap } from './tablemap';
+import { Rect, TableMap } from './tablemap';
 import { tableNodeTypes } from './schema';
+import { Attrs, Node, ResolvedPos } from 'prosemirror-model';
+import { CellSelection } from './cellselection';
 
-export const key = new PluginKey('selectingCells');
+/**
+ * @public
+ */
+export type MutableAttrs = { -readonly [P in keyof Attrs]: Attrs[P] };
 
-export function cellAround($pos) {
+/**
+ * @public
+ */
+export const tableEditingKey = new PluginKey<number>('selectingCells');
+
+/**
+ * @public
+ */
+export function cellAround($pos: ResolvedPos): ResolvedPos | null {
   for (let d = $pos.depth - 1; d > 0; d--)
     if ($pos.node(d).type.spec.tableRole == 'row')
       return $pos.node(0).resolve($pos.before(d + 1));
   return null;
 }
 
-export function cellWrapping($pos) {
+export function cellWrapping($pos: ResolvedPos): null | Node {
   for (let d = $pos.depth; d > 0; d--) {
     // Sometimes the cell can be in the same depth.
     const role = $pos.node(d).type.spec.tableRole;
@@ -23,26 +36,38 @@ export function cellWrapping($pos) {
   return null;
 }
 
-export function isInTable(state) {
+/**
+ * @public
+ */
+export function isInTable(state: EditorState): boolean {
   let $head = state.selection.$head;
   for (let d = $head.depth; d > 0; d--)
     if ($head.node(d).type.spec.tableRole == 'row') return true;
   return false;
 }
 
-export function selectionCell(state) {
-  let sel = state.selection;
-  if (sel.$anchorCell) {
+/**
+ * @public
+ */
+export function selectionCell(
+  state: EditorState,
+): ResolvedPos | null | undefined {
+  let sel = state.selection as CellSelection | NodeSelection;
+  if ('$anchorCell' in sel && sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos
       ? sel.$anchorCell
       : sel.$headCell;
-  } else if (sel.node && sel.node.type.spec.tableRole == 'cell') {
+  } else if (
+    'node' in sel &&
+    sel.node &&
+    sel.node.type.spec.tableRole == 'cell'
+  ) {
     return sel.$anchor;
   }
   return cellAround(sel.$head) || cellNear(sel.$head);
 }
 
-function cellNear($pos) {
+function cellNear($pos: ResolvedPos): ResolvedPos | undefined {
   for (
     let after = $pos.nodeAfter, pos = $pos.pos;
     after;
@@ -62,41 +87,73 @@ function cellNear($pos) {
   }
 }
 
-export function pointsAtCell($pos) {
-  return $pos.parent.type.spec.tableRole == 'row' && $pos.nodeAfter;
+/**
+ * @public
+ */
+export function pointsAtCell($pos: ResolvedPos): boolean {
+  return $pos.parent.type.spec.tableRole == 'row' && !!$pos.nodeAfter;
 }
 
-export function moveCellForward($pos) {
+/**
+ * @public
+ */
+export function moveCellForward($pos: ResolvedPos): ResolvedPos {
   return $pos.node(0).resolve($pos.pos + $pos.nodeAfter.nodeSize);
 }
 
-export function inSameTable($a, $b) {
+/**
+ * @public
+ */
+export function inSameTable($a: ResolvedPos, $b: ResolvedPos): boolean {
   return $a.depth == $b.depth && $a.pos >= $b.start(-1) && $a.pos <= $b.end(-1);
 }
 
-export function findCell($pos) {
+/**
+ * @public
+ */
+export function findCell($pos: ResolvedPos): Rect {
   return TableMap.get($pos.node(-1)).findCell($pos.pos - $pos.start(-1));
 }
 
-export function colCount($pos) {
+/**
+ * @public
+ */
+export function colCount($pos: ResolvedPos): number {
   return TableMap.get($pos.node(-1)).colCount($pos.pos - $pos.start(-1));
 }
 
-export function nextCell($pos, axis, dir) {
+/**
+ * @public
+ */
+export function nextCell(
+  $pos: ResolvedPos,
+  axis: string,
+  dir: number,
+): null | ResolvedPos {
   let start = $pos.start(-1),
     map = TableMap.get($pos.node(-1));
   let moved = map.nextCell($pos.pos - start, axis, dir);
   return moved == null ? null : $pos.node(0).resolve(start + moved);
 }
 
-export function setAttr(attrs, name, value) {
+/**
+ * @public
+ */
+export function setAttr(
+  attrs: Attrs,
+  name: string,
+  value: unknown,
+): MutableAttrs {
   let result = {};
   for (let prop in attrs) result[prop] = attrs[prop];
   result[name] = value;
   return result;
 }
 
-export function removeColSpan(attrs, pos, n = 1) {
+/**
+ * @public
+ */
+export function removeColSpan(attrs: Attrs, pos: number, n: number = 1): Attrs {
   let result = setAttr(attrs, 'colspan', attrs.colspan - n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
@@ -106,7 +163,10 @@ export function removeColSpan(attrs, pos, n = 1) {
   return result;
 }
 
-export function addColSpan(attrs, pos, n = 1) {
+/**
+ * @public
+ */
+export function addColSpan(attrs: Attrs, pos: number, n: number = 1): Attrs {
   let result = setAttr(attrs, 'colspan', attrs.colspan + n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
@@ -115,7 +175,14 @@ export function addColSpan(attrs, pos, n = 1) {
   return result;
 }
 
-export function columnIsHeader(map, table, col) {
+/**
+ * @public
+ */
+export function columnIsHeader(
+  map: TableMap,
+  table: Node,
+  col: number,
+): boolean {
   let headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let row = 0; row < map.height; row++)
     if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)

@@ -1,5 +1,6 @@
 import ist from 'ist';
 import { EditorState } from 'prosemirror-state';
+import { describe, it } from 'mocha';
 
 import {
   doc,
@@ -687,7 +688,7 @@ describe('toggleHeader', () => {
         p('x'),
         table(tr(h(2, 1), h(1, 2)), tr(cCursor, c11), tr(c11, c11, c11)),
       ),
-      toggleHeader('row', { useDeprecateLogic: false }),
+      toggleHeader('row', { useDeprecatedLogic: false }),
       doc(
         p('x'),
         table(tr(c(2, 1), c(1, 2)), tr(cCursor, c11), tr(c11, c11, c11)),
@@ -700,14 +701,14 @@ describe('toggleHeader', () => {
         p('x'),
         table(tr(h(2, 1), h(1, 2)), tr(cCursor, c11), tr(c11, c11, c11)),
       ),
-      toggleHeader('column', { useDeprecateLogic: false }),
+      toggleHeader('column', { useDeprecatedLogic: false }),
       doc(p('x'), table(tr(h(2, 1), h(1, 2)), tr(h11, c11), tr(h11, c11, c11))),
     ));
 
   it('should keep first cell as header when the column header is enabled', () =>
     test(
       doc(p('x'), table(tr(h11, c11), tr(hCursor, c11), tr(h11, c11))),
-      toggleHeader('row', { useDeprecateLogic: false }),
+      toggleHeader('row', { useDeprecatedLogic: false }),
       doc(p('x'), table(tr(h11, h11), tr(h11, c11), tr(h11, c11))),
     ));
 
@@ -715,7 +716,7 @@ describe('toggleHeader', () => {
     it('turns a header column into regular cells without override header row', () =>
       test(
         doc(table(tr(hCursor, h11), tr(h11, c11))),
-        toggleHeader('column', { useDeprecateLogic: false }),
+        toggleHeader('column', { useDeprecatedLogic: false }),
         doc(table(tr(hCursor, h11), tr(c11, c11))),
       ));
   });

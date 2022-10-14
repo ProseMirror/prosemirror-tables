@@ -1,7 +1,12 @@
 // This file defines a number of table-related commands.
 
-import { TextSelection } from 'prosemirror-state';
-import { Fragment } from 'prosemirror-model';
+import {
+  Command,
+  EditorState,
+  TextSelection,
+  Transaction,
+} from 'prosemirror-state';
+import { Fragment, Node, NodeType, ResolvedPos } from 'prosemirror-model';
 
 import { Rect, TableMap } from './tablemap';
 import { CellSelection } from './cellselection';
@@ -17,11 +22,25 @@ import {
   setAttr,
 } from './util';
 import { tableNodeTypes } from './schema';
+import { Direction } from './input';
 
-// Helper to get the selected rectangle in a table, if any. Adds table
-// map, table node, and table start offset to the object for
-// convenience.
-export function selectedRect(state) {
+/**
+ * @public
+ */
+export type TableRect = Rect & {
+  tableStart: number;
+  map: TableMap;
+  table: Node;
+};
+
+/**
+ * Helper to get the selected rectangle in a table, if any. Adds table
+ * map, table node, and table start offset to the object for
+ * convenience.
+ *
+ * @public
+ */
+export function selectedRect(state: EditorState): TableRect {
   let sel = state.selection,
     $pos = selectionCell(state);
   let table = $pos.node(-1),
@@ -40,8 +59,16 @@ export function selectedRect(state) {
   return rect;
 }
 
-// Add a column at the given position in a table.
-export function addColumn(tr, { map, tableStart, table }, col) {
+/**
+ * Add a column at the given position in a table.
+ *
+ * @public
+ */
+export function addColumn(
+  tr: Transaction,
+  { map, tableStart, table }: TableRect,
+  col: number,
+): Transaction {
   let refColumn = col > 0 ? -1 : 0;
   if (columnIsHeader(map, table, col + refColumn))
     refColumn = col == 0 || col == map.width ? null : 0;
@@ -71,9 +98,15 @@ export function addColumn(tr, { map, tableStart, table }, col) {
   return tr;
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Command to add a column before the column with the selection.
-export function addColumnBefore(state, dispatch) {
+/**
+ * Command to add a column before the column with the selection.
+ *
+ * @public
+ */
+export function addColumnBefore(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
     let rect = selectedRect(state);
@@ -82,9 +115,15 @@ export function addColumnBefore(state, dispatch) {
   return true;
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Command to add a column after the column with the selection.
-export function addColumnAfter(state, dispatch) {
+/**
+ * Command to add a column after the column with the selection.
+ *
+ * @public
+ */
+export function addColumnAfter(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
     let rect = selectedRect(state);
@@ -93,7 +132,14 @@ export function addColumnAfter(state, dispatch) {
   return true;
 }
 
-export function removeColumn(tr, { map, table, tableStart }, col) {
+/**
+ * @public
+ */
+export function removeColumn(
+  tr: Transaction,
+  { map, table, tableStart }: TableRect,
+  col: number,
+) {
   let mapStart = tr.mapping.maps.length;
   for (let row = 0; row < map.height; ) {
     let index = row * map.width + col,
@@ -117,9 +163,15 @@ export function removeColumn(tr, { map, table, tableStart }, col) {
   }
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Command function that removes the selected columns from a table.
-export function deleteColumn(state, dispatch) {
+/**
+ * Command function that removes the selected columns from a table.
+ *
+ * @public
+ */
+export function deleteColumn(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
     let rect = selectedRect(state),
@@ -138,7 +190,10 @@ export function deleteColumn(state, dispatch) {
   return true;
 }
 
-export function rowIsHeader(map, table, row) {
+/**
+ * @public
+ */
+export function rowIsHeader(map: TableMap, table: Node, row: number): boolean {
   let headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let col = 0; col < map.width; col++)
     if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
@@ -146,7 +201,14 @@ export function rowIsHeader(map, table, row) {
   return true;
 }
 
-export function addRow(tr, { map, tableStart, table }, row) {
+/**
+ * @public
+ */
+export function addRow(
+  tr: Transaction,
+  { map, tableStart, table }: TableRect,
+  row: number,
+): Transaction {
   let rowPos = tableStart;
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize;
   let cells = [],
@@ -180,9 +242,15 @@ export function addRow(tr, { map, tableStart, table }, row) {
   return tr;
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Add a table row before the selection.
-export function addRowBefore(state, dispatch) {
+/**
+ * Add a table row before the selection.
+ *
+ * @public
+ */
+export function addRowBefore(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
     let rect = selectedRect(state);
@@ -191,9 +259,15 @@ export function addRowBefore(state, dispatch) {
   return true;
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Add a table row after the selection.
-export function addRowAfter(state, dispatch) {
+/**
+ * Add a table row after the selection.
+ *
+ * @public
+ */
+export function addRowAfter(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
     let rect = selectedRect(state);
@@ -202,7 +276,14 @@ export function addRowAfter(state, dispatch) {
   return true;
 }
 
-export function removeRow(tr, { map, table, tableStart }, row) {
+/**
+ * @public
+ */
+export function removeRow(
+  tr: Transaction,
+  { map, table, tableStart }: TableRect,
+  row: number,
+): void {
   let rowPos = 0;
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize;
   let nextRow = rowPos + table.child(row).nodeSize;
@@ -235,9 +316,15 @@ export function removeRow(tr, { map, table, tableStart }, row) {
   }
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Remove the selected rows from a table.
-export function deleteRow(state, dispatch) {
+/**
+ * Remove the selected rows from a table.
+ *
+ * @public
+ */
+export function deleteRow(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
     let rect = selectedRect(state),
@@ -256,7 +343,7 @@ export function deleteRow(state, dispatch) {
   return true;
 }
 
-function isEmpty(cell) {
+function isEmpty(cell: Node): boolean {
   let c = cell.content;
   return (
     c.childCount == 1 &&
@@ -265,7 +352,7 @@ function isEmpty(cell) {
   );
 }
 
-function cellsOverlapRectangle({ width, height, map }, rect) {
+function cellsOverlapRectangle({ width, height, map }: TableMap, rect: Rect) {
   let indexTop = rect.top * width + rect.left,
     indexLeft = indexTop;
   let indexBottom = (rect.bottom - 1) * width + rect.left,
@@ -291,10 +378,16 @@ function cellsOverlapRectangle({ width, height, map }, rect) {
   return false;
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Merge the selected cells into a single cell. Only available when
-// the selected cells' outline forms a rectangle.
-export function mergeCells(state, dispatch) {
+/**
+ * Merge the selected cells into a single cell. Only available when
+ * the selected cells' outline forms a rectangle.
+ *
+ * @public
+ */
+export function mergeCells(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   let sel = state.selection;
   if (
     !(sel instanceof CellSelection) ||
@@ -351,20 +444,41 @@ export function mergeCells(state, dispatch) {
   }
   return true;
 }
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Split a selected cell, whose rowpan or colspan is greater than one,
-// into smaller cells. Use the first cell type for the new cells.
-export function splitCell(state, dispatch) {
+
+/**
+ * Split a selected cell, whose rowpan or colspan is greater than one,
+ * into smaller cells. Use the first cell type for the new cells.
+ *
+ * @public
+ */
+export function splitCell(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   const nodeTypes = tableNodeTypes(state.schema);
   return splitCellWithType(({ node }) => {
     return nodeTypes[node.type.spec.tableRole];
   })(state, dispatch);
 }
 
-// :: (getCellType: ({ row: number, col: number, node: Node}) → NodeType) → (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Split a selected cell, whose rowpan or colspan is greater than one,
-// into smaller cells with the cell type (th, td) returned by getType function.
-export function splitCellWithType(getCellType) {
+/**
+ * @public
+ */
+export interface GetCellTypeOptions {
+  node: Node;
+  row: number;
+  col: number;
+}
+
+/**
+ * Split a selected cell, whose rowpan or colspan is greater than one,
+ * into smaller cells with the cell type (th, td) returned by getType function.
+ *
+ * @public
+ */
+export function splitCellWithType(
+  getCellType: (options: GetCellTypeOptions) => NodeType,
+): Command {
   return (state, dispatch) => {
     let sel = state.selection;
     let cellNode, cellPos;
@@ -428,11 +542,14 @@ export function splitCellWithType(getCellType) {
   };
 }
 
-// :: (string, any) → (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Returns a command that sets the given attribute to the given value,
-// and is only available when the currently selected cell doesn't
-// already have that attribute set to that value.
-export function setCellAttr(name, value) {
+/**
+ * Returns a command that sets the given attribute to the given value,
+ * and is only available when the currently selected cell doesn't
+ * already have that attribute set to that value.
+ *
+ * @public
+ */
+export function setCellAttr(name: string, value: unknown): Command {
   return function (state, dispatch) {
     if (!isInTable(state)) return false;
     let $cell = selectionCell(state);
@@ -456,7 +573,7 @@ export function setCellAttr(name, value) {
   };
 }
 
-function deprecated_toggleHeader(type) {
+function deprecated_toggleHeader(type: ToggleHeaderType): Command {
   return function (state, dispatch) {
     if (!isInTable(state)) return false;
     if (dispatch) {
@@ -499,7 +616,11 @@ function deprecated_toggleHeader(type) {
   };
 }
 
-function isHeaderEnabledByType(type, rect, types) {
+function isHeaderEnabledByType(
+  type: 'row' | 'column',
+  rect: TableRect,
+  types: Record<string, NodeType>,
+): boolean {
   // Get cell positions for first row or first column
   const cellPositions = rect.map.cellsInRect({
     left: 0,
@@ -518,10 +639,21 @@ function isHeaderEnabledByType(type, rect, types) {
   return true;
 }
 
-// :: (string, ?{ useDeprecatedLogic: bool }) → (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Toggles between row/column header and normal cells (Only applies to first row/column).
-// For deprecated behavior pass `useDeprecatedLogic` in options with true.
-export function toggleHeader(type, options) {
+/**
+ * @public
+ */
+export type ToggleHeaderType = 'column' | 'row' | 'cell';
+
+/**
+ * Toggles between row/column header and normal cells (Only applies to first row/column).
+ * For deprecated behavior pass `useDeprecatedLogic` in options with true.
+ *
+ * @public
+ */
+export function toggleHeader(
+  type: ToggleHeaderType,
+  options?: { useDeprecatedLogic: boolean } | undefined,
+): Command {
   options = options || { useDeprecatedLogic: false };
 
   if (options.useDeprecatedLogic) return deprecated_toggleHeader(type);
@@ -578,23 +710,34 @@ export function toggleHeader(type, options) {
   };
 }
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Toggles whether the selected row contains header cells.
-export let toggleHeaderRow = toggleHeader('row', { useDeprecatedLogic: true });
-
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Toggles whether the selected column contains header cells.
-export let toggleHeaderColumn = toggleHeader('column', {
+/**
+ * Toggles whether the selected row contains header cells.
+ *
+ * @public
+ */
+export let toggleHeaderRow: Command = toggleHeader('row', {
   useDeprecatedLogic: true,
 });
 
-// :: (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Toggles whether the selected cells are header cells.
-export let toggleHeaderCell = toggleHeader('cell', {
+/**
+ * Toggles whether the selected column contains header cells.
+ *
+ * @public
+ */
+export let toggleHeaderColumn: Command = toggleHeader('column', {
   useDeprecatedLogic: true,
 });
 
-function findNextCell($cell, dir) {
+/**
+ * Toggles whether the selected cells are header cells.
+ *
+ * @public
+ */
+export let toggleHeaderCell: Command = toggleHeader('cell', {
+  useDeprecatedLogic: true,
+});
+
+function findNextCell($cell: ResolvedPos, dir: Direction): number {
   if (dir < 0) {
     let before = $cell.nodeBefore;
     if (before) return $cell.pos - before.nodeSize;
@@ -623,14 +766,17 @@ function findNextCell($cell, dir) {
   }
 }
 
-// :: (number) → (EditorState, dispatch: ?(tr: Transaction)) → bool
-// Returns a command for selecting the next (direction=1) or previous
-// (direction=-1) cell in a table.
-export function goToNextCell(direction) {
+/**
+ * Returns a command for selecting the next (direction=1) or previous
+ * (direction=-1) cell in a table.
+ *
+ * @public
+ */
+export function goToNextCell(direction: Direction): Command {
   return function (state, dispatch) {
     if (!isInTable(state)) return false;
     let cell = findNextCell(selectionCell(state), direction);
-    if (cell == null) return;
+    if (cell == null) return false;
     if (dispatch) {
       let $cell = state.doc.resolve(cell);
       dispatch(
@@ -643,9 +789,15 @@ export function goToNextCell(direction) {
   };
 }
 
-// :: (EditorState, ?(tr: Transaction)) → bool
-// Deletes the table around the selection, if any.
-export function deleteTable(state, dispatch) {
+/**
+ * Deletes the table around the selection, if any.
+ *
+ * @public
+ */
+export function deleteTable(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   let $pos = state.selection.$anchor;
   for (let d = $pos.depth; d > 0; d--) {
     let node = $pos.node(d);

@@ -1,6 +1,7 @@
 import ist from 'ist';
 import { EditorState } from 'prosemirror-state';
 import { Fragment } from 'prosemirror-model';
+import { describe, it } from 'mocha';
 
 import {
   doc,
@@ -76,7 +77,7 @@ describe('pastedCells', () => {
     ]));
 
   it('returns null for non-cell selection', () =>
-    test(doc(p('foo<a>bar'), p('baz<b>')), null));
+    test(doc(p('foo<a>bar'), p('baz<b>')), null, null, null));
 });
 
 describe('clipCells', () => {

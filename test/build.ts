@@ -1,4 +1,4 @@
-import { Schema } from 'prosemirror-model';
+import { ResolvedPos, Schema, Node } from 'prosemirror-model';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { NodeSelection, TextSelection } from 'prosemirror-state';
 import { builders } from 'prosemirror-test-builder';
@@ -17,7 +17,7 @@ let schema = new Schema({
   marks: baseSchema.spec.marks,
 });
 
-function resolveCell(doc, tag) {
+function resolveCell(doc: Node, tag: number): ResolvedPos | null {
   if (tag == null) return null;
   return cellAround(doc.resolve(tag));
 }
@@ -27,7 +27,7 @@ export const { doc, table, tr, p, td, th } = builders(schema, {
   tr: { nodeType: 'table_row' },
   td: { nodeType: 'table_cell' },
   th: { nodeType: 'table_header' },
-});
+}) as any;
 
 export const c = function (colspan, rowspan) {
   return td({ colspan, rowspan }, p('x'));

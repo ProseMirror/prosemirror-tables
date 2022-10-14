@@ -2,6 +2,7 @@ import ist from 'ist';
 
 import { table, tr, c, c11 } from './build';
 import { TableMap } from '../src/';
+import { describe, it } from 'mocha';
 
 function eqRect(a, b) {
   return (

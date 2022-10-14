@@ -1,22 +1,36 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
-import { Slice, Fragment } from 'prosemirror-model';
-import { Selection, TextSelection } from 'prosemirror-state';
+import { Fragment, ResolvedPos, Slice } from 'prosemirror-model';
+import {
+  Command,
+  EditorState,
+  Selection,
+  TextSelection,
+  Transaction,
+} from 'prosemirror-state';
 import { keydownHandler } from 'prosemirror-keymap';
 
 import {
-  key,
-  nextCell,
   cellAround,
   inSameTable,
   isInTable,
+  tableEditingKey,
+  nextCell,
   selectionCell,
 } from './util';
 import { CellSelection } from './cellselection';
 import { TableMap } from './tablemap';
-import { pastedCells, fitSlice, clipCells, insertCells } from './copypaste';
+import { clipCells, fitSlice, insertCells, pastedCells } from './copypaste';
 import { tableNodeTypes } from './schema';
+import { EditorView } from 'prosemirror-view';
+
+type Axis = 'horiz' | 'vert';
+
+/**
+ * @public
+ */
+export type Direction = -1 | 1;
 
 export const handleKeyDown = keydownHandler({
   ArrowLeft: arrow('horiz', -1),
@@ -35,13 +49,17 @@ export const handleKeyDown = keydownHandler({
   'Mod-Delete': deleteCellSelection,
 });
 
-function maybeSetSelection(state, dispatch, selection) {
+function maybeSetSelection(
+  state: EditorState,
+  dispatch: undefined | ((tr: Transaction) => void),
+  selection: Selection,
+): boolean {
   if (selection.eq(state.selection)) return false;
   if (dispatch) dispatch(state.tr.setSelection(selection).scrollIntoView());
   return true;
 }
 
-function arrow(axis, dir) {
+function arrow(axis: Axis, dir: Direction): Command {
   return (state, dispatch, view) => {
     let sel = state.selection;
     if (sel instanceof CellSelection) {
@@ -73,25 +91,32 @@ function arrow(axis, dir) {
   };
 }
 
-function shiftArrow(axis, dir) {
+function shiftArrow(axis: Axis, dir: Direction): Command {
   return (state, dispatch, view) => {
     let sel = state.selection;
-    if (!(sel instanceof CellSelection)) {
+    let cellSel: CellSelection;
+    if (sel instanceof CellSelection) {
+      cellSel = sel;
+    } else {
       let end = atEndOfCell(view, axis, dir);
       if (end == null) return false;
-      sel = new CellSelection(state.doc.resolve(end));
+      cellSel = new CellSelection(state.doc.resolve(end));
     }
-    let $head = nextCell(sel.$headCell, axis, dir);
+
+    let $head = nextCell(cellSel.$headCell, axis, dir);
     if (!$head) return false;
     return maybeSetSelection(
       state,
       dispatch,
-      new CellSelection(sel.$anchorCell, $head),
+      new CellSelection(cellSel.$anchorCell, $head),
     );
   };
 }
 
-function deleteCellSelection(state, dispatch) {
+function deleteCellSelection(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
   let sel = state.selection;
   if (!(sel instanceof CellSelection)) return false;
   if (dispatch) {
@@ -110,7 +135,7 @@ function deleteCellSelection(state, dispatch) {
   return true;
 }
 
-export function handleTripleClick(view, pos) {
+export function handleTripleClick(view: EditorView, pos: number): boolean {
   let doc = view.state.doc,
     $cell = cellAround(doc.resolve(pos));
   if (!$cell) return false;
@@ -118,7 +143,14 @@ export function handleTripleClick(view, pos) {
   return true;
 }
 
-export function handlePaste(view, _, slice) {
+/**
+ * @public
+ */
+export function handlePaste(
+  view: EditorView,
+  _: ClipboardEvent,
+  slice: Slice,
+): boolean {
   if (!isInTable(view.state)) return false;
   let cells = pastedCells(slice),
     sel = view.state.selection;
@@ -158,10 +190,13 @@ export function handlePaste(view, _, slice) {
   }
 }
 
-export function handleMouseDown(view, startEvent) {
+export function handleMouseDown(
+  view: EditorView,
+  startEvent: MouseEvent,
+): void {
   if (startEvent.ctrlKey || startEvent.metaKey) return;
 
-  let startDOMCell = domInCell(view, startEvent.target),
+  let startDOMCell = domInCell(view, startEvent.target as Node),
     $anchor;
   if (startEvent.shiftKey && view.state.selection instanceof CellSelection) {
     // Adding to an existing cell selection
@@ -184,9 +219,9 @@ export function handleMouseDown(view, startEvent) {
 
   // Create and dispatch a cell selection between the given anchor and
   // the position under the mouse.
-  function setCellSelection($anchor, event) {
+  function setCellSelection($anchor: ResolvedPos, event: MouseEvent): void {
     let $head = cellUnderMouse(view, event);
-    let starting = key.getState(view.state) == null;
+    let starting = tableEditingKey.getState(view.state) == null;
     if (!$head || !inSameTable($anchor, $head)) {
       if (starting) $head = $anchor;
       else return;
@@ -194,33 +229,34 @@ export function handleMouseDown(view, startEvent) {
     let selection = new CellSelection($anchor, $head);
     if (starting || !view.state.selection.eq(selection)) {
       let tr = view.state.tr.setSelection(selection);
-      if (starting) tr.setMeta(key, $anchor.pos);
+      if (starting) tr.setMeta(tableEditingKey, $anchor.pos);
       view.dispatch(tr);
     }
   }
 
   // Stop listening to mouse motion events.
-  function stop() {
+  function stop(): void {
     view.root.removeEventListener('mouseup', stop);
     view.root.removeEventListener('dragstart', stop);
     view.root.removeEventListener('mousemove', move);
-    if (key.getState(view.state) != null)
-      view.dispatch(view.state.tr.setMeta(key, -1));
+    if (tableEditingKey.getState(view.state) != null)
+      view.dispatch(view.state.tr.setMeta(tableEditingKey, -1));
   }
 
-  function move(event) {
-    let anchor = key.getState(view.state),
+  function move(event: MouseEvent): void {
+    let anchor = tableEditingKey.getState(view.state),
       $anchor;
     if (anchor != null) {
       // Continuing an existing cross-cell selection
       $anchor = view.state.doc.resolve(anchor);
-    } else if (domInCell(view, event.target) != startDOMCell) {
+    } else if (domInCell(view, event.target as Node) != startDOMCell) {
       // Moving out of the initial cell -- start a new cell selection
       $anchor = cellUnderMouse(view, startEvent);
       if (!$anchor) return stop();
     }
     if ($anchor) setCellSelection($anchor, event);
   }
+
   view.root.addEventListener('mouseup', stop);
   view.root.addEventListener('dragstart', stop);
   view.root.addEventListener('mousemove', move);
@@ -228,7 +264,7 @@ export function handleMouseDown(view, startEvent) {
 
 // Check whether the cursor is at the end of a cell (so that further
 // motion would move out of the cell)
-function atEndOfCell(view, axis, dir) {
+function atEndOfCell(view: EditorView, axis: Axis, dir: number): null | number {
   if (!(view.state.selection instanceof TextSelection)) return null;
   let { $head } = view.state.selection;
   for (let d = $head.depth - 1; d >= 0; d--) {
@@ -240,7 +276,7 @@ function atEndOfCell(view, axis, dir) {
       parent.type.spec.tableRole == 'header_cell'
     ) {
       let cellPos = $head.before(d);
-      let dirStr =
+      let dirStr: 'up' | 'down' | 'left' | 'right' =
         axis == 'vert' ? (dir > 0 ? 'down' : 'up') : dir > 0 ? 'right' : 'left';
       return view.endOfTextblock(dirStr) ? cellPos : null;
     }
@@ -248,12 +284,15 @@ function atEndOfCell(view, axis, dir) {
   return null;
 }
 
-function domInCell(view, dom) {
+function domInCell(view: EditorView, dom: Node): Node {
   for (; dom && dom != view.dom; dom = dom.parentNode)
     if (dom.nodeName == 'TD' || dom.nodeName == 'TH') return dom;
 }
 
-function cellUnderMouse(view, event) {
+function cellUnderMouse(
+  view: EditorView,
+  event: MouseEvent,
+): ResolvedPos | null {
   let mousePos = view.posAtCoords({ left: event.clientX, top: event.clientY });
   if (!mousePos) return null;
   return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;

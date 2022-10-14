@@ -3,6 +3,7 @@ import { EditorState } from 'prosemirror-state';
 import { DecorationSet } from 'prosemirror-view';
 import { handleDecorations } from '../src/columnresizing';
 import { table, doc, tr, cEmpty } from './build';
+import { describe, it } from 'mocha';
 
 describe('handleDecorations', () => {
   it('returns an empty DecorationSet if cell is null or undefined', () => {

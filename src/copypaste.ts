@@ -10,20 +10,29 @@
 // clipped to the selection's rectangle, optionally repeating the
 // pasted cells when they are smaller than the selection.
 
-import { Slice, Fragment } from 'prosemirror-model';
+import { Fragment, Node, NodeType, Schema, Slice } from 'prosemirror-model';
 import { Transform } from 'prosemirror-transform';
 
-import { setAttr, removeColSpan } from './util';
-import { TableMap } from './tablemap';
+import { removeColSpan, setAttr } from './util';
+import { Rect, TableMap } from './tablemap';
 import { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
+import { EditorState, Transaction } from 'prosemirror-state';
+
+/**
+ * @internal
+ */
+export type Area = { width: number; height: number; rows: Fragment[] };
 
 // Utilities to help with copying and pasting table cells
 
-// : (Slice) → ?{width: number, height: number, rows: [Fragment]}
-// Get a rectangular area of cells from a slice, or null if the outer
-// nodes of the slice aren't table cells or rows.
-export function pastedCells(slice) {
+/**
+ * Get a rectangular area of cells from a slice, or null if the outer
+ * nodes of the slice aren't table cells or rows.
+ *
+ * @internal
+ */
+export function pastedCells(slice: Slice): Area | undefined {
   if (!slice.size) return null;
   let { content, openStart, openEnd } = slice;
   while (
@@ -66,10 +75,9 @@ export function pastedCells(slice) {
   return ensureRectangular(schema, rows);
 }
 
-// : (Schema, [Fragment]) → {width: number, height: number, rows: [Fragment]}
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
-function ensureRectangular(schema, rows) {
+function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
   let widths = [];
   for (let i = 0; i < rows.length; i++) {
     let row = rows[i];
@@ -93,17 +101,24 @@ function ensureRectangular(schema, rows) {
   return { height: rows.length, width, rows };
 }
 
-export function fitSlice(nodeType, slice) {
+export function fitSlice(nodeType: NodeType, slice: Slice): Node {
   let node = nodeType.createAndFill();
   let tr = new Transform(node).replace(0, node.content.size, slice);
   return tr.doc;
 }
 
-// : ({width: number, height: number, rows: [Fragment]}, number, number) → {width: number, height: number, rows: [Fragment]}
-// Clip or extend (repeat) the given set of cells to cover the given
-// width and height. Will clip rowspan/colspan cells at the edges when
-// they stick out.
-export function clipCells({ width, height, rows }, newWidth, newHeight) {
+/**
+ * Clip or extend (repeat) the given set of cells to cover the given
+ * width and height. Will clip rowspan/colspan cells at the edges when
+ * they stick out.
+ *
+ * @internal
+ */
+export function clipCells(
+  { width, height, rows }: Area,
+  newWidth: number,
+  newHeight: number,
+): Area {
   if (width != newWidth) {
     let added = [],
       newRows = [];
@@ -161,7 +176,15 @@ export function clipCells({ width, height, rows }, newWidth, newHeight) {
 
 // Make sure a table has at least the given width and height. Return
 // true if something was changed.
-function growTable(tr, map, table, start, width, height, mapFrom) {
+function growTable(
+  tr: Transaction,
+  map: TableMap,
+  table: Node,
+  start: number,
+  width: number,
+  height: number,
+  mapFrom: number,
+): boolean {
   let schema = tr.doc.type.schema,
     types = tableNodeTypes(schema),
     empty,
@@ -208,7 +231,16 @@ function growTable(tr, map, table, start, width, height, mapFrom) {
 // Make sure the given line (left, top) to (right, top) doesn't cross
 // any rowspan cells by splitting cells that cross it. Return true if
 // something changed.
-function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
+function isolateHorizontal(
+  tr: Transaction,
+  map: TableMap,
+  table: Node,
+  start: number,
+  left: number,
+  right: number,
+  top: number,
+  mapFrom: number,
+): boolean {
   if (top == 0 || top == map.height) return false;
   let found = false;
   for (let col = left; col < right; col++) {
@@ -238,7 +270,16 @@ function isolateHorizontal(tr, map, table, start, left, right, top, mapFrom) {
 // Make sure the given line (left, top) to (left, bottom) doesn't
 // cross any colspan cells by splitting cells that cross it. Return
 // true if something changed.
-function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
+function isolateVertical(
+  tr: Transaction,
+  map: TableMap,
+  table: Node,
+  start: number,
+  top: number,
+  bottom: number,
+  left: number,
+  mapFrom: number,
+): boolean {
   if (left == 0 || left == map.width) return false;
   let found = false;
   for (let row = top; row < bottom; row++) {
@@ -268,9 +309,19 @@ function isolateVertical(tr, map, table, start, top, bottom, left, mapFrom) {
   return found;
 }
 
-// Insert the given set of cells (as returned by `pastedCells`) into a
-// table, at the position pointed at by rect.
-export function insertCells(state, dispatch, tableStart, rect, cells) {
+/**
+ * Insert the given set of cells (as returned by `pastedCells`) into a
+ * table, at the position pointed at by rect.
+ *
+ * @internal
+ */
+export function insertCells(
+  state: EditorState,
+  dispatch: (tr: Transaction) => void,
+  tableStart: number,
+  rect: Rect,
+  cells: Area,
+): void {
   let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc,
     map = TableMap.get(table);
   let { top, left } = rect;
@@ -278,11 +329,13 @@ export function insertCells(state, dispatch, tableStart, rect, cells) {
     bottom = top + cells.height;
   let tr = state.tr,
     mapFrom = 0;
-  function recomp() {
+
+  function recomp(): void {
     table = tableStart ? tr.doc.nodeAt(tableStart - 1) : tr.doc;
     map = TableMap.get(table);
     mapFrom = tr.mapping.maps.length;
   }
+
   // Prepare the table to be large enough and not have any cells
   // crossing the boundaries of the rectangle that we want to
   // insert into. If anything about it changes, recompute the table

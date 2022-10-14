@@ -1,5 +1,6 @@
 import ist from 'ist';
 import { EditorState } from 'prosemirror-state';
+import { describe, it } from 'mocha';
 
 import {
   doc,

@@ -7,28 +7,42 @@
 import { Plugin } from 'prosemirror-state';
 
 import {
-  handleTripleClick,
   handleKeyDown,
-  handlePaste,
   handleMouseDown,
+  handlePaste,
+  handleTripleClick,
 } from './input';
-import { key as tableEditingKey } from './util';
+import { tableEditingKey } from './util';
 import { drawCellSelection, normalizeSelection } from './cellselection';
 import { fixTables, fixTablesKey } from './fixtables';
 
-// :: () → Plugin
-//
-// Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
-// that, when added to an editor, enables cell-selection, handles
-// cell-based copy/paste, and makes sure tables stay well-formed (each
-// row has the same width, and cells don't overlap).
-//
-// You should probably put this plugin near the end of your array of
-// plugins, since it handles mouse and arrow key events in tables
-// rather broadly, and other plugins, like the gap cursor or the
-// column-width dragging plugin, might want to get a turn first to
-// perform more specific behavior.
-export function tableEditing({ allowTableNodeSelection = false } = {}) {
+export { Direction } from './input';
+export { CellSelectionJSON, CellBookmark } from './cellselection';
+
+/**
+ * @public
+ */
+export type TableEditingOptions = {
+  allowTableNodeSelection?: boolean;
+};
+
+/**
+ * Creates a [plugin](http://prosemirror.net/docs/ref/#state.Plugin)
+ * that, when added to an editor, enables cell-selection, handles
+ * cell-based copy/paste, and makes sure tables stay well-formed (each
+ * row has the same width, and cells don't overlap).
+ *
+ * You should probably put this plugin near the end of your array of
+ * plugins, since it handles mouse and arrow key events in tables
+ * rather broadly, and other plugins, like the gap cursor or the
+ * column-width dragging plugin, might want to get a turn first to
+ * perform more specific behavior.
+ *
+ * @public
+ */
+export function tableEditing({
+  allowTableNodeSelection = false,
+}: TableEditingOptions = {}): Plugin {
   return new Plugin({
     key: tableEditingKey,
 
@@ -92,19 +106,30 @@ export {
   removeColSpan,
   addColSpan,
   columnIsHeader,
+  MutableAttrs,
 } from './util';
-export { tableNodes, tableNodeTypes } from './schema';
+export {
+  tableNodes,
+  tableNodeTypes,
+  TableNodesOptions,
+  TableRoles,
+  CellAttributes,
+} from './schema';
 export { CellSelection } from './cellselection';
-export { TableMap } from './tablemap';
+export { TableMap, Problem, Rect, ColWidths } from './tablemap';
 export { tableEditingKey };
 export * from './commands';
 export {
   columnResizing,
-  key as columnResizingPluginKey,
+  columnResizingPluginKey,
+  ResizeState,
+  ColumnResizingOptions,
+  Dragging,
 } from './columnresizing';
-export { updateColumns as updateColumnsOnResize, TableView } from './tableview';
+export { updateColumnsOnResize, TableView } from './tableview';
 export {
   pastedCells as __pastedCells,
   insertCells as __insertCells,
   clipCells as __clipCells,
+  Area as __Area,
 } from './copypaste';

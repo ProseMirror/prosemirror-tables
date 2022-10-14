@@ -1,6 +1,13 @@
 // Helper for creating a schema that supports tables.
 
-function getCellAttrs(dom, extraAttrs) {
+import { Attrs, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
+import { MutableAttrs } from './util';
+
+function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
+  if (typeof dom === 'string') {
+    return {};
+  }
+
   let widthAttr = dom.getAttribute('data-colwidth');
   let widths =
     widthAttr && /^\d+(,\d+)*$/.test(widthAttr)
@@ -20,8 +27,8 @@ function getCellAttrs(dom, extraAttrs) {
   return result;
 }
 
-function setCellAttrs(node, extraAttrs) {
-  let attrs = {};
+function setCellAttrs(node: Node, extraAttrs: Attrs): Attrs {
+  let attrs: MutableAttrs = {};
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan;
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan;
   if (node.attrs.colwidth)
@@ -33,37 +40,61 @@ function setCellAttrs(node, extraAttrs) {
   return attrs;
 }
 
-// :: (Object) → Object
-//
-// This function creates a set of [node
-// specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
-// `table`, `table_row`, and `table_cell` nodes types as used by this
-// module. The result can then be added to the set of nodes when
-// creating a a schema.
-//
-//   options::- The following options are understood:
-//
-//     tableGroup:: ?string
-//     A group name (something like `"block"`) to add to the table
-//     node type.
-//
-//     cellContent:: string
-//     The content expression for table cells.
-//
-//     cellAttributes:: ?Object
-//     Additional attributes to add to cells. Maps attribute names to
-//     objects with the following properties:
-//
-//       default:: any
-//       The attribute's default value.
-//
-//       getFromDOM:: ?(dom.Node) → any
-//       A function to read the attribute's value from a DOM node.
-//
-//       setDOMAttr:: ?(value: any, attrs: Object)
-//       A function to add the attribute's value to an attribute
-//       object that's used to render the cell's DOM.
-export function tableNodes(options) {
+/**
+ * @public
+ */
+export interface CellAttributes {
+  /**
+   * The attribute's default value.
+   */
+  default: any;
+
+  /**
+   * A function to read the attribute's value from a DOM node.
+   */
+  getFromDOM?: (dom: HTMLElement) => any;
+
+  /**
+   * A function to add the attribute's value to an attribute
+   * object that's used to render the cell's DOM.
+   */
+  setDOMAttr?: (value: any, attrs: MutableAttrs) => void;
+}
+
+/**
+ * @public
+ */
+export interface TableNodesOptions {
+  /**
+   * A group name (something like `"block"`) to add to the table
+   * node type.
+   */
+  tableGroup?: string;
+
+  /**
+   * The content expression for table cells.
+   */
+  cellContent: string;
+
+  /**
+   * Additional attributes to add to cells. Maps attribute names to
+   * objects with the following properties:
+   */
+  cellAttributes: { [key: string]: CellAttributes };
+}
+
+/**
+ * This function creates a set of [node
+ * specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
+ * `table`, `table_row`, and `table_cell` nodes types as used by this
+ * module. The result can then be added to the set of nodes when
+ * creating a schema.
+ *
+ * @public
+ */
+export function tableNodes(
+  options: TableNodesOptions,
+): Record<string, NodeSpec> {
   let extraAttrs = options.cellAttributes || {};
   let cellAttrs = {
     colspan: { default: 1 },
@@ -119,7 +150,15 @@ export function tableNodes(options) {
   };
 }
 
-export function tableNodeTypes(schema) {
+/**
+ * @public
+ */
+export type TableRoles = 'table' | 'row' | 'cell' | 'header_cell';
+
+/**
+ * @public
+ */
+export function tableNodeTypes(schema: Schema): Record<TableRoles, NodeType> {
   let result = schema.cached.tableNodeTypes;
   if (!result) {
     result = schema.cached.tableNodeTypes = {};

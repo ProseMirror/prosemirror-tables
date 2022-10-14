@@ -3,17 +3,30 @@
 // rowspans) and that each row has the same width. Uses the problems
 // reported by `TableMap`.
 
-import { PluginKey } from 'prosemirror-state';
+import { EditorState, PluginKey, Transaction } from 'prosemirror-state';
 import { TableMap } from './tablemap';
-import { setAttr, removeColSpan } from './util';
+import { removeColSpan, setAttr } from './util';
 import { tableNodeTypes } from './schema';
+import { Node } from 'prosemirror-model';
 
-export const fixTablesKey = new PluginKey('fix-tables');
+/**
+ * @public
+ */
+export const fixTablesKey = new PluginKey<{ fixTables: boolean }>('fix-tables');
 
-// Helper for iterating through the nodes in a document that changed
-// compared to the given previous document. Useful for avoiding
-// duplicate work on each transaction.
-function changedDescendants(old, cur, offset, f) {
+/**
+ * Helper for iterating through the nodes in a document that changed
+ * compared to the given previous document. Useful for avoiding
+ * duplicate work on each transaction.
+ *
+ * @public
+ */
+function changedDescendants(
+  old: Node,
+  cur: Node,
+  offset: number,
+  f: (node: Node, pos: number) => void,
+): void {
   let oldSize = old.childCount,
     curSize = cur.childCount;
   outer: for (let i = 0, j = 0; i < curSize; i++) {
@@ -33,13 +46,19 @@ function changedDescendants(old, cur, offset, f) {
   }
 }
 
-// :: (EditorState, ?EditorState) → ?Transaction
-// Inspect all tables in the given state's document and return a
-// transaction that fixes them, if necessary. If `oldState` was
-// provided, that is assumed to hold a previous, known-good state,
-// which will be used to avoid re-scanning unchanged parts of the
-// document.
-export function fixTables(state, oldState) {
+/**
+ * Inspect all tables in the given state's document and return a
+ * transaction that fixes them, if necessary. If `oldState` was
+ * provided, that is assumed to hold a previous, known-good state,
+ * which will be used to avoid re-scanning unchanged parts of the
+ * document.
+ *
+ * @public
+ */
+export function fixTables(
+  state: EditorState,
+  oldState?: EditorState,
+): Transaction | undefined {
   let tr,
     check = (node, pos) => {
       if (node.type.spec.tableRole == 'table')
@@ -51,10 +70,14 @@ export function fixTables(state, oldState) {
   return tr;
 }
 
-// : (EditorState, Node, number, ?Transaction) → ?Transaction
 // Fix the given table, if necessary. Will append to the transaction
 // it was given, if non-null, or create a new one if necessary.
-export function fixTable(state, table, tablePos, tr) {
+export function fixTable(
+  state: EditorState,
+  table: Node,
+  tablePos: number,
+  tr: Transaction | undefined,
+): Transaction | undefined {
   let map = TableMap.get(table);
   if (!map.problems) return tr;
   if (!tr) tr = state.tr;
