@@ -1,22 +1,18 @@
-const ist = require("ist");
-const { columnResizing, columnResizingPluginKey } = require("../dist/");
-const { EditorState, NodeSelection } = require("prosemirror-state");
-const { doc, table, tr, td, cEmpty, p } = require("./build");
+import ist from 'ist';
+import { columnResizing, columnResizingPluginKey } from '..';
+import { EditorState, NodeSelection } from 'prosemirror-state';
+import { doc, table, tr, td, cEmpty, p } from './build';
 
 describe("columnresizing", () => {
   // setup document object for testing
   beforeEach(() => {
-    document = {
+    globalThis.document = {
       createElement: () => {
         return { className: "" };
       },
     };
   });
 
-  // clean up document object after test
-  afterEach(() => {
-    delete document;
-  });
   // simple table is a table with colspan = 1 and rowspan = 1
   describe("3 x 2 simple table", () => {
     let state = null;
