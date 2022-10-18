@@ -1,31 +1,28 @@
-const ist = require("ist");
-const { columnResizing, columnResizingPluginKey } = require("../dist/");
-const { EditorState, NodeSelection } = require("prosemirror-state");
-const { doc, table, tr, td, cEmpty, p } = require("./build");
+import ist from 'ist';
+import { columnResizing, columnResizingPluginKey } from '..';
+import { EditorState, NodeSelection } from 'prosemirror-state';
+import { doc, table, tr, td, cEmpty, p } from './build';
 
-describe("columnresizing", () => {
+describe('columnresizing', () => {
   // setup document object for testing
   beforeEach(() => {
-    document = {
+    /*global globalThis*/
+    globalThis.document = {
       createElement: () => {
-        return { className: "" };
+        return { className: '' };
       },
     };
   });
 
-  // clean up document object after test
-  afterEach(() => {
-    delete document;
-  });
   // simple table is a table with colspan = 1 and rowspan = 1
-  describe("3 x 2 simple table", () => {
+  describe('3 x 2 simple table', () => {
     let state = null;
     let plugin = null;
     beforeEach(() => {
       let simpleTable = table(
         tr(cEmpty, cEmpty),
         tr(cEmpty, cEmpty),
-        tr(cEmpty, cEmpty)
+        tr(cEmpty, cEmpty),
       );
       plugin = columnResizing();
       state = EditorState.create({ doc: doc(simpleTable), plugins: [plugin] });
@@ -35,7 +32,7 @@ describe("columnresizing", () => {
       plugin = null;
     });
 
-    it("hovering on the first row border", () => {
+    it('hovering on the first row border', () => {
       let transaction = state.tr.setMeta(columnResizingPluginKey, {
         setHandle: 2,
         setDragging: null,
@@ -44,7 +41,7 @@ describe("columnresizing", () => {
       ist(plugin.props.decorations(newState).find().length, 3);
     });
 
-    it("hovering on the second row border", () => {
+    it('hovering on the second row border', () => {
       let transaction = state.tr.setMeta(columnResizingPluginKey, {
         setHandle: 12,
         setDragging: null,
@@ -53,7 +50,7 @@ describe("columnresizing", () => {
       ist(plugin.props.decorations(newState).find().length, 3);
     });
 
-    it("hovering on the third row border", () => {
+    it('hovering on the third row border', () => {
       let transaction = state.tr.setMeta(columnResizingPluginKey, {
         setHandle: 22,
         setDragging: null,
@@ -77,14 +74,14 @@ describe("columnresizing", () => {
   //            ---------------------------
   // |         |(5, 9)       |(6, 24)      |(7, 28)
   // --------------------------------------
-  describe("3 x 3 table with rowspan and colspan", () => {
+  describe('3 x 3 table with rowspan and colspan', () => {
     let state = null;
     let plugin = null;
     beforeEach(() => {
       let complicatedTable = table(
         tr(td({ colspan: 3, rowspan: 1 }, p())),
         tr(td({ colspan: 1, rowspan: 2 }, p()), cEmpty, cEmpty),
-        tr(cEmpty, cEmpty)
+        tr(cEmpty, cEmpty),
       );
       plugin = columnResizing();
       state = EditorState.create({
@@ -97,8 +94,8 @@ describe("columnresizing", () => {
       plugin = null;
     });
 
-    describe("border 1", () => {
-      it("resolves for (2)", () => {
+    describe('border 1', () => {
+      it('resolves for (2)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 8,
           setDragging: null,
@@ -109,7 +106,7 @@ describe("columnresizing", () => {
         ist(plugin.props.decorations(newState).find().length, 1);
       });
 
-      it("resolves for (5)", () => {
+      it('resolves for (5)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 8, // this is the same as previous test this cell span over to 2 rows
           setDragging: null,
@@ -121,8 +118,8 @@ describe("columnresizing", () => {
       });
     });
 
-    describe("border 2", () => {
-      it("resolves for (3)", () => {
+    describe('border 2', () => {
+      it('resolves for (3)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 12,
           setDragging: null,
@@ -132,7 +129,7 @@ describe("columnresizing", () => {
         ist(plugin.props.decorations(newState).find().length, 2);
       });
 
-      it("resolves for (6)", () => {
+      it('resolves for (6)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 22, // this is the same as previous test because it resolves to the same cell
           setDragging: null,
@@ -143,8 +140,8 @@ describe("columnresizing", () => {
       });
     });
 
-    describe("border 3", () => {
-      it("resolves for (1)", () => {
+    describe('border 3', () => {
+      it('resolves for (1)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 2,
           setDragging: null,
@@ -154,7 +151,7 @@ describe("columnresizing", () => {
         ist(plugin.props.decorations(newState).find().length, 3);
       });
 
-      it("resolves for (4)", () => {
+      it('resolves for (4)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 16,
           setDragging: null,
@@ -164,7 +161,7 @@ describe("columnresizing", () => {
         ist(plugin.props.decorations(newState).find().length, 3);
       });
 
-      it("resolves for (7)", () => {
+      it('resolves for (7)', () => {
         let transaction = state.tr.setMeta(columnResizingPluginKey, {
           setHandle: 26,
           setDragging: null,
@@ -176,13 +173,13 @@ describe("columnresizing", () => {
       });
     });
   });
-  describe("table is deleted", () => {
+  describe('table is deleted', () => {
     let state = null;
     let plugin = null;
     let simpleTable = table(
       tr(cEmpty, cEmpty),
       tr(cEmpty, cEmpty),
-      tr(cEmpty, cEmpty)
+      tr(cEmpty, cEmpty),
     );
     beforeEach(() => {
       const docWithSimpleTable = doc(simpleTable);
@@ -190,20 +187,22 @@ describe("columnresizing", () => {
       state = EditorState.create({
         doc: docWithSimpleTable,
         plugins: [plugin],
-        selection: NodeSelection.create(docWithSimpleTable, 0)
+        selection: NodeSelection.create(docWithSimpleTable, 0),
       });
     });
     afterEach(() => {
       state = null;
       plugin = null;
     });
-    it("decorations are removed", () => {
-      let transaction = state.tr.deleteSelection().setMeta(columnResizingPluginKey, {
-        setHandle: 2,
-        setDragging: null,
-      });
+    it('decorations are removed', () => {
+      let transaction = state.tr
+        .deleteSelection()
+        .setMeta(columnResizingPluginKey, {
+          setHandle: 2,
+          setDragging: null,
+        });
       let newState = state.apply(transaction);
       ist(plugin.props.decorations(newState).find().length, 0);
-    })
-  })
+    });
+  });
 });
