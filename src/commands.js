@@ -634,13 +634,14 @@ export function goToNextCell(direction) {
     if (dispatch) {
       let $cell = state.doc.resolve(cell);
       let cellNode = state.doc.nodeAt(cell);
-      let shouldCreateNodeSelection = cellNode.textContent.length === 0 && cellNode.firstChild.isAtom;
+      let shouldCreateNodeSelection =
+        cellNode.textContent.length === 0 && cellNode.firstChild.isAtom;
       dispatch(
         state.tr
           .setSelection(
             shouldCreateNodeSelection
               ? NodeSelection.create(state.doc, cell)
-              : TextSelection.between($cell, moveCellForward($cell))
+              : TextSelection.between($cell, moveCellForward($cell)),
           )
           .scrollIntoView(),
       );

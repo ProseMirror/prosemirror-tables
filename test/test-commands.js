@@ -36,7 +36,7 @@ import {
   toggleHeader,
   toggleHeaderRow,
   toggleHeaderColumn,
-  goToNextCell
+  goToNextCell,
 } from '../src/';
 
 function test(doc, command, result) {
@@ -725,7 +725,10 @@ describe('toggleHeader', () => {
 
 describe('goToNextCell', () => {
   const simpleTable = table(
-    tr(td({ colspan: 1, rowspan: 1 }, p('abc')), td({ colspan: 1, rowspan: 1 }, p('def'))),
+    tr(
+      td({ colspan: 1, rowspan: 1 }, p('abc')),
+      td({ colspan: 1, rowspan: 1 }, p('def')),
+    ),
     tr(td({ colspan: 1, rowspan: 1 }, hr()), cEmpty),
   );
   const docWithSimpleTable = doc(simpleTable, p('x'));
@@ -733,9 +736,12 @@ describe('goToNextCell', () => {
   it('returns false if selection is not in table', () => {
     let state = EditorState.create({
       doc: docWithSimpleTable,
-      selection: TextSelection.create(docWithSimpleTable, docWithSimpleTable.content.size - 1)
+      selection: TextSelection.create(
+        docWithSimpleTable,
+        docWithSimpleTable.content.size - 1,
+      ),
     });
-    const dispatch = (tr) => state = state.apply(tr);
+    const dispatch = (tr) => (state = state.apply(tr));
     const commandResult = goToNextCell(1)(state, dispatch);
     ist(commandResult, false);
   });
@@ -743,9 +749,9 @@ describe('goToNextCell', () => {
   it('returns true and moves forward one cell if selection is in table', () => {
     let state = EditorState.create({
       doc: docWithSimpleTable,
-      selection: TextSelection.create(docWithSimpleTable, 4)
+      selection: TextSelection.create(docWithSimpleTable, 4),
     });
-    const dispatch = (tr) => state = state.apply(tr);
+    const dispatch = (tr) => (state = state.apply(tr));
     const commandResult = goToNextCell(1)(state, dispatch);
     ist(commandResult, true);
     ist(state.selection.from, 11);
@@ -754,9 +760,9 @@ describe('goToNextCell', () => {
   it('returns true and moves back one cell if selection is in table', () => {
     let state = EditorState.create({
       doc: docWithSimpleTable,
-      selection: TextSelection.create(docWithSimpleTable, 11)
+      selection: TextSelection.create(docWithSimpleTable, 11),
     });
-    const dispatch = (tr) => state = state.apply(tr);
+    const dispatch = (tr) => (state = state.apply(tr));
     const commandResult = goToNextCell(-1)(state, dispatch);
     ist(commandResult, true);
     ist(state.selection.from, 4);
@@ -765,9 +771,9 @@ describe('goToNextCell', () => {
   it('returns true and moves forward one cell if selection is in table, atom node', () => {
     let state = EditorState.create({
       doc: docWithSimpleTable,
-      selection: TextSelection.create(docWithSimpleTable, 16)
+      selection: TextSelection.create(docWithSimpleTable, 16),
     });
-    const dispatch = (tr) => state = state.apply(tr);
+    const dispatch = (tr) => (state = state.apply(tr));
     const commandResult = goToNextCell(1)(state, dispatch);
     ist(commandResult, true);
     ist(state.selection.from, 18);
