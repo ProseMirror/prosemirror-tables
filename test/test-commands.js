@@ -1,5 +1,5 @@
 import ist from 'ist';
-import { EditorState, TextSelection, NodeSelection } from 'prosemirror-state';
+import { EditorState, TextSelection } from 'prosemirror-state';
 
 import {
   doc,

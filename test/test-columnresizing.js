@@ -6,6 +6,7 @@ import { doc, table, tr, td, cEmpty, p } from './build';
 describe("columnresizing", () => {
   // setup document object for testing
   beforeEach(() => {
+    /*global globalThis*/
     globalThis.document = {
       createElement: () => {
         return { className: "" };
