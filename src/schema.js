@@ -90,7 +90,7 @@ export function tableNodes(options) {
       group: options.tableGroup,
       parseDOM: [{tag: "table"}],
       toDOM(node) {
-        let attrs;
+        let attrs = {};
         let initialRow = false;
         let totalWidth = 0;
         const colWidths = [];

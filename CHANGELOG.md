@@ -1,3 +1,7 @@
+## 1.2.7 (2022-10-21)
+
+fix issue with undefined attrs
+
 ## 1.2.5 (2022-08-11)
 
 add maxTableWidth to TableNodesOptions
