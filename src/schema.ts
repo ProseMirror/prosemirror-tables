@@ -8,33 +8,33 @@ function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
     return {};
   }
 
-  let widthAttr = dom.getAttribute('data-colwidth');
-  let widths =
+  const widthAttr = dom.getAttribute('data-colwidth');
+  const widths =
     widthAttr && /^\d+(,\d+)*$/.test(widthAttr)
       ? widthAttr.split(',').map((s) => Number(s))
       : null;
-  let colspan = Number(dom.getAttribute('colspan') || 1);
-  let result = {
+  const colspan = Number(dom.getAttribute('colspan') || 1);
+  const result = {
     colspan,
     rowspan: Number(dom.getAttribute('rowspan') || 1),
     colwidth: widths && widths.length == colspan ? widths : null,
   };
-  for (let prop in extraAttrs) {
-    let getter = extraAttrs[prop].getFromDOM;
-    let value = getter && getter(dom);
+  for (const prop in extraAttrs) {
+    const getter = extraAttrs[prop].getFromDOM;
+    const value = getter && getter(dom);
     if (value != null) result[prop] = value;
   }
   return result;
 }
 
 function setCellAttrs(node: Node, extraAttrs: Attrs): Attrs {
-  let attrs: MutableAttrs = {};
+  const attrs: MutableAttrs = {};
   if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan;
   if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan;
   if (node.attrs.colwidth)
     attrs['data-colwidth'] = node.attrs.colwidth.join(',');
-  for (let prop in extraAttrs) {
-    let setter = extraAttrs[prop].setDOMAttr;
+  for (const prop in extraAttrs) {
+    const setter = extraAttrs[prop].setDOMAttr;
     if (setter) setter(node.attrs[prop], attrs);
   }
   return attrs;
@@ -95,13 +95,13 @@ export interface TableNodesOptions {
 export function tableNodes(
   options: TableNodesOptions,
 ): Record<string, NodeSpec> {
-  let extraAttrs = options.cellAttributes || {};
-  let cellAttrs = {
+  const extraAttrs = options.cellAttributes || {};
+  const cellAttrs = {
     colspan: { default: 1 },
     rowspan: { default: 1 },
     colwidth: { default: null },
   };
-  for (let prop in extraAttrs)
+  for (const prop in extraAttrs)
     cellAttrs[prop] = { default: extraAttrs[prop].default };
 
   return {
@@ -162,8 +162,8 @@ export function tableNodeTypes(schema: Schema): Record<TableRoles, NodeType> {
   let result = schema.cached.tableNodeTypes;
   if (!result) {
     result = schema.cached.tableNodeTypes = {};
-    for (let name in schema.nodes) {
-      let type = schema.nodes[name],
+    for (const name in schema.nodes) {
+      const type = schema.nodes[name],
         role = type.spec.tableRole;
       if (role) result[role] = type;
     }

@@ -44,15 +44,15 @@ export function pastedCells(slice: Slice): Area | undefined {
     openEnd--;
     content = content.firstChild.content;
   }
-  let first = content.firstChild,
+  const first = content.firstChild,
     role = first.type.spec.tableRole;
-  let schema = first.type.schema,
+  const schema = first.type.schema,
     rows = [];
   if (role == 'row') {
     for (let i = 0; i < content.childCount; i++) {
       let cells = content.child(i).content;
-      let left = i ? 0 : Math.max(0, openStart - 1);
-      let right = i < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1);
+      const left = i ? 0 : Math.max(0, openStart - 1);
+      const right = i < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1);
       if (left || right)
         cells = fitSlice(
           tableNodeTypes(schema).row,
@@ -78,11 +78,11 @@ export function pastedCells(slice: Slice): Area | undefined {
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
 function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
-  let widths = [];
+  const widths = [];
   for (let i = 0; i < rows.length; i++) {
-    let row = rows[i];
+    const row = rows[i];
     for (let j = row.childCount - 1; j >= 0; j--) {
-      let { rowspan, colspan } = row.child(j).attrs;
+      const { rowspan, colspan } = row.child(j).attrs;
       for (let r = i; r < i + rowspan; r++)
         widths[r] = (widths[r] || 0) + colspan;
     }
@@ -92,7 +92,7 @@ function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
   for (let r = 0; r < widths.length; r++) {
     if (r >= rows.length) rows.push(Fragment.empty);
     if (widths[r] < width) {
-      let empty = tableNodeTypes(schema).cell.createAndFill(),
+      const empty = tableNodeTypes(schema).cell.createAndFill(),
         cells = [];
       for (let i = widths[r]; i < width; i++) cells.push(empty);
       rows[r] = rows[r].append(Fragment.from(cells));
@@ -102,8 +102,8 @@ function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
 }
 
 export function fitSlice(nodeType: NodeType, slice: Slice): Node {
-  let node = nodeType.createAndFill();
-  let tr = new Transform(node).replace(0, node.content.size, slice);
+  const node = nodeType.createAndFill();
+  const tr = new Transform(node).replace(0, node.content.size, slice);
   return tr.doc;
 }
 
@@ -120,10 +120,10 @@ export function clipCells(
   newHeight: number,
 ): Area {
   if (width != newWidth) {
-    let added = [],
+    const added = [],
       newRows = [];
     for (let row = 0; row < rows.length; row++) {
-      let frag = rows[row],
+      const frag = rows[row],
         cells = [];
       for (let col = added[row] || 0, i = 0; col < newWidth; i++) {
         let cell = frag.child(i % frag.childCount);
@@ -148,9 +148,9 @@ export function clipCells(
   }
 
   if (height != newHeight) {
-    let newRows = [];
+    const newRows = [];
     for (let row = 0, i = 0; row < newHeight; row++, i++) {
-      let cells = [],
+      const cells = [],
         source = rows[i % height];
       for (let j = 0; j < source.childCount; j++) {
         let cell = source.child(j);
@@ -185,16 +185,16 @@ function growTable(
   height: number,
   mapFrom: number,
 ): boolean {
-  let schema = tr.doc.type.schema,
-    types = tableNodeTypes(schema),
-    empty,
-    emptyHead;
+  const schema = tr.doc.type.schema;
+  const types = tableNodeTypes(schema);
+  let empty;
+  let emptyHead;
   if (width > map.width) {
     for (let row = 0, rowEnd = 0; row < map.height; row++) {
-      let rowNode = table.child(row);
+      const rowNode = table.child(row);
       rowEnd += rowNode.nodeSize;
-      let cells = [],
-        add;
+      const cells = [];
+      let add;
       if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell)
         add = empty || (empty = types.cell.createAndFill());
       else add = emptyHead || (emptyHead = types.header_cell.createAndFill());
@@ -203,13 +203,13 @@ function growTable(
     }
   }
   if (height > map.height) {
-    let cells = [];
+    const cells = [];
     for (
       let i = 0, start = (map.height - 1) * map.width;
       i < Math.max(map.width, width);
       i++
     ) {
-      let header =
+      const header =
         i >= map.width
           ? false
           : table.nodeAt(map.map[start + i]).type == types.header_cell;
@@ -220,7 +220,7 @@ function growTable(
       );
     }
 
-    let emptyRow = types.row.create(null, Fragment.from(cells)),
+    const emptyRow = types.row.create(null, Fragment.from(cells)),
       rows = [];
     for (let i = map.height; i < height; i++) rows.push(emptyRow);
     tr.insert(tr.mapping.slice(mapFrom).map(start + table.nodeSize - 2), rows);
@@ -244,12 +244,12 @@ function isolateHorizontal(
   if (top == 0 || top == map.height) return false;
   let found = false;
   for (let col = left; col < right; col++) {
-    let index = top * map.width + col,
+    const index = top * map.width + col,
       pos = map.map[index];
     if (map.map[index - map.width] == pos) {
       found = true;
-      let cell = table.nodeAt(pos);
-      let { top: cellTop, left: cellLeft } = map.findCell(pos);
+      const cell = table.nodeAt(pos);
+      const { top: cellTop, left: cellLeft } = map.findCell(pos);
       tr.setNodeMarkup(
         tr.mapping.slice(mapFrom).map(pos + start),
         null,
@@ -283,13 +283,13 @@ function isolateVertical(
   if (left == 0 || left == map.width) return false;
   let found = false;
   for (let row = top; row < bottom; row++) {
-    let index = row * map.width + left,
+    const index = row * map.width + left,
       pos = map.map[index];
     if (map.map[index - 1] == pos) {
       found = true;
-      let cell = table.nodeAt(pos),
+      const cell = table.nodeAt(pos),
         cellLeft = map.colCount(pos);
-      let updatePos = tr.mapping.slice(mapFrom).map(pos + start);
+      const updatePos = tr.mapping.slice(mapFrom).map(pos + start);
       tr.setNodeMarkup(
         updatePos,
         null,
@@ -324,11 +324,11 @@ export function insertCells(
 ): void {
   let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc,
     map = TableMap.get(table);
-  let { top, left } = rect;
-  let right = left + cells.width,
+  const { top, left } = rect;
+  const right = left + cells.width,
     bottom = top + cells.height;
-  let tr = state.tr,
-    mapFrom = 0;
+  const tr = state.tr;
+  let mapFrom = 0;
 
   function recomp(): void {
     table = tableStart ? tr.doc.nodeAt(tableStart - 1) : tr.doc;
@@ -353,7 +353,7 @@ export function insertCells(
     recomp();
 
   for (let row = top; row < bottom; row++) {
-    let from = map.positionAt(row, left, table),
+    const from = map.positionAt(row, left, table),
       to = map.positionAt(row, right, table);
     tr.replace(
       tr.mapping.slice(mapFrom).map(from + tableStart),

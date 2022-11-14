@@ -40,7 +40,7 @@ export function cellWrapping($pos: ResolvedPos): null | Node {
  * @public
  */
 export function isInTable(state: EditorState): boolean {
-  let $head = state.selection.$head;
+  const $head = state.selection.$head;
   for (let d = $head.depth; d > 0; d--)
     if ($head.node(d).type.spec.tableRole == 'row') return true;
   return false;
@@ -52,7 +52,7 @@ export function isInTable(state: EditorState): boolean {
 export function selectionCell(
   state: EditorState,
 ): ResolvedPos | null | undefined {
-  let sel = state.selection as CellSelection | NodeSelection;
+  const sel = state.selection as CellSelection | NodeSelection;
   if ('$anchorCell' in sel && sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos
       ? sel.$anchorCell
@@ -73,7 +73,7 @@ function cellNear($pos: ResolvedPos): ResolvedPos | undefined {
     after;
     after = after.firstChild, pos++
   ) {
-    let role = after.type.spec.tableRole;
+    const role = after.type.spec.tableRole;
     if (role == 'cell' || role == 'header_cell') return $pos.doc.resolve(pos);
   }
   for (
@@ -81,7 +81,7 @@ function cellNear($pos: ResolvedPos): ResolvedPos | undefined {
     before;
     before = before.lastChild, pos--
   ) {
-    let role = before.type.spec.tableRole;
+    const role = before.type.spec.tableRole;
     if (role == 'cell' || role == 'header_cell')
       return $pos.doc.resolve(pos - before.nodeSize);
   }
@@ -130,9 +130,9 @@ export function nextCell(
   axis: string,
   dir: number,
 ): null | ResolvedPos {
-  let start = $pos.start(-1),
+  const start = $pos.start(-1),
     map = TableMap.get($pos.node(-1));
-  let moved = map.nextCell($pos.pos - start, axis, dir);
+  const moved = map.nextCell($pos.pos - start, axis, dir);
   return moved == null ? null : $pos.node(0).resolve(start + moved);
 }
 
@@ -144,8 +144,8 @@ export function setAttr(
   name: string,
   value: unknown,
 ): MutableAttrs {
-  let result = {};
-  for (let prop in attrs) result[prop] = attrs[prop];
+  const result = {};
+  for (const prop in attrs) result[prop] = attrs[prop];
   result[name] = value;
   return result;
 }
@@ -153,8 +153,8 @@ export function setAttr(
 /**
  * @public
  */
-export function removeColSpan(attrs: Attrs, pos: number, n: number = 1): Attrs {
-  let result = setAttr(attrs, 'colspan', attrs.colspan - n);
+export function removeColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
+  const result = setAttr(attrs, 'colspan', attrs.colspan - n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
@@ -166,8 +166,8 @@ export function removeColSpan(attrs: Attrs, pos: number, n: number = 1): Attrs {
 /**
  * @public
  */
-export function addColSpan(attrs: Attrs, pos: number, n: number = 1): Attrs {
-  let result = setAttr(attrs, 'colspan', attrs.colspan + n);
+export function addColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
+  const result = setAttr(attrs, 'colspan', attrs.colspan + n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);
@@ -183,7 +183,7 @@ export function columnIsHeader(
   table: Node,
   col: number,
 ): boolean {
-  let headerCell = tableNodeTypes(table.type.schema).header_cell;
+  const headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let row = 0; row < map.height; row++)
     if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
       return false;

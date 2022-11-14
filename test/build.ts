@@ -4,7 +4,7 @@ import { NodeSelection, TextSelection } from 'prosemirror-state';
 import { builders } from 'prosemirror-test-builder';
 import { cellAround, CellSelection, tableNodes } from '../src/';
 
-let schema = new Schema({
+const schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
     tableNodes({
       tableGroup: 'block',
@@ -51,14 +51,14 @@ export const eq = function (a, b) {
 };
 
 export const selectionFor = function (doc) {
-  let cursor = doc.tag.cursor;
+  const cursor = doc.tag.cursor;
   if (cursor != null) return new TextSelection(doc.resolve(cursor));
-  let $anchor = resolveCell(doc, doc.tag.anchor);
+  const $anchor = resolveCell(doc, doc.tag.anchor);
   if ($anchor)
     return new CellSelection(
       $anchor,
       resolveCell(doc, doc.tag.head) || undefined,
     );
-  let node = doc.tag.node;
+  const node = doc.tag.node;
   if (node != null) return new NodeSelection(doc.resolve(node));
 };
