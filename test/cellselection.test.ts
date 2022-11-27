@@ -1,7 +1,7 @@
 import ist from 'ist';
 import { EditorState, NodeSelection } from 'prosemirror-state';
 import { Slice } from 'prosemirror-model';
-import { describe, it } from 'mocha';
+import { describe, it } from 'vitest';
 
 import {
   doc,
