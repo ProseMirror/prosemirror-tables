@@ -12,5 +12,5 @@
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },
-  "files": ["index.d.ts", "prosemirror-tables-tests.ts"]
+  "files": ["index.ts", "prosemirror-tables-tests.ts"]
 }

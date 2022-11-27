@@ -2,6 +2,7 @@ import ist from 'ist';
 
 import { table, tr, c, c11 } from './build';
 import { TableMap } from '../src/';
+import { describe, it } from 'mocha';
 
 function eqRect(a, b) {
   return (
@@ -61,7 +62,7 @@ describe('TableMap', () => {
     );
   });
 
-  let map = TableMap.get(
+  const map = TableMap.get(
     table(tr(c(2, 3), c11, c(1, 2)), tr(c11), tr(c(2, 1))),
   );
   //  1  1  6 11

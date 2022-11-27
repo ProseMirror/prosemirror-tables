@@ -1,10 +1,10 @@
-import { Schema } from 'prosemirror-model';
+import { ResolvedPos, Schema, Node } from 'prosemirror-model';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { NodeSelection, TextSelection } from 'prosemirror-state';
 import { builders } from 'prosemirror-test-builder';
 import { cellAround, CellSelection, tableNodes } from '../src/';
 
-let schema = new Schema({
+const schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
     tableNodes({
       tableGroup: 'block',
@@ -17,7 +17,7 @@ let schema = new Schema({
   marks: baseSchema.spec.marks,
 });
 
-function resolveCell(doc, tag) {
+function resolveCell(doc: Node, tag: number): ResolvedPos | null {
   if (tag == null) return null;
   return cellAround(doc.resolve(tag));
 }
@@ -27,7 +27,7 @@ export const { doc, table, tr, p, td, th } = builders(schema, {
   tr: { nodeType: 'table_row' },
   td: { nodeType: 'table_cell' },
   th: { nodeType: 'table_header' },
-});
+}) as any;
 
 export const c = function (colspan, rowspan) {
   return td({ colspan, rowspan }, p('x'));
@@ -51,14 +51,14 @@ export const eq = function (a, b) {
 };
 
 export const selectionFor = function (doc) {
-  let cursor = doc.tag.cursor;
+  const cursor = doc.tag.cursor;
   if (cursor != null) return new TextSelection(doc.resolve(cursor));
-  let $anchor = resolveCell(doc, doc.tag.anchor);
+  const $anchor = resolveCell(doc, doc.tag.anchor);
   if ($anchor)
     return new CellSelection(
       $anchor,
       resolveCell(doc, doc.tag.head) || undefined,
     );
-  let node = doc.tag.node;
+  const node = doc.tag.node;
   if (node != null) return new NodeSelection(doc.resolve(node));
 };

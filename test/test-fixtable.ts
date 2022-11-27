@@ -1,5 +1,6 @@
 import ist from 'ist';
 import { EditorState } from 'prosemirror-state';
+import { describe, it } from 'mocha';
 
 import {
   doc,
@@ -17,12 +18,12 @@ import {
 
 import { fixTables } from '../src/';
 
-let cw100 = td({ colwidth: [100] }, p('x')),
+const cw100 = td({ colwidth: [100] }, p('x')),
   cw200 = td({ colwidth: [200] }, p('x'));
 
 function fix(table) {
-  let state = EditorState.create({ doc: doc(table) });
-  let tr = fixTables(state);
+  const state = EditorState.create({ doc: doc(table) });
+  const tr = fixTables(state);
   return tr && tr.doc.firstChild;
 }
 

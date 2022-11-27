@@ -1,3 +1,6 @@
 {
-  "node-option": ["experimental-specifier-resolution=node"]
+  "node-option": [
+    "experimental-specifier-resolution=node",
+    "loader=ts-node/esm"
+  ]
 }

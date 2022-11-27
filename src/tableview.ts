@@ -1,23 +1,32 @@
-export class TableView {
-  constructor(node, cellMinWidth) {
-    this.node = node;
-    this.cellMinWidth = cellMinWidth;
+import { Node } from 'prosemirror-model';
+import { NodeView } from 'prosemirror-view';
+
+/**
+ * @public
+ */
+export class TableView implements NodeView {
+  public dom: HTMLDivElement;
+  public table: HTMLTableElement;
+  public colgroup: HTMLTableColElement;
+  public contentDOM: HTMLTableSectionElement;
+
+  constructor(public node: Node, public cellMinWidth: number) {
     this.dom = document.createElement('div');
     this.dom.className = 'tableWrapper';
     this.table = this.dom.appendChild(document.createElement('table'));
     this.colgroup = this.table.appendChild(document.createElement('colgroup'));
-    updateColumns(node, this.colgroup, this.table, cellMinWidth);
+    updateColumnsOnResize(node, this.colgroup, this.table, cellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement('tbody'));
   }
 
-  update(node) {
+  update(node: Node): boolean {
     if (node.type != this.node.type) return false;
     this.node = node;
-    updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
+    updateColumnsOnResize(node, this.colgroup, this.table, this.cellMinWidth);
     return true;
   }
 
-  ignoreMutation(record) {
+  ignoreMutation(record: MutationRecord): boolean {
     return (
       record.type == 'attributes' &&
       (record.target == this.table || this.colgroup.contains(record.target))
@@ -25,24 +34,27 @@ export class TableView {
   }
 }
 
-export function updateColumns(
-  node,
-  colgroup,
-  table,
-  cellMinWidth,
-  overrideCol,
-  overrideValue,
-) {
+/**
+ * @public
+ */
+export function updateColumnsOnResize(
+  node: Node,
+  colgroup: HTMLTableColElement,
+  table: HTMLTableElement,
+  cellMinWidth: number,
+  overrideCol?: number,
+  overrideValue?: number,
+): void {
   let totalWidth = 0,
     fixedWidth = true;
-  let nextDOM = colgroup.firstChild,
-    row = node.firstChild;
+  let nextDOM = colgroup.firstChild as HTMLElement;
+  const row = node.firstChild;
   for (let i = 0, col = 0; i < row.childCount; i++) {
-    let { colspan, colwidth } = row.child(i).attrs;
+    const { colspan, colwidth } = row.child(i).attrs;
     for (let j = 0; j < colspan; j++, col++) {
-      let hasWidth =
+      const hasWidth =
         overrideCol == col ? overrideValue : colwidth && colwidth[j];
-      let cssWidth = hasWidth ? hasWidth + 'px' : '';
+      const cssWidth = hasWidth ? hasWidth + 'px' : '';
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
@@ -50,15 +62,15 @@ export function updateColumns(
           cssWidth;
       } else {
         if (nextDOM.style.width != cssWidth) nextDOM.style.width = cssWidth;
-        nextDOM = nextDOM.nextSibling;
+        nextDOM = nextDOM.nextSibling as HTMLElement;
       }
     }
   }
 
   while (nextDOM) {
-    let after = nextDOM.nextSibling;
+    const after = nextDOM.nextSibling;
     nextDOM.parentNode.removeChild(nextDOM);
-    nextDOM = after;
+    nextDOM = after as HTMLElement;
   }
 
   if (fixedWidth) {

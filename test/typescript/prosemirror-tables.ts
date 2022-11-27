@@ -1,17 +1,17 @@
 import {
-  TableMap,
-  toggleHeader,
-  TableRect,
-  tableEditing,
   CellSelection,
-} from '../../';
+  tableEditing,
+  TableMap,
+  TableRect,
+  toggleHeader,
+} from '../../src';
 import { Node as ProsemirrorNode } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 
 const tableEditing1 = tableEditing();
 const tableWithNodeSelection = tableEditing({ allowTableNodeSelection: true });
 
-const map = new TableMap();
+const map = new TableMap(0, 0, [], null);
 const table = new ProsemirrorNode();
 
 toggleHeader('column');

@@ -21,7 +21,7 @@ import {
   toggleHeaderCell,
   goToNextCell,
   deleteTable,
-} from './src/commands';
+} from './src';
 import { tableEditing, columnResizing, tableNodes, fixTables } from './src';
 
 let schema = new Schema({

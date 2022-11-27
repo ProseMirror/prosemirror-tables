@@ -1,18 +1,18 @@
 import nodeResolve from 'rollup-plugin-node-resolve';
-import commonJS from 'rollup-plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
   input: 'demo.js',
   output: { format: 'iife', file: 'demo_bundle.js' },
   plugins: [
-    nodeResolve({
-      main: true,
-      browser: true,
-    }),
-
-    commonJS({
-      include: '../**',
+    typescript({
       sourceMap: false,
+      declaration: false,
+      declarationMap: false,
+      declarationDir: null,
+    }),
+    nodeResolve({
+      browser: true,
     }),
   ],
 };
