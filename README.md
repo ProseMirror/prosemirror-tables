@@ -10,6 +10,8 @@ The top-level directory contains a `demo.js` and `index.html`, which
 can be built with `yarn build_demo` to show a simple demo of how the
 module can be used.
 
+## [Live Demo](https://prosemirror-tables.netlify.app/)
+
 ## Documentation
 
 The module's main file exports everything you need to work with it.
