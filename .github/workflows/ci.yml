@@ -41,6 +41,9 @@ jobs:
           node-version: 16
           cache: "yarn"
 
+      - name: Install
+        run: yarn install --frozen-lockfile
+
       - name: Build
         run: yarn build_demo
 
