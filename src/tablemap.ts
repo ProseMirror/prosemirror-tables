@@ -57,14 +57,12 @@ if (typeof WeakMap != 'undefined') {
 /**
  * @public
  */
-export class Rect {
-  constructor(
-    public left: number,
-    public top: number,
-    public right: number,
-    public bottom: number,
-  ) {}
-}
+export type Rect = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
 
 /**
  * ::- A table map describes the structure of a given table. To avoid
@@ -113,7 +111,7 @@ export class TableMap {
         j++
       )
         bottom++;
-      return new Rect(left, top, right, bottom);
+      return { left, top, right, bottom };
     }
     throw new RangeError('No cell with offset ' + pos + ' found');
   }
@@ -152,12 +150,12 @@ export class TableMap {
       top: topB,
       bottom: bottomB,
     } = this.findCell(b);
-    return new Rect(
-      Math.min(leftA, leftB),
-      Math.min(topA, topB),
-      Math.max(rightA, rightB),
-      Math.max(bottomA, bottomB),
-    );
+    return {
+      left: Math.min(leftA, leftB),
+      top: Math.min(topA, topB),
+      right: Math.max(rightA, rightB),
+      bottom: Math.max(bottomA, bottomB),
+    };
   }
 
   // Return the position of all cells that have the top left corner in

@@ -582,9 +582,19 @@ function deprecated_toggleHeader(type: ToggleHeaderType): Command {
         tr = state.tr;
       const cells = rect.map.cellsInRect(
         type == 'column'
-          ? new Rect(rect.left, 0, rect.right, rect.map.height)
+          ? {
+              left: rect.left,
+              top: 0,
+              right: rect.right,
+              bottom: rect.map.height,
+            }
           : type == 'row'
-          ? new Rect(0, rect.top, rect.map.width, rect.bottom)
+          ? {
+              left: 0,
+              top: rect.top,
+              right: rect.map.width,
+              bottom: rect.bottom,
+            }
           : rect,
       );
       const nodes = cells.map((pos) => rect.table.nodeAt(pos));
@@ -683,9 +693,19 @@ export function toggleHeader(
 
       const cellsRect =
         type == 'column'
-          ? new Rect(0, selectionStartsAt, 1, rect.map.height)
+          ? {
+              left: 0,
+              top: selectionStartsAt,
+              right: 1,
+              bottom: rect.map.height,
+            }
           : type == 'row'
-          ? new Rect(selectionStartsAt, 0, rect.map.width, 1)
+          ? {
+              left: selectionStartsAt,
+              top: 0,
+              right: rect.map.width,
+              bottom: 1,
+            }
           : rect;
 
       const newType =
