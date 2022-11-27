@@ -113,6 +113,8 @@ export {
   TableNodesOptions,
   TableRoles,
   CellAttributes,
+  getFromDOM,
+  setDOMAttr,
 } from './schema';
 export { CellSelection } from './cellselection';
 export { TableMap, Problem, Rect, ColWidths } from './tablemap';

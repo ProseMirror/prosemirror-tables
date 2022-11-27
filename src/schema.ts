@@ -43,6 +43,16 @@ function setCellAttrs(node: Node, extraAttrs: Attrs): Attrs {
 /**
  * @public
  */
+export type getFromDOM = (dom: HTMLElement) => any;
+
+/**
+ * @public
+ */
+export type setDOMAttr = (value: any, attrs: MutableAttrs) => void;
+
+/**
+ * @public
+ */
 export interface CellAttributes {
   /**
    * The attribute's default value.
@@ -52,13 +62,13 @@ export interface CellAttributes {
   /**
    * A function to read the attribute's value from a DOM node.
    */
-  getFromDOM?: (dom: HTMLElement) => any;
+  getFromDOM?: getFromDOM;
 
   /**
    * A function to add the attribute's value to an attribute
    * object that's used to render the cell's DOM.
    */
-  setDOMAttr?: (value: any, attrs: MutableAttrs) => void;
+  setDOMAttr?: setDOMAttr;
 }
 
 /**
