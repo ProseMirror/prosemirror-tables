@@ -3,11 +3,9 @@
     "module": "esnext",
     "target": "es2020",
     "lib": ["es6", "dom"],
-    "baseUrl": "src",
-    "typeRoots": ["../"],
     "types": [],
     "strict": false,
-    "outDir": "dist/",
+    "noEmit": true,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -15,5 +13,6 @@
     "noEmitOnError": false,
     "moduleResolution": "node"
   },
-  "files": ["test/typescript/prosemirror-tables.ts"]
+  "include": ["./"],
+  "exclude": ["node_modules/"]
 }
