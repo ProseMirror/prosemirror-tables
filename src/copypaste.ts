@@ -13,7 +13,7 @@
 import { Fragment, Node, NodeType, Schema, Slice } from 'prosemirror-model';
 import { Transform } from 'prosemirror-transform';
 
-import { removeColSpan, setAttr } from './util';
+import { removeColSpan, _setAttr } from './util';
 import { Rect, TableMap } from './tablemap';
 import { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
@@ -156,7 +156,7 @@ export function clipCells(
         let cell = source.child(j);
         if (row + cell.attrs.rowspan > newHeight)
           cell = cell.type.create(
-            setAttr(
+            _setAttr(
               cell.attrs,
               'rowspan',
               Math.max(1, newHeight - cell.attrs.rowspan),
@@ -253,12 +253,12 @@ function isolateHorizontal(
       tr.setNodeMarkup(
         tr.mapping.slice(mapFrom).map(pos + start),
         null,
-        setAttr(cell.attrs, 'rowspan', top - cellTop),
+        _setAttr(cell.attrs, 'rowspan', top - cellTop),
       );
       tr.insert(
         tr.mapping.slice(mapFrom).map(map.positionAt(top, cellLeft, table)),
         cell.type.createAndFill(
-          setAttr(cell.attrs, 'rowspan', cellTop + cell.attrs.rowspan - top),
+          _setAttr(cell.attrs, 'rowspan', cellTop + cell.attrs.rowspan - top),
         ),
       );
       col += cell.attrs.colspan - 1;

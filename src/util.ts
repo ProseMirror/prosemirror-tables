@@ -137,9 +137,9 @@ export function nextCell(
 }
 
 /**
- * @public
+ * @internal
  */
-export function setAttr(
+export function _setAttr(
   attrs: Attrs,
   name: string,
   value: unknown,
@@ -154,7 +154,7 @@ export function setAttr(
  * @public
  */
 export function removeColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
-  const result = setAttr(attrs, 'colspan', attrs.colspan - n);
+  const result = _setAttr(attrs, 'colspan', attrs.colspan - n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
@@ -167,7 +167,7 @@ export function removeColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
  * @public
  */
 export function addColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
-  const result = setAttr(attrs, 'colspan', attrs.colspan + n);
+  const result = _setAttr(attrs, 'colspan', attrs.colspan + n);
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);

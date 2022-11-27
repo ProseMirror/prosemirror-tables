@@ -5,7 +5,7 @@ import {
   EditorView,
   NodeView,
 } from 'prosemirror-view';
-import { cellAround, pointsAtCell, setAttr } from './util';
+import { cellAround, pointsAtCell, _setAttr } from './util';
 import { TableMap } from './tablemap';
 import { TableView, updateColumnsOnResize } from './tableview';
 import { tableNodeTypes } from './schema';
@@ -298,7 +298,7 @@ function updateColumnWidth(
       ? attrs.colwidth.slice()
       : zeroes(attrs.colspan);
     colwidth[index] = width;
-    tr.setNodeMarkup(start + pos, null, setAttr(attrs, 'colwidth', colwidth));
+    tr.setNodeMarkup(start + pos, null, _setAttr(attrs, 'colwidth', colwidth));
   }
   if (tr.docChanged) view.dispatch(tr);
 }

@@ -101,7 +101,6 @@ export {
   findCell,
   colCount,
   nextCell,
-  setAttr,
   pointsAtCell,
   removeColSpan,
   addColSpan,

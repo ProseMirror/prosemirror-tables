@@ -5,7 +5,7 @@
 
 import { EditorState, PluginKey, Transaction } from 'prosemirror-state';
 import { TableMap } from './tablemap';
-import { removeColSpan, setAttr } from './util';
+import { removeColSpan, _setAttr } from './util';
 import { tableNodeTypes } from './schema';
 import { Node } from 'prosemirror-model';
 
@@ -104,14 +104,14 @@ export function fixTable(
       tr.setNodeMarkup(
         tr.mapping.map(tablePos + 1 + prob.pos),
         null,
-        setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - prob.n),
+        _setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - prob.n),
       );
     } else if (prob.type == 'colwidth mismatch') {
       const cell = table.nodeAt(prob.pos);
       tr.setNodeMarkup(
         tr.mapping.map(tablePos + 1 + prob.pos),
         null,
-        setAttr(cell.attrs, 'colwidth', prob.colwidth),
+        _setAttr(cell.attrs, 'colwidth', prob.colwidth),
       );
     }
   }

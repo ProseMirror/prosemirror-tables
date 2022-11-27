@@ -19,7 +19,7 @@ import {
   moveCellForward,
   removeColSpan,
   selectionCell,
-  setAttr,
+  _setAttr,
 } from './util';
 import { tableNodeTypes } from './schema';
 import { Direction } from './input';
@@ -227,7 +227,7 @@ export function addRow(
       tr.setNodeMarkup(
         tableStart + pos,
         null,
-        setAttr(attrs, 'rowspan', attrs.rowspan + 1),
+        _setAttr(attrs, 'rowspan', attrs.rowspan + 1),
       );
       col += attrs.colspan - 1;
     } else {
@@ -299,14 +299,14 @@ export function removeRow(
       tr.setNodeMarkup(
         tr.mapping.slice(mapFrom).map(pos + tableStart),
         null,
-        setAttr(attrs, 'rowspan', attrs.rowspan - 1),
+        _setAttr(attrs, 'rowspan', attrs.rowspan - 1),
       );
       col += attrs.colspan - 1;
     } else if (row < map.width && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
       const cell = table.nodeAt(pos);
       const copy = cell.type.create(
-        setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - 1),
+        _setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - 1),
         cell.content,
       );
       const newPos = map.positionAt(row + 1, col, table);
@@ -422,7 +422,7 @@ export function mergeCells(
     tr.setNodeMarkup(
       mergedPos + rect.tableStart,
       null,
-      setAttr(
+      _setAttr(
         addColSpan(
           mergedCell.attrs,
           mergedCell.attrs.colspan,
@@ -498,14 +498,14 @@ export function splitCellWithType(
       let baseAttrs = cellNode.attrs;
       const attrs = [];
       const colwidth = baseAttrs.colwidth;
-      if (baseAttrs.rowspan > 1) baseAttrs = setAttr(baseAttrs, 'rowspan', 1);
-      if (baseAttrs.colspan > 1) baseAttrs = setAttr(baseAttrs, 'colspan', 1);
+      if (baseAttrs.rowspan > 1) baseAttrs = _setAttr(baseAttrs, 'rowspan', 1);
+      if (baseAttrs.colspan > 1) baseAttrs = _setAttr(baseAttrs, 'colspan', 1);
       const rect = selectedRect(state),
         tr = state.tr;
       for (let i = 0; i < rect.right - rect.left; i++)
         attrs.push(
           colwidth
-            ? setAttr(
+            ? _setAttr(
                 baseAttrs,
                 'colwidth',
                 colwidth && colwidth[i] ? [colwidth[i]] : null,
@@ -559,13 +559,13 @@ export function setCellAttr(name: string, value: unknown): Command {
       if (state.selection instanceof CellSelection)
         state.selection.forEachCell((node, pos) => {
           if (node.attrs[name] !== value)
-            tr.setNodeMarkup(pos, null, setAttr(node.attrs, name, value));
+            tr.setNodeMarkup(pos, null, _setAttr(node.attrs, name, value));
         });
       else
         tr.setNodeMarkup(
           $cell.pos,
           null,
-          setAttr($cell.nodeAfter.attrs, name, value),
+          _setAttr($cell.nodeAfter.attrs, name, value),
         );
       dispatch(tr);
     }

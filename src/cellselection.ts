@@ -14,7 +14,7 @@ import {
 import { Decoration, DecorationSet, DecorationSource } from 'prosemirror-view';
 import { Fragment, Node, ResolvedPos, Slice } from 'prosemirror-model';
 
-import { inSameTable, pointsAtCell, removeColSpan, setAttr } from './util';
+import { inSameTable, pointsAtCell, removeColSpan, _setAttr } from './util';
 import { TableMap } from './tablemap';
 import { Mappable } from 'prosemirror-transform';
 
@@ -135,7 +135,7 @@ export class CellSelection extends Selection {
             else cell = cell.type.create(attrs, cell.content);
           }
           if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
-            const attrs = setAttr(
+            const attrs = _setAttr(
               cell.attrs,
               'rowspan',
               Math.min(cellRect.bottom, rect.bottom) -
