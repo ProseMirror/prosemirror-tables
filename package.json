@@ -37,7 +37,6 @@
     "prosemirror-view": "^1.13.3"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.33.6",
     "@types/mocha": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
