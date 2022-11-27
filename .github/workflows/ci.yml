@@ -29,9 +29,7 @@ jobs:
         run: yarn lint
 
       - name: Build
-        run: |
-          yarn build
-          yarn build_demo
+        run: yarn build
 
   demo:
     runs-on: ubuntu-latest
@@ -63,4 +61,4 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 1
+        timeout-minutes: 5
