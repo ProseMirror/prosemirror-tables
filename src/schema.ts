@@ -94,6 +94,14 @@ export interface TableNodesOptions {
 }
 
 /**
+ * @public
+ */
+export type TableNodes = Record<
+  'table' | 'table_row' | 'table_cell' | 'table_header',
+  NodeSpec
+>;
+
+/**
  * This function creates a set of [node
  * specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
  * `table`, `table_row`, and `table_cell` nodes types as used by this
@@ -102,9 +110,7 @@ export interface TableNodesOptions {
  *
  * @public
  */
-export function tableNodes(
-  options: TableNodesOptions,
-): Record<string, NodeSpec> {
+export function tableNodes(options: TableNodesOptions): TableNodes {
   const extraAttrs = options.cellAttributes || {};
   const cellAttrs = {
     colspan: { default: 1 },
