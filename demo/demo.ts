@@ -1,3 +1,9 @@
+import "prosemirror-view/style/prosemirror.css"
+import "prosemirror-menu/style/menu.css"
+import "prosemirror-example-setup/style/style.css"
+import "prosemirror-gapcursor/style/gapcursor.css"
+import "../style/tables.css"
+
 import { EditorView } from 'prosemirror-view';
 import { EditorState } from 'prosemirror-state';
 import { DOMParser, Schema } from 'prosemirror-model';
@@ -21,10 +27,10 @@ import {
   toggleHeaderCell,
   goToNextCell,
   deleteTable,
-} from './src';
-import { tableEditing, columnResizing, tableNodes, fixTables } from './src';
+} from '../src';
+import { tableEditing, columnResizing, tableNodes, fixTables } from '../src';
 
-let schema = new Schema({
+const schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
     tableNodes({
       tableGroup: 'block',
@@ -46,11 +52,11 @@ let schema = new Schema({
   marks: baseSchema.spec.marks,
 });
 
-let menu = buildMenuItems(schema).fullMenu;
+const menu = buildMenuItems(schema).fullMenu;
 function item(label, cmd) {
   return new MenuItem({ label, select: cmd, run: cmd });
 }
-let tableMenu = [
+const tableMenu = [
   item('Insert column before', addColumnBefore),
   item('Insert column after', addColumnAfter),
   item('Delete column', deleteColumn),
@@ -68,8 +74,8 @@ let tableMenu = [
 ];
 menu.splice(2, 0, [new Dropdown(tableMenu, { label: 'Table' })]);
 
-let doc = DOMParser.fromSchema(schema).parse(
-  document.querySelector('#content'),
+const doc = DOMParser.fromSchema(schema).parse(
+  document.querySelector('#content')!,
 );
 let state = EditorState.create({
   doc,
@@ -80,12 +86,20 @@ let state = EditorState.create({
       Tab: goToNextCell(1),
       'Shift-Tab': goToNextCell(-1),
     }),
-  ].concat(exampleSetup({ schema, menuContent: menu })),
+  ].concat(
+    exampleSetup({
+      schema,
+      // @ts-expect-error: prosemirror-example-setup exports wrong types here.
+      menuContent: menu,
+    }),
+  ),
 });
-let fix = fixTables(state);
+const fix = fixTables(state);
 if (fix) state = state.apply(fix.setMeta('addToHistory', false));
 
-window.view = new EditorView(document.querySelector('#editor'), { state });
+(window as any).view = new EditorView(document.querySelector('#editor'), {
+  state,
+});
 
-document.execCommand('enableObjectResizing', false, false);
-document.execCommand('enableInlineTableEditing', false, false);
+document.execCommand('enableObjectResizing', false, 'false');
+document.execCommand('enableInlineTableEditing', false, 'false');

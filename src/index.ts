@@ -6,6 +6,8 @@
 
 import { Plugin } from 'prosemirror-state';
 
+import { drawCellSelection, normalizeSelection } from './cellselection';
+import { fixTables, fixTablesKey } from './fixtables';
 import {
   handleKeyDown,
   handleMouseDown,
@@ -13,11 +15,52 @@ import {
   handleTripleClick,
 } from './input';
 import { tableEditingKey } from './util';
-import { drawCellSelection, normalizeSelection } from './cellselection';
-import { fixTables, fixTablesKey } from './fixtables';
 
-export { Direction } from './input';
-export { CellSelectionJSON, CellBookmark } from './cellselection';
+export { CellBookmark, CellSelection } from './cellselection';
+export type { CellSelectionJSON } from './cellselection';
+export {
+  columnResizing,
+  columnResizingPluginKey,
+  ResizeState,
+} from './columnresizing';
+export type { ColumnResizingOptions, Dragging } from './columnresizing';
+export * from './commands';
+export {
+  clipCells as __clipCells,
+  insertCells as __insertCells,
+  pastedCells as __pastedCells,
+} from './copypaste';
+export type { Area as __Area } from './copypaste';
+export type { Direction } from './input';
+export { tableNodes, tableNodeTypes } from './schema';
+export type {
+  CellAttributes,
+  getFromDOM,
+  setDOMAttr,
+  TableNodes,
+  TableNodesOptions,
+  TableRoles,
+} from './schema';
+export { TableMap } from './tablemap';
+export type { ColWidths, Problem, Rect } from './tablemap';
+export { TableView, updateColumnsOnResize } from './tableview';
+export {
+  addColSpan,
+  cellAround,
+  colCount,
+  columnIsHeader,
+  findCell,
+  inSameTable,
+  isInTable,
+  moveCellForward,
+  nextCell,
+  pointsAtCell,
+  removeColSpan,
+  selectionCell,
+} from './util';
+export type { MutableAttrs } from './util';
+export { fixTables, handlePaste, fixTablesKey };
+export { tableEditingKey };
 
 /**
  * @public
@@ -90,48 +133,3 @@ export function tableEditing({
     },
   });
 }
-
-export { fixTables, handlePaste, fixTablesKey };
-export {
-  cellAround,
-  isInTable,
-  selectionCell,
-  moveCellForward,
-  inSameTable,
-  findCell,
-  colCount,
-  nextCell,
-  pointsAtCell,
-  removeColSpan,
-  addColSpan,
-  columnIsHeader,
-  MutableAttrs,
-} from './util';
-export {
-  tableNodes,
-  tableNodeTypes,
-  TableNodesOptions,
-  TableRoles,
-  CellAttributes,
-  getFromDOM,
-  setDOMAttr,
-  TableNodes,
-} from './schema';
-export { CellSelection } from './cellselection';
-export { TableMap, Problem, Rect, ColWidths } from './tablemap';
-export { tableEditingKey };
-export * from './commands';
-export {
-  columnResizing,
-  columnResizingPluginKey,
-  ResizeState,
-  ColumnResizingOptions,
-  Dragging,
-} from './columnresizing';
-export { updateColumnsOnResize, TableView } from './tableview';
-export {
-  pastedCells as __pastedCells,
-  insertCells as __insertCells,
-  clipCells as __clipCells,
-  Area as __Area,
-} from './copypaste';
