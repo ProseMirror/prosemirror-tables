@@ -1,4 +1,2 @@
-/node_modules
-.tern-port
-/dist
-/demo_bundle.js
+node_modules/
+dist/

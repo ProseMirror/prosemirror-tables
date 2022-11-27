@@ -22,7 +22,7 @@ import {
   _setAttr,
 } from './util';
 import { tableNodeTypes } from './schema';
-import { Direction } from './input';
+import type { Direction } from './input';
 
 /**
  * @public
