@@ -53,7 +53,7 @@ const schema = new Schema({
 });
 
 const menu = buildMenuItems(schema).fullMenu;
-function item(label, cmd) {
+function item(label: string, cmd: (state: EditorState) => boolean) {
   return new MenuItem({ label, select: cmd, run: cmd });
 }
 const tableMenu = [
@@ -74,9 +74,12 @@ const tableMenu = [
 ];
 menu.splice(2, 0, [new Dropdown(tableMenu, { label: 'Table' })]);
 
-const doc = DOMParser.fromSchema(schema).parse(
-  document.querySelector('#content')!,
-);
+const contentElement = document.querySelector('#content');
+if (!contentElement) {
+  throw new Error('Failed to find #content');
+}
+const doc = DOMParser.fromSchema(schema).parse(contentElement);
+
 let state = EditorState.create({
   doc,
   plugins: [
