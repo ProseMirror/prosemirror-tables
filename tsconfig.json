@@ -4,7 +4,7 @@
     "target": "es2020",
     "lib": ["es6", "dom"],
     "types": [],
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "sourceMap": true,
     "declaration": true,
