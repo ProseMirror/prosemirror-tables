@@ -57,12 +57,12 @@ if (typeof WeakMap != 'undefined') {
 /**
  * @public
  */
-export type Rect = {
+export interface Rect {
   left: number;
   top: number;
   right: number;
   bottom: number;
-};
+}
 
 /**
  * A table map describes the structure of a given table. To avoid
@@ -75,11 +75,11 @@ export type Rect = {
 export class TableMap {
   constructor(
     /**
-     * The width of the table
+     * The number of columns
      */
     public width: number,
     /**
-     * The table's height
+     * The number of rows
      */
     public height: number,
     /**
@@ -161,19 +161,23 @@ export class TableMap {
   // Return the position of all cells that have the top left corner in
   // the given rectangle.
   cellsInRect(rect: Rect): number[] {
-    const result = [],
-      seen = {};
+    const result: number[] = [];
+    const seen: Record<number, boolean> = {};
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
-        const index = row * this.width + col,
-          pos = this.map[index];
+        const index = row * this.width + col;
+        const pos = this.map[index];
+
         if (seen[pos]) continue;
         seen[pos] = true;
+
         if (
-          (col != rect.left || !col || this.map[index - 1] != pos) &&
-          (row != rect.top || !row || this.map[index - this.width] != pos)
-        )
-          result.push(pos);
+          (col == rect.left && col && this.map[index - 1] == pos) ||
+          (row == rect.top && row && this.map[index - this.width] == pos)
+        ) {
+          continue;
+        }
+        result.push(pos);
       }
     }
     return result;
