@@ -50,23 +50,27 @@ export class CellSelection extends Selection {
   // cells in the same table. They may be the same, to select a single
   // cell.
   constructor($anchorCell: ResolvedPos, $headCell: ResolvedPos = $anchorCell) {
-    const table = $anchorCell.node(-1),
-      map = TableMap.get(table),
-      start = $anchorCell.start(-1);
+    const table = $anchorCell.node(-1);
+    const map = TableMap.get(table);
+    const tableStart = $anchorCell.start(-1);
     const rect = map.rectBetween(
-      $anchorCell.pos - start,
-      $headCell.pos - start,
+      $anchorCell.pos - tableStart,
+      $headCell.pos - tableStart,
     );
+
     const doc = $anchorCell.node(0);
     const cells = map
       .cellsInRect(rect)
-      .filter((p) => p != $headCell.pos - start);
+      .filter((p) => p != $headCell.pos - tableStart);
     // Make the head cell the first range, so that it counts as the
     // primary part of the selection
-    cells.unshift($headCell.pos - start);
+    cells.unshift($headCell.pos - tableStart);
     const ranges = cells.map((pos) => {
-      const cell = table.nodeAt(pos),
-        from = pos + start + 1;
+      const cell = table.nodeAt(pos);
+      if (!cell) {
+        throw RangeError(`No cell with offset ${pos} found`);
+      }
+      const from = tableStart + pos + 1;
       return new SelectionRange(
         doc.resolve(from),
         doc.resolve(from + cell.content.size),
