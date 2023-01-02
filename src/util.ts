@@ -102,10 +102,14 @@ export function moveCellForward($pos: ResolvedPos): ResolvedPos {
 }
 
 /**
- * @public
+ * @internal
  */
-export function inSameTable($a: ResolvedPos, $b: ResolvedPos): boolean {
-  return $a.depth == $b.depth && $a.pos >= $b.start(-1) && $a.pos <= $b.end(-1);
+export function inSameTable($cellA: ResolvedPos, $cellB: ResolvedPos): boolean {
+  return (
+    $cellA.depth == $cellB.depth &&
+    $cellA.pos >= $cellB.start(-1) &&
+    $cellA.pos <= $cellB.end(-1)
+  );
 }
 
 /**
