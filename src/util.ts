@@ -131,13 +131,15 @@ export function colCount($pos: ResolvedPos): number {
  */
 export function nextCell(
   $pos: ResolvedPos,
-  axis: string,
+  axis: 'horiz' | 'vert',
   dir: number,
-): null | ResolvedPos {
-  const start = $pos.start(-1),
-    map = TableMap.get($pos.node(-1));
-  const moved = map.nextCell($pos.pos - start, axis, dir);
-  return moved == null ? null : $pos.node(0).resolve(start + moved);
+): ResolvedPos | null {
+  const table = $pos.node(-1);
+  const map = TableMap.get(table);
+  const tableStart = $pos.start(-1);
+
+  const moved = map.nextCell($pos.pos - tableStart, axis, dir);
+  return moved == null ? null : $pos.node(0).resolve(tableStart + moved);
 }
 
 /**
