@@ -1,30 +1,35 @@
 import ist from 'ist';
-import { EditorState, NodeSelection } from 'prosemirror-state';
-import { Slice } from 'prosemirror-model';
+import { Node, Slice } from 'prosemirror-model';
+import {
+  Command,
+  EditorState,
+  NodeSelection,
+  Selection,
+} from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
 import {
-  doc,
-  table,
-  tr,
-  p,
-  td,
-  cEmpty,
-  c11,
-  cAnchor,
-  cHead,
-  c,
-  eq,
-  selectionFor,
-} from './build';
-import {
-  CellSelection,
-  addRowBefore,
-  addRowAfter,
-  addColumnBefore,
   addColumnAfter,
+  addColumnBefore,
+  addRowAfter,
+  addRowBefore,
+  CellSelection,
   tableEditing,
 } from '../src/';
+import {
+  c,
+  c11,
+  cAnchor,
+  cEmpty,
+  cHead,
+  doc,
+  eq,
+  p,
+  selectionFor,
+  table,
+  td,
+  tr,
+} from './build';
 
 describe('CellSelection', () => {
   const t = doc(
@@ -35,7 +40,7 @@ describe('CellSelection', () => {
     ),
   );
 
-  function run(anchor, head, command): EditorState {
+  function run(anchor: number, head: number, command: Command): EditorState {
     let state = EditorState.create({
       doc: t,
       selection: CellSelection.create(t, anchor, head),
@@ -79,7 +84,7 @@ describe('CellSelection', () => {
 });
 
 describe('CellSelection.content', () => {
-  function slice(doc) {
+  function slice(doc: Node) {
     return new Slice(doc.content, 1, 1);
   }
 
@@ -151,7 +156,10 @@ describe('normalizeSelection', () => {
     ),
   );
 
-  function normalize(selection, { allowTableNodeSelection = false } = {}) {
+  function normalize(
+    selection: Selection,
+    { allowTableNodeSelection = false } = {},
+  ) {
     const state = EditorState.create({
       doc: t,
       selection,

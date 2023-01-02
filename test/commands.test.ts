@@ -1,5 +1,6 @@
 import ist from 'ist';
-import { EditorState } from 'prosemirror-state';
+import { Command, EditorState, Transaction } from 'prosemirror-state';
+import { Node } from 'prosemirror-model';
 import { describe, it } from 'vitest';
 
 import {
@@ -21,6 +22,7 @@ import {
   cAnchor,
   eq,
   selectionFor,
+  TaggedNode,
 } from './build';
 import {
   addColumnAfter,
@@ -38,7 +40,11 @@ import {
   toggleHeaderColumn,
 } from '../src/';
 
-function test(doc, command, result) {
+function test(
+  doc: TaggedNode,
+  command: Command,
+  result: Node | null | undefined,
+) {
   let state = EditorState.create({ doc, selection: selectionFor(doc) });
   const ran = command(state, (tr) => (state = state.apply(tr)));
   if (result == null) ist(ran, false);
@@ -586,8 +592,8 @@ describe('splitCell', () => {
     ));
 
   describe('with custom cell type', () => {
-    function createGetCellType(state) {
-      return ({ row }) => {
+    function createGetCellType(state: EditorState) {
+      return ({ row }: { row: number }) => {
         if (row === 0) {
           return state.schema.nodes.table_header;
         }
@@ -595,8 +601,10 @@ describe('splitCell', () => {
       };
     }
 
-    const splitCellWithOnlyHeaderInColumnZero = (state, dispatch) =>
-      splitCellWithType(createGetCellType(state))(state, dispatch);
+    const splitCellWithOnlyHeaderInColumnZero = (
+      state: EditorState,
+      dispatch?: (tr: Transaction) => void,
+    ) => splitCellWithType(createGetCellType(state))(state, dispatch);
 
     it('can split a row-spanning header cell into a header and normal cell ', () =>
       test(
