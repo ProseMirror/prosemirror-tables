@@ -14,7 +14,7 @@ function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
       ? widthAttr.split(',').map((s) => Number(s))
       : null;
   const colspan = Number(dom.getAttribute('colspan') || 1);
-  const result = {
+  const result: MutableAttrs = {
     colspan,
     rowspan: Number(dom.getAttribute('rowspan') || 1),
     colwidth: widths && widths.length == colspan ? widths : null,
@@ -112,7 +112,7 @@ export type TableNodes = Record<
  */
 export function tableNodes(options: TableNodesOptions): TableNodes {
   const extraAttrs = options.cellAttributes || {};
-  const cellAttrs = {
+  const cellAttrs: MutableAttrs = {
     colspan: { default: 1 },
     rowspan: { default: 1 },
     colwidth: { default: null },
