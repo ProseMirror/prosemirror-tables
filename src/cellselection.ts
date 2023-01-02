@@ -102,12 +102,12 @@ export class CellSelection extends Selection {
   // Returns a rectangular slice of table rows containing the selected
   // cells.
   public content(): Slice {
-    const table = this.$anchorCell.node(-1),
-      map = TableMap.get(table),
-      start = this.$anchorCell.start(-1);
+    const table = this.$anchorCell.node(-1);
+    const map = TableMap.get(table);
+    const tableStart = this.$anchorCell.start(-1);
     const rect = map.rectBetween(
-      this.$anchorCell.pos - start,
-      this.$headCell.pos - start,
+      this.$anchorCell.pos - tableStart,
+      this.$headCell.pos - tableStart,
     );
     const seen = {},
       rows = [];
@@ -183,14 +183,19 @@ export class CellSelection extends Selection {
   }
 
   public forEachCell(f: (node: Node, pos: number) => void): void {
-    const table = this.$anchorCell.node(-1),
-      map = TableMap.get(table),
-      start = this.$anchorCell.start(-1);
+    const table = this.$anchorCell.node(-1);
+    const map = TableMap.get(table);
+    const tableStart = this.$anchorCell.start(-1);
+
     const cells = map.cellsInRect(
-      map.rectBetween(this.$anchorCell.pos - start, this.$headCell.pos - start),
+      map.rectBetween(
+        this.$anchorCell.pos - tableStart,
+        this.$headCell.pos - tableStart,
+      ),
     );
-    for (let i = 0; i < cells.length; i++)
-      f(table.nodeAt(cells[i]), start + cells[i]);
+    for (let i = 0; i < cells.length; i++) {
+      f(table.nodeAt(cells[i])!, tableStart + cells[i]);
+    }
   }
 
   // True if this selection goes all the way from the top to the
@@ -236,10 +241,11 @@ export class CellSelection extends Selection {
   // True if this selection goes all the way from the left to the
   // right of the table.
   public isRowSelection(): boolean {
-    const map = TableMap.get(this.$anchorCell.node(-1)),
-      start = this.$anchorCell.start(-1);
-    const anchorLeft = map.colCount(this.$anchorCell.pos - start),
-      headLeft = map.colCount(this.$headCell.pos - start);
+    const table = this.$anchorCell.node(-1);
+    const map = TableMap.get(table);
+    const tableStart = this.$anchorCell.start(-1);
+    const anchorLeft = map.colCount(this.$anchorCell.pos - tableStart),
+      headLeft = map.colCount(this.$headCell.pos - tableStart);
     if (Math.min(anchorLeft, headLeft) > 0) return false;
     const anchorRight = anchorLeft + this.$anchorCell.nodeAfter.attrs.colspan,
       headRight = headLeft + this.$headCell.nodeAfter.attrs.colspan;
