@@ -10,7 +10,16 @@ import { CellSelection } from './cellselection';
 /**
  * @public
  */
-export type MutableAttrs = { -readonly [P in keyof Attrs]: Attrs[P] };
+export type MutableAttrs = { [attr: string]: any };
+
+/**
+ * @public
+ */
+export interface CellAttrs {
+  colspan: number;
+  rowspan: number;
+  colwidth: number[] | null;
+}
 
 /**
  * @public
@@ -98,7 +107,7 @@ export function pointsAtCell($pos: ResolvedPos): boolean {
  * @public
  */
 export function moveCellForward($pos: ResolvedPos): ResolvedPos {
-  return $pos.node(0).resolve($pos.pos + $pos.nodeAfter.nodeSize);
+  return $pos.node(0).resolve($pos.pos + $pos.nodeAfter!.nodeSize);
 }
 
 /**
@@ -156,8 +165,9 @@ export function _setAttr(
 /**
  * @public
  */
-export function removeColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
-  const result = _setAttr(attrs, 'colspan', attrs.colspan - n);
+export function removeColSpan(attrs: CellAttrs, pos: number, n = 1): Attrs {
+  const result: CellAttrs = { ...attrs, colspan: attrs.colspan - n };
+
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
@@ -188,7 +198,7 @@ export function columnIsHeader(
 ): boolean {
   const headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let row = 0; row < map.height; row++)
-    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+    if (table.nodeAt(map.map[col + row * map.width])!.type != headerCell)
       return false;
   return true;
 }

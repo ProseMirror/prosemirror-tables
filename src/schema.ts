@@ -1,7 +1,7 @@
 // Helper for creating a schema that supports tables.
 
 import { Attrs, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
-import { MutableAttrs } from './util';
+import { CellAttrs, MutableAttrs } from './util';
 
 function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
   if (typeof dom === 'string') {
@@ -14,7 +14,7 @@ function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
       ? widthAttr.split(',').map((s) => Number(s))
       : null;
   const colspan = Number(dom.getAttribute('colspan') || 1);
-  const result: MutableAttrs = {
+  const result: CellAttrs = {
     colspan,
     rowspan: Number(dom.getAttribute('rowspan') || 1),
     colwidth: widths && widths.length == colspan ? widths : null,
@@ -22,7 +22,9 @@ function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
   for (const prop in extraAttrs) {
     const getter = extraAttrs[prop].getFromDOM;
     const value = getter && getter(dom);
-    if (value != null) result[prop] = value;
+    if (value != null) {
+      (result as MutableAttrs)[prop] = value;
+    }
   }
   return result;
 }
@@ -112,7 +114,7 @@ export type TableNodes = Record<
  */
 export function tableNodes(options: TableNodesOptions): TableNodes {
   const extraAttrs = options.cellAttributes || {};
-  const cellAttrs: MutableAttrs = {
+  const cellAttrs: Record<string, any> = {
     colspan: { default: 1 },
     rowspan: { default: 1 },
     colwidth: { default: null },
