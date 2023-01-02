@@ -244,11 +244,13 @@ export class CellSelection extends Selection {
     const table = this.$anchorCell.node(-1);
     const map = TableMap.get(table);
     const tableStart = this.$anchorCell.start(-1);
-    const anchorLeft = map.colCount(this.$anchorCell.pos - tableStart),
-      headLeft = map.colCount(this.$headCell.pos - tableStart);
+
+    const anchorLeft = map.colCount(this.$anchorCell.pos - tableStart);
+    const headLeft = map.colCount(this.$headCell.pos - tableStart);
     if (Math.min(anchorLeft, headLeft) > 0) return false;
-    const anchorRight = anchorLeft + this.$anchorCell.nodeAfter.attrs.colspan,
-      headRight = headLeft + this.$headCell.nodeAfter.attrs.colspan;
+
+    const anchorRight = anchorLeft + this.$anchorCell.nodeAfter!.attrs.colspan;
+    const headRight = headLeft + this.$headCell.nodeAfter!.attrs.colspan;
     return Math.max(anchorRight, headRight) == map.width;
   }
 
