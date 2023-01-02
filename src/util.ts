@@ -148,10 +148,7 @@ export function _setAttr(
   name: string,
   value: unknown,
 ): MutableAttrs {
-  const result = {};
-  for (const prop in attrs) result[prop] = attrs[prop];
-  result[name] = value;
-  return result;
+  return { ...attrs, [name]: value };
 }
 
 /**

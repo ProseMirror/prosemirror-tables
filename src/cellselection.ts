@@ -3,6 +3,7 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
+import { Fragment, Node, ResolvedPos, Slice } from 'prosemirror-model';
 import {
   EditorState,
   NodeSelection,
@@ -12,11 +13,10 @@ import {
   Transaction,
 } from 'prosemirror-state';
 import { Decoration, DecorationSet, DecorationSource } from 'prosemirror-view';
-import { Fragment, Node, ResolvedPos, Slice } from 'prosemirror-model';
 
-import { inSameTable, pointsAtCell, removeColSpan, _setAttr } from './util';
-import { TableMap } from './tablemap';
 import { Mappable } from 'prosemirror-transform';
+import { TableMap } from './tablemap';
+import { inSameTable, pointsAtCell, removeColSpan, _setAttr } from './util';
 
 /**
  * @public
@@ -105,12 +105,13 @@ export class CellSelection extends Selection {
     const table = this.$anchorCell.node(-1);
     const map = TableMap.get(table);
     const tableStart = this.$anchorCell.start(-1);
+
     const rect = map.rectBetween(
       this.$anchorCell.pos - tableStart,
       this.$headCell.pos - tableStart,
     );
-    const seen = {},
-      rows = [];
+    const seen: Record<number, boolean> = {};
+    const rows = [];
     for (let row = rect.top; row < rect.bottom; row++) {
       const rowContent = [];
       for (
@@ -119,37 +120,60 @@ export class CellSelection extends Selection {
         col++, index++
       ) {
         const pos = map.map[index];
-        if (!seen[pos]) {
-          seen[pos] = true;
-          const cellRect = map.findCell(pos);
-          let cell = table.nodeAt(pos);
-          const extraLeft = rect.left - cellRect.left,
-            extraRight = cellRect.right - rect.right;
-          if (extraLeft > 0 || extraRight > 0) {
-            let attrs = cell.attrs;
-            if (extraLeft > 0) attrs = removeColSpan(attrs, 0, extraLeft);
-            if (extraRight > 0)
-              attrs = removeColSpan(
-                attrs,
-                attrs.colspan - extraRight,
-                extraRight,
-              );
-            if (cellRect.left < rect.left)
-              cell = cell.type.createAndFill(attrs);
-            else cell = cell.type.create(attrs, cell.content);
-          }
-          if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
-            const attrs = _setAttr(
-              cell.attrs,
-              'rowspan',
-              Math.min(cellRect.bottom, rect.bottom) -
-                Math.max(cellRect.top, rect.top),
-            );
-            if (cellRect.top < rect.top) cell = cell.type.createAndFill(attrs);
-            else cell = cell.type.create(attrs, cell.content);
-          }
-          rowContent.push(cell);
+        if (seen[pos]) continue;
+        seen[pos] = true;
+
+        const cellRect = map.findCell(pos);
+        let cell = table.nodeAt(pos);
+        if (!cell) {
+          throw RangeError(`No cell with offset ${pos} found`);
         }
+
+        const extraLeft = rect.left - cellRect.left;
+        const extraRight = cellRect.right - rect.right;
+
+        if (extraLeft > 0 || extraRight > 0) {
+          let attrs = cell.attrs;
+          if (extraLeft > 0) {
+            attrs = removeColSpan(attrs, 0, extraLeft);
+          }
+          if (extraRight > 0) {
+            attrs = removeColSpan(
+              attrs,
+              attrs.colspan - extraRight,
+              extraRight,
+            );
+          }
+          if (cellRect.left < rect.left) {
+            cell = cell.type.createAndFill(attrs);
+            if (!cell) {
+              throw RangeError(
+                `Could not create cell with attrs ${JSON.stringify(attrs)}`,
+              );
+            }
+          } else {
+            cell = cell.type.create(attrs, cell.content);
+          }
+        }
+        if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
+          const attrs = _setAttr(
+            cell.attrs,
+            'rowspan',
+            Math.min(cellRect.bottom, rect.bottom) -
+              Math.max(cellRect.top, rect.top),
+          );
+          if (cellRect.top < rect.top) {
+            cell = cell.type.createAndFill(attrs);
+            if (!cell) {
+              throw RangeError(
+                `Could not create cell with attrs ${JSON.stringify(attrs)}`,
+              );
+            }
+          } else {
+            cell = cell.type.create(attrs, cell.content);
+          }
+        }
+        rowContent.push(cell);
       }
       rows.push(table.child(row).copy(Fragment.from(rowContent)));
     }
@@ -320,7 +344,7 @@ export class CellSelection extends Selection {
   static create(
     doc: Node,
     anchorCell: number,
-    headCell: number | null = anchorCell,
+    headCell: number = anchorCell,
   ): CellSelection {
     return new CellSelection(doc.resolve(anchorCell), doc.resolve(headCell));
   }
