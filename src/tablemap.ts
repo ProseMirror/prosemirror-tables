@@ -99,33 +99,41 @@ export class TableMap {
     for (let i = 0; i < this.map.length; i++) {
       const curPos = this.map[i];
       if (curPos != pos) continue;
-      const left = i % this.width,
-        top = (i / this.width) | 0;
-      let right = left + 1,
-        bottom = top + 1;
-      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++)
+
+      const left = i % this.width;
+      const top = (i / this.width) | 0;
+      let right = left + 1;
+      let bottom = top + 1;
+
+      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++) {
         right++;
+      }
       for (
         let j = 1;
         bottom < this.height && this.map[i + this.width * j] == curPos;
         j++
-      )
+      ) {
         bottom++;
+      }
+
       return { left, top, right, bottom };
     }
-    throw new RangeError('No cell with offset ' + pos + ' found');
+    throw new RangeError(`No cell with offset ${pos} found`);
   }
 
   // Find the left side of the cell at the given position.
   colCount(pos: number): number {
-    for (let i = 0; i < this.map.length; i++)
-      if (this.map[i] == pos) return i % this.width;
-    throw new RangeError('No cell with offset ' + pos + ' found');
+    for (let i = 0; i < this.map.length; i++) {
+      if (this.map[i] == pos) {
+        return i % this.width;
+      }
+    }
+    throw new RangeError(`No cell with offset ${pos} found`);
   }
 
   // Find the next cell in the given direction, starting from the cell
   // at `pos`, if any.
-  nextCell(pos: number, axis: string, dir: number): null | number {
+  nextCell(pos: number, axis: 'horiz' | 'vert', dir: number): null | number {
     const { left, right, top, bottom } = this.findCell(pos);
     if (axis == 'horiz') {
       if (dir < 0 ? left == 0 : right == this.width) return null;
