@@ -201,38 +201,47 @@ export class CellSelection extends Selection {
   // True if this selection goes all the way from the top to the
   // bottom of the table.
   public isColSelection(): boolean {
-    const anchorTop = this.$anchorCell.index(-1),
-      headTop = this.$headCell.index(-1);
+    const anchorTop = this.$anchorCell.index(-1);
+    const headTop = this.$headCell.index(-1);
     if (Math.min(anchorTop, headTop) > 0) return false;
-    const anchorBot = anchorTop + this.$anchorCell.nodeAfter.attrs.rowspan,
-      headBot = headTop + this.$headCell.nodeAfter.attrs.rowspan;
-    return Math.max(anchorBot, headBot) == this.$headCell.node(-1).childCount;
+
+    const anchorBottom = anchorTop + this.$anchorCell.nodeAfter!.attrs.rowspan;
+    const headBottom = headTop + this.$headCell.nodeAfter!.attrs.rowspan;
+
+    return (
+      Math.max(anchorBottom, headBottom) == this.$headCell.node(-1).childCount
+    );
   }
 
   // Returns the smallest column selection that covers the given anchor
   // and head cell.
   public static colSelection(
     $anchorCell: ResolvedPos,
-    $headCell: ResolvedPos | null = $anchorCell,
+    $headCell: ResolvedPos = $anchorCell,
   ): CellSelection {
-    const map = TableMap.get($anchorCell.node(-1)),
-      start = $anchorCell.start(-1);
-    const anchorRect = map.findCell($anchorCell.pos - start),
-      headRect = map.findCell($headCell.pos - start);
+    const table = $anchorCell.node(-1);
+    const map = TableMap.get(table);
+    const tableStart = $anchorCell.start(-1);
+
+    const anchorRect = map.findCell($anchorCell.pos - tableStart);
+    const headRect = map.findCell($headCell.pos - tableStart);
     const doc = $anchorCell.node(0);
+
     if (anchorRect.top <= headRect.top) {
       if (anchorRect.top > 0)
-        $anchorCell = doc.resolve(start + map.map[anchorRect.left]);
+        $anchorCell = doc.resolve(tableStart + map.map[anchorRect.left]);
       if (headRect.bottom < map.height)
         $headCell = doc.resolve(
-          start + map.map[map.width * (map.height - 1) + headRect.right - 1],
+          tableStart +
+            map.map[map.width * (map.height - 1) + headRect.right - 1],
         );
     } else {
       if (headRect.top > 0)
-        $headCell = doc.resolve(start + map.map[headRect.left]);
+        $headCell = doc.resolve(tableStart + map.map[headRect.left]);
       if (anchorRect.bottom < map.height)
         $anchorCell = doc.resolve(
-          start + map.map[map.width * (map.height - 1) + anchorRect.right - 1],
+          tableStart +
+            map.map[map.width * (map.height - 1) + anchorRect.right - 1],
         );
     }
     return new CellSelection($anchorCell, $headCell);
@@ -266,26 +275,31 @@ export class CellSelection extends Selection {
   // and head cell.
   public static rowSelection(
     $anchorCell: ResolvedPos,
-    $headCell: ResolvedPos | null = $anchorCell,
+    $headCell: ResolvedPos = $anchorCell,
   ): CellSelection {
-    const map = TableMap.get($anchorCell.node(-1)),
-      start = $anchorCell.start(-1);
-    const anchorRect = map.findCell($anchorCell.pos - start),
-      headRect = map.findCell($headCell.pos - start);
+    const table = $anchorCell.node(-1);
+    const map = TableMap.get(table);
+    const tableStart = $anchorCell.start(-1);
+
+    const anchorRect = map.findCell($anchorCell.pos - tableStart);
+    const headRect = map.findCell($headCell.pos - tableStart);
     const doc = $anchorCell.node(0);
+
     if (anchorRect.left <= headRect.left) {
       if (anchorRect.left > 0)
-        $anchorCell = doc.resolve(start + map.map[anchorRect.top * map.width]);
+        $anchorCell = doc.resolve(
+          tableStart + map.map[anchorRect.top * map.width],
+        );
       if (headRect.right < map.width)
         $headCell = doc.resolve(
-          start + map.map[map.width * (headRect.top + 1) - 1],
+          tableStart + map.map[map.width * (headRect.top + 1) - 1],
         );
     } else {
       if (headRect.left > 0)
-        $headCell = doc.resolve(start + map.map[headRect.top * map.width]);
+        $headCell = doc.resolve(tableStart + map.map[headRect.top * map.width]);
       if (anchorRect.right < map.width)
         $anchorCell = doc.resolve(
-          start + map.map[map.width * (anchorRect.top + 1) - 1],
+          tableStart + map.map[map.width * (anchorRect.top + 1) - 1],
         );
     }
     return new CellSelection($anchorCell, $headCell);
