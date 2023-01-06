@@ -165,7 +165,7 @@ export function _setAttr(
 /**
  * @public
  */
-export function removeColSpan(attrs: CellAttrs, pos: number, n = 1): Attrs {
+export function removeColSpan(attrs: CellAttrs, pos: number, n = 1): CellAttrs {
   const result: CellAttrs = { ...attrs, colspan: attrs.colspan - n };
 
   if (result.colwidth) {

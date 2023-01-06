@@ -16,7 +16,13 @@ import { Decoration, DecorationSet, DecorationSource } from 'prosemirror-view';
 
 import { Mappable } from 'prosemirror-transform';
 import { TableMap } from './tablemap';
-import { inSameTable, pointsAtCell, removeColSpan, _setAttr } from './util';
+import {
+  CellAttrs,
+  inSameTable,
+  pointsAtCell,
+  removeColSpan,
+  _setAttr,
+} from './util';
 
 /**
  * @public
@@ -133,7 +139,7 @@ export class CellSelection extends Selection {
         const extraRight = cellRect.right - rect.right;
 
         if (extraLeft > 0 || extraRight > 0) {
-          let attrs = cell.attrs;
+          let attrs = cell.attrs as CellAttrs;
           if (extraLeft > 0) {
             attrs = removeColSpan(attrs, 0, extraLeft);
           }
@@ -383,9 +389,9 @@ export class CellBookmark {
   }
 }
 
-export function drawCellSelection(state: EditorState): DecorationSource {
+export function drawCellSelection(state: EditorState): DecorationSource | null {
   if (!(state.selection instanceof CellSelection)) return null;
-  const cells = [];
+  const cells: Decoration[] = [];
   state.selection.forEachCell((node, pos) => {
     cells.push(
       Decoration.node(pos, pos + node.nodeSize, { class: 'selectedCell' }),
@@ -396,9 +402,9 @@ export function drawCellSelection(state: EditorState): DecorationSource {
 
 function isCellBoundarySelection({ $from, $to }: TextSelection) {
   if ($from.pos == $to.pos || $from.pos < $from.pos - 6) return false; // Cheap elimination
-  let afterFrom = $from.pos,
-    beforeTo = $to.pos,
-    depth = $from.depth;
+  let afterFrom = $from.pos;
+  let beforeTo = $to.pos;
+  let depth = $from.depth;
   for (; depth >= 0; depth--, afterFrom++)
     if ($from.after(depth + 1) < $from.end(depth)) break;
   for (let d = $to.depth; d >= 0; d--, beforeTo--)
@@ -410,8 +416,8 @@ function isCellBoundarySelection({ $from, $to }: TextSelection) {
 }
 
 function isTextSelectionAcrossCells({ $from, $to }: TextSelection) {
-  let fromCellBoundaryNode;
-  let toCellBoundaryNode;
+  let fromCellBoundaryNode: Node | undefined;
+  let toCellBoundaryNode: Node | undefined;
 
   for (let i = $from.depth; i > 0; i--) {
     const node = $from.node(i);
@@ -442,11 +448,11 @@ export function normalizeSelection(
   state: EditorState,
   tr: Transaction | undefined,
   allowTableNodeSelection: boolean,
-): Transaction {
+): Transaction | undefined {
   const sel = (tr || state).selection;
   const doc = (tr || state).doc;
-  let normalize;
-  let role;
+  let normalize: Selection | undefined;
+  let role: string | undefined;
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
     if (role == 'cell' || role == 'header_cell') {
       normalize = CellSelection.create(doc, sel.from);
@@ -454,8 +460,8 @@ export function normalizeSelection(
       const $cell = doc.resolve(sel.from + 1);
       normalize = CellSelection.rowSelection($cell, $cell);
     } else if (!allowTableNodeSelection) {
-      const map = TableMap.get(sel.node),
-        start = sel.from + 1;
+      const map = TableMap.get(sel.node);
+      const start = sel.from + 1;
       const lastCell = start + map.map[map.width * map.height - 1];
       normalize = CellSelection.create(doc, start + 1, lastCell);
     }
