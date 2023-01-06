@@ -9,6 +9,7 @@
 // compute the start position of the table and offset positions passed
 // to or gotten from this structure by that amount.
 import { Attrs, Node } from 'prosemirror-model';
+import { CellAttrs } from './util';
 
 /**
  * @public
@@ -293,8 +294,8 @@ function computeMap(table: Node): TableMap {
 }
 
 function findWidth(table: Node): number {
-  let width = -1,
-    hasRowSpan = false;
+  let width = -1;
+  let hasRowSpan = false;
   for (let row = 0; row < table.childCount; row++) {
     const rowNode = table.child(row);
     let rowWidth = 0;
@@ -323,20 +324,26 @@ function findBadColWidths(
   table: Node,
 ): void {
   if (!map.problems) map.problems = [];
-  for (let i = 0, seen = {}; i < map.map.length; i++) {
+  const seen: Record<number, boolean> = {};
+  for (let i = 0; i < map.map.length; i++) {
     const pos = map.map[i];
     if (seen[pos]) continue;
     seen[pos] = true;
     const node = table.nodeAt(pos);
+    if (!node) {
+      throw new RangeError(`No cell with offset ${pos} found`);
+    }
+
     let updated = null;
-    for (let j = 0; j < node.attrs.colspan; j++) {
-      const col = (i + j) % map.width,
-        colWidth = colWidths[col * 2];
+    const attrs = node.attrs as CellAttrs;
+    for (let j = 0; j < attrs.colspan; j++) {
+      const col = (i + j) % map.width;
+      const colWidth = colWidths[col * 2];
       if (
         colWidth != null &&
-        (!node.attrs.colwidth || node.attrs.colwidth[j] != colWidth)
+        (!attrs.colwidth || attrs.colwidth[j] != colWidth)
       )
-        (updated || (updated = freshColWidth(node.attrs)))[j] = colWidth;
+        (updated || (updated = freshColWidth(attrs)))[j] = colWidth;
     }
     if (updated)
       map.problems.unshift({
