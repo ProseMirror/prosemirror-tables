@@ -113,8 +113,9 @@ export function tableEditing({
       },
 
       createSelectionBetween(view) {
-        if (tableEditingKey.getState(view.state) != null)
-          return view.state.selection;
+        return tableEditingKey.getState(view.state) != null
+          ? view.state.selection
+          : null;
       },
 
       handleTripleClick,

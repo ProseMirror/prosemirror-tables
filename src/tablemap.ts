@@ -19,13 +19,28 @@ export type ColWidths = number[];
 /**
  * @public
  */
-export type Problem = {
-  type: 'missing' | 'overlong_rowspan' | 'collision' | 'colwidth mismatch';
-  pos?: number;
-  row?: number;
-  n?: number;
-  colwidth?: ColWidths;
-};
+export type Problem =
+  | {
+      type: 'colwidth mismatch';
+      pos: number;
+      colwidth: ColWidths;
+    }
+  | {
+      type: 'collision';
+      pos: number;
+      row: number;
+      n: number;
+    }
+  | {
+      type: 'missing';
+      row: number;
+      n: number;
+    }
+  | {
+      type: 'overlong_rowspan';
+      pos: number;
+      n: number;
+    };
 
 let readFromCache: (key: Node) => TableMap | undefined;
 let addToCache: (key: Node, value: TableMap) => TableMap;
