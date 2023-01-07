@@ -81,7 +81,7 @@ export function addColumn(
       tr.setNodeMarkup(
         tr.mapping.map(tableStart + pos),
         null,
-        addColSpan(cell.attrs, col - map.colCount(pos)),
+        addColSpan(cell.attrs as CellAttrs, col - map.colCount(pos)),
       );
       // Skip ahead if rowspan > 1
       row += cell.attrs.rowspan - 1;

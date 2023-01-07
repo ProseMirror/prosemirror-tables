@@ -2,15 +2,15 @@
 
 import { EditorState, NodeSelection, PluginKey } from 'prosemirror-state';
 
-import { Rect, TableMap } from './tablemap';
-import { tableNodeTypes } from './schema';
 import { Attrs, Node, ResolvedPos } from 'prosemirror-model';
 import { CellSelection } from './cellselection';
+import { tableNodeTypes } from './schema';
+import { Rect, TableMap } from './tablemap';
 
 /**
  * @public
  */
-export type MutableAttrs = { [attr: string]: any };
+export type MutableAttrs = Record<string, unknown>;
 
 /**
  * @public
@@ -181,8 +181,8 @@ export function removeColSpan(attrs: CellAttrs, pos: number, n = 1): CellAttrs {
 /**
  * @public
  */
-export function addColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
-  const result = _setAttr(attrs, 'colspan', attrs.colspan + n);
+export function addColSpan(attrs: CellAttrs, pos: number, n = 1): Attrs {
+  const result = { ...attrs, colspan: attrs.colspan + n };
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);

@@ -1,6 +1,13 @@
 // Helper for creating a schema that supports tables.
 
-import { Attrs, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
+import {
+  AttributeSpec,
+  Attrs,
+  Node,
+  NodeSpec,
+  NodeType,
+  Schema,
+} from 'prosemirror-model';
 import { CellAttrs, MutableAttrs } from './util';
 
 function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
@@ -14,16 +21,16 @@ function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
       ? widthAttr.split(',').map((s) => Number(s))
       : null;
   const colspan = Number(dom.getAttribute('colspan') || 1);
-  const result: CellAttrs = {
+  const result: MutableAttrs = {
     colspan,
     rowspan: Number(dom.getAttribute('rowspan') || 1),
     colwidth: widths && widths.length == colspan ? widths : null,
-  };
+  } satisfies CellAttrs;
   for (const prop in extraAttrs) {
     const getter = extraAttrs[prop].getFromDOM;
     const value = getter && getter(dom);
     if (value != null) {
-      (result as MutableAttrs)[prop] = value;
+      result[prop] = value;
     }
   }
   return result;
@@ -45,12 +52,12 @@ function setCellAttrs(node: Node, extraAttrs: Attrs): Attrs {
 /**
  * @public
  */
-export type getFromDOM = (dom: HTMLElement) => any;
+export type getFromDOM = (dom: HTMLElement) => unknown;
 
 /**
  * @public
  */
-export type setDOMAttr = (value: any, attrs: MutableAttrs) => void;
+export type setDOMAttr = (value: unknown, attrs: MutableAttrs) => void;
 
 /**
  * @public
@@ -59,7 +66,7 @@ export interface CellAttributes {
   /**
    * The attribute's default value.
    */
-  default: any;
+  default: unknown;
 
   /**
    * A function to read the attribute's value from a DOM node.
@@ -114,7 +121,7 @@ export type TableNodes = Record<
  */
 export function tableNodes(options: TableNodesOptions): TableNodes {
   const extraAttrs = options.cellAttributes || {};
-  const cellAttrs: Record<string, any> = {
+  const cellAttrs: Record<string, AttributeSpec> = {
     colspan: { default: 1 },
     rowspan: { default: 1 },
     colwidth: { default: null },
