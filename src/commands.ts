@@ -433,7 +433,7 @@ export function mergeCells(
 
     tr.setNodeMarkup(mergedPos + rect.tableStart, null, {
       ...addColSpan(
-        mergedCell.attrs,
+        mergedCell.attrs as CellAttrs,
         mergedCell.attrs.colspan,
         rect.right - rect.left - mergedCell.attrs.colspan,
       ),
