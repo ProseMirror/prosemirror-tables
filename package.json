@@ -49,7 +49,6 @@
     "prosemirror-menu": "^1.2.1",
     "prosemirror-schema-basic": "^1.2.0",
     "prosemirror-test-builder": "^1.1.0",
-    "ts-node": "^10.9.1",
     "tsup": "^6.5.0",
     "typescript": "^4.0.0",
     "vite": "^3.2.4",
