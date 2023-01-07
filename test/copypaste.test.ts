@@ -179,8 +179,6 @@ describe('insertCells', () => {
       throw new Error(`No table found: ${doc.toString()}`);
     }
 
-    console.log('tableStart:', tableStart);
-
     const map = TableMap.get(table);
     insertCells(
       state,
