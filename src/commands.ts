@@ -22,7 +22,6 @@ import {
   moveCellForward,
   removeColSpan,
   selectionCell,
-  _setAttr,
 } from './util';
 
 /**
@@ -228,11 +227,10 @@ export function addRow(
     ) {
       const pos = map.map[index];
       const attrs = table.nodeAt(pos)!.attrs;
-      tr.setNodeMarkup(
-        tableStart + pos,
-        null,
-        _setAttr(attrs, 'rowspan', attrs.rowspan + 1),
-      );
+      tr.setNodeMarkup(tableStart + pos, null, {
+        ...attrs,
+        rowspan: attrs.rowspan + 1,
+      });
       col += attrs.colspan - 1;
     } else {
       const type =
@@ -300,23 +298,23 @@ export function removeRow(
     const pos = map.map[index];
     if (row > 0 && pos == map.map[index - map.width]) {
       // If this cell starts in the row above, simply reduce its rowspan
-      const attrs = table.nodeAt(pos)!.attrs;
-      tr.setNodeMarkup(
-        tr.mapping.slice(mapFrom).map(pos + tableStart),
-        null,
-        _setAttr(attrs, 'rowspan', attrs.rowspan - 1),
-      );
+      const attrs = table.nodeAt(pos)!.attrs as CellAttrs;
+      tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + tableStart), null, {
+        ...attrs,
+        rowspan: attrs.rowspan - 1,
+      });
       col += attrs.colspan - 1;
     } else if (row < map.width && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
       const cell = table.nodeAt(pos)!;
+      const attrs = cell.attrs as CellAttrs;
       const copy = cell.type.create(
-        _setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - 1),
+        { ...attrs, rowspan: cell.attrs.rowspan - 1 },
         cell.content,
       );
       const newPos = map.positionAt(row + 1, col, table);
       tr.insert(tr.mapping.slice(mapFrom).map(tableStart + newPos), copy);
-      col += cell.attrs.colspan - 1;
+      col += attrs.colspan - 1;
     }
   }
 }
@@ -509,18 +507,17 @@ export function splitCellWithType(
       let baseAttrs = cellNode.attrs;
       const attrs = [];
       const colwidth = baseAttrs.colwidth;
-      if (baseAttrs.rowspan > 1) baseAttrs = _setAttr(baseAttrs, 'rowspan', 1);
-      if (baseAttrs.colspan > 1) baseAttrs = _setAttr(baseAttrs, 'colspan', 1);
+      if (baseAttrs.rowspan > 1) baseAttrs = { ...baseAttrs, rowspan: 1 };
+      if (baseAttrs.colspan > 1) baseAttrs = { ...baseAttrs, colspan: 1 };
       const rect = selectedRect(state),
         tr = state.tr;
       for (let i = 0; i < rect.right - rect.left; i++)
         attrs.push(
           colwidth
-            ? _setAttr(
-                baseAttrs,
-                'colwidth',
-                colwidth && colwidth[i] ? [colwidth[i]] : null,
-              )
+            ? {
+                ...baseAttrs,
+                colwidth: colwidth && colwidth[i] ? [colwidth[i]] : null,
+              }
             : baseAttrs,
         );
       let lastCell;
@@ -570,14 +567,16 @@ export function setCellAttr(name: string, value: unknown): Command {
       if (state.selection instanceof CellSelection)
         state.selection.forEachCell((node, pos) => {
           if (node.attrs[name] !== value)
-            tr.setNodeMarkup(pos, null, _setAttr(node.attrs, name, value));
+            tr.setNodeMarkup(pos, null, {
+              ...node.attrs,
+              [name]: value,
+            });
         });
       else
-        tr.setNodeMarkup(
-          $cell.pos,
-          null,
-          _setAttr($cell.nodeAfter!.attrs, name, value),
-        );
+        tr.setNodeMarkup($cell.pos, null, {
+          ...$cell.nodeAfter!.attrs,
+          [name]: value,
+        });
       dispatch(tr);
     }
     return true;

@@ -13,11 +13,11 @@
 import { Fragment, Node, NodeType, Schema, Slice } from 'prosemirror-model';
 import { Transform } from 'prosemirror-transform';
 
-import { CellAttrs, removeColSpan, _setAttr } from './util';
-import { ColWidths, Rect, TableMap } from './tablemap';
+import { EditorState, Transaction } from 'prosemirror-state';
 import { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
-import { EditorState, Transaction } from 'prosemirror-state';
+import { ColWidths, Rect, TableMap } from './tablemap';
+import { CellAttrs, removeColSpan } from './util';
 
 /**
  * @internal
@@ -158,11 +158,10 @@ export function clipCells(
         let cell = source.child(j);
         if (row + cell.attrs.rowspan > newHeight)
           cell = cell.type.create(
-            _setAttr(
-              cell.attrs,
-              'rowspan',
-              Math.max(1, newHeight - cell.attrs.rowspan),
-            ),
+            {
+              ...cell.attrs,
+              rowspan: Math.max(1, newHeight - cell.attrs.rowspan),
+            },
             cell.content,
           );
         cells.push(cell);
@@ -252,11 +251,10 @@ function isolateHorizontal(
       found = true;
       const cell = table.nodeAt(pos)!;
       const { top: cellTop, left: cellLeft } = map.findCell(pos);
-      tr.setNodeMarkup(
-        tr.mapping.slice(mapFrom).map(pos + start),
-        null,
-        _setAttr(cell.attrs, 'rowspan', top - cellTop),
-      );
+      tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + start), null, {
+        ...cell.attrs,
+        rowspan: top - cellTop,
+      });
       tr.insert(
         tr.mapping.slice(mapFrom).map(map.positionAt(top, cellLeft, table)),
         cell.type.createAndFill({

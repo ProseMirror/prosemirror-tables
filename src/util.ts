@@ -154,17 +154,6 @@ export function nextCell(
 }
 
 /**
- * @internal
- */
-export function _setAttr(
-  attrs: Attrs,
-  name: string,
-  value: unknown,
-): MutableAttrs {
-  return { ...attrs, [name]: value };
-}
-
-/**
  * @public
  */
 export function removeColSpan(attrs: CellAttrs, pos: number, n = 1): CellAttrs {

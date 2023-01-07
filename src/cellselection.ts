@@ -16,13 +16,7 @@ import { Decoration, DecorationSet, DecorationSource } from 'prosemirror-view';
 
 import { Mappable } from 'prosemirror-transform';
 import { TableMap } from './tablemap';
-import {
-  CellAttrs,
-  inSameTable,
-  pointsAtCell,
-  removeColSpan,
-  _setAttr,
-} from './util';
+import { CellAttrs, inSameTable, pointsAtCell, removeColSpan } from './util';
 
 /**
  * @public
@@ -162,19 +156,14 @@ export class CellSelection extends Selection {
           }
         }
         if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
-          const attrs = _setAttr(
-            cell.attrs,
-            'rowspan',
-            Math.min(cellRect.bottom, rect.bottom) -
+          const attrs = {
+            ...cell.attrs,
+            rowspan:
+              Math.min(cellRect.bottom, rect.bottom) -
               Math.max(cellRect.top, rect.top),
-          );
+          };
           if (cellRect.top < rect.top) {
-            cell = cell.type.createAndFill(attrs);
-            if (!cell) {
-              throw RangeError(
-                `Could not create cell with attrs ${JSON.stringify(attrs)}`,
-              );
-            }
+            cell = cell.type.createAndFill(attrs)!;
           } else {
             cell = cell.type.create(attrs, cell.content);
           }

@@ -9,7 +9,7 @@ import {
 import { tableNodeTypes } from './schema';
 import { TableMap } from './tablemap';
 import { TableView, updateColumnsOnResize } from './tableview';
-import { cellAround, CellAttrs, pointsAtCell, _setAttr } from './util';
+import { cellAround, CellAttrs, pointsAtCell } from './util';
 
 /**
  * @public
@@ -305,7 +305,7 @@ function updateColumnWidth(
       ? attrs.colwidth.slice()
       : zeroes(attrs.colspan);
     colwidth[index] = width;
-    tr.setNodeMarkup(start + pos, null, _setAttr(attrs, 'colwidth', colwidth));
+    tr.setNodeMarkup(start + pos, null, { ...attrs, colwidth: colwidth });
   }
   if (tr.docChanged) view.dispatch(tr);
 }
