@@ -14,7 +14,7 @@ import { CellAttrs } from './util';
 /**
  * @public
  */
-export type ColWidths = (number | null)[];
+export type ColWidths = number[];
 
 /**
  * @public

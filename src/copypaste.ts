@@ -32,20 +32,20 @@ export type Area = { width: number; height: number; rows: Fragment[] };
  *
  * @internal
  */
-export function pastedCells(slice: Slice): Area | undefined {
+export function pastedCells(slice: Slice): Area | null {
   if (!slice.size) return null;
   let { content, openStart, openEnd } = slice;
   while (
     content.childCount == 1 &&
     ((openStart > 0 && openEnd > 0) ||
-      content.firstChild.type.spec.tableRole == 'table')
+      content.child(0).type.spec.tableRole == 'table')
   ) {
     openStart--;
     openEnd--;
-    content = content.firstChild.content;
+    content = content.child(0).content;
   }
-  const first = content.firstChild,
-    role = first.type.spec.tableRole;
+  const first = content.child(0);
+  const role = first.type.spec.tableRole;
   const schema = first.type.schema,
     rows = [];
   if (role == 'row') {
