@@ -171,12 +171,12 @@ export function tableNodes(options: TableNodesOptions): TableNodes {
 /**
  * @public
  */
-export type TableRoles = 'table' | 'row' | 'cell' | 'header_cell';
+export type TableRole = 'table' | 'row' | 'cell' | 'header_cell';
 
 /**
  * @public
  */
-export function tableNodeTypes(schema: Schema): Record<TableRoles, NodeType> {
+export function tableNodeTypes(schema: Schema): Record<TableRole, NodeType> {
   let result = schema.cached.tableNodeTypes;
   if (!result) {
     result = schema.cached.tableNodeTypes = {};

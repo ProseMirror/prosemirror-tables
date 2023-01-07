@@ -5,7 +5,7 @@
 
 import { Node } from 'prosemirror-model';
 import { EditorState, PluginKey, Transaction } from 'prosemirror-state';
-import { tableNodeTypes, TableRoles } from './schema';
+import { tableNodeTypes, TableRole } from './schema';
 import { TableMap } from './tablemap';
 import { CellAttrs, removeColSpan } from './util';
 
@@ -131,7 +131,7 @@ export function fixTable(
     const end = pos + row.nodeSize;
     const add = mustAdd[i];
     if (add > 0) {
-      let role: TableRoles = 'cell';
+      let role: TableRole = 'cell';
       if (row.firstChild) {
         role = row.firstChild.type.spec.tableRole;
       }

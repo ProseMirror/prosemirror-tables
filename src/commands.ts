@@ -1,18 +1,21 @@
 // This file defines a number of table-related commands.
 
+import { Fragment, Node, NodeType, ResolvedPos } from 'prosemirror-model';
 import {
   Command,
   EditorState,
   TextSelection,
   Transaction,
 } from 'prosemirror-state';
-import { Fragment, Node, NodeType, ResolvedPos } from 'prosemirror-model';
 
-import { Rect, TableMap } from './tablemap';
 import { CellSelection } from './cellselection';
+import type { Direction } from './input';
+import { tableNodeTypes, TableRole } from './schema';
+import { Rect, TableMap } from './tablemap';
 import {
   addColSpan,
   cellAround,
+  CellAttrs,
   cellWrapping,
   columnIsHeader,
   isInTable,
@@ -21,8 +24,6 @@ import {
   selectionCell,
   _setAttr,
 } from './util';
-import { tableNodeTypes } from './schema';
-import type { Direction } from './input';
 
 /**
  * @public
@@ -76,7 +77,7 @@ export function addColumn(
     // If this position falls inside a col-spanning cell
     if (col > 0 && col < map.width && map.map[index - 1] == map.map[index]) {
       const pos = map.map[index];
-      const cell = table.nodeAt(pos);
+      const cell = table.nodeAt(pos)!;
       tr.setNodeMarkup(
         tr.mapping.map(tableStart + pos),
         null,
@@ -88,9 +89,9 @@ export function addColumn(
       const type =
         refColumn == null
           ? tableNodeTypes(table.type.schema).cell
-          : table.nodeAt(map.map[index + refColumn]).type;
+          : table.nodeAt(map.map[index + refColumn])!.type;
       const pos = map.positionAt(row, col, table);
-      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill());
+      tr.insert(tr.mapping.map(tableStart + pos), type.createAndFill()!);
     }
   }
   return tr;
@@ -140,9 +141,10 @@ export function removeColumn(
 ) {
   const mapStart = tr.mapping.maps.length;
   for (let row = 0; row < map.height; ) {
-    const index = row * map.width + col,
-      pos = map.map[index],
-      cell = table.nodeAt(pos);
+    const index = row * map.width + col;
+    const pos = map.map[index];
+    const cell = table.nodeAt(pos)!;
+    const attrs = cell.attrs as CellAttrs;
     // If this is part of a col-spanning cell
     if (
       (col > 0 && map.map[index - 1] == pos) ||
@@ -151,13 +153,13 @@ export function removeColumn(
       tr.setNodeMarkup(
         tr.mapping.slice(mapStart).map(tableStart + pos),
         null,
-        removeColSpan(cell.attrs, col - map.colCount(pos)),
+        removeColSpan(attrs, col - map.colCount(pos)),
       );
     } else {
       const start = tr.mapping.slice(mapStart).map(tableStart + pos);
       tr.delete(start, start + cell.nodeSize);
     }
-    row += cell.attrs.rowspan;
+    row += attrs.rowspan;
   }
 }
 
@@ -172,16 +174,20 @@ export function deleteColumn(
 ): boolean {
   if (!isInTable(state)) return false;
   if (dispatch) {
-    const rect = selectedRect(state),
-      tr = state.tr;
+    const rect = selectedRect(state);
+    const tr = state.tr;
     if (rect.left == 0 && rect.right == rect.map.width) return false;
     for (let i = rect.right - 1; ; i--) {
       removeColumn(tr, rect, i);
       if (i == rect.left) break;
-      rect.table = rect.tableStart
+      const table = rect.tableStart
         ? tr.doc.nodeAt(rect.tableStart - 1)
         : tr.doc;
-      rect.map = TableMap.get(rect.table);
+      if (!table) {
+        throw RangeError('No table found');
+      }
+      rect.table = table;
+      rect.map = TableMap.get(table);
     }
     dispatch(tr);
   }
@@ -194,7 +200,7 @@ export function deleteColumn(
 export function rowIsHeader(map: TableMap, table: Node, row: number): boolean {
   const headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let col = 0; col < map.width; col++)
-    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+    if (table.nodeAt(map.map[col + row * map.width])?.type != headerCell)
       return false;
   return true;
 }
@@ -210,7 +216,7 @@ export function addRow(
   let rowPos = tableStart;
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize;
   const cells = [];
-  let refRow = row > 0 ? -1 : 0;
+  let refRow: number | null = row > 0 ? -1 : 0;
   if (rowIsHeader(map, table, row + refRow))
     refRow = row == 0 || row == map.height ? null : 0;
   for (let col = 0, index = map.width * row; col < map.width; col++, index++) {
@@ -220,8 +226,8 @@ export function addRow(
       row < map.height &&
       map.map[index] == map.map[index - map.width]
     ) {
-      const pos = map.map[index],
-        attrs = table.nodeAt(pos).attrs;
+      const pos = map.map[index];
+      const attrs = table.nodeAt(pos)!.attrs;
       tr.setNodeMarkup(
         tableStart + pos,
         null,
@@ -232,8 +238,9 @@ export function addRow(
       const type =
         refRow == null
           ? tableNodeTypes(table.type.schema).cell
-          : table.nodeAt(map.map[index + refRow * map.width]).type;
-      cells.push(type.createAndFill());
+          : table.nodeAt(map.map[index + refRow * map.width])?.type;
+      const node = type?.createAndFill();
+      if (node) cells.push(node);
     }
   }
   tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells));
@@ -293,7 +300,7 @@ export function removeRow(
     const pos = map.map[index];
     if (row > 0 && pos == map.map[index - map.width]) {
       // If this cell starts in the row above, simply reduce its rowspan
-      const attrs = table.nodeAt(pos).attrs;
+      const attrs = table.nodeAt(pos)!.attrs;
       tr.setNodeMarkup(
         tr.mapping.slice(mapFrom).map(pos + tableStart),
         null,
@@ -302,7 +309,7 @@ export function removeRow(
       col += attrs.colspan - 1;
     } else if (row < map.width && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
-      const cell = table.nodeAt(pos);
+      const cell = table.nodeAt(pos)!;
       const copy = cell.type.create(
         _setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - 1),
         cell.content,
@@ -331,9 +338,13 @@ export function deleteRow(
     for (let i = rect.bottom - 1; ; i--) {
       removeRow(tr, rect, i);
       if (i == rect.top) break;
-      rect.table = rect.tableStart
+      const table = rect.tableStart
         ? tr.doc.nodeAt(rect.tableStart - 1)
         : tr.doc;
+      if (!table) {
+        throw RangeError('No table found');
+      }
+      rect.table = table;
       rect.map = TableMap.get(rect.table);
     }
     dispatch(tr);
@@ -343,10 +354,9 @@ export function deleteRow(
 
 function isEmpty(cell: Node): boolean {
   const c = cell.content;
+
   return (
-    c.childCount == 1 &&
-    c.firstChild.isTextblock &&
-    c.firstChild.childCount == 0
+    c.childCount == 1 && c.child(0).isTextblock && c.child(0).childCount == 0
   );
 }
 
@@ -397,15 +407,15 @@ export function mergeCells(
   if (cellsOverlapRectangle(map, rect)) return false;
   if (dispatch) {
     const tr = state.tr;
-    const seen = {};
+    const seen: Record<number, boolean> = {};
     let content = Fragment.empty;
-    let mergedPos;
-    let mergedCell;
+    let mergedPos: number | undefined;
+    let mergedCell: Node | undefined;
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
-        const cellPos = map.map[row * map.width + col],
-          cell = rect.table.nodeAt(cellPos);
-        if (seen[cellPos]) continue;
+        const cellPos = map.map[row * map.width + col];
+        const cell = rect.table.nodeAt(cellPos);
+        if (seen[cellPos] || !cell) continue;
         seen[cellPos] = true;
         if (mergedPos == null) {
           mergedPos = cellPos;
@@ -417,19 +427,18 @@ export function mergeCells(
         }
       }
     }
-    tr.setNodeMarkup(
-      mergedPos + rect.tableStart,
-      null,
-      _setAttr(
-        addColSpan(
-          mergedCell.attrs,
-          mergedCell.attrs.colspan,
-          rect.right - rect.left - mergedCell.attrs.colspan,
-        ),
-        'rowspan',
-        rect.bottom - rect.top,
+    if (mergedPos == null || mergedCell == null) {
+      return true;
+    }
+
+    tr.setNodeMarkup(mergedPos + rect.tableStart, null, {
+      ...addColSpan(
+        mergedCell.attrs,
+        mergedCell.attrs.colspan,
+        rect.right - rect.left - mergedCell.attrs.colspan,
       ),
-    );
+      rowspan: rect.bottom - rect.top,
+    });
     if (content.size) {
       const end = mergedPos + 1 + mergedCell.content.size;
       const start = isEmpty(mergedCell) ? mergedPos + 1 : end;
@@ -455,7 +464,7 @@ export function splitCell(
 ): boolean {
   const nodeTypes = tableNodeTypes(state.schema);
   return splitCellWithType(({ node }) => {
-    return nodeTypes[node.type.spec.tableRole];
+    return nodeTypes[node.type.spec.tableRole as TableRole];
   })(state, dispatch);
 }
 
@@ -479,15 +488,19 @@ export function splitCellWithType(
 ): Command {
   return (state, dispatch) => {
     const sel = state.selection;
-    let cellNode, cellPos;
+    let cellNode: Node | null | undefined;
+    let cellPos: number | undefined;
     if (!(sel instanceof CellSelection)) {
       cellNode = cellWrapping(sel.$from);
       if (!cellNode) return false;
-      cellPos = cellAround(sel.$from).pos;
+      cellPos = cellAround(sel.$from)?.pos;
     } else {
       if (sel.$anchorCell.pos != sel.$headCell.pos) return false;
       cellNode = sel.$anchorCell.nodeAfter;
       cellPos = sel.$anchorCell.pos;
+    }
+    if (cellNode == null || cellPos == null) {
+      return false;
     }
     if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {
       return false;
@@ -518,7 +531,7 @@ export function splitCellWithType(
           if (col == rect.left && row == rect.top) continue;
           tr.insert(
             (lastCell = tr.mapping.map(pos + rect.tableStart, 1)),
-            getCellType({ node: cellNode, row, col }).createAndFill(attrs[i]),
+            getCellType({ node: cellNode, row, col }).createAndFill(attrs[i])!,
           );
         }
       }
@@ -531,7 +544,7 @@ export function splitCellWithType(
         tr.setSelection(
           new CellSelection(
             tr.doc.resolve(sel.$anchorCell.pos),
-            lastCell && tr.doc.resolve(lastCell),
+            lastCell ? tr.doc.resolve(lastCell) : undefined,
           ),
         );
       dispatch(tr);
@@ -551,7 +564,7 @@ export function setCellAttr(name: string, value: unknown): Command {
   return function (state, dispatch) {
     if (!isInTable(state)) return false;
     const $cell = selectionCell(state);
-    if ($cell.nodeAfter.attrs[name] === value) return false;
+    if ($cell.nodeAfter!.attrs[name] === value) return false;
     if (dispatch) {
       const tr = state.tr;
       if (state.selection instanceof CellSelection)
@@ -563,7 +576,7 @@ export function setCellAttr(name: string, value: unknown): Command {
         tr.setNodeMarkup(
           $cell.pos,
           null,
-          _setAttr($cell.nodeAfter.attrs, name, value),
+          _setAttr($cell.nodeAfter!.attrs, name, value),
         );
       dispatch(tr);
     }
@@ -595,7 +608,7 @@ function deprecated_toggleHeader(type: ToggleHeaderType): Command {
             }
           : rect,
       );
-      const nodes = cells.map((pos) => rect.table.nodeAt(pos));
+      const nodes = cells.map((pos) => rect.table.nodeAt(pos)!);
       for (
         let i = 0;
         i < cells.length;
@@ -759,7 +772,7 @@ export const toggleHeaderCell: Command = toggleHeader('cell', {
   useDeprecatedLogic: true,
 });
 
-function findNextCell($cell: ResolvedPos, dir: Direction): number {
+function findNextCell($cell: ResolvedPos, dir: Direction): number | null {
   if (dir < 0) {
     const before = $cell.nodeBefore;
     if (before) return $cell.pos - before.nodeSize;
@@ -769,12 +782,16 @@ function findNextCell($cell: ResolvedPos, dir: Direction): number {
       row--
     ) {
       const rowNode = $cell.node(-1).child(row);
-      if (rowNode.childCount) return rowEnd - 1 - rowNode.lastChild.nodeSize;
+      const lastChild = rowNode.lastChild;
+      if (lastChild) {
+        return rowEnd - 1 - lastChild.nodeSize;
+      }
       rowEnd -= rowNode.nodeSize;
     }
   } else {
-    if ($cell.index() < $cell.parent.childCount - 1)
-      return $cell.pos + $cell.nodeAfter.nodeSize;
+    if ($cell.index() < $cell.parent.childCount - 1) {
+      return $cell.pos + $cell.nodeAfter!.nodeSize;
+    }
     const table = $cell.node(-1);
     for (
       let row = $cell.indexAfter(-1), rowStart = $cell.after();
@@ -786,6 +803,7 @@ function findNextCell($cell: ResolvedPos, dir: Direction): number {
       rowStart += rowNode.nodeSize;
     }
   }
+  return null;
 }
 
 /**
