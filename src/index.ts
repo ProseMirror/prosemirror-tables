@@ -39,7 +39,7 @@ export type {
   setDOMAttr,
   TableNodes,
   TableNodesOptions,
-  TableRole as TableRoles,
+  TableRole,
 } from './schema';
 export { TableMap } from './tablemap';
 export type { ColWidths, Problem, Rect } from './tablemap';
