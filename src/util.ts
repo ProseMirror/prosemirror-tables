@@ -56,11 +56,9 @@ export function isInTable(state: EditorState): boolean {
 }
 
 /**
- * @public
+ * @internal
  */
-export function selectionCell(
-  state: EditorState,
-): ResolvedPos | null | undefined {
+export function selectionCell(state: EditorState): ResolvedPos {
   const sel = state.selection as CellSelection | NodeSelection;
   if ('$anchorCell' in sel && sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos
@@ -73,7 +71,11 @@ export function selectionCell(
   ) {
     return sel.$anchor;
   }
-  return cellAround(sel.$head) || cellNear(sel.$head);
+  const $cell = cellAround(sel.$head) || cellNear(sel.$head);
+  if ($cell) {
+    return $cell;
+  }
+  throw new RangeError(`No cell found around position ${sel.head}`);
 }
 
 function cellNear($pos: ResolvedPos): ResolvedPos | undefined {

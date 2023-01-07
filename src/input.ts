@@ -179,10 +179,6 @@ export function handlePaste(
     return true;
   } else if (cells) {
     const $cell = selectionCell(view.state);
-    if (!$cell) {
-      return false;
-    }
-
     const start = $cell.start(-1);
     insertCells(
       view.state,

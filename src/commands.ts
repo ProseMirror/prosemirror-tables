@@ -41,22 +41,19 @@ export type TableRect = Rect & {
  * @public
  */
 export function selectedRect(state: EditorState): TableRect {
-  const sel = state.selection,
-    $pos = selectionCell(state);
-  const table = $pos.node(-1),
-    tableStart = $pos.start(-1),
-    map = TableMap.get(table);
-  let rect;
-  if (sel instanceof CellSelection)
-    rect = map.rectBetween(
-      sel.$anchorCell.pos - tableStart,
-      sel.$headCell.pos - tableStart,
-    );
-  else rect = map.findCell($pos.pos - tableStart);
-  rect.tableStart = tableStart;
-  rect.map = map;
-  rect.table = table;
-  return rect;
+  const sel = state.selection;
+  const $pos = selectionCell(state);
+  const table = $pos.node(-1);
+  const tableStart = $pos.start(-1);
+  const map = TableMap.get(table);
+  const rect =
+    sel instanceof CellSelection
+      ? map.rectBetween(
+          sel.$anchorCell.pos - tableStart,
+          sel.$headCell.pos - tableStart,
+        )
+      : map.findCell($pos.pos - tableStart);
+  return { ...rect, tableStart, map, table };
 }
 
 /**
@@ -69,16 +66,17 @@ export function addColumn(
   { map, tableStart, table }: TableRect,
   col: number,
 ): Transaction {
-  let refColumn = col > 0 ? -1 : 0;
-  if (columnIsHeader(map, table, col + refColumn))
+  let refColumn: number | null = col > 0 ? -1 : 0;
+  if (columnIsHeader(map, table, col + refColumn)) {
     refColumn = col == 0 || col == map.width ? null : 0;
+  }
 
   for (let row = 0; row < map.height; row++) {
     const index = row * map.width + col;
     // If this position falls inside a col-spanning cell
     if (col > 0 && col < map.width && map.map[index - 1] == map.map[index]) {
-      const pos = map.map[index],
-        cell = table.nodeAt(pos);
+      const pos = map.map[index];
+      const cell = table.nodeAt(pos);
       tr.setNodeMarkup(
         tr.mapping.map(tableStart + pos),
         null,
