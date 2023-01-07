@@ -39,7 +39,7 @@ export type {
   setDOMAttr,
   TableNodes,
   TableNodesOptions,
-  TableRoles,
+  TableRole,
 } from './schema';
 export { TableMap } from './tablemap';
 export type { ColWidths, Problem, Rect } from './tablemap';
@@ -113,8 +113,9 @@ export function tableEditing({
       },
 
       createSelectionBetween(view) {
-        if (tableEditingKey.getState(view.state) != null)
-          return view.state.selection;
+        return tableEditingKey.getState(view.state) != null
+          ? view.state.selection
+          : null;
       },
 
       handleTripleClick,

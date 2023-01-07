@@ -13,11 +13,11 @@
 import { Fragment, Node, NodeType, Schema, Slice } from 'prosemirror-model';
 import { Transform } from 'prosemirror-transform';
 
-import { removeColSpan, _setAttr } from './util';
-import { Rect, TableMap } from './tablemap';
+import { EditorState, Transaction } from 'prosemirror-state';
 import { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
-import { EditorState, Transaction } from 'prosemirror-state';
+import { ColWidths, Rect, TableMap } from './tablemap';
+import { CellAttrs, removeColSpan } from './util';
 
 /**
  * @internal
@@ -32,20 +32,20 @@ export type Area = { width: number; height: number; rows: Fragment[] };
  *
  * @internal
  */
-export function pastedCells(slice: Slice): Area | undefined {
+export function pastedCells(slice: Slice): Area | null {
   if (!slice.size) return null;
   let { content, openStart, openEnd } = slice;
   while (
     content.childCount == 1 &&
     ((openStart > 0 && openEnd > 0) ||
-      content.firstChild.type.spec.tableRole == 'table')
+      content.child(0).type.spec.tableRole == 'table')
   ) {
     openStart--;
     openEnd--;
-    content = content.firstChild.content;
+    content = content.child(0).content;
   }
-  const first = content.firstChild,
-    role = first.type.spec.tableRole;
+  const first = content.child(0);
+  const role = first.type.spec.tableRole;
   const schema = first.type.schema,
     rows = [];
   if (role == 'row') {
@@ -78,7 +78,7 @@ export function pastedCells(slice: Slice): Area | undefined {
 // Compute the width and height of a set of cells, and make sure each
 // row has the same number of cells.
 function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
-  const widths = [];
+  const widths: ColWidths = [];
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     for (let j = row.childCount - 1; j >= 0; j--) {
@@ -92,9 +92,11 @@ function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
   for (let r = 0; r < widths.length; r++) {
     if (r >= rows.length) rows.push(Fragment.empty);
     if (widths[r] < width) {
-      const empty = tableNodeTypes(schema).cell.createAndFill(),
-        cells = [];
-      for (let i = widths[r]; i < width; i++) cells.push(empty);
+      const empty = tableNodeTypes(schema).cell.createAndFill()!;
+      const cells = [];
+      for (let i = widths[r]; i < width; i++) {
+        cells.push(empty);
+      }
       rows[r] = rows[r].append(Fragment.from(cells));
     }
   }
@@ -102,7 +104,7 @@ function ensureRectangular(schema: Schema, rows: Fragment[]): Area {
 }
 
 export function fitSlice(nodeType: NodeType, slice: Slice): Node {
-  const node = nodeType.createAndFill();
+  const node = nodeType.createAndFill()!;
   const tr = new Transform(node).replace(0, node.content.size, slice);
   return tr.doc;
 }
@@ -120,17 +122,17 @@ export function clipCells(
   newHeight: number,
 ): Area {
   if (width != newWidth) {
-    const added = [],
-      newRows = [];
+    const added: number[] = [];
+    const newRows: Fragment[] = [];
     for (let row = 0; row < rows.length; row++) {
       const frag = rows[row],
         cells = [];
       for (let col = added[row] || 0, i = 0; col < newWidth; i++) {
         let cell = frag.child(i % frag.childCount);
         if (col + cell.attrs.colspan > newWidth)
-          cell = cell.type.create(
+          cell = cell.type.createChecked(
             removeColSpan(
-              cell.attrs,
+              cell.attrs as CellAttrs,
               cell.attrs.colspan,
               col + cell.attrs.colspan - newWidth,
             ),
@@ -156,11 +158,10 @@ export function clipCells(
         let cell = source.child(j);
         if (row + cell.attrs.rowspan > newHeight)
           cell = cell.type.create(
-            _setAttr(
-              cell.attrs,
-              'rowspan',
-              Math.max(1, newHeight - cell.attrs.rowspan),
-            ),
+            {
+              ...cell.attrs,
+              rowspan: Math.max(1, newHeight - cell.attrs.rowspan),
+            },
             cell.content,
           );
         cells.push(cell);
@@ -193,11 +194,11 @@ function growTable(
     for (let row = 0, rowEnd = 0; row < map.height; row++) {
       const rowNode = table.child(row);
       rowEnd += rowNode.nodeSize;
-      const cells = [];
-      let add;
+      const cells: Node[] = [];
+      let add: Node;
       if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell)
-        add = empty || (empty = types.cell.createAndFill());
-      else add = emptyHead || (emptyHead = types.header_cell.createAndFill());
+        add = empty || (empty = types.cell.createAndFill()!);
+      else add = emptyHead || (emptyHead = types.header_cell.createAndFill()!);
       for (let i = map.width; i < width; i++) cells.push(add);
       tr.insert(tr.mapping.slice(mapFrom).map(rowEnd - 1 + start), cells);
     }
@@ -212,11 +213,11 @@ function growTable(
       const header =
         i >= map.width
           ? false
-          : table.nodeAt(map.map[start + i]).type == types.header_cell;
+          : table.nodeAt(map.map[start + i])!.type == types.header_cell;
       cells.push(
         header
-          ? emptyHead || (emptyHead = types.header_cell.createAndFill())
-          : empty || (empty = types.cell.createAndFill()),
+          ? emptyHead || (emptyHead = types.header_cell.createAndFill()!)
+          : empty || (empty = types.cell.createAndFill()!),
       );
     }
 
@@ -248,18 +249,18 @@ function isolateHorizontal(
       pos = map.map[index];
     if (map.map[index - map.width] == pos) {
       found = true;
-      const cell = table.nodeAt(pos);
+      const cell = table.nodeAt(pos)!;
       const { top: cellTop, left: cellLeft } = map.findCell(pos);
-      tr.setNodeMarkup(
-        tr.mapping.slice(mapFrom).map(pos + start),
-        null,
-        _setAttr(cell.attrs, 'rowspan', top - cellTop),
-      );
+      tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + start), null, {
+        ...cell.attrs,
+        rowspan: top - cellTop,
+      });
       tr.insert(
         tr.mapping.slice(mapFrom).map(map.positionAt(top, cellLeft, table)),
-        cell.type.createAndFill(
-          _setAttr(cell.attrs, 'rowspan', cellTop + cell.attrs.rowspan - top),
-        ),
+        cell.type.createAndFill({
+          ...cell.attrs,
+          rowspan: cellTop + cell.attrs.rowspan - top,
+        })!,
       );
       col += cell.attrs.colspan - 1;
     }
@@ -287,21 +288,23 @@ function isolateVertical(
       pos = map.map[index];
     if (map.map[index - 1] == pos) {
       found = true;
-      const cell = table.nodeAt(pos),
-        cellLeft = map.colCount(pos);
+      const cell = table.nodeAt(pos)!;
+      const cellLeft = map.colCount(pos);
       const updatePos = tr.mapping.slice(mapFrom).map(pos + start);
       tr.setNodeMarkup(
         updatePos,
         null,
         removeColSpan(
-          cell.attrs,
+          cell.attrs as CellAttrs,
           left - cellLeft,
           cell.attrs.colspan - (left - cellLeft),
         ),
       );
       tr.insert(
         updatePos + cell.nodeSize,
-        cell.type.createAndFill(removeColSpan(cell.attrs, 0, left - cellLeft)),
+        cell.type.createAndFill(
+          removeColSpan(cell.attrs as CellAttrs, 0, left - cellLeft),
+        )!,
       );
       row += cell.attrs.rowspan - 1;
     }
@@ -322,8 +325,11 @@ export function insertCells(
   rect: Rect,
   cells: Area,
 ): void {
-  let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc,
-    map = TableMap.get(table);
+  let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc;
+  if (!table) {
+    throw new Error('No table found');
+  }
+  let map = TableMap.get(table);
   const { top, left } = rect;
   const right = left + cells.width,
     bottom = top + cells.height;
@@ -332,6 +338,9 @@ export function insertCells(
 
   function recomp(): void {
     table = tableStart ? tr.doc.nodeAt(tableStart - 1) : tr.doc;
+    if (!table) {
+      throw new Error('No table found');
+    }
     map = TableMap.get(table);
     mapFrom = tr.mapping.maps.length;
   }

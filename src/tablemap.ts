@@ -9,22 +9,38 @@
 // compute the start position of the table and offset positions passed
 // to or gotten from this structure by that amount.
 import { Attrs, Node } from 'prosemirror-model';
+import { CellAttrs } from './util';
 
 /**
  * @public
  */
-export type ColWidths = (number | null)[];
+export type ColWidths = number[];
 
 /**
  * @public
  */
-export type Problem = {
-  type: 'missing' | 'overlong_rowspan' | 'collision' | 'colwidth mismatch';
-  pos?: number;
-  row?: number;
-  n?: number;
-  colwidth?: ColWidths;
-};
+export type Problem =
+  | {
+      type: 'colwidth mismatch';
+      pos: number;
+      colwidth: ColWidths;
+    }
+  | {
+      type: 'collision';
+      pos: number;
+      row: number;
+      n: number;
+    }
+  | {
+      type: 'missing';
+      row: number;
+      n: number;
+    }
+  | {
+      type: 'overlong_rowspan';
+      pos: number;
+      n: number;
+    };
 
 let readFromCache: (key: Node) => TableMap | undefined;
 let addToCache: (key: Node, value: TableMap) => TableMap;
@@ -57,12 +73,12 @@ if (typeof WeakMap != 'undefined') {
 /**
  * @public
  */
-export type Rect = {
+export interface Rect {
   left: number;
   top: number;
   right: number;
   bottom: number;
-};
+}
 
 /**
  * A table map describes the structure of a given table. To avoid
@@ -75,11 +91,11 @@ export type Rect = {
 export class TableMap {
   constructor(
     /**
-     * The width of the table
+     * The number of columns
      */
     public width: number,
     /**
-     * The table's height
+     * The number of rows
      */
     public height: number,
     /**
@@ -99,33 +115,41 @@ export class TableMap {
     for (let i = 0; i < this.map.length; i++) {
       const curPos = this.map[i];
       if (curPos != pos) continue;
-      const left = i % this.width,
-        top = (i / this.width) | 0;
-      let right = left + 1,
-        bottom = top + 1;
-      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++)
+
+      const left = i % this.width;
+      const top = (i / this.width) | 0;
+      let right = left + 1;
+      let bottom = top + 1;
+
+      for (let j = 1; right < this.width && this.map[i + j] == curPos; j++) {
         right++;
+      }
       for (
         let j = 1;
         bottom < this.height && this.map[i + this.width * j] == curPos;
         j++
-      )
+      ) {
         bottom++;
+      }
+
       return { left, top, right, bottom };
     }
-    throw new RangeError('No cell with offset ' + pos + ' found');
+    throw new RangeError(`No cell with offset ${pos} found`);
   }
 
   // Find the left side of the cell at the given position.
   colCount(pos: number): number {
-    for (let i = 0; i < this.map.length; i++)
-      if (this.map[i] == pos) return i % this.width;
-    throw new RangeError('No cell with offset ' + pos + ' found');
+    for (let i = 0; i < this.map.length; i++) {
+      if (this.map[i] == pos) {
+        return i % this.width;
+      }
+    }
+    throw new RangeError(`No cell with offset ${pos} found`);
   }
 
   // Find the next cell in the given direction, starting from the cell
   // at `pos`, if any.
-  nextCell(pos: number, axis: string, dir: number): null | number {
+  nextCell(pos: number, axis: 'horiz' | 'vert', dir: number): null | number {
     const { left, right, top, bottom } = this.findCell(pos);
     if (axis == 'horiz') {
       if (dir < 0 ? left == 0 : right == this.width) return null;
@@ -161,19 +185,23 @@ export class TableMap {
   // Return the position of all cells that have the top left corner in
   // the given rectangle.
   cellsInRect(rect: Rect): number[] {
-    const result = [],
-      seen = {};
+    const result: number[] = [];
+    const seen: Record<number, boolean> = {};
     for (let row = rect.top; row < rect.bottom; row++) {
       for (let col = rect.left; col < rect.right; col++) {
-        const index = row * this.width + col,
-          pos = this.map[index];
+        const index = row * this.width + col;
+        const pos = this.map[index];
+
         if (seen[pos]) continue;
         seen[pos] = true;
+
         if (
-          (col != rect.left || !col || this.map[index - 1] != pos) &&
-          (row != rect.top || !row || this.map[index - this.width] != pos)
-        )
-          result.push(pos);
+          (col == rect.left && col && this.map[index - 1] == pos) ||
+          (row == rect.top && row && this.map[index - this.width] == pos)
+        ) {
+          continue;
+        }
+        result.push(pos);
       }
     }
     return result;
@@ -281,8 +309,8 @@ function computeMap(table: Node): TableMap {
 }
 
 function findWidth(table: Node): number {
-  let width = -1,
-    hasRowSpan = false;
+  let width = -1;
+  let hasRowSpan = false;
   for (let row = 0; row < table.childCount; row++) {
     const rowNode = table.child(row);
     let rowWidth = 0;
@@ -311,20 +339,26 @@ function findBadColWidths(
   table: Node,
 ): void {
   if (!map.problems) map.problems = [];
-  for (let i = 0, seen = {}; i < map.map.length; i++) {
+  const seen: Record<number, boolean> = {};
+  for (let i = 0; i < map.map.length; i++) {
     const pos = map.map[i];
     if (seen[pos]) continue;
     seen[pos] = true;
     const node = table.nodeAt(pos);
+    if (!node) {
+      throw new RangeError(`No cell with offset ${pos} found`);
+    }
+
     let updated = null;
-    for (let j = 0; j < node.attrs.colspan; j++) {
-      const col = (i + j) % map.width,
-        colWidth = colWidths[col * 2];
+    const attrs = node.attrs as CellAttrs;
+    for (let j = 0; j < attrs.colspan; j++) {
+      const col = (i + j) % map.width;
+      const colWidth = colWidths[col * 2];
       if (
         colWidth != null &&
-        (!node.attrs.colwidth || node.attrs.colwidth[j] != colWidth)
+        (!attrs.colwidth || attrs.colwidth[j] != colWidth)
       )
-        (updated || (updated = freshColWidth(node.attrs)))[j] = colWidth;
+        (updated || (updated = freshColWidth(attrs)))[j] = colWidth;
     }
     if (updated)
       map.problems.unshift({

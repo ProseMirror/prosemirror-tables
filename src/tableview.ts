@@ -1,5 +1,6 @@
 import { Node } from 'prosemirror-model';
 import { NodeView } from 'prosemirror-view';
+import { CellAttrs } from './util';
 
 /**
  * @public
@@ -45,12 +46,14 @@ export function updateColumnsOnResize(
   overrideCol?: number,
   overrideValue?: number,
 ): void {
-  let totalWidth = 0,
-    fixedWidth = true;
+  let totalWidth = 0;
+  let fixedWidth = true;
   let nextDOM = colgroup.firstChild as HTMLElement;
   const row = node.firstChild;
+  if (!row) return;
+
   for (let i = 0, col = 0; i < row.childCount; i++) {
-    const { colspan, colwidth } = row.child(i).attrs;
+    const { colspan, colwidth } = row.child(i).attrs as CellAttrs;
     for (let j = 0; j < colspan; j++, col++) {
       const hasWidth =
         overrideCol == col ? overrideValue : colwidth && colwidth[j];
@@ -69,7 +72,7 @@ export function updateColumnsOnResize(
 
   while (nextDOM) {
     const after = nextDOM.nextSibling;
-    nextDOM.parentNode.removeChild(nextDOM);
+    nextDOM.parentNode?.removeChild(nextDOM);
     nextDOM = after as HTMLElement;
   }
 

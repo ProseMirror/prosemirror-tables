@@ -2,15 +2,24 @@
 
 import { EditorState, NodeSelection, PluginKey } from 'prosemirror-state';
 
-import { Rect, TableMap } from './tablemap';
-import { tableNodeTypes } from './schema';
 import { Attrs, Node, ResolvedPos } from 'prosemirror-model';
 import { CellSelection } from './cellselection';
+import { tableNodeTypes } from './schema';
+import { Rect, TableMap } from './tablemap';
 
 /**
  * @public
  */
-export type MutableAttrs = { -readonly [P in keyof Attrs]: Attrs[P] };
+export type MutableAttrs = Record<string, unknown>;
+
+/**
+ * @public
+ */
+export interface CellAttrs {
+  colspan: number;
+  rowspan: number;
+  colwidth: number[] | null;
+}
 
 /**
  * @public
@@ -47,11 +56,9 @@ export function isInTable(state: EditorState): boolean {
 }
 
 /**
- * @public
+ * @internal
  */
-export function selectionCell(
-  state: EditorState,
-): ResolvedPos | null | undefined {
+export function selectionCell(state: EditorState): ResolvedPos {
   const sel = state.selection as CellSelection | NodeSelection;
   if ('$anchorCell' in sel && sel.$anchorCell) {
     return sel.$anchorCell.pos > sel.$headCell.pos
@@ -64,7 +71,11 @@ export function selectionCell(
   ) {
     return sel.$anchor;
   }
-  return cellAround(sel.$head) || cellNear(sel.$head);
+  const $cell = cellAround(sel.$head) || cellNear(sel.$head);
+  if ($cell) {
+    return $cell;
+  }
+  throw new RangeError(`No cell found around position ${sel.head}`);
 }
 
 function cellNear($pos: ResolvedPos): ResolvedPos | undefined {
@@ -98,14 +109,18 @@ export function pointsAtCell($pos: ResolvedPos): boolean {
  * @public
  */
 export function moveCellForward($pos: ResolvedPos): ResolvedPos {
-  return $pos.node(0).resolve($pos.pos + $pos.nodeAfter.nodeSize);
+  return $pos.node(0).resolve($pos.pos + $pos.nodeAfter!.nodeSize);
 }
 
 /**
- * @public
+ * @internal
  */
-export function inSameTable($a: ResolvedPos, $b: ResolvedPos): boolean {
-  return $a.depth == $b.depth && $a.pos >= $b.start(-1) && $a.pos <= $b.end(-1);
+export function inSameTable($cellA: ResolvedPos, $cellB: ResolvedPos): boolean {
+  return (
+    $cellA.depth == $cellB.depth &&
+    $cellA.pos >= $cellB.start(-1) &&
+    $cellA.pos <= $cellB.end(-1)
+  );
 }
 
 /**
@@ -127,34 +142,23 @@ export function colCount($pos: ResolvedPos): number {
  */
 export function nextCell(
   $pos: ResolvedPos,
-  axis: string,
+  axis: 'horiz' | 'vert',
   dir: number,
-): null | ResolvedPos {
-  const start = $pos.start(-1),
-    map = TableMap.get($pos.node(-1));
-  const moved = map.nextCell($pos.pos - start, axis, dir);
-  return moved == null ? null : $pos.node(0).resolve(start + moved);
-}
+): ResolvedPos | null {
+  const table = $pos.node(-1);
+  const map = TableMap.get(table);
+  const tableStart = $pos.start(-1);
 
-/**
- * @internal
- */
-export function _setAttr(
-  attrs: Attrs,
-  name: string,
-  value: unknown,
-): MutableAttrs {
-  const result = {};
-  for (const prop in attrs) result[prop] = attrs[prop];
-  result[name] = value;
-  return result;
+  const moved = map.nextCell($pos.pos - tableStart, axis, dir);
+  return moved == null ? null : $pos.node(0).resolve(tableStart + moved);
 }
 
 /**
  * @public
  */
-export function removeColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
-  const result = _setAttr(attrs, 'colspan', attrs.colspan - n);
+export function removeColSpan(attrs: CellAttrs, pos: number, n = 1): CellAttrs {
+  const result: CellAttrs = { ...attrs, colspan: attrs.colspan - n };
+
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n);
@@ -166,8 +170,8 @@ export function removeColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
 /**
  * @public
  */
-export function addColSpan(attrs: Attrs, pos: number, n = 1): Attrs {
-  const result = _setAttr(attrs, 'colspan', attrs.colspan + n);
+export function addColSpan(attrs: CellAttrs, pos: number, n = 1): Attrs {
+  const result = { ...attrs, colspan: attrs.colspan + n };
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i = 0; i < n; i++) result.colwidth.splice(pos, 0, 0);
@@ -185,7 +189,7 @@ export function columnIsHeader(
 ): boolean {
   const headerCell = tableNodeTypes(table.type.schema).header_cell;
   for (let row = 0; row < map.height; row++)
-    if (table.nodeAt(map.map[col + row * map.width]).type != headerCell)
+    if (table.nodeAt(map.map[col + row * map.width])!.type != headerCell)
       return false;
   return true;
 }

@@ -3,25 +3,26 @@ import { EditorState } from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
 import {
-  doc,
-  table,
-  tr,
-  td,
-  p,
   c,
   c11,
   cEmpty,
+  doc,
+  eq,
   h11,
   hEmpty,
-  eq,
+  p,
+  table,
+  td,
+  tr,
 } from './build';
 
+import { Node } from 'prosemirror-model';
 import { fixTables } from '../src/';
 
-const cw100 = td({ colwidth: [100] }, p('x')),
-  cw200 = td({ colwidth: [200] }, p('x'));
+const cw100 = td({ colwidth: [100] }, p('x'));
+const cw200 = td({ colwidth: [200] }, p('x'));
 
-function fix(table) {
+function fix(table: Node) {
   const state = EditorState.create({ doc: doc(table) });
   const tr = fixTables(state);
   return tr && tr.doc.firstChild;

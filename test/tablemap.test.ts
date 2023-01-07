@@ -1,10 +1,10 @@
 import ist from 'ist';
 
 import { table, tr, c, c11 } from './build';
-import { TableMap } from '../src/';
+import { Rect, TableMap } from '../src/';
 import { describe, it } from 'vitest';
 
-function eqRect(a, b) {
+function eqRect(a: Rect, b: Rect) {
   return (
     a.left == b.left &&
     a.right == b.right &&

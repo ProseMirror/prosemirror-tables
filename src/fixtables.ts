@@ -3,11 +3,11 @@
 // rowspans) and that each row has the same width. Uses the problems
 // reported by `TableMap`.
 
-import { EditorState, PluginKey, Transaction } from 'prosemirror-state';
-import { TableMap } from './tablemap';
-import { removeColSpan, _setAttr } from './util';
-import { tableNodeTypes } from './schema';
 import { Node } from 'prosemirror-model';
+import { EditorState, PluginKey, Transaction } from 'prosemirror-state';
+import { tableNodeTypes, TableRole } from './schema';
+import { TableMap } from './tablemap';
+import { CellAttrs, removeColSpan } from './util';
 
 /**
  * @public
@@ -59,8 +59,8 @@ export function fixTables(
   state: EditorState,
   oldState?: EditorState,
 ): Transaction | undefined {
-  let tr;
-  const check = (node, pos) => {
+  let tr: Transaction | undefined;
+  const check = (node: Node, pos: number) => {
     if (node.type.spec.tableRole == 'table')
       tr = fixTable(state, node, pos, tr);
   };
@@ -84,35 +84,36 @@ export function fixTable(
 
   // Track which rows we must add cells to, so that we can adjust that
   // when fixing collisions.
-  const mustAdd = [];
+  const mustAdd: number[] = [];
   for (let i = 0; i < map.height; i++) mustAdd.push(0);
   for (let i = 0; i < map.problems.length; i++) {
     const prob = map.problems[i];
     if (prob.type == 'collision') {
       const cell = table.nodeAt(prob.pos);
-      for (let j = 0; j < cell.attrs.rowspan; j++)
-        mustAdd[prob.row + j] += prob.n;
+      if (!cell) continue;
+      const attrs = cell.attrs as CellAttrs;
+      for (let j = 0; j < attrs.rowspan; j++) mustAdd[prob.row + j] += prob.n;
       tr.setNodeMarkup(
         tr.mapping.map(tablePos + 1 + prob.pos),
         null,
-        removeColSpan(cell.attrs, cell.attrs.colspan - prob.n, prob.n),
+        removeColSpan(attrs, attrs.colspan - prob.n, prob.n),
       );
     } else if (prob.type == 'missing') {
       mustAdd[prob.row] += prob.n;
     } else if (prob.type == 'overlong_rowspan') {
       const cell = table.nodeAt(prob.pos);
-      tr.setNodeMarkup(
-        tr.mapping.map(tablePos + 1 + prob.pos),
-        null,
-        _setAttr(cell.attrs, 'rowspan', cell.attrs.rowspan - prob.n),
-      );
+      if (!cell) continue;
+      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, {
+        ...cell.attrs,
+        rowspan: cell.attrs.rowspan - prob.n,
+      });
     } else if (prob.type == 'colwidth mismatch') {
       const cell = table.nodeAt(prob.pos);
-      tr.setNodeMarkup(
-        tr.mapping.map(tablePos + 1 + prob.pos),
-        null,
-        _setAttr(cell.attrs, 'colwidth', prob.colwidth),
-      );
+      if (!cell) continue;
+      tr.setNodeMarkup(tr.mapping.map(tablePos + 1 + prob.pos), null, {
+        ...cell.attrs,
+        colwidth: prob.colwidth,
+      });
     }
   }
   let first, last;
@@ -130,13 +131,16 @@ export function fixTable(
     const end = pos + row.nodeSize;
     const add = mustAdd[i];
     if (add > 0) {
-      let tableNodeType = 'cell';
+      let role: TableRole = 'cell';
       if (row.firstChild) {
-        tableNodeType = row.firstChild.type.spec.tableRole;
+        role = row.firstChild.type.spec.tableRole;
       }
-      const nodes = [];
-      for (let j = 0; j < add; j++)
-        nodes.push(tableNodeTypes(state.schema)[tableNodeType].createAndFill());
+      const nodes: Node[] = [];
+      for (let j = 0; j < add; j++) {
+        const node = tableNodeTypes(state.schema)[role].createAndFill();
+
+        if (node) nodes.push(node);
+      }
       const side = (i == 0 || first == i - 1) && last == i ? pos + 1 : end - 1;
       tr.insert(tr.mapping.map(side), nodes);
     }
