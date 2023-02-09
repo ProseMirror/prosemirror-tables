@@ -139,9 +139,9 @@ function handleMouseMove(
     if (target) {
       const { left, right } = target.getBoundingClientRect();
       if (event.clientX - left <= handleWidth)
-        cell = edgeCell(view, event, 'left');
+        cell = edgeCell(view, event, 'left', handleWidth);
       else if (right - event.clientX <= handleWidth)
-        cell = edgeCell(view, event, 'right');
+        cell = edgeCell(view, event, 'right', handleWidth);
     }
 
     if (cell != pluginState.activeHandle) {
@@ -253,8 +253,13 @@ function edgeCell(
   view: EditorView,
   event: MouseEvent,
   side: 'left' | 'right',
+  handleWidth: number
 ): number {
-  const found = view.posAtCoords({ left: event.clientX, top: event.clientY });
+  // posAtCoords returns inconsistent positions when cursor is moving
+  // across a collapsed table border. Use an offset to adjust the
+  // target viewport coordinates away from the table border.
+  const offset = side == 'right' ? -handleWidth : handleWidth;
+  const found = view.posAtCoords({ left: event.clientX + offset, top: event.clientY });
   if (!found) return -1;
   const { pos } = found;
   const $cell = cellAround(view.state.doc.resolve(pos));
