@@ -133,7 +133,7 @@ function handleMouseLeave(view) {
     updateHandle(view, -1);
 }
 
-function handleMouseDown(view, event, cellMinWidth, lastColumnResizable) {
+function handleMouseDown(view, event, cellMinWidth, updateColumnsOnResize) {
   let pluginState = key.getState(view.state);
   if (pluginState.activeHandle == -1 || pluginState.dragging) return false;
 
