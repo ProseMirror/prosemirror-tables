@@ -12,6 +12,7 @@ export function columnResizing({
   cellMinWidth = 25,
   View = TableView,
   lastColumnResizable = true,
+  updateColumnsOnResize = updateColumns,
 } = {}) {
   let plugin = new Plugin({
     key,
@@ -49,7 +50,7 @@ export function columnResizing({
           handleMouseLeave(view);
         },
         mousedown(view, event) {
-          handleMouseDown(view, event, cellMinWidth);
+          handleMouseDown(view, event, cellMinWidth, updateColumnsOnResize);
         },
       },
 
@@ -132,7 +133,7 @@ function handleMouseLeave(view) {
     updateHandle(view, -1);
 }
 
-function handleMouseDown(view, event, cellMinWidth) {
+function handleMouseDown(view, event, cellMinWidth, updateColumnsOnResize) {
   let pluginState = key.getState(view.state);
   if (pluginState.activeHandle == -1 || pluginState.dragging) return false;
 
@@ -165,7 +166,13 @@ function handleMouseDown(view, event, cellMinWidth) {
     if (!event.which) return finish(event);
     let pluginState = key.getState(view.state);
     let dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
-    displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth);
+    displayColumnWidth(
+      view,
+      pluginState.activeHandle,
+      dragged,
+      cellMinWidth,
+      updateColumnsOnResize,
+    );
   }
 
   window.addEventListener('mouseup', finish);
@@ -252,7 +259,13 @@ function updateColumnWidth(view, cell, width) {
   if (tr.docChanged) view.dispatch(tr);
 }
 
-function displayColumnWidth(view, cell, width, cellMinWidth) {
+function displayColumnWidth(
+  view,
+  cell,
+  width,
+  cellMinWidth,
+  updateColumnsOnResize,
+) {
   let $cell = view.state.doc.resolve(cell);
   let table = $cell.node(-1),
     start = $cell.start(-1);
@@ -262,7 +275,7 @@ function displayColumnWidth(view, cell, width, cellMinWidth) {
     1;
   let dom = view.domAtPos($cell.start(-1)).node;
   while (dom.nodeName != 'TABLE') dom = dom.parentNode;
-  updateColumns(table, dom.firstChild, dom, cellMinWidth, col, width);
+  updateColumnsOnResize(table, dom.firstChild, dom, cellMinWidth, col, width);
 }
 
 function zeroes(n) {
