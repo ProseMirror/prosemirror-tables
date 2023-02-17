@@ -4,7 +4,6 @@ import { cellAround, pointsAtCell, setAttr } from './util';
 import { TableMap } from './tablemap';
 import { TableView, updateColumns } from './tableview';
 import { tableNodeTypes } from './schema';
-import { updateColumnsOnResize } from '..';
 
 export const key = new PluginKey('tableColumnResizing');
 
