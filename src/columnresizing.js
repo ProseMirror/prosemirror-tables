@@ -12,7 +12,7 @@ export function columnResizing({
   cellMinWidth = 25,
   View = TableView,
   lastColumnResizable = true,
-  updateColumnsOnResize = updateColumns
+  updateColumnsOnResize = updateColumns,
 } = {}) {
   let plugin = new Plugin({
     key,
@@ -166,7 +166,13 @@ function handleMouseDown(view, event, cellMinWidth, updateColumnsOnResize) {
     if (!event.which) return finish(event);
     let pluginState = key.getState(view.state);
     let dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
-    displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth, updateColumnsOnResize);
+    displayColumnWidth(
+      view,
+      pluginState.activeHandle,
+      dragged,
+      cellMinWidth,
+      updateColumnsOnResize,
+    );
   }
 
   window.addEventListener('mouseup', finish);
@@ -253,7 +259,13 @@ function updateColumnWidth(view, cell, width) {
   if (tr.docChanged) view.dispatch(tr);
 }
 
-function displayColumnWidth(view, cell, width, cellMinWidth, updateColumnsOnResize) {
+function displayColumnWidth(
+  view,
+  cell,
+  width,
+  cellMinWidth,
+  updateColumnsOnResize,
+) {
   let $cell = view.state.doc.resolve(cell);
   let table = $cell.node(-1),
     start = $cell.start(-1);
