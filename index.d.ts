@@ -247,7 +247,16 @@ export function columnResizing(props: {
     node: ProsemirrorNode,
     cellMinWidth: number,
     view: EditorView,
-  ) => NodeView;
+  ) => NodeView,
+  lastColumnResizable: boolean,
+  updateColumnsOnResize: (
+    node: ProsemirrorNode,
+    colgroup: Element,
+    table: Element,
+    cellMinWidth: number,
+    overrideCol?: number,
+    overrideValue?: number,
+  ) => void,
 }): Plugin;
 
 export const columnResizingPluginKey: PluginKey;
