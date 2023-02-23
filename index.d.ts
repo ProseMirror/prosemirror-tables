@@ -248,8 +248,8 @@ export function columnResizing(props: {
     cellMinWidth: number,
     view: EditorView,
   ) => NodeView;
-  lastColumnResizable: boolean;
-  updateColumnsOnResize: (
+  lastColumnResizable?: boolean;
+  updateColumnsOnResize?: (
     node: ProsemirrorNode,
     colgroup: Element,
     table: Element,
