@@ -1,8 +1,8 @@
-import { Attrs, Node, ResolvedPos, Schema } from 'prosemirror-model';
+import { Node, ResolvedPos, Schema } from 'prosemirror-model';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { NodeSelection, TextSelection } from 'prosemirror-state';
 import { builders, eq } from 'prosemirror-test-builder';
-import { cellAround, CellSelection, tableNodes } from '../src/';
+import { CellSelection, cellAround, tableNodes } from '../src/';
 
 export type TaggedNode = Node & { tag: Record<string, number> };
 
@@ -27,18 +27,12 @@ function resolveCell(
   return cellAround(doc.resolve(tag));
 }
 
-type TaggedNodeBuilder = (
-  attrsOrFirstChild?: Attrs | Node | string,
-  ...children: (Node | string)[]
-) => TaggedNode;
-
-// @ts-expect-error: the return type of builders is not correct
 const nodeBuilders = builders(schema, {
   p: { nodeType: 'paragraph' },
   tr: { nodeType: 'table_row' },
   td: { nodeType: 'table_cell' },
   th: { nodeType: 'table_header' },
-}) as Record<string, TaggedNodeBuilder>;
+});
 
 export const { doc, table, tr, p, td, th } = nodeBuilders;
 
