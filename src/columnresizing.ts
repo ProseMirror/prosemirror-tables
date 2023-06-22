@@ -365,12 +365,12 @@ export function handleDecorations(
   const col = map.colCount($cell.pos - start) + $cell.nodeAfter!.attrs.colspan;
   for (let row = 0; row < map.height; row++) {
     const index = col + row * map.width - 1;
-    // For positions that are have either a different cell or the end
+    // For positions that have either a different cell or the end
     // of the table to their right, and either the top of the table or
     // a different cell above them, add a decoration
     if (
       (col == map.width || map.map[index] != map.map[index + 1]) &&
-      (row == 0 || map.map[index - 1] != map.map[index - 1 - map.width])
+      (row == 0 || map.map[index] != map.map[index - map.width])
     ) {
       const cellPos = map.map[index];
       const pos = start + cellPos + table.nodeAt(cellPos)!.nodeSize - 1;
