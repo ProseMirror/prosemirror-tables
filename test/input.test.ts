@@ -19,16 +19,16 @@ function test(
   result: TaggedNode | null | undefined,
 ) {
   let state = EditorState.create({ doc, selection: selectionFor(doc) });
-  let view = new EditorView(document.createElement('div'), { state });
-  let ran = command(state, (tr) => (state = state.apply(tr)), view);
+  const view = new EditorView(document.createElement('div'), { state });
+  const ran = command(state, (tr) => (state = state.apply(tr)), view);
   if (result == null) {
     expect(ran).toBe(false);
   } else {
-    let expected = {
+    const expected = {
       doc: result.toJSON(),
       selection: selectionFor(result).toJSON(),
     };
-    let actual = state.toJSON();
+    const actual = state.toJSON();
     expect(actual).toEqual(expected);
   }
 }
