@@ -59,7 +59,10 @@ function maybeSetSelection(
   return true;
 }
 
-function arrow(axis: Axis, dir: Direction): Command {
+/**
+ * @internal
+ */
+export function arrow(axis: Axis, dir: Direction): Command {
   return (state, dispatch, view) => {
     if (!view) return false;
     const sel = state.selection;

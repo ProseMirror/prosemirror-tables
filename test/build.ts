@@ -43,6 +43,7 @@ export function c(colspan: number, rowspan: number) {
 export const c11 = c(1, 1);
 export const cEmpty = td(p());
 export const cCursor = td(p('x<cursor>'));
+export const cCursorBefore = td(p('<cursor>x'));
 export const cAnchor = td(p('x<anchor>'));
 export const cHead = td(p('x<head>'));
 
