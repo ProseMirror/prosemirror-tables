@@ -42,6 +42,7 @@
     "builddocs": "^1.0.7",
     "eslint": "^8.42.0",
     "eslint-plugin-jest": "^26.9.0",
+    "happy-dom": "^11.0.2",
     "ist": "^1.1.7",
     "prettier": "^2.8.8",
     "prosemirror-commands": "^1.5.2",
@@ -49,16 +50,16 @@
     "prosemirror-menu": "^1.2.2",
     "prosemirror-schema-basic": "^1.2.2",
     "prosemirror-test-builder": "^1.1.1",
-    "tsup": "^6.7.0",
+    "tsup": "^7.2.0",
     "typescript": "^4.9.5",
-    "vite": "^4.3.9",
-    "vitest": "^0.32.0"
+    "vite": "^4.4.9",
+    "vitest": "^0.34.4"
   },
   "scripts": {
     "dev": "vite demo",
     "build_demo": "vite build demo",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest --environment happy-dom",
     "build": "tsup",
     "watch": "tsup --watch",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
