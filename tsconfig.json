@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
+    "target": "es2020",
     "lib": ["es6", "dom"],
-    "baseUrl": "../",
-    "typeRoots": ["../"],
     "types": [],
-    "noEmit": true
+    "strict": true,
+    "noEmit": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "declarationDir": ".",
+    "noEmitOnError": false,
+    "moduleResolution": "node"
   },
-  "files": ["index.d.ts", "test/typescript/prosemirror-tables.ts"]
+  "include": ["./"],
+  "exclude": ["node_modules/"]
 }

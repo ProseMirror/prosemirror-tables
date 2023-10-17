@@ -2,10 +2,18 @@
   "name": "@policyco/prosemirror-tables",
   "version": "1.2.7",
   "description": "PolicyCo's version of ProseMirror's rowspan/colspan tables component",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "style": "style/tables.css",
-  "typings": "./index.d.ts",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style/tables.css": "./style/tables.css"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,31 +28,33 @@
     "prosemirror-view": "^1.23.8"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.21.3",
-    "@types/prosemirror-model": "^1.16.1",
-    "@types/prosemirror-state": "^1.2.8",
-    "builddocs": "^0.3.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.59.11",
+    "builddocs": "^1.0.7",
+    "eslint": "^8.42.0",
+    "eslint-plugin-jest": "^26.9.0",
+    "happy-dom": "^11.0.2",
     "ist": "^1.1.7",
-    "mocha": "^9.2.1",
-    "prosemirror-commands": "^1.2.1",
-    "prosemirror-example-setup": "^1.1.2",
-    "prosemirror-menu": "^1.1.4",
-    "prosemirror-schema-basic": "^1.1.2",
-    "prosemirror-test-builder": "^1.0.5",
-    "rollup": "^2.70.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "typescript": "^4.5.2",
-    "typings-tester": "^0.3.2"
+    "prettier": "^2.8.8",
+    "prosemirror-commands": "^1.5.2",
+    "prosemirror-example-setup": "^1.2.2",
+    "prosemirror-menu": "^1.2.2",
+    "prosemirror-schema-basic": "^1.2.2",
+    "prosemirror-test-builder": "^1.1.1",
+    "tsup": "^7.2.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.4"
   },
   "scripts": {
+    "dev": "vite demo",
+    "build_demo": "vite build demo",
     "typecheck": "tsc --noEmit",
-    "test": "mocha test/test-*.js",
-    "build_demo": "rollup -c rollup.demo.config.js",
-    "watch_demo": "rollup -w -c rollup.demo.config.js",
-    "build": "rollup -c",
-    "watch": "rollup -w -c",
-    "prepare": "npm run build",
-    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md"
+    "test": "vitest --environment happy-dom",
+    "build": "tsup",
+    "watch": "tsup --watch",
+    "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
+    "format": "prettier --write .",
+    "lint": "eslint ./src/ ./test/ && prettier --check ."
   }
 }
