@@ -1,3 +1,7 @@
+## 2.0.0 (2023-10-17)
+
+Update to typescript
+
 ## 1.2.7 (2022-10-21)
 
 fix issue with undefined attrs
