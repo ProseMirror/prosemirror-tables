@@ -288,6 +288,7 @@ export function removeRow(
   row: number,
 ): void {
   let rowPos = 0;
+  const seen: Record<number, boolean> = {};
   for (let i = 0; i < row; i++) rowPos += table.child(i).nodeSize;
   const nextRow = rowPos + table.child(row).nodeSize;
 
@@ -297,6 +298,10 @@ export function removeRow(
   for (let col = 0, index = row * map.width; col < map.width; col++, index++) {
     const pos = map.map[index];
     if (row > 0 && pos == map.map[index - map.width]) {
+      if (seen[pos]) { 
+        continue;
+      }
+      seen[pos] = true;
       // If this cell starts in the row above, simply reduce its rowspan
       const attrs = table.nodeAt(pos)!.attrs as CellAttrs;
       tr.setNodeMarkup(tr.mapping.slice(mapFrom).map(pos + tableStart), null, {
@@ -305,6 +310,10 @@ export function removeRow(
       });
       col += attrs.colspan - 1;
     } else if (row < map.width && pos == map.map[index + map.width]) {
+      if (seen[pos]) { 
+        continue;
+      }
+      seen[pos] = true;
       // Else, if it continues in the row below, it has to be moved down
       const cell = table.nodeAt(pos)!;
       const attrs = cell.attrs as CellAttrs;
