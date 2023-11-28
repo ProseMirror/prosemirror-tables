@@ -28,8 +28,10 @@ export type ColumnResizingOptions = {
   View?: new (
     node: ProsemirrorNode,
     cellMinWidth: number,
+    maxTableWidth: number,
     view: EditorView,
   ) => NodeView;
+  maxTableWidth?: number;
 };
 
 /**
@@ -45,6 +47,7 @@ export function columnResizing({
   cellMinWidth = 25,
   View = TableView,
   lastColumnResizable = true,
+  maxTableWidth = 0,
 }: ColumnResizingOptions = {}): Plugin {
   const plugin = new Plugin<ResizeState>({
     key: columnResizingPluginKey,
@@ -52,7 +55,7 @@ export function columnResizing({
       init(_, state) {
         plugin.spec!.props!.nodeViews![
           tableNodeTypes(state.schema).table.name
-        ] = (node, view) => new View(node, cellMinWidth, view);
+        ] = (node, view) => new View(node, cellMinWidth, maxTableWidth, view);
         return new ResizeState(-1, false);
       },
       apply(tr, prev) {
@@ -81,7 +84,7 @@ export function columnResizing({
           handleMouseLeave(view);
         },
         mousedown: (view, event) => {
-          handleMouseDown(view, event, cellMinWidth);
+          handleMouseDown(view, event, cellMinWidth, maxTableWidth);
         },
       },
 
@@ -131,17 +134,22 @@ function handleMouseMove(
   lastColumnResizable: boolean,
 ): void {
   const pluginState = columnResizingPluginKey.getState(view.state);
-  if (!pluginState) return;
+  if (!pluginState) {
+    return;
+  }
 
   if (!pluginState.dragging) {
     const target = domCellAround(event.target as HTMLElement);
     let cell = -1;
     if (target) {
       const { left, right } = target.getBoundingClientRect();
-      if (event.clientX - left <= handleWidth)
-        cell = edgeCell(view, event, 'left', handleWidth);
-      else if (right - event.clientX <= handleWidth)
+      if (event.clientX < left) {
         cell = edgeCell(view, event, 'right', handleWidth);
+      } else if (event.clientX - left <= handleWidth) {
+        cell = edgeCell(view, event, 'left', handleWidth);
+      } else if (right - event.clientX <= handleWidth) {
+        cell = edgeCell(view, event, 'right', handleWidth);
+      }
     }
 
     if (cell != pluginState.activeHandle) {
@@ -150,10 +158,7 @@ function handleMouseMove(
         const table = $cell.node(-1);
         const map = TableMap.get(table);
         const tableStart = $cell.start(-1);
-        const col =
-          map.colCount($cell.pos - tableStart) +
-          $cell.nodeAfter!.attrs.colspan -
-          1;
+        const col = map.colCount($cell.pos - tableStart) + $cell.nodeAfter!.attrs.colspan - 1;
 
         if (col == map.width - 1) {
           return;
@@ -175,13 +180,16 @@ function handleMouseDown(
   view: EditorView,
   event: MouseEvent,
   cellMinWidth: number,
+  maxTableWidth: number,
 ): boolean {
   const pluginState = columnResizingPluginKey.getState(view.state);
-  if (!pluginState || pluginState.activeHandle == -1 || pluginState.dragging)
+  if (!pluginState || pluginState.activeHandle == -1 || pluginState.dragging) {
     return false;
-
+  }
   const cell = view.state.doc.nodeAt(pluginState.activeHandle)!;
   const width = currentColWidth(view, pluginState.activeHandle, cell.attrs);
+  let finalWidth = currentColWidth(view, pluginState.activeHandle, cell.attrs);
+
   view.dispatch(
     view.state.tr.setMeta(columnResizingPluginKey, {
       setDragging: { startX: event.clientX, startWidth: width },
@@ -193,24 +201,30 @@ function handleMouseDown(
     window.removeEventListener('mousemove', move);
     const pluginState = columnResizingPluginKey.getState(view.state);
     if (pluginState?.dragging) {
-      updateColumnWidth(
-        view,
-        pluginState.activeHandle,
-        draggedWidth(pluginState.dragging, event, cellMinWidth),
-      );
-      view.dispatch(
-        view.state.tr.setMeta(columnResizingPluginKey, { setDragging: null }),
-      );
+      updateColumnWidth(view, pluginState.activeHandle, finalWidth || draggedWidth(pluginState.dragging, event, cellMinWidth));
+      view.dispatch(view.state.tr.setMeta(columnResizingPluginKey, { setDragging: null }));
     }
   }
 
   function move(event: MouseEvent): void {
-    if (!event.which) return finish(event);
+    if (!event.which) {
+      return finish(event);
+    }
+
     const pluginState = columnResizingPluginKey.getState(view.state);
-    if (!pluginState) return;
+    if (!pluginState) {
+      return;
+    }
+
     if (pluginState.dragging) {
       const dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
-      displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth);
+      finalWidth = displayColumnWidth(
+        view,
+        pluginState.activeHandle,
+        dragged,
+        cellMinWidth,
+        maxTableWidth,
+      );
     }
   }
 
@@ -226,11 +240,15 @@ function currentColWidth(
   { colspan, colwidth }: Attrs,
 ): number {
   const width = colwidth && colwidth[colwidth.length - 1];
-  if (width) return width;
+  if (width) {
+    return width;
+  }
+
   const dom = view.domAtPos(cellPos);
   const node = dom.node.childNodes[dom.offset] as HTMLElement;
-  let domWidth = node.offsetWidth,
-    parts = colspan;
+  let domWidth = node.offsetWidth;
+  let parts = colspan;
+
   if (colwidth)
     for (let i = 0; i < colspan; i++)
       if (colwidth[i]) {
@@ -241,11 +259,9 @@ function currentColWidth(
 }
 
 function domCellAround(target: HTMLElement | null): HTMLElement | null {
-  while (target && target.nodeName != 'TD' && target.nodeName != 'TH')
-    target =
-      target.classList && target.classList.contains('ProseMirror')
-        ? null
-        : (target.parentNode as HTMLElement);
+  while (target && target.nodeName != 'TD' && target.nodeName != 'TH') {
+    target = target.classList && target.classList.contains('ProseMirror') ? null : (target.parentNode as HTMLElement);
+  }
   return target;
 }
 
@@ -284,9 +300,7 @@ function draggedWidth(
 }
 
 function updateHandle(view: EditorView, value: number): void {
-  view.dispatch(
-    view.state.tr.setMeta(columnResizingPluginKey, { setHandle: value }),
-  );
+  view.dispatch(view.state.tr.setMeta(columnResizingPluginKey, { setHandle: value }));
 }
 
 function updateColumnWidth(
@@ -295,27 +309,31 @@ function updateColumnWidth(
   width: number,
 ): void {
   const $cell = view.state.doc.resolve(cell);
-  const table = $cell.node(-1),
-    map = TableMap.get(table),
-    start = $cell.start(-1);
-  const col =
-    map.colCount($cell.pos - start) + $cell.nodeAfter!.attrs.colspan - 1;
+  const table = $cell.node(-1);
+  const map = TableMap.get(table);
+  const start = $cell.start(-1);
+  const col = map.colCount($cell.pos - start) + $cell.nodeAfter!.attrs.colspan - 1;
   const tr = view.state.tr;
+
   for (let row = 0; row < map.height; row++) {
     const mapIndex = row * map.width + col;
     // Rowspanning cell that has already been handled
-    if (row && map.map[mapIndex] == map.map[mapIndex - map.width]) continue;
+    if (row && map.map[mapIndex] == map.map[mapIndex - map.width]) {
+      continue;
+    }
     const pos = map.map[mapIndex];
     const attrs = table.nodeAt(pos)!.attrs as CellAttrs;
     const index = attrs.colspan == 1 ? 0 : col - map.colCount(pos);
-    if (attrs.colwidth && attrs.colwidth[index] == width) continue;
-    const colwidth = attrs.colwidth
-      ? attrs.colwidth.slice()
-      : zeroes(attrs.colspan);
+    if (attrs.colwidth && attrs.colwidth[index] == width) {
+      continue;
+    }
+    const colwidth = attrs.colwidth ? attrs.colwidth.slice() : zeroes(attrs.colspan);
     colwidth[index] = width;
     tr.setNodeMarkup(start + pos, null, { ...attrs, colwidth: colwidth });
   }
-  if (tr.docChanged) view.dispatch(tr);
+  if (tr.docChanged) {
+    view.dispatch(tr);
+  }
 }
 
 function displayColumnWidth(
@@ -323,24 +341,26 @@ function displayColumnWidth(
   cell: number,
   width: number,
   cellMinWidth: number,
-): void {
+  maxTableWidth: number,
+): number {
   const $cell = view.state.doc.resolve(cell);
-  const table = $cell.node(-1),
-    start = $cell.start(-1);
-  const col =
-    TableMap.get(table).colCount($cell.pos - start) +
-    $cell.nodeAfter!.attrs.colspan -
-    1;
+  const table = $cell.node(-1);
+  const start = $cell.start(-1);
+  const col = TableMap.get(table).colCount($cell.pos - start) + $cell.nodeAfter!.attrs.colspan - 1;
   let dom: Node | null = view.domAtPos($cell.start(-1)).node;
   while (dom && dom.nodeName != 'TABLE') {
     dom = dom.parentNode;
   }
-  if (!dom) return;
-  updateColumnsOnResize(
+  if (!dom) {
+    return 0;
+  }
+
+  return updateColumnsOnResize(
     table,
-    dom.firstChild as HTMLTableColElement,
+    dom?.firstChild as HTMLTableColElement,
     dom as HTMLTableElement,
     cellMinWidth,
+    maxTableWidth,
     col,
     width,
   );

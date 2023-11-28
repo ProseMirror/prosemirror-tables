@@ -100,6 +100,11 @@ export interface TableNodesOptions {
    * objects with the following properties:
    */
   cellAttributes: { [key: string]: CellAttributes };
+
+  /**
+   * The max width allowed of the table. When resizing the table, it will not be allowed to grow larger than this value.
+   */
+  maxTableWidth?: number;
 }
 
 /**
