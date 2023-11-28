@@ -11,14 +11,12 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14.x'
+          node-version: 20
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - run: npm build
       - run: npm publish --access public
-
-
