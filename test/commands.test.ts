@@ -425,6 +425,13 @@ describe('deleteRow', () => {
       table(tr(c11, cEmpty)),
     ));
 
+  it('moves the same cell with colspan gt 1 that start in the deleted row only once', () =>
+    test(
+      table(tr(c(3, 2), c11, c(2, 2), cCursor), tr(c11, cEmpty)),
+      deleteRow,
+      table(tr(c(3, 1), c11, c(2, 1), cEmpty)),
+    ));
+
   it('deletes multiple rows when the start cell has a rowspan', () =>
     test(
       table(
@@ -435,6 +442,18 @@ describe('deleteRow', () => {
       ),
       deleteRow,
       table(tr(c11, c11)),
+    ));
+
+  it('moves the same cell with colspan gt 1 that start in the deleted row only once when deleting multiple rows', () =>
+    test(
+      table(
+        tr(c(2, 4), td({ rowspan: 3 }, p('<cursor>')), c11),
+        tr(c11),
+        tr(c11),
+        tr(c11, c11),
+      ),
+      deleteRow,
+      table(tr(c(2, 1), c11, c11)),
     ));
 
   it('skips columns when adjusting rowspan', () =>
