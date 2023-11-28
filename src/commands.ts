@@ -294,8 +294,15 @@ export function removeRow(
   const mapFrom = tr.mapping.maps.length;
   tr.delete(rowPos + tableStart, nextRow + tableStart);
 
+  const seen = new Set<number>();
+
   for (let col = 0, index = row * map.width; col < map.width; col++, index++) {
     const pos = map.map[index];
+
+    // Skip cells that are checked already
+    if (seen.has(pos)) continue;
+    seen.add(pos);
+
     if (row > 0 && pos == map.map[index - map.width]) {
       // If this cell starts in the row above, simply reduce its rowspan
       const attrs = table.nodeAt(pos)!.attrs as CellAttrs;
