@@ -418,12 +418,29 @@ describe('deleteRow', () => {
       table(tr(c11, c11, c(1, 2)), tr(c11, c11)),
     ));
 
-  it('can move cells that start in the deleted row', () =>
+  it('can move cells that start in the deleted row', () => {
     test(
       table(tr(c(1, 2), cCursor), tr(cEmpty)),
       deleteRow,
       table(tr(c11, cEmpty)),
-    ));
+    );
+
+    test(
+      table(
+        tr(td({ rowspan: 3 }, p('<cursor>')), c11),
+        tr(/* */ c11),
+        tr(/* */ c(1, 3)),
+        tr(c11 /* */),
+        tr(c11 /* */),
+      ),
+      deleteRow,
+      table(
+        //
+        tr(c11, c(1, 2)),
+        tr(c11 /* */),
+      ),
+    );
+  });
 
   it('moves the same cell with colspan greater than 1 that start in the deleted row only once', () =>
     test(
