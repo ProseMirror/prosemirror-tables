@@ -311,7 +311,7 @@ export function removeRow(
         rowspan: attrs.rowspan - 1,
       });
       col += attrs.colspan - 1;
-    } else if (row < map.width && pos == map.map[index + map.width]) {
+    } else if (row < map.height && pos == map.map[index + map.width]) {
       // Else, if it continues in the row below, it has to be moved down
       const cell = table.nodeAt(pos)!;
       const attrs = cell.attrs as CellAttrs;
