@@ -61,6 +61,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest --environment happy-dom",
     "build": "tsup",
+    "prepare": "tsup",
     "watch": "tsup --watch",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
     "format": "prettier --write .",
