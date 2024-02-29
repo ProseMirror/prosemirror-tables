@@ -176,7 +176,7 @@ function handleMouseDown(
   event: MouseEvent,
   cellMinWidth: number,
 ): boolean {
-  const win = view.dom.ownerDocument.defaultView ?? window
+  const win = view.dom.ownerDocument.defaultView ?? window;
 
   const pluginState = columnResizingPluginKey.getState(view.state);
   if (!pluginState || pluginState.activeHandle == -1 || pluginState.dragging)
