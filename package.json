@@ -29,6 +29,10 @@
       "email": "hhuang@atlassian.com"
     }
   ],
+  "files": [
+    "style",
+    "dist"
+  ],
   "dependencies": {
     "prosemirror-keymap": "^1.1.2",
     "prosemirror-model": "^1.8.1",
