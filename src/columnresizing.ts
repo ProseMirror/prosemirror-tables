@@ -50,9 +50,11 @@ export function columnResizing({
     key: columnResizingPluginKey,
     state: {
       init(_, state) {
-        plugin.spec!.props!.nodeViews![
-          tableNodeTypes(state.schema).table.name
-        ] = (node, view) => new View(node, cellMinWidth, view);
+        if (View != null) {
+          plugin.spec!.props!.nodeViews![
+            tableNodeTypes(state.schema).table.name
+          ] = (node, view) => new View(node, cellMinWidth, view);
+        }
         return new ResizeState(-1, false);
       },
       apply(tr, prev) {
