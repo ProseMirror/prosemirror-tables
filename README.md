@@ -236,3 +236,17 @@ start of the table, rather than the start of the document.
    Find the table map for the given table node.
 
 
+### Safari IME support plugin:supportSafariIME
+Fix the bug that occurs in Safari browser when using Chinese, Japanese, 
+or Korean language (IME) in empty cells, causing content duplication and 
+incorrect column addition.
+
+ * It is an independent plugin just like columnResizing, so you can choose 
+   to use it or not based on your needs.
+
+ * Please be aware that this plugin disables the input behavior after selecting
+   a cell, as inputting after selecting a cell may cause an unresolved bug.
+
+ * This plugin has refactored the logic for clearing cells after selection. 
+   When pressing the delete key after selecting a cell, the cursor will be 
+   positioned inside the first selected cell after the content is cleared.

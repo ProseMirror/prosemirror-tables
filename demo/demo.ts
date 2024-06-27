@@ -28,7 +28,13 @@ import {
   goToNextCell,
   deleteTable,
 } from '../src';
-import { tableEditing, columnResizing, tableNodes, fixTables } from '../src';
+import {
+  tableEditing,
+  columnResizing,
+  tableNodes,
+  fixTables,
+  supportSafariIME,
+} from '../src';
 
 const schema = new Schema({
   nodes: baseSchema.spec.nodes.append(
@@ -84,6 +90,7 @@ let state = EditorState.create({
   doc,
   plugins: [
     columnResizing(),
+    supportSafariIME(),
     tableEditing(),
     keymap({
       Tab: goToNextCell(1),
