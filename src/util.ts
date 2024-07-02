@@ -1,6 +1,11 @@
 // Various helper function for working with tables
 
-import { EditorState, NodeSelection, PluginKey } from 'prosemirror-state';
+import {
+  EditorState,
+  NodeSelection,
+  PluginKey,
+  Selection,
+} from 'prosemirror-state';
 
 import { Attrs, Node, ResolvedPos } from 'prosemirror-model';
 import { CellSelection } from './cellselection';
@@ -193,3 +198,95 @@ export function columnIsHeader(
       return false;
   return true;
 }
+
+type Predicate = (node: Node) => boolean;
+
+function findParentNodeClosestToPos(
+  $pos: ResolvedPos,
+  predicate: Predicate,
+):
+  | {
+      pos: number;
+      start: number;
+      depth: number;
+      node: Node;
+    }
+  | undefined {
+  for (let i = $pos.depth; i > 0; i -= 1) {
+    const node = $pos.node(i);
+
+    if (predicate(node)) {
+      return {
+        pos: i > 0 ? $pos.before(i) : 0,
+        start: $pos.start(i),
+        depth: i,
+        node,
+      };
+    }
+  }
+}
+
+function findParentNode(predicate: Predicate) {
+  return (selection: Selection) =>
+    findParentNodeClosestToPos(selection.$from, predicate);
+}
+
+interface CellInfo {
+  pos: number;
+  start: number;
+  node: Node | null;
+}
+
+export const getCellsInColumn =
+  (columnIndex: number) => (selection: Selection) => {
+    const table = findTable(selection);
+    if (table) {
+      const map = TableMap.get(table.node);
+      const indexes: number[] = Array.isArray(columnIndex)
+        ? columnIndex
+        : Array.from([columnIndex]);
+      return indexes.reduce((acc: CellInfo[], index: number) => {
+        if (index >= 0 && index <= map.width - 1) {
+          const cells = map.cellsInRect({
+            left: index,
+            right: index + 1,
+            top: 0,
+            bottom: map.height,
+          });
+          return acc.concat(
+            cells.map((nodePos: number) => {
+              const node = table.node.nodeAt(nodePos);
+              const pos: number = nodePos + table.start;
+              return { pos, start: pos + 1, node };
+            }),
+          );
+        }
+        return acc;
+      }, []);
+    }
+  };
+
+export const findTable = (selection: Selection) =>
+  findParentNode(
+    (node) => node.type.spec.tableRole && node.type.spec.tableRole === 'table',
+  )(selection);
+
+export const getAllCell = (selection: Selection) => {
+  const table = findTable(selection);
+  if (table) {
+    const coloumNum = TableMap.get(table.node).width;
+    const cellsArr = [];
+    for (let i = 0; i < coloumNum; i++) {
+      const cellsResult = getCellsInColumn(i)(selection);
+      if (cellsResult) {
+        const cells = cellsResult.filter(
+          (cellInfo: CellInfo | undefined): cellInfo is CellInfo =>
+            cellInfo !== undefined,
+        );
+        cellsArr.push(...cells);
+      }
+    }
+
+    return cellsArr;
+  }
+};
