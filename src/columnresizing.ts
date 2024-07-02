@@ -375,14 +375,15 @@ export function handleDecorations(
   }
   const map = TableMap.get(table);
   const start = $cell.start(-1);
-  const col = map.colCount($cell.pos - start) + $cell.nodeAfter!.attrs.colspan;
+  const col =
+    map.colCount($cell.pos - start) + $cell.nodeAfter!.attrs.colspan - 1;
   for (let row = 0; row < map.height; row++) {
-    const index = col + row * map.width - 1;
+    const index = col + row * map.width;
     // For positions that have either a different cell or the end
     // of the table to their right, and either the top of the table or
     // a different cell above them, add a decoration
     if (
-      (col == map.width || map.map[index] != map.map[index + 1]) &&
+      (col == map.width - 1 || map.map[index] != map.map[index + 1]) &&
       (row == 0 || map.map[index] != map.map[index - map.width])
     ) {
       const cellPos = map.map[index];
