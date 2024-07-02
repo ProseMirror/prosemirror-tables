@@ -25,11 +25,18 @@ export type ColumnResizingOptions = {
   handleWidth?: number;
   cellMinWidth?: number;
   lastColumnResizable?: boolean;
-  View?: new (
-    node: ProsemirrorNode,
-    cellMinWidth: number,
-    view: EditorView,
-  ) => NodeView;
+  /**
+   * A custom node view for the rendering table nodes. By default, the plugin
+   * uses the {@link TableView} class. You can explicitly set this to `null` to
+   * not use a custom node view.
+   */
+  View?:
+    | (new (
+        node: ProsemirrorNode,
+        cellMinWidth: number,
+        view: EditorView,
+      ) => NodeView)
+    | null;
 };
 
 /**
@@ -50,9 +57,13 @@ export function columnResizing({
     key: columnResizingPluginKey,
     state: {
       init(_, state) {
-        plugin.spec!.props!.nodeViews![
-          tableNodeTypes(state.schema).table.name
-        ] = (node, view) => new View(node, cellMinWidth, view);
+        const nodeViews = plugin.spec?.props?.nodeViews;
+        const tableName = tableNodeTypes(state.schema).table.name;
+        if (View && nodeViews) {
+          nodeViews[tableName] = (node, view) => {
+            return new View(node, cellMinWidth, view);
+          };
+        }
         return new ResizeState(-1, false);
       },
       apply(tr, prev) {
