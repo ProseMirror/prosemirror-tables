@@ -11,7 +11,7 @@ import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { keymap } from 'prosemirror-keymap';
 import { exampleSetup, buildMenuItems } from 'prosemirror-example-setup';
 import { MenuItem, Dropdown } from 'prosemirror-menu';
-import { imeSpan } from 'prosemirror-safari-ime-span';
+import { imeSpan } from '../src/ime';
 import {
   addColumnAfter,
   addColumnBefore,
