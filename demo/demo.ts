@@ -11,7 +11,7 @@ import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { keymap } from 'prosemirror-keymap';
 import { exampleSetup, buildMenuItems } from 'prosemirror-example-setup';
 import { MenuItem, Dropdown } from 'prosemirror-menu';
-
+import { imeSpan } from '../src/ime';
 import {
   addColumnAfter,
   addColumnBefore,
@@ -89,6 +89,7 @@ let state = EditorState.create({
       Tab: goToNextCell(1),
       'Shift-Tab': goToNextCell(-1),
     }),
+    imeSpan,
   ].concat(
     exampleSetup({
       schema,
