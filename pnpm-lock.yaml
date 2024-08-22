@@ -24,9 +24,6 @@ importers:
         specifier: ^1.13.3
         version: 1.33.11
     devDependencies:
-      '@types/node':
-        specifier: ^18.19.45
-        version: 18.19.45
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.59.11
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@4.9.5))(eslint@8.57.0)(typescript@4.9.5)
@@ -1896,6 +1893,7 @@ snapshots:
   '@types/node@18.19.45':
     dependencies:
       undici-types: 5.26.5
+    optional: true
 
   '@types/semver@7.5.8': {}
 
@@ -2961,7 +2959,8 @@ snapshots:
 
   uc.micro@2.1.0: {}
 
-  undici-types@5.26.5: {}
+  undici-types@5.26.5:
+    optional: true
 
   uri-js@4.4.1:
     dependencies:

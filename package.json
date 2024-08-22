@@ -42,7 +42,6 @@
     "prosemirror-view": "^1.13.3"
   },
   "devDependencies": {
-    "@types/node": "^18.19.45",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",
     "builddocs": "^1.0.7",
