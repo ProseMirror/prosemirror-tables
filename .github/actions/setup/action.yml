@@ -1,0 +1,29 @@
+name: Setup
+description: Shared setup for all actions
+
+inputs:
+  node-version:
+    description: The version of node.js
+    required: false
+    default: '18'
+
+runs:
+  using: composite
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Install dependencies
+      run: pnpm install
+      shell: bash
+
+    - name: Build
+      run: pnpm build
+      shell: bash

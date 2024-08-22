@@ -9,43 +9,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'yarn'
-
-      - name: Install
-        run: yarn install --frozen-lockfile
+      - uses: ./.github/actions/setup
 
       - name: Test
-        run: yarn test
+        run: pnpm run test
 
       - name: Typecheck
-        run: yarn typecheck
+        run: pnpm run typecheck
 
       - name: Lint
-        run: yarn lint
-
-      - name: Build
-        run: yarn build
+        run: pnpm run lint
 
   demo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'yarn'
-
-      - name: Install
-        run: yarn install --frozen-lockfile
+      - uses: ./.github/actions/setup
 
       - name: Build
-        run: yarn build_demo
+        run: pnpm run build_demo
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.2
