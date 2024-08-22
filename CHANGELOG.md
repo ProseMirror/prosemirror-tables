@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.4.2...v1.5.0) (2024-08-22)
+
+
+### Features
+
+* export `cellNear` helper and `deleteCellSelection` command ([#239](https://github.com/ProseMirror/prosemirror-tables/issues/239)) ([fb7345b](https://github.com/ProseMirror/prosemirror-tables/commit/fb7345b2f39a8f022e3be32e4022d8697e683d6c))
+
 ## [1.4.2](https://github.com/ProseMirror/prosemirror-tables/compare/v1.4.1...v1.4.2) (2024-08-22)
 
 
