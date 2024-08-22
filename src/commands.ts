@@ -1,6 +1,12 @@
 // This file defines a number of table-related commands.
 
-import { Fragment, Node, NodeType, ResolvedPos } from 'prosemirror-model';
+import {
+  Fragment,
+  Node,
+  NodeType,
+  ResolvedPos,
+  Slice,
+} from 'prosemirror-model';
 import {
   Command,
   EditorState,
@@ -856,4 +862,32 @@ export function deleteTable(
     }
   }
   return false;
+}
+
+/**
+ * Deletes the content of the selected cells, if they are not empty.
+ *
+ * @public
+ */
+export function deleteCellSelection(
+  state: EditorState,
+  dispatch?: (tr: Transaction) => void,
+): boolean {
+  const sel = state.selection;
+  if (!(sel instanceof CellSelection)) return false;
+  if (dispatch) {
+    const tr = state.tr;
+    const baseContent = tableNodeTypes(state.schema).cell.createAndFill()!
+      .content;
+    sel.forEachCell((cell, pos) => {
+      if (!cell.content.eq(baseContent))
+        tr.replace(
+          tr.mapping.map(pos + 1),
+          tr.mapping.map(pos + cell.nodeSize - 1),
+          new Slice(baseContent, 0, 0),
+        );
+    });
+    if (tr.docChanged) dispatch(tr);
+  }
+  return true;
 }

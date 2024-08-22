@@ -1,6 +1,7 @@
 // This file defines a number of helpers for wiring up user input to
 // table-related functionality.
 
+import { keydownHandler } from 'prosemirror-keymap';
 import { Fragment, ResolvedPos, Slice } from 'prosemirror-model';
 import {
   Command,
@@ -9,21 +10,21 @@ import {
   TextSelection,
   Transaction,
 } from 'prosemirror-state';
-import { keydownHandler } from 'prosemirror-keymap';
 
+import { EditorView } from 'prosemirror-view';
+import { CellSelection } from './cellselection';
+import { deleteCellSelection } from './commands';
+import { clipCells, fitSlice, insertCells, pastedCells } from './copypaste';
+import { tableNodeTypes } from './schema';
+import { TableMap } from './tablemap';
 import {
   cellAround,
   inSameTable,
   isInTable,
-  tableEditingKey,
   nextCell,
   selectionCell,
+  tableEditingKey,
 } from './util';
-import { CellSelection } from './cellselection';
-import { TableMap } from './tablemap';
-import { clipCells, fitSlice, insertCells, pastedCells } from './copypaste';
-import { tableNodeTypes } from './schema';
-import { EditorView } from 'prosemirror-view';
 
 type Axis = 'horiz' | 'vert';
 
@@ -116,29 +117,6 @@ function shiftArrow(axis: Axis, dir: Direction): Command {
       new CellSelection(cellSel.$anchorCell, $head),
     );
   };
-}
-
-function deleteCellSelection(
-  state: EditorState,
-  dispatch?: (tr: Transaction) => void,
-): boolean {
-  const sel = state.selection;
-  if (!(sel instanceof CellSelection)) return false;
-  if (dispatch) {
-    const tr = state.tr;
-    const baseContent = tableNodeTypes(state.schema).cell.createAndFill()!
-      .content;
-    sel.forEachCell((cell, pos) => {
-      if (!cell.content.eq(baseContent))
-        tr.replace(
-          tr.mapping.map(pos + 1),
-          tr.mapping.map(pos + cell.nodeSize - 1),
-          new Slice(baseContent, 0, 0),
-        );
-    });
-    if (tr.docChanged) dispatch(tr);
-  }
-  return true;
 }
 
 export function handleTripleClick(view: EditorView, pos: number): boolean {
