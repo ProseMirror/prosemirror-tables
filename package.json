@@ -45,7 +45,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",
     "builddocs": "^1.0.7",
-    "eslint": "^8.42.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-jest": "^26.9.0",
     "happy-dom": "^11.0.2",
     "ist": "^1.1.7",
@@ -70,6 +70,7 @@
     "watch": "tsup --watch",
     "build_readme": "builddocs --name tables --format markdown --main src/README.md src/*.js > README.md",
     "format": "prettier --write .",
-    "lint": "eslint ./src/ ./test/ && prettier --check ."
+    "lint": "eslint ./src/ ./test/ && prettier --check .",
+    "fix": "eslint --fix ./src/ ./test/ && prettier --write ."
   }
 }

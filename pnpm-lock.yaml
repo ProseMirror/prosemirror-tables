@@ -34,7 +34,7 @@ importers:
         specifier: ^1.0.7
         version: 1.0.8
       eslint:
-        specifier: ^8.42.0
+        specifier: ^8.57.0
         version: 8.57.0
       eslint-plugin-jest:
         specifier: ^26.9.0

@@ -5,7 +5,7 @@ inputs:
   node-version:
     description: The version of node.js
     required: false
-    default: "18"
+    default: '18'
 
 runs:
   using: composite
@@ -20,7 +20,7 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: pnpm
-        registry-url: "https://npm.pkg.github.com"
+        registry-url: 'https://npm.pkg.github.com'
 
     - name: Install dependencies
       run: pnpm install
