@@ -78,7 +78,10 @@ export function selectionCell(state: EditorState): ResolvedPos {
   throw new RangeError(`No cell found around position ${sel.head}`);
 }
 
-function cellNear($pos: ResolvedPos): ResolvedPos | undefined {
+/**
+ * @public
+ */
+export function cellNear($pos: ResolvedPos): ResolvedPos | undefined {
   for (
     let after = $pos.nodeAfter, pos = $pos.pos;
     after;

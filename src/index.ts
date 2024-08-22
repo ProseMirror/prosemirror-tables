@@ -47,6 +47,7 @@ export { TableView, updateColumnsOnResize } from './tableview';
 export {
   addColSpan,
   cellAround,
+  cellNear,
   colCount,
   columnIsHeader,
   findCell,
