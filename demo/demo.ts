@@ -92,7 +92,6 @@ let state = EditorState.create({
   ].concat(
     exampleSetup({
       schema,
-      // @ts-expect-error: prosemirror-example-setup exports wrong types here.
       menuContent: menu,
     }),
   ),

@@ -5,6 +5,7 @@
     "lib": ["es6", "dom"],
     "types": [],
     "strict": true,
+    "skipLibCheck": true,
     "noEmit": true,
     "sourceMap": true,
     "declaration": true,
