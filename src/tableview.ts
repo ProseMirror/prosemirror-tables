@@ -48,7 +48,7 @@ export function updateColumnsOnResize(
 ): void {
   let totalWidth = 0;
   let fixedWidth = true;
-  let nextDOM = colgroup.firstChild as HTMLElement;
+  let nextDOM = colgroup.firstElementChild as HTMLElement;
   const row = node.firstChild;
   if (!row) return;
 
