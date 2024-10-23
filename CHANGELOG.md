@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.5.0...v1.5.1) (2024-10-23)
+
+
+### Bug Fixes
+
+* fix cell boundary selection cheap elimination ([#251](https://github.com/ProseMirror/prosemirror-tables/issues/251)) ([41e4139](https://github.com/ProseMirror/prosemirror-tables/commit/41e4139073f2e97bc86987adf80c7f3fa5a6dbda))
+
 ## [1.5.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.4.2...v1.5.0) (2024-08-22)
 
 
