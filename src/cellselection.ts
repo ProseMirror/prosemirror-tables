@@ -390,7 +390,7 @@ export function drawCellSelection(state: EditorState): DecorationSource | null {
 }
 
 function isCellBoundarySelection({ $from, $to }: TextSelection) {
-  if ($from.pos == $to.pos || $from.pos < $from.pos - 6) return false; // Cheap elimination
+  if ($from.pos == $to.pos || $from.pos < $to.pos - 6) return false; // Cheap elimination
   let afterFrom = $from.pos;
   let beforeTo = $to.pos;
   let depth = $from.depth;
