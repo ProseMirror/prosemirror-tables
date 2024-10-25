@@ -23,16 +23,14 @@ export const columnResizingPluginKey = new PluginKey<ResizeState>(
  */
 export type ColumnResizingOptions = {
   handleWidth?: number;
-/**
- * Minimum width of a cell / column when it doesn't have an explicit width set
- */
-  cellMinWidth?: number;
   /**
-   * Minimum width of a column when it doesn't have an explicit width set
-   * Defaults to `cellMinWidth`, but can be set to a different value to allow
-   * resizing to smaller than the default cell width.
+   * Minimum width of a cell /column. The column cannot be resized smaller than this.
    */
-  resizeMinWidth?: number;
+  cellMinWidth?: number;
+/**
+ * The default minWidth of a cell / column when it doesn't have an explicit width (i.e.: it has not been resized manually)
+ */
+  defaultCellMinWidth?: number;
   lastColumnResizable?: boolean;
   /**
    * A custom node view for the rendering table nodes. By default, the plugin
@@ -59,7 +57,7 @@ export type Dragging = { startX: number; startWidth: number };
 export function columnResizing({
   handleWidth = 5,
   cellMinWidth = 25,
-  resizeMinWidth = cellMinWidth,
+  defaultCellMinWidth = 100,
   View = TableView,
   lastColumnResizable = true,
 }: ColumnResizingOptions = {}): Plugin {
@@ -71,7 +69,7 @@ export function columnResizing({
         const tableName = tableNodeTypes(state.schema).table.name;
         if (View && nodeViews) {
           nodeViews[tableName] = (node, view) => {
-            return new View(node, cellMinWidth, view);
+            return new View(node, defaultCellMinWidth, view);
           };
         }
         return new ResizeState(-1, false);
@@ -101,7 +99,7 @@ export function columnResizing({
           handleMouseLeave(view);
         },
         mousedown: (view, event) => {
-          handleMouseDown(view, event, cellMinWidth, resizeMinWidth);
+          handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth);
         },
       },
 
@@ -194,7 +192,7 @@ function handleMouseDown(
   view: EditorView,
   event: MouseEvent,
   cellMinWidth: number,
-  resizeMinWidth: number,
+  defaultCellMinWidth: number,
 ): boolean {
   const win = view.dom.ownerDocument.defaultView ?? window;
 
@@ -218,7 +216,7 @@ function handleMouseDown(
       updateColumnWidth(
         view,
         pluginState.activeHandle,
-        draggedWidth(pluginState.dragging, event, resizeMinWidth),
+        draggedWidth(pluginState.dragging, event, cellMinWidth),
       );
       view.dispatch(
         view.state.tr.setMeta(columnResizingPluginKey, { setDragging: null }),
@@ -231,8 +229,8 @@ function handleMouseDown(
     const pluginState = columnResizingPluginKey.getState(view.state);
     if (!pluginState) return;
     if (pluginState.dragging) {
-      const dragged = draggedWidth(pluginState.dragging, event, resizeMinWidth);
-      displayColumnWidth(view, pluginState.activeHandle, dragged, cellMinWidth);
+      const dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
+      displayColumnWidth(view, pluginState.activeHandle, dragged, defaultCellMinWidth);
     }
   }
 
@@ -344,7 +342,7 @@ function displayColumnWidth(
   view: EditorView,
   cell: number,
   width: number,
-  cellMinWidth: number,
+  defaultCellMinWidth: number,
 ): void {
   const $cell = view.state.doc.resolve(cell);
   const table = $cell.node(-1),
@@ -362,7 +360,7 @@ function displayColumnWidth(
     table,
     dom.firstChild as HTMLTableColElement,
     dom as HTMLTableElement,
-    cellMinWidth,
+    defaultCellMinWidth,
     col,
     width,
   );

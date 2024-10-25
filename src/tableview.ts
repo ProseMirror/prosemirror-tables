@@ -11,19 +11,19 @@ export class TableView implements NodeView {
   public colgroup: HTMLTableColElement;
   public contentDOM: HTMLTableSectionElement;
 
-  constructor(public node: Node, public cellMinWidth: number) {
+  constructor(public node: Node, public defaultCellMinWidth: number) {
     this.dom = document.createElement('div');
     this.dom.className = 'tableWrapper';
     this.table = this.dom.appendChild(document.createElement('table'));
     this.colgroup = this.table.appendChild(document.createElement('colgroup'));
-    updateColumnsOnResize(node, this.colgroup, this.table, cellMinWidth);
+    updateColumnsOnResize(node, this.colgroup, this.table, defaultCellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement('tbody'));
   }
 
   update(node: Node): boolean {
     if (node.type != this.node.type) return false;
     this.node = node;
-    updateColumnsOnResize(node, this.colgroup, this.table, this.cellMinWidth);
+    updateColumnsOnResize(node, this.colgroup, this.table, this.defaultCellMinWidth);
     return true;
   }
 
@@ -42,7 +42,7 @@ export function updateColumnsOnResize(
   node: Node,
   colgroup: HTMLTableColElement,
   table: HTMLTableElement,
-  cellMinWidth: number,
+  defaultCellMinWidth: number,
   overrideCol?: number,
   overrideValue?: number,
 ): void {
@@ -58,17 +58,17 @@ export function updateColumnsOnResize(
       const hasWidth =
         overrideCol == col ? overrideValue : colwidth && colwidth[j];
       const cssWidth = hasWidth ? hasWidth + 'px' : '';
-      totalWidth += hasWidth || cellMinWidth;
+      totalWidth += hasWidth || defaultCellMinWidth;
       if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
         const col = document.createElement('col');
         col.style.width = cssWidth;
-        col.style.minWidth = cssWidth.length ? '' : cellMinWidth + 'px';
+        col.style.minWidth = cssWidth.length ? '' : defaultCellMinWidth + 'px';
         colgroup.appendChild(col);
       } else {
         if (nextDOM.style.width != cssWidth) {
           nextDOM.style.width = cssWidth;
-          nextDOM.style.minWidth = cssWidth.length ? '' : cellMinWidth + 'px';
+          nextDOM.style.minWidth = cssWidth.length ? '' : defaultCellMinWidth + 'px';
         }
         nextDOM = nextDOM.nextSibling as HTMLElement;
       }
