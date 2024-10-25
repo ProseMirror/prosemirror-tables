@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.5.1...v1.6.0) (2024-10-25)
+
+
+### Features
+
+* add new option `defaultCellMinWidth` for `columnResizing()` ([#253](https://github.com/ProseMirror/prosemirror-tables/issues/253)) ([662e857](https://github.com/ProseMirror/prosemirror-tables/commit/662e857d87fafcb5f77247205c2e91d392b7401d))
+
 ## [1.5.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.5.0...v1.5.1) (2024-10-23)
 
 
