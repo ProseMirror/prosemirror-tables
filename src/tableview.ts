@@ -23,7 +23,12 @@ export class TableView implements NodeView {
   update(node: Node): boolean {
     if (node.type != this.node.type) return false;
     this.node = node;
-    updateColumnsOnResize(node, this.colgroup, this.table, this.defaultCellMinWidth);
+    updateColumnsOnResize(
+      node,
+      this.colgroup,
+      this.table,
+      this.defaultCellMinWidth,
+    );
     return true;
   }
 
@@ -68,7 +73,9 @@ export function updateColumnsOnResize(
       } else {
         if (nextDOM.style.width != cssWidth) {
           nextDOM.style.width = cssWidth;
-          nextDOM.style.minWidth = cssWidth.length ? '' : defaultCellMinWidth + 'px';
+          nextDOM.style.minWidth = cssWidth.length
+            ? ''
+            : defaultCellMinWidth + 'px';
         }
         nextDOM = nextDOM.nextSibling as HTMLElement;
       }

@@ -27,9 +27,9 @@ export type ColumnResizingOptions = {
    * Minimum width of a cell /column. The column cannot be resized smaller than this.
    */
   cellMinWidth?: number;
-/**
- * The default minWidth of a cell / column when it doesn't have an explicit width (i.e.: it has not been resized manually)
- */
+  /**
+   * The default minWidth of a cell / column when it doesn't have an explicit width (i.e.: it has not been resized manually)
+   */
   defaultCellMinWidth?: number;
   lastColumnResizable?: boolean;
   /**
@@ -88,12 +88,7 @@ export function columnResizing({
 
       handleDOMEvents: {
         mousemove: (view, event) => {
-          handleMouseMove(
-            view,
-            event,
-            handleWidth,
-            lastColumnResizable,
-          );
+          handleMouseMove(view, event, handleWidth, lastColumnResizable);
         },
         mouseleave: (view) => {
           handleMouseLeave(view);
@@ -230,7 +225,12 @@ function handleMouseDown(
     if (!pluginState) return;
     if (pluginState.dragging) {
       const dragged = draggedWidth(pluginState.dragging, event, cellMinWidth);
-      displayColumnWidth(view, pluginState.activeHandle, dragged, defaultCellMinWidth);
+      displayColumnWidth(
+        view,
+        pluginState.activeHandle,
+        dragged,
+        defaultCellMinWidth,
+      );
     }
   }
 
