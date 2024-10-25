@@ -61,10 +61,15 @@ export function updateColumnsOnResize(
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
-        colgroup.appendChild(document.createElement('col')).style.width =
-          cssWidth;
+        const col = document.createElement('col');
+        col.style.width = cssWidth;
+        col.style.minWidth = cssWidth.length ? '' : cellMinWidth + 'px';
+        colgroup.appendChild(col);
       } else {
-        if (nextDOM.style.width != cssWidth) nextDOM.style.width = cssWidth;
+        if (nextDOM.style.width != cssWidth) {
+          nextDOM.style.width = cssWidth;
+          nextDOM.style.minWidth = cssWidth.length ? '' : cellMinWidth + 'px';
+        }
         nextDOM = nextDOM.nextSibling as HTMLElement;
       }
     }
