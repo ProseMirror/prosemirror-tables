@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.0...v1.6.1) (2024-10-30)
+
+
+### Bug Fixes
+
+* support defaultCellMinWidth in older Safari ([#255](https://github.com/ProseMirror/prosemirror-tables/issues/255)) ([1b36002](https://github.com/ProseMirror/prosemirror-tables/commit/1b36002196b6bdad11fce40b5a03e15a934f03e6))
+
 ## [1.6.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.5.1...v1.6.0) (2024-10-25)
 
 
