@@ -4,7 +4,7 @@
 .ProseMirror table {
   border-collapse: collapse;
   table-layout: fixed;
-  width: 100%;
+  /* width: 100%; */
   overflow: hidden;
 }
 .ProseMirror td,
@@ -14,8 +14,8 @@
   position: relative;
 }
 
-.ProseMirror td:not([colwidth]):not(.column-resize-dragging),
-.ProseMirror th:not([colwidth]):not(.column-resize-dragging) {
+.ProseMirror td:not([data-colwidth]):not(.column-resize-dragging),
+.ProseMirror th:not([data-colwidth]):not(.column-resize-dragging) {
   /* if there's no explicit width set and the column is not being resized, set a default width */
   min-width: var(--default-cell-min-width);
 }
