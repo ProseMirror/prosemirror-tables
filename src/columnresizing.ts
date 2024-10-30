@@ -234,6 +234,13 @@ function handleMouseDown(
     }
   }
 
+  displayColumnWidth(
+    view,
+    pluginState.activeHandle,
+    width,
+    defaultCellMinWidth,
+  );
+
   win.addEventListener('mouseup', finish);
   win.addEventListener('mousemove', move);
   event.preventDefault();
@@ -397,6 +404,18 @@ export function handleDecorations(
       const pos = start + cellPos + table.nodeAt(cellPos)!.nodeSize - 1;
       const dom = document.createElement('div');
       dom.className = 'column-resize-handle';
+      if (columnResizingPluginKey.getState(state)?.dragging) {
+        decorations.push(
+          Decoration.node(
+            start + cellPos,
+            start + cellPos + table.nodeAt(cellPos)!.nodeSize,
+            {
+              class: 'column-resize-dragging',
+            },
+          ),
+        );
+      }
+
       decorations.push(Decoration.widget(pos, dom));
     }
   }

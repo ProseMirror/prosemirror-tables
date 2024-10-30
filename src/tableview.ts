@@ -15,6 +15,10 @@ export class TableView implements NodeView {
     this.dom = document.createElement('div');
     this.dom.className = 'tableWrapper';
     this.table = this.dom.appendChild(document.createElement('table'));
+    this.table.style.setProperty(
+      '--default-cell-min-width',
+      `${defaultCellMinWidth}px`,
+    );
     this.colgroup = this.table.appendChild(document.createElement('colgroup'));
     updateColumnsOnResize(node, this.colgroup, this.table, defaultCellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement('tbody'));
@@ -68,14 +72,10 @@ export function updateColumnsOnResize(
       if (!nextDOM) {
         const col = document.createElement('col');
         col.style.width = cssWidth;
-        col.style.minWidth = cssWidth.length ? '' : defaultCellMinWidth + 'px';
         colgroup.appendChild(col);
       } else {
         if (nextDOM.style.width != cssWidth) {
           nextDOM.style.width = cssWidth;
-          nextDOM.style.minWidth = cssWidth.length
-            ? ''
-            : defaultCellMinWidth + 'px';
         }
         nextDOM = nextDOM.nextSibling as HTMLElement;
       }

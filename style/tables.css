@@ -13,6 +13,13 @@
   box-sizing: border-box;
   position: relative;
 }
+
+.ProseMirror td:not([data-colwidth]):not(.column-resize-dragging),
+.ProseMirror th:not([data-colwidth]):not(.column-resize-dragging) {
+  /* if there's no explicit width set and the column is not being resized, set a default width */
+  min-width: var(--default-cell-min-width);
+}
+
 .ProseMirror .column-resize-handle {
   position: absolute;
   right: -2px;
