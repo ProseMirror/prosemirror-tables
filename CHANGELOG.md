@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.1...v1.6.2) (2024-12-24)
+
+
+### Bug Fixes
+
+* update prosemirror dependencies and fix type of ignoreMutation ([#259](https://github.com/ProseMirror/prosemirror-tables/issues/259)) ([465754b](https://github.com/ProseMirror/prosemirror-tables/commit/465754b97ecbca4778e0cc667511cd59f16db92a))
+
 ## [1.6.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.0...v1.6.1) (2024-10-30)
 
 
