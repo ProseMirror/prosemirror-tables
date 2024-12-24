@@ -1,5 +1,5 @@
 import { Node } from 'prosemirror-model';
-import { NodeView } from 'prosemirror-view';
+import { NodeView, ViewMutationRecord } from 'prosemirror-view';
 import { CellAttrs } from './util';
 
 /**
@@ -36,7 +36,7 @@ export class TableView implements NodeView {
     return true;
   }
 
-  ignoreMutation(record: MutationRecord): boolean {
+  ignoreMutation(record: ViewMutationRecord): boolean {
     return (
       record.type == 'attributes' &&
       (record.target == this.table || this.colgroup.contains(record.target))
