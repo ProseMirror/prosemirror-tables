@@ -178,7 +178,7 @@ export function handleMouseDown(
   view: EditorView,
   startEvent: MouseEvent,
 ): void {
-  if (startEvent.ctrlKey || startEvent.metaKey) return;
+  if (startEvent.ctrlKey || startEvent.metaKey || !view.editable) return;
 
   const startDOMCell = domInCell(view, startEvent.target as Node);
   let $anchor;
