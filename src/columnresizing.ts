@@ -142,6 +142,9 @@ function handleMouseMove(
   handleWidth: number,
   lastColumnResizable: boolean,
 ): void {
+  // check if editor is editable first before handling any events
+  if (!view.editable) return;
+
   const pluginState = columnResizingPluginKey.getState(view.state);
   if (!pluginState) return;
 
@@ -178,6 +181,8 @@ function handleMouseMove(
 }
 
 function handleMouseLeave(view: EditorView): void {
+  if (!view.editable) return;
+
   const pluginState = columnResizingPluginKey.getState(view.state);
   if (pluginState && pluginState.activeHandle > -1 && !pluginState.dragging)
     updateHandle(view, -1);
@@ -189,6 +194,8 @@ function handleMouseDown(
   cellMinWidth: number,
   defaultCellMinWidth: number,
 ): boolean {
+  if (!view.editable) return false;
+
   const win = view.dom.ownerDocument.defaultView ?? window;
 
   const pluginState = columnResizingPluginKey.getState(view.state);
