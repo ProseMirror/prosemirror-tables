@@ -142,7 +142,6 @@ function handleMouseMove(
   handleWidth: number,
   lastColumnResizable: boolean,
 ): void {
-  // check if editor is editable first before handling any events
   if (!view.editable) return;
 
   const pluginState = columnResizingPluginKey.getState(view.state);
