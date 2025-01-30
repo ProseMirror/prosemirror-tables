@@ -99,9 +99,17 @@ let state = EditorState.create({
 const fix = fixTables(state);
 if (fix) state = state.apply(fix.setMeta('addToHistory', false));
 
-(window as any).view = new EditorView(document.querySelector('#editor'), {
+const view = new EditorView(document.querySelector('#editor'), {
   state,
 });
+
+declare global {
+  interface Window {
+    view?: EditorView;
+  }
+}
+
+window.view = view;
 
 document.execCommand('enableObjectResizing', false, 'false');
 document.execCommand('enableInlineTableEditing', false, 'false');
