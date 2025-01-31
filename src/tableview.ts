@@ -11,7 +11,10 @@ export class TableView implements NodeView {
   public colgroup: HTMLTableColElement;
   public contentDOM: HTMLTableSectionElement;
 
-  constructor(public node: Node, public defaultCellMinWidth: number) {
+  constructor(
+    public node: Node,
+    public defaultCellMinWidth: number,
+  ) {
     this.dom = document.createElement('div');
     this.dom.className = 'tableWrapper';
     this.table = this.dom.appendChild(document.createElement('table'));

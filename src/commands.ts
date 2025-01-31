@@ -612,13 +612,13 @@ function deprecated_toggleHeader(type: ToggleHeaderType): Command {
               bottom: rect.map.height,
             }
           : type == 'row'
-          ? {
-              left: 0,
-              top: rect.top,
-              right: rect.map.width,
-              bottom: rect.bottom,
-            }
-          : rect,
+            ? {
+                left: 0,
+                top: rect.top,
+                right: rect.map.width,
+                bottom: rect.bottom,
+              }
+            : rect,
       );
       const nodes = cells.map((pos) => rect.table.nodeAt(pos)!);
       for (
@@ -709,8 +709,8 @@ export function toggleHeader(
         type === 'column'
           ? isHeaderRowEnabled
           : type === 'row'
-          ? isHeaderColumnEnabled
-          : false;
+            ? isHeaderColumnEnabled
+            : false;
 
       const selectionStartsAt = isHeaderEnabled ? 1 : 0;
 
@@ -723,13 +723,13 @@ export function toggleHeader(
               bottom: rect.map.height,
             }
           : type == 'row'
-          ? {
-              left: selectionStartsAt,
-              top: 0,
-              right: rect.map.width,
-              bottom: 1,
-            }
-          : rect;
+            ? {
+                left: selectionStartsAt,
+                top: 0,
+                right: rect.map.width,
+                bottom: 1,
+              }
+            : rect;
 
       const newType =
         type == 'column'
@@ -737,10 +737,10 @@ export function toggleHeader(
             ? types.cell
             : types.header_cell
           : type == 'row'
-          ? isHeaderRowEnabled
-            ? types.cell
-            : types.header_cell
-          : types.cell;
+            ? isHeaderRowEnabled
+              ? types.cell
+              : types.header_cell
+            : types.cell;
 
       rect.map.cellsInRect(cellsRect).forEach((relativeCellPos) => {
         const cellPos = relativeCellPos + rect.tableStart;
