@@ -115,7 +115,10 @@ export function columnResizing({
  * @public
  */
 export class ResizeState {
-  constructor(public activeHandle: number, public dragging: Dragging | false) {}
+  constructor(
+    public activeHandle: number,
+    public dragging: Dragging | false,
+  ) {}
 
   apply(tr: Transaction): ResizeState {
     // eslint-disable-next-line @typescript-eslint/no-this-alias

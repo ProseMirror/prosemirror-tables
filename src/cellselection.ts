@@ -357,7 +357,10 @@ Selection.jsonID('cell', CellSelection);
  * @public
  */
 export class CellBookmark {
-  constructor(public anchor: number, public head: number) {}
+  constructor(
+    public anchor: number,
+    public head: number,
+  ) {}
 
   map(mapping: Mappable): CellBookmark {
     return new CellBookmark(mapping.map(this.anchor), mapping.map(this.head));
