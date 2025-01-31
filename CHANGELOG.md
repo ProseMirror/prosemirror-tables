@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.2...v1.6.3) (2025-01-31)
+
+
+### Bug Fixes
+
+* disable resizing when the editor view is uneditable ([#261](https://github.com/ProseMirror/prosemirror-tables/issues/261)) ([8e7287c](https://github.com/ProseMirror/prosemirror-tables/commit/8e7287cfa47bab0da9a9e38cd9f65c7ece95d67d))
+
 ## [1.6.2](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.1...v1.6.2) (2024-12-24)
 
 

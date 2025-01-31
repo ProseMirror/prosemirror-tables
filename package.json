@@ -1,6 +1,6 @@
 {
   "name": "prosemirror-tables",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "packageManager": "pnpm@9.7.0",
   "description": "ProseMirror's rowspan/colspan tables component",
   "type": "module",
