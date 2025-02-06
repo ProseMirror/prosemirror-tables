@@ -23,10 +23,10 @@ const cw100 = td({ colwidth: [100] }, p('x'));
 const cw200 = td({ colwidth: [200] }, p('x'));
 
 function fix(node: Node) {
-  const isdoc = node.type.name == 'doc';
-  const state = EditorState.create({ doc: isdoc ? node : doc(node) });
+  const isDoc = node.type === node.type.schema.topNodeType;
+  const state = EditorState.create({ doc: isDoc ? node : doc(node) });
   const tr = fixTables(state);
-  return tr && (isdoc ? tr.doc : tr.doc.firstChild);
+  return tr && (isDoc ? tr.doc : tr.doc.firstChild)!;
 }
 
 describe('fixTable', () => {
