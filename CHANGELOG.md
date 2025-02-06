@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.4](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.3...v1.6.4) (2025-02-06)
+
+
+### Bug Fixes
+
+* remove zero sized tables via `fixTables` ([#267](https://github.com/ProseMirror/prosemirror-tables/issues/267)) ([fd6be97](https://github.com/ProseMirror/prosemirror-tables/commit/fd6be971b799b5c6d2c1a30a52032831e5fedddc))
+
 ## [1.6.3](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.2...v1.6.3) (2025-01-31)
 
 
