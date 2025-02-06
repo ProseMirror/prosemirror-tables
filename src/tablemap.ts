@@ -42,7 +42,7 @@ export type Problem =
       n: number;
     }
   | {
-      type: 'zero_size';
+      type: 'zero_sized';
     };
 
 let readFromCache: (key: Node) => TableMap | undefined;
@@ -299,7 +299,7 @@ function computeMap(table: Node): TableMap {
   }
 
   if (width === 0 || height === 0)
-    (problems || (problems = [])).push({ type: 'zero_size' });
+    (problems || (problems = [])).push({ type: 'zero_sized' });
 
   const tableMap = new TableMap(width, height, map, problems);
   let badWidths = false;

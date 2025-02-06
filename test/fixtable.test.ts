@@ -22,10 +22,11 @@ import { fixTables } from '../src/';
 const cw100 = td({ colwidth: [100] }, p('x'));
 const cw200 = td({ colwidth: [200] }, p('x'));
 
-function fix(table: Node) {
-  const state = EditorState.create({ doc: doc(table) });
+function fix(node: Node) {
+  const isdoc = node.type.name == 'doc';
+  const state = EditorState.create({ doc: isdoc ? node : doc(node) });
   const tr = fixTables(state);
-  return tr && tr.doc.firstChild;
+  return tr && (isdoc ? tr.doc : tr.doc.firstChild);
 }
 
 describe('fixTable', () => {
@@ -125,5 +126,9 @@ describe('fixTable', () => {
       table(tr(h11, hEmpty, hEmpty), tr(cEmpty, c11, c11), tr(c(3, 1))),
       eq,
     );
+  });
+
+  it('will remove zero-sized table', () => {
+    ist(fix(doc(table(tr()), table(tr(c11)))), doc(table(tr(c11))), eq);
   });
 });

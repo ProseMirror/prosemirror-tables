@@ -114,9 +114,9 @@ export function fixTable(
         ...cell.attrs,
         colwidth: prob.colwidth,
       });
-    } else if (prob.type == 'zero_size') {
-      const pos = tr.mapping.map(tablePos)
-      tr.delete(pos, pos + table.nodeSize)
+    } else if (prob.type == 'zero_sized') {
+      const pos = tr.mapping.map(tablePos);
+      tr.delete(pos, pos + table.nodeSize);
     }
   }
   let first, last;
