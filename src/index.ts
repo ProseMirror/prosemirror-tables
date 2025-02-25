@@ -68,6 +68,7 @@ export { tableEditingKey };
  */
 export type TableEditingOptions = {
   allowTableNodeSelection?: boolean;
+  supportRectangularSelection?: boolean;
 };
 
 /**
@@ -86,6 +87,7 @@ export type TableEditingOptions = {
  */
 export function tableEditing({
   allowTableNodeSelection = false,
+  supportRectangularSelection = false,
 }: TableEditingOptions = {}): Plugin {
   return new Plugin({
     key: tableEditingKey,
@@ -110,7 +112,7 @@ export function tableEditing({
       decorations: drawCellSelection,
 
       handleDOMEvents: {
-        mousedown: handleMouseDown,
+        mousedown: (view, event) => handleMouseDown(view, event, supportRectangularSelection),
       },
 
       createSelectionBetween(view) {
