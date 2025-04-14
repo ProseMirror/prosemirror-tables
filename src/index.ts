@@ -6,7 +6,7 @@
 
 import { Plugin } from 'prosemirror-state';
 
-import { drawCellSelection, normalizeSelection } from './cellselection';
+import { CellSelection, drawCellSelection, normalizeSelection } from './cellselection';
 import { fixTables, fixTablesKey } from './fixtables';
 import {
   handleKeyDown,
@@ -124,8 +124,18 @@ export function tableEditing({
 
       createSelectionBetween(view) {
         return tableEditingKey.getState(view.state) != null
-          ? view.state.selection
-          : null;
+        ? view.state.selection
+        : null;
+        
+        console.log(view.state.selection) 
+        if (view.state.selection instanceof CellSelection) {
+          return view.state.selection;
+        }
+
+      return null 
+        // return tableEditingKey.getState(view.state) != null
+        //   ? view.state.selection
+        //   : null;
       },
 
       handleTripleClick,
