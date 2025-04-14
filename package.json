@@ -36,10 +36,10 @@
   ],
   "dependencies": {
     "prosemirror-keymap": "^1.2.2",
-    "prosemirror-model": "^1.24.1",
+    "prosemirror-model": "^1.25.0",
     "prosemirror-state": "^1.4.3",
-    "prosemirror-transform": "^1.10.2",
-    "prosemirror-view": "^1.37.2"
+    "prosemirror-transform": "^1.10.3",
+    "prosemirror-view": "^1.39.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.59.11",
@@ -47,19 +47,19 @@
     "builddocs": "^1.0.7",
     "eslint": "^8.57.0",
     "eslint-plugin-jest": "^26.9.0",
-    "happy-dom": "^16.7.3",
+    "happy-dom": "^16.8.1",
     "ist": "^1.1.7",
-    "prettier": "^3.4.2",
-    "prosemirror-commands": "^1.6.2",
+    "prettier": "^3.5.3",
+    "prosemirror-commands": "^1.7.1",
     "prosemirror-example-setup": "^1.2.3",
     "prosemirror-gapcursor": "^1.3.2",
     "prosemirror-menu": "^1.2.4",
-    "prosemirror-schema-basic": "^1.2.3",
+    "prosemirror-schema-basic": "^1.2.4",
     "prosemirror-test-builder": "^1.1.1",
-    "tsup": "^8.3.6",
+    "tsup": "^8.4.0",
     "typescript": "^5.7.3",
-    "vite": "^6.0.11",
-    "vitest": "^3.0.4"
+    "vite": "^6.2.6",
+    "vitest": "^3.1.1"
   },
   "scripts": {
     "dev": "vite demo",
