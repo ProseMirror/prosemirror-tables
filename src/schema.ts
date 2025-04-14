@@ -129,7 +129,7 @@ export function tableNodes(options: TableNodesOptions): TableNodes {
   const cellAttrs: Record<string, AttributeSpec> = {
     colspan: { default: 1, validate: 'number' },
     rowspan: { default: 1, validate: 'number' },
-    colwidth: { default: null, validate: 'number' },
+    colwidth: { default: null, validate: 'number|null' },
   };
   for (const prop in extraAttrs)
     cellAttrs[prop] = {
