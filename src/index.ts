@@ -112,7 +112,8 @@ export function tableEditing({
       decorations: drawCellSelection,
 
       handleDOMEvents: {
-        mousedown: (view, event) => handleMouseDown(view, event, supportRectangularSelection),
+        mousedown: (view, event) =>
+          handleMouseDown(view, event, supportRectangularSelection),
       },
 
       createSelectionBetween(view) {

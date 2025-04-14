@@ -137,46 +137,63 @@ export function handleTripleClick(view: EditorView, pos: number): boolean {
 // judge rect is rectangle
 export function judgeRectangle(tableMap: TableMap, rect: Rect) {
   const { width, map, height } = tableMap;
-  const mergedCellsIndices = []
-  let indexTop = rect.top * width + rect.left; let indexLeft = indexTop;
-  let indexBottom = (rect.bottom - 1) * width + rect.left; let indexRight = indexTop + (rect.right - rect.left - 1);
+  const mergedCellsIndices = [];
+  let indexTop = rect.top * width + rect.left;
+  let indexLeft = indexTop;
+  let indexBottom = (rect.bottom - 1) * width + rect.left;
+  let indexRight = indexTop + (rect.right - rect.left - 1);
   for (let i = rect.top; i < rect.bottom; i++) {
-    if (rect.left > 0 && map[indexLeft] === map[indexLeft - 1] || rect.right < width && map[indexRight] === map[indexRight + 1]) {
-      if (map[indexLeft] === map[indexLeft - 1]) mergedCellsIndices.push(indexLeft - 1)
-      if (map[indexRight] === map[indexRight + 1]) mergedCellsIndices.push(indexRight + 1)
+    if (
+      (rect.left > 0 && map[indexLeft] === map[indexLeft - 1]) ||
+      (rect.right < width && map[indexRight] === map[indexRight + 1])
+    ) {
+      if (map[indexLeft] === map[indexLeft - 1])
+        mergedCellsIndices.push(indexLeft - 1);
+      if (map[indexRight] === map[indexRight + 1])
+        mergedCellsIndices.push(indexRight + 1);
     }
-    indexLeft += width; indexRight += width;
+    indexLeft += width;
+    indexRight += width;
   }
   for (let i = rect.left; i < rect.right; i++) {
-    if (rect.top > 0 && map[indexTop] === map[indexTop - width] || rect.bottom < height && map[indexBottom] === map[indexBottom + width]) {
-      if (map[indexTop] === map[indexTop - width]) mergedCellsIndices.push(indexTop - width)
-      if (map[indexBottom] === map[indexBottom + width]) mergedCellsIndices.push(indexBottom + width)
+    if (
+      (rect.top > 0 && map[indexTop] === map[indexTop - width]) ||
+      (rect.bottom < height && map[indexBottom] === map[indexBottom + width])
+    ) {
+      if (map[indexTop] === map[indexTop - width])
+        mergedCellsIndices.push(indexTop - width);
+      if (map[indexBottom] === map[indexBottom + width])
+        mergedCellsIndices.push(indexBottom + width);
     }
-    indexTop++; indexBottom++;
+    indexTop++;
+    indexBottom++;
   }
-  return Array.from(new Set(mergedCellsIndices))
+  return Array.from(new Set(mergedCellsIndices));
 }
 
-// get rectangular 
-export function getRectangularRect (rect: Rect, tableMap: TableMap) {
-  let mergedCellsIndices = []
-  const rectangle = JSON.parse(JSON.stringify(rect))
+// get rectangular
+export function getRectangularRect(rect: Rect, tableMap: TableMap) {
+  let mergedCellsIndices = [];
+  const rectangle = JSON.parse(JSON.stringify(rect));
   while ((mergedCellsIndices = judgeRectangle(tableMap, rectangle)).length) {
-    let maxRow = 0, minRow = Infinity, maxCol = 0, minCol = Infinity
+    let maxRow = 0,
+      minRow = Infinity,
+      maxCol = 0,
+      minCol = Infinity;
     mergedCellsIndices.forEach((index: number) => {
-      const rowIndex = Math.floor(index / tableMap.width)
-      const colIndex = index % tableMap.width
-      maxRow = Math.max(rowIndex, rectangle.bottom - 1, maxRow)
-      minRow = Math.min(rowIndex, rectangle.top, minRow)
-      maxCol = Math.max(colIndex, rectangle.right - 1, maxCol)
-      minCol = Math.min(colIndex, rectangle.left, minCol)
-    })
-    rectangle.left = minCol
-    rectangle.right = maxCol + 1
-    rectangle.top = minRow
-    rectangle.bottom = maxRow + 1
+      const rowIndex = Math.floor(index / tableMap.width);
+      const colIndex = index % tableMap.width;
+      maxRow = Math.max(rowIndex, rectangle.bottom - 1, maxRow);
+      minRow = Math.min(rowIndex, rectangle.top, minRow);
+      maxCol = Math.max(colIndex, rectangle.right - 1, maxCol);
+      minCol = Math.min(colIndex, rectangle.left, minCol);
+    });
+    rectangle.left = minCol;
+    rectangle.right = maxCol + 1;
+    rectangle.top = minRow;
+    rectangle.bottom = maxRow + 1;
   }
-  return rectangle
+  return rectangle;
 }
 
 /**
@@ -229,7 +246,7 @@ export function handlePaste(
 export function handleMouseDown(
   view: EditorView,
   startEvent: MouseEvent,
-  supportRectangularSelection?: boolean
+  supportRectangularSelection?: boolean,
 ): void {
   if (startEvent.ctrlKey || startEvent.metaKey) return;
 
@@ -263,10 +280,10 @@ export function handleMouseDown(
       if (starting) $head = $anchor;
       else return;
     }
-    const selection = supportRectangularSelection 
+    const selection = supportRectangularSelection
       ? getRectangularSelection($anchor, $head)
       : new CellSelection($anchor, $head);
-    
+
     if (starting || !view.state.selection.eq(selection)) {
       const tr = view.state.tr.setSelection(selection);
       if (starting) tr.setMeta(tableEditingKey, $anchor.pos);
@@ -275,18 +292,23 @@ export function handleMouseDown(
   }
 
   // get Rectangular cell Selection
-  function getRectangularSelection ($anchor: ResolvedPos, $head: ResolvedPos) {
-    const tableNode = $anchor.node(-1)
-    const tableMap = TableMap.get(tableNode)
-    const tableStart = $anchor.start(-1)
-    const rect = tableMap.rectBetween($anchor.pos - tableStart , $head.pos - tableStart)
-    const rectangle = getRectangularRect(rect, tableMap)
-    const { left, right, top, bottom } = rectangle
-    const { map, width } = tableMap
-    const { tr } = view.state
-    const $anchorCell = tr.doc.resolve(map[top * width + left] + tableStart)
-    const $headCell = tr.doc.resolve(map[(bottom - 1) * width + right - 1] + tableStart)
-    return new CellSelection($anchorCell, $headCell)
+  function getRectangularSelection($anchor: ResolvedPos, $head: ResolvedPos) {
+    const tableNode = $anchor.node(-1);
+    const tableMap = TableMap.get(tableNode);
+    const tableStart = $anchor.start(-1);
+    const rect = tableMap.rectBetween(
+      $anchor.pos - tableStart,
+      $head.pos - tableStart,
+    );
+    const rectangle = getRectangularRect(rect, tableMap);
+    const { left, right, top, bottom } = rectangle;
+    const { map, width } = tableMap;
+    const { tr } = view.state;
+    const $anchorCell = tr.doc.resolve(map[top * width + left] + tableStart);
+    const $headCell = tr.doc.resolve(
+      map[(bottom - 1) * width + right - 1] + tableStart,
+    );
+    return new CellSelection($anchorCell, $headCell);
   }
 
   // Stop listening to mouse motion events.
