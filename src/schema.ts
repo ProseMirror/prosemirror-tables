@@ -69,8 +69,8 @@ export interface CellAttributes {
   default: unknown;
 
   /**
-   * A function or type name used to validate values of this attribute. 
-   * 
+   * A function or type name used to validate values of this attribute.
+   *
    * See [validate](https://prosemirror.net/docs/ref/#model.AttributeSpec.validate).
    */
   validate?: string | ((value: unknown) => void);
