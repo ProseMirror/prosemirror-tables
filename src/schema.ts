@@ -69,6 +69,11 @@ export interface CellAttributes {
   default: unknown;
 
   /**
+   * The attribute's validator.
+   */
+  validate?: string | ((value: unknown) => void);
+
+  /**
    * A function to read the attribute's value from a DOM node.
    */
   getFromDOM?: getFromDOM;
@@ -122,12 +127,15 @@ export type TableNodes = Record<
 export function tableNodes(options: TableNodesOptions): TableNodes {
   const extraAttrs = options.cellAttributes || {};
   const cellAttrs: Record<string, AttributeSpec> = {
-    colspan: { default: 1 },
-    rowspan: { default: 1 },
-    colwidth: { default: null },
+    colspan: { default: 1, validate: 'number' },
+    rowspan: { default: 1, validate: 'number' },
+    colwidth: { default: null, validate: 'number' },
   };
   for (const prop in extraAttrs)
-    cellAttrs[prop] = { default: extraAttrs[prop].default };
+    cellAttrs[prop] = {
+      default: extraAttrs[prop].default,
+      validate: extraAttrs[prop].validate,
+    };
 
   return {
     table: {
