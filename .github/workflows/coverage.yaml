@@ -2,7 +2,7 @@ name: coverage
 
 on:
   workflow_run:
-    workflows: ["ci"]
+    workflows: ['ci']
     types:
       - completed
 
@@ -19,5 +19,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
-      - name: "Report Coverage"
+      - name: Report Coverage
         uses: davelosert/vitest-coverage-report-action@v2
