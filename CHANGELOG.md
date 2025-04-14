@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.4...v1.7.0) (2025-04-14)
+
+
+### Features
+
+* add validate support for schema ([#279](https://github.com/ProseMirror/prosemirror-tables/issues/279)) ([e74456a](https://github.com/ProseMirror/prosemirror-tables/commit/e74456a58caf381b375920f1cd752ef063acb98a))
+
 ## [1.6.4](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.3...v1.6.4) (2025-02-06)
 
 
