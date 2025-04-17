@@ -117,6 +117,20 @@ export type TableNodes = Record<
   NodeSpec
 >;
 
+function validateColwidth(value: unknown) {
+  if (value === null) {
+    return;
+  }
+  if (!Array.isArray(value)) {
+    throw new TypeError('colwidth must be null or an array');
+  }
+  for (const item of value) {
+    if (typeof item !== 'number') {
+      throw new TypeError('colwidth must be null or an array of numbers');
+    }
+  }
+}
+
 /**
  * This function creates a set of [node
  * specs](http://prosemirror.net/docs/ref/#model.SchemaSpec.nodes) for
@@ -131,7 +145,7 @@ export function tableNodes(options: TableNodesOptions): TableNodes {
   const cellAttrs: Record<string, AttributeSpec> = {
     colspan: { default: 1, validate: 'number' },
     rowspan: { default: 1, validate: 'number' },
-    colwidth: { default: null, validate: 'number|null' },
+    colwidth: { default: null, validate: validateColwidth },
   };
   for (const prop in extraAttrs)
     cellAttrs[prop] = {
