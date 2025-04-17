@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.7.0...v1.7.1) (2025-04-17)
+
+
+### Bug Fixes
+
+* fix validate for attribute colwidth ([#286](https://github.com/ProseMirror/prosemirror-tables/issues/286)) ([3346c6c](https://github.com/ProseMirror/prosemirror-tables/commit/3346c6c798f462a4f3d1c5ab47a2f74d62a07921))
+
 ## [1.7.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.6.4...v1.7.0) (2025-04-14)
 
 
