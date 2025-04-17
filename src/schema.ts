@@ -118,15 +118,15 @@ export type TableNodes = Record<
 >;
 
 function validateColwidth(value: unknown) {
-  if (value == null) {
+  if (value === null) {
     return;
   }
   if (!Array.isArray(value)) {
-    throw new TypeError('colwidth must be an array');
+    throw new TypeError('colwidth must be null or an array');
   }
   for (const item of value) {
     if (typeof item !== 'number') {
-      throw new TypeError('colwidth must be an array of numbers');
+      throw new TypeError('colwidth must be null or an array of numbers');
     }
   }
 }
