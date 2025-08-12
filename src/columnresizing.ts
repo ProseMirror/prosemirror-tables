@@ -44,6 +44,14 @@ export type ColumnResizingOptions = {
         view: EditorView,
       ) => NodeView)
     | null;
+  onColumnResizeUpdate?: (
+    node: ProsemirrorNode,
+    colgroup: HTMLTableColElement,
+    table: HTMLTableElement,
+    defaultCellMinWidth: number,
+    overrideCol?: number,
+    overrideValue?: number,
+    ) => void;
 };
 
 /**
@@ -60,6 +68,14 @@ export function columnResizing({
   defaultCellMinWidth = 100,
   View = TableView,
   lastColumnResizable = true,
+  onColumnResizeUpdate = (
+    node: ProsemirrorNode,
+    colgroup: HTMLTableColElement,
+    table: HTMLTableElement,
+    defaultCellMinWidth: number,
+    overrideCol?: number,
+    overrideValue?: number,
+  ) => updateColumnsOnResize(node, colgroup, table, defaultCellMinWidth, overrideCol, overrideValue)
 }: ColumnResizingOptions = {}): Plugin {
   const plugin = new Plugin<ResizeState>({
     key: columnResizingPluginKey,
@@ -94,7 +110,7 @@ export function columnResizing({
           handleMouseLeave(view);
         },
         mousedown: (view, event) => {
-          handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth);
+          handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth, onColumnResizeUpdate);
         },
       },
 
@@ -195,6 +211,14 @@ function handleMouseDown(
   event: MouseEvent,
   cellMinWidth: number,
   defaultCellMinWidth: number,
+  onColumnResizeUpdate: (
+    node: ProsemirrorNode,
+    colgroup: HTMLTableColElement,
+    table: HTMLTableElement,
+    defaultCellMinWidth: number,
+    overrideCol?: number,
+    overrideValue?: number,
+  ) => void,
 ): boolean {
   if (!view.editable) return false;
 
@@ -239,6 +263,7 @@ function handleMouseDown(
         pluginState.activeHandle,
         dragged,
         defaultCellMinWidth,
+        onColumnResizeUpdate,
       );
     }
   }
@@ -248,6 +273,7 @@ function handleMouseDown(
     pluginState.activeHandle,
     width,
     defaultCellMinWidth,
+    onColumnResizeUpdate,
   );
 
   win.addEventListener('mouseup', finish);
@@ -359,6 +385,14 @@ function displayColumnWidth(
   cell: number,
   width: number,
   defaultCellMinWidth: number,
+  onColumnResizeUpdate: (
+    node: ProsemirrorNode,
+    colgroup: HTMLTableColElement,
+    table: HTMLTableElement,
+    defaultCellMinWidth: number,
+    overrideCol?: number,
+    overrideValue?: number,
+  ) => void,
 ): void {
   const $cell = view.state.doc.resolve(cell);
   const table = $cell.node(-1),
@@ -372,7 +406,7 @@ function displayColumnWidth(
     dom = dom.parentNode;
   }
   if (!dom) return;
-  updateColumnsOnResize(
+  onColumnResizeUpdate(
     table,
     dom.firstChild as HTMLTableColElement,
     dom as HTMLTableElement,
