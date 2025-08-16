@@ -73,7 +73,7 @@ export type {
   MoveRowParams,
   MoveColumnParams,
   FindParentNodeResult,
-} from './utils'
+} from './utils';
 
 /**
  * @public

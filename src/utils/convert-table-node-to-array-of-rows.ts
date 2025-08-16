@@ -1,5 +1,5 @@
-import type { Node } from 'prosemirror-model'
-import { TableMap } from '../tablemap'
+import type { Node } from 'prosemirror-model';
+import { TableMap } from '../tablemap';
 
 /**
  * This function will transform the table node into a matrix of rows and columns
@@ -26,36 +26,38 @@ import { TableMap } from '../tablemap'
  * ```
  * @internal
  */
-export function convertTableNodeToArrayOfRows(tableNode: Node): (Node | null)[][] {
-  const map = TableMap.get(tableNode)
-  const rows: (Node | null)[][] = []
-  const rowCount = map.height
-  const colCount = map.width
+export function convertTableNodeToArrayOfRows(
+  tableNode: Node,
+): (Node | null)[][] {
+  const map = TableMap.get(tableNode);
+  const rows: (Node | null)[][] = [];
+  const rowCount = map.height;
+  const colCount = map.width;
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-    const row: (Node | null)[] = []
+    const row: (Node | null)[] = [];
     for (let colIndex = 0; colIndex < colCount; colIndex++) {
-      const cellIndex = rowIndex * colCount + colIndex
-      const cellPos = map.map[cellIndex]
+      const cellIndex = rowIndex * colCount + colIndex;
+      const cellPos = map.map[cellIndex];
       if (rowIndex > 0) {
-        const topCellIndex = cellIndex - colCount
-        const topCellPos = map.map[topCellIndex]
+        const topCellIndex = cellIndex - colCount;
+        const topCellPos = map.map[topCellIndex];
         if (cellPos === topCellPos) {
-          row.push(null)
-          continue
+          row.push(null);
+          continue;
         }
       }
       if (colIndex > 0) {
-        const leftCellIndex = cellIndex - 1
-        const leftCellPos = map.map[leftCellIndex]
+        const leftCellIndex = cellIndex - 1;
+        const leftCellPos = map.map[leftCellIndex];
         if (cellPos === leftCellPos) {
-          row.push(null)
-          continue
+          row.push(null);
+          continue;
         }
       }
-      row.push(tableNode.nodeAt(cellPos))
+      row.push(tableNode.nodeAt(cellPos));
     }
-    rows.push(row)
+    rows.push(row);
   }
 
-  return rows
+  return rows;
 }

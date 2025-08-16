@@ -1,8 +1,8 @@
-import type { Transaction } from 'prosemirror-state'
+import type { Transaction } from 'prosemirror-state';
 
-import { getCellsInColumn } from './get-cells-in-column'
-import { getCellsInRow } from './get-cells-in-row'
-import type { CellSelectionRange } from './types'
+import { getCellsInColumn } from './get-cells-in-column';
+import { getCellsInRow } from './get-cells-in-row';
+import type { CellSelectionRange } from './types';
 
 /**
  * Returns a range of rectangular selection spanning all merged cells around a
@@ -14,78 +14,82 @@ import type { CellSelectionRange } from './types'
  *
  * @internal
  */
-export function getSelectionRangeInColumn(tr: Transaction, startColIndex: number, endColIndex: number = startColIndex): CellSelectionRange | undefined {
-  let startIndex = startColIndex
-  let endIndex = endColIndex
+export function getSelectionRangeInColumn(
+  tr: Transaction,
+  startColIndex: number,
+  endColIndex: number = startColIndex,
+): CellSelectionRange | undefined {
+  let startIndex = startColIndex;
+  let endIndex = endColIndex;
 
   // looking for selection start column (startIndex)
   for (let i = startColIndex; i >= 0; i--) {
-    const cells = getCellsInColumn(i, tr.selection)
+    const cells = getCellsInColumn(i, tr.selection);
     if (cells) {
       cells.forEach((cell) => {
-        const maybeEndIndex = cell.node.attrs.colspan + i - 1
+        const maybeEndIndex = cell.node.attrs.colspan + i - 1;
         if (maybeEndIndex >= startIndex) {
-          startIndex = i
+          startIndex = i;
         }
         if (maybeEndIndex > endIndex) {
-          endIndex = maybeEndIndex
+          endIndex = maybeEndIndex;
         }
-      })
+      });
     }
   }
   // looking for selection end column (endIndex)
   for (let i = startColIndex; i <= endIndex; i++) {
-    const cells = getCellsInColumn(i, tr.selection)
+    const cells = getCellsInColumn(i, tr.selection);
     if (cells) {
       cells.forEach((cell) => {
-        const maybeEndIndex = cell.node.attrs.colspan + i - 1
+        const maybeEndIndex = cell.node.attrs.colspan + i - 1;
         if (cell.node.attrs.colspan > 1 && maybeEndIndex > endIndex) {
-          endIndex = maybeEndIndex
+          endIndex = maybeEndIndex;
         }
-      })
+      });
     }
   }
 
   // filter out columns without cells (where all rows have colspan > 1 in the same column)
-  const indexes = []
+  const indexes = [];
   for (let i = startIndex; i <= endIndex; i++) {
-    const maybeCells = getCellsInColumn(i, tr.selection)
+    const maybeCells = getCellsInColumn(i, tr.selection);
     if (maybeCells && maybeCells.length > 0) {
-      indexes.push(i)
+      indexes.push(i);
     }
   }
-  startIndex = indexes[0]
-  endIndex = indexes[indexes.length - 1]
+  startIndex = indexes[0];
+  endIndex = indexes[indexes.length - 1];
 
-  const firstSelectedColumnCells = getCellsInColumn(startIndex, tr.selection)
-  const firstRowCells = getCellsInRow(0, tr.selection)
+  const firstSelectedColumnCells = getCellsInColumn(startIndex, tr.selection);
+  const firstRowCells = getCellsInRow(0, tr.selection);
   if (!firstSelectedColumnCells || !firstRowCells) {
-    return
+    return;
   }
 
   const $anchor = tr.doc.resolve(
     firstSelectedColumnCells[firstSelectedColumnCells.length - 1].pos,
-  )
+  );
 
-  let headCell
+  let headCell;
   for (let i = endIndex; i >= startIndex; i--) {
-    const columnCells = getCellsInColumn(i, tr.selection)
+    const columnCells = getCellsInColumn(i, tr.selection);
     if (columnCells && columnCells.length > 0) {
       for (let j = firstRowCells.length - 1; j >= 0; j--) {
         if (firstRowCells[j].pos === columnCells[0].pos) {
-          headCell = columnCells[0]
-          break
+          headCell = columnCells[0];
+          break;
         }
       }
       if (headCell) {
-        break
+        break;
       }
     }
   }
   if (!headCell) {
-    return
+    return;
   }
 
-  const $head = tr.doc.resolve(headCell.pos)
-  return { $anchor, $head, indexes }
+  const $head = tr.doc.resolve(headCell.pos);
+  return { $anchor, $head, indexes };
 }
