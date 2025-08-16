@@ -184,6 +184,14 @@ available to users.
    Deletes the table around the selection, if any.
 
 
+ * **`moveTableRow`**`(options: MoveTableRowOptions) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Move a table row from one index to another.
+
+
+ * **`moveTableColumn`**`(options: MoveTableColumnOptions) → fn(EditorState, dispatch: ?fn(tr: Transaction)) → bool`\
+   Move a table column from one index to another.
+
+
 ### Utilities
 
  * **`fixTables`**`(state: EditorState, oldState: ?EditorState) → ?Transaction`\
@@ -193,6 +201,14 @@ available to users.
    which will be used to avoid re-scanning unchanged parts of the
    document.
 
+ * **`findTable`**`($pos: ResolvedPos) → ?FindParentNodeResult`\
+   Find the closest table node that contains the given position, if any.
+
+ * **`findCellRange`**`($pos: ResolvedPos, anchorHit: ?number, headHit: ?number) → ?[ResolvedPos, ResolvedPos]`\
+   Find the anchor and head cell in the same table by using the given position and optional hit positions, or fallback to the selection's anchor and head.
+
+ * **`findCellPos`**`(doc: Node, pos: number) → ?ResolvedPos`\
+   Find a resolved pos of a cell by using the given position as a hit point.
 
 ### class TableMap
 
