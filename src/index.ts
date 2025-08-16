@@ -62,6 +62,18 @@ export {
 export type { MutableAttrs } from './util';
 export { fixTables, handlePaste, fixTablesKey };
 export { tableEditingKey };
+export {
+  findTable,
+  findCellRange,
+  findCellPos,
+  moveRow,
+  moveColumn,
+} from './utils';
+export type {
+  MoveRowParams,
+  MoveColumnParams,
+  FindParentNodeResult,
+} from './utils'
 
 /**
  * @public
