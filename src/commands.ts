@@ -923,7 +923,7 @@ export interface MoveTableRowOptions {
 }
 
 /**
- * Move a table row from index `origin` to index `target`.
+ * Move a table row from index `from` to index `to`.
  *
  * @public
  */
