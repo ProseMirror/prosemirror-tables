@@ -25,7 +25,7 @@ export interface MoveRowParams {
 /**
  * Move a row from index `origin` to index `target`.
  *
- * @public
+ * @internal
  */
 export function moveRow(moveRowParams: MoveRowParams): boolean {
   const { tr, originIndex, targetIndex, select, pos } = moveRowParams;
