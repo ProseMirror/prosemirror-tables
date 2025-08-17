@@ -26,7 +26,7 @@ export interface MoveColumnParams {
 /**
  * Move a column from index `origin` to index `target`.
  *
- * @public
+ * @internal
  */
 export function moveColumn(moveColParams: MoveColumnParams): boolean {
   const { tr, originIndex, targetIndex, select, pos } = moveColParams;
