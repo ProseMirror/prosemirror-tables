@@ -13,7 +13,7 @@ import { CellSelection } from '../cellselection';
 /**
  * Parameters for moving a column in a table.
  *
- * @public
+ * @internal
  */
 export interface MoveColumnParams {
   tr: Transaction;
