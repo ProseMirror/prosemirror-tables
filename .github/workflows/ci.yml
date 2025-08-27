@@ -43,7 +43,7 @@ jobs:
   demo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup
 
@@ -65,3 +65,19 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         timeout-minutes: 5
+
+  publish-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Publish snapshot packages
+        if: ${{ github.event_name == 'pull_request' }}
+        run: ./node_modules/.bin/pkg-pr-new publish --pnpm
+         
