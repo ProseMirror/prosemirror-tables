@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.0...v1.8.1) (2025-08-27)
+
+
+### Bug Fixes
+
+* keep table cell type when moving a row ([#301](https://github.com/ProseMirror/prosemirror-tables/issues/301)) ([98cdf2d](https://github.com/ProseMirror/prosemirror-tables/commit/98cdf2d07e99acbd0e6aecfcc6f8acba2f0e7e65))
+
 ## [1.8.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.7.1...v1.8.0) (2025-08-27)
 
 
