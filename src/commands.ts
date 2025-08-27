@@ -29,7 +29,8 @@ import {
   removeColSpan,
   selectionCell,
 } from './util';
-import { moveColumn, moveRow } from './utils';
+import { moveColumn } from './utils/move-column';
+import { moveRow } from './utils/move-row';
 
 /**
  * @public
