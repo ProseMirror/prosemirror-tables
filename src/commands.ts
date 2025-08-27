@@ -29,6 +29,7 @@ import {
   removeColSpan,
   selectionCell,
 } from './util';
+import { moveColumn, moveRow } from './utils';
 
 /**
  * @public
@@ -890,4 +891,106 @@ export function deleteCellSelection(
     if (tr.docChanged) dispatch(tr);
   }
   return true;
+}
+
+/**
+ * Options for moveTableRow
+ *
+ * @public
+ */
+export interface MoveTableRowOptions {
+  /**
+   * The source row index to move from.
+   */
+  from: number;
+
+  /**
+   * The destination row index to move to.
+   */
+  to: number;
+
+  /**
+   * Whether to select the moved row after the operation.
+   *
+   * @default true
+   */
+  select?: boolean;
+
+  /**
+   * Optional position to resolve table from. If not provided, uses the current selection.
+   */
+  pos?: number;
+}
+
+/**
+ * Move a table row from index `from` to index `to`.
+ *
+ * @public
+ */
+export function moveTableRow(options: MoveTableRowOptions): Command {
+  return (state, dispatch) => {
+    const {
+      from: originIndex,
+      to: targetIndex,
+      select = true,
+      pos = state.selection.from,
+    } = options;
+    const tr = state.tr;
+    if (moveRow({ tr, originIndex, targetIndex, select, pos })) {
+      dispatch?.(tr);
+      return true;
+    }
+    return false;
+  };
+}
+
+/**
+ * Options for moveTableColumn
+ *
+ * @public
+ */
+export interface MoveTableColumnOptions {
+  /**
+   * The source column index to move from.
+   */
+  from: number;
+
+  /**
+   * The destination column index to move to.
+   */
+  to: number;
+
+  /**
+   * Whether to select the moved column after the operation.
+   *
+   * @default true
+   */
+  select?: boolean;
+
+  /**
+   * Optional position to resolve table from. If not provided, uses the current selection.
+   */
+  pos?: number;
+}
+
+/**
+ * Move a table column from index `from` to index `to`.
+ *
+ * @public
+ */
+export function moveTableColumn(options: MoveTableColumnOptions): Command {
+  return (state, dispatch) => {
+    const {
+      from: originIndex,
+      to: targetIndex,
+      select = true,
+      pos = state.selection.from,
+    } = options;
+    const tr = state.tr;
+    if (moveColumn({ tr, originIndex, targetIndex, select, pos })) {
+      dispatch?.(tr);
+      return true;
+    }
+    return false;
+  };
 }

@@ -36,8 +36,8 @@ const nodeBuilders = builders(schema, {
 
 export const { doc, table, tr, p, td, th } = nodeBuilders;
 
-export function c(colspan: number, rowspan: number) {
-  return td({ colspan, rowspan }, p('x'));
+export function c(colspan: number, rowspan: number, text = 'x') {
+  return td({ colspan, rowspan }, p(text));
 }
 
 export const c11 = c(1, 1);
@@ -47,8 +47,8 @@ export const cCursorBefore = td(p('<cursor>x'));
 export const cAnchor = td(p('x<anchor>'));
 export const cHead = td(p('x<head>'));
 
-export function h(colspan: number, rowspan: number) {
-  return th({ colspan, rowspan }, p('x'));
+export function h(colspan: number, rowspan: number, text = 'x') {
+  return th({ colspan, rowspan }, p(text));
 }
 export const h11 = h(1, 1);
 export const hEmpty = th(p());
