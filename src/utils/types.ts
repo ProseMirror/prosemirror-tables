@@ -1,11 +1,4 @@
-import type { Node, ResolvedPos } from 'prosemirror-model';
-
-export type CellPos = {
-  pos: number;
-  start: number;
-  depth: number;
-  node: Node;
-};
+import type { ResolvedPos } from 'prosemirror-model';
 
 export type CellSelectionRange = {
   $anchor: ResolvedPos;

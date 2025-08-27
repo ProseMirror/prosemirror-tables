@@ -201,7 +201,7 @@ available to users.
    which will be used to avoid re-scanning unchanged parts of the
    document.
 
- * **`findTable`**`($pos: ResolvedPos) → ?FindParentNodeResult`\
+ * **`findTable`**`($pos: ResolvedPos) → ?FindNodeResult`\
    Find the closest table node that contains the given position, if any.
 
  * **`findCellRange`**`($pos: ResolvedPos, anchorHit: ?number, headHit: ?number) → ?[ResolvedPos, ResolvedPos]`\

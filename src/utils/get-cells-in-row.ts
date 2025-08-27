@@ -1,7 +1,6 @@
 import type { Selection } from 'prosemirror-state';
 
-import { findTable } from './query';
-import type { CellPos } from './types';
+import { FindNodeResult, findTable } from './query';
 import { TableMap } from '../tablemap';
 
 /**
@@ -12,7 +11,7 @@ import { TableMap } from '../tablemap';
 export function getCellsInRow(
   rowIndex: number | number[],
   selection: Selection,
-): CellPos[] | undefined {
+): FindNodeResult[] | undefined {
   const table = findTable(selection.$from);
   if (!table) {
     return;

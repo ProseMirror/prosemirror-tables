@@ -63,7 +63,7 @@ export type { MutableAttrs } from './util';
 export { fixTables, handlePaste, fixTablesKey };
 export { tableEditingKey };
 export { findTable, findCellRange, findCellPos } from './utils';
-export type { FindParentNodeResult } from './utils';
+export type { FindNodeResult } from './utils';
 
 /**
  * @public

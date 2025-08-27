@@ -17,7 +17,7 @@ function isCellSelection(value: unknown): value is CellSelection {
  *
  * @public
  */
-export function findTable($pos: ResolvedPos): FindParentNodeResult | undefined {
+export function findTable($pos: ResolvedPos): FindNodeResult | undefined {
   return findParentNode((node) => node.type.spec.tableRole === 'table', $pos);
 }
 
@@ -65,7 +65,7 @@ export function findCellPos(doc: Node, pos: number): ResolvedPos | undefined {
  *
  * @public
  */
-export interface FindParentNodeResult {
+export interface FindNodeResult {
   /**
    * The closest parent node that satisfies the predicate.
    */
@@ -101,7 +101,7 @@ function findParentNode(
    * The position to start searching from.
    */
   $pos: ResolvedPos,
-): FindParentNodeResult | undefined {
+): FindNodeResult | undefined {
   for (let depth = $pos.depth; depth >= 0; depth -= 1) {
     const node = $pos.node(depth);
 

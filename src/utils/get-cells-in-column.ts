@@ -1,8 +1,7 @@
 import type { Selection } from 'prosemirror-state';
 
-import { findTable } from './query';
-import type { CellPos } from './types';
 import { TableMap } from '../tablemap';
+import { FindNodeResult, findTable } from './query';
 
 /**
  * Returns an array of cells in a column(s), where `columnIndex` could be a column index or an array of column indexes.
@@ -12,7 +11,7 @@ import { TableMap } from '../tablemap';
 export function getCellsInColumn(
   columnIndexes: number | number[],
   selection: Selection,
-): CellPos[] | undefined {
+): FindNodeResult[] | undefined {
   const table = findTable(selection.$from);
   if (!table) {
     return;
