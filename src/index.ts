@@ -62,8 +62,8 @@ export {
 export type { MutableAttrs } from './util';
 export { fixTables, handlePaste, fixTablesKey };
 export { tableEditingKey };
-export { findTable, findCellRange, findCellPos } from './utils';
-export type { FindNodeResult } from './utils';
+export { findTable, findCellRange, findCellPos } from './utils/query';
+export type { FindNodeResult } from './utils/query';
 
 /**
  * @public
