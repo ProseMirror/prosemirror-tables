@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/ProseMirror/prosemirror-tables/compare/v1.7.1...v1.8.0) (2025-08-27)
+
+
+### Features
+
+* add commands to move a column or a row ([#296](https://github.com/ProseMirror/prosemirror-tables/issues/296)) ([bf4fc63](https://github.com/ProseMirror/prosemirror-tables/commit/bf4fc6332425f1d1689c29ecc4b70d722053dec8))
+
 ## [1.7.1](https://github.com/ProseMirror/prosemirror-tables/compare/v1.7.0...v1.7.1) (2025-04-17)
 
 
