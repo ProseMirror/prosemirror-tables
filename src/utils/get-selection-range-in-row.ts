@@ -1,7 +1,6 @@
 import type { Transaction } from 'prosemirror-state';
 
-import { getCellsInColumn } from './get-cells-in-column';
-import { getCellsInRow } from './get-cells-in-row';
+import { getCellsInColumn, getCellsInRow } from './get-cells';
 import type { CellSelectionRange } from './types';
 
 /**
