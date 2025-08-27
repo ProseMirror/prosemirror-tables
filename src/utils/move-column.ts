@@ -1,8 +1,10 @@
 import type { Node } from 'prosemirror-model';
 import type { Transaction } from 'prosemirror-state';
 
-import { convertArrayOfRowsToTableNode } from './convert-array-of-rows-to-table-node';
-import { convertTableNodeToArrayOfRows } from './convert-table-node-to-array-of-rows';
+import {
+  convertArrayOfRowsToTableNode,
+  convertTableNodeToArrayOfRows,
+} from './convert';
 import { getSelectionRangeInColumn } from './get-selection-range-in-column';
 import { moveRowInArrayOfRows } from './move-row-in-array-of-rows';
 import { findTable } from './query';

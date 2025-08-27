@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { p, table, td, tr } from './build';
 
-import { convertTableNodeToArrayOfRows } from '../src/utils/convert-table-node-to-array-of-rows';
+import { convertTableNodeToArrayOfRows } from '../src/utils/convert';
 
 describe('convertTableNodeToArrayOfRows', () => {
   const convert = (tableNode: Node): (string | null)[][] => {
