@@ -1,4 +1,4 @@
-import { Fragment, type Node } from 'prosemirror-model';
+import type { Node } from 'prosemirror-model';
 import { TableMap } from '../tablemap';
 
 /**
@@ -76,20 +76,41 @@ export function convertArrayOfRowsToTableNode(
   const rowCount = map.height;
   const colCount = map.width;
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-    const oldRow = tableNode.child(rowIndex);
-    const cells: Node[] = [];
+    const oldRow: Node = tableNode.child(rowIndex);
+    const newCells: Node[] = [];
 
     for (let colIndex = 0; colIndex < colCount; colIndex++) {
       const cell = arrayOfNodes[rowIndex][colIndex];
-      if (!cell) continue;
-      cells.push(cell);
+      if (!cell) {
+        continue;
+      }
+
+      const cellPos = map.map[rowIndex * map.width + colIndex];
+      const oldCell = tableNode.nodeAt(cellPos);
+      if (!oldCell) {
+        continue;
+      }
+
+      const newCell = oldCell.type.createChecked(
+        cell.attrs,
+        cell.content,
+        cell.marks,
+      );
+      newCells.push(newCell);
     }
 
-    const newRow = oldRow.copy(Fragment.from(cells));
+    const newRow = oldRow.type.createChecked(
+      oldRow.attrs,
+      newCells,
+      oldRow.marks,
+    );
     newRows.push(newRow);
   }
 
-  const newTable = tableNode.copy(Fragment.from(newRows));
-  newTable.check();
+  const newTable = tableNode.type.createChecked(
+    tableNode.attrs,
+    newRows,
+    tableNode.marks,
+  );
   return newTable;
 }
