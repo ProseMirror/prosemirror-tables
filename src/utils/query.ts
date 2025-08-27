@@ -17,7 +17,7 @@ function isCellSelection(value: unknown): value is CellSelection {
  *
  * @public
  */
-export function findTable($pos: ResolvedPos): FindNodeResult | undefined {
+export function findTable($pos: ResolvedPos): FindNodeResult | null {
   return findParentNode((node) => node.type.spec.tableRole === 'table', $pos);
 }
 
@@ -32,7 +32,7 @@ export function findCellRange(
   selection: Selection,
   anchorHit?: number,
   headHit?: number,
-): [ResolvedPos, ResolvedPos] | undefined {
+): [ResolvedPos, ResolvedPos] | null {
   if (anchorHit == null && headHit == null && isCellSelection(selection)) {
     return [selection.$anchorCell, selection.$headCell];
   }
@@ -48,6 +48,7 @@ export function findCellRange(
   if ($anchorCell && $headCell && inSameTable($anchorCell, $headCell)) {
     return [$anchorCell, $headCell];
   }
+  return null;
 }
 
 /**
@@ -101,7 +102,7 @@ function findParentNode(
    * The position to start searching from.
    */
   $pos: ResolvedPos,
-): FindNodeResult | undefined {
+): FindNodeResult | null {
   for (let depth = $pos.depth; depth >= 0; depth -= 1) {
     const node = $pos.node(depth);
 
@@ -111,4 +112,6 @@ function findParentNode(
       return { node, pos, start, depth };
     }
   }
+
+  return null;
 }
