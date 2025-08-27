@@ -5,7 +5,7 @@ import {
   convertArrayOfRowsToTableNode,
   convertTableNodeToArrayOfRows,
 } from './convert';
-import { getSelectionRangeInRow } from './get-selection-range-in-row';
+import { getSelectionRangeInRow } from './selection-range';
 import { moveRowInArrayOfRows } from './move-row-in-array-of-rows';
 import { findTable } from './query';
 import { TableMap } from '../tablemap';
