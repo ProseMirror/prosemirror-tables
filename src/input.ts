@@ -287,5 +287,34 @@ function cellUnderMouse(
     top: event.clientY,
   });
   if (!mousePos) return null;
-  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;
+  const $pos = view.state.doc.resolve(mousePos.pos);
+  const cell = cellAround($pos);
+  if (cell) return cell;
+  // search for entire merge cells
+  for (let d = $pos.depth; d > 0; d--) {
+    if ($pos.node(d).type.spec.tableRole === 'table') {
+      const table = $pos.node(d);
+      const tableStart = $pos.start(d);
+      const map = TableMap.get(table);
+
+      for (let i = 0; i < map.map.length; i++) {
+        const cellPos = map.map[i];
+        const cellRect = map.findCell(cellPos);
+
+        const row = Math.floor(i / map.width);
+        const col = i % map.width;
+        if (
+          row >= cellRect.top &&
+          row < cellRect.bottom &&
+          col >= cellRect.left &&
+          col < cellRect.right
+        ) {
+          return view.state.doc.resolve(tableStart + cellPos);
+        }
+      }
+      break;
+    }
+  }
+
+  return null;
 }
