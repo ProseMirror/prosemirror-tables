@@ -33,6 +33,35 @@ export function cellAround($pos: ResolvedPos): ResolvedPos | null {
   for (let d = $pos.depth - 1; d > 0; d--)
     if ($pos.node(d).type.spec.tableRole == 'row')
       return $pos.node(0).resolve($pos.before(d + 1));
+
+  // search the entire mergeCells
+  for (let d = $pos.depth; d > 0; d--) {
+    const node = $pos.node(d);
+    if (node.type.spec.tableRole === 'table') {
+      const table = TableMap.get(node);
+      for (let i = 0; i < table.map.length; i++) {
+        const cellPos = table.map[i];
+        try {
+          const cellRect = table.findCell(cellPos);
+          const row = Math.floor(i / table.width);
+          const col = i % table.width;
+
+          if (
+            row >= cellRect.top &&
+            row < cellRect.bottom &&
+            col >= cellRect.left &&
+            col < cellRect.right
+          ) {
+            return $pos.node(0).resolve($pos.start(d) + cellPos);
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      break;
+    }
+  }
+
   return null;
 }
 
