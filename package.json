@@ -48,7 +48,7 @@
     "builddocs": "^1.0.7",
     "eslint": "^8.57.0",
     "eslint-plugin-jest": "^26.9.0",
-    "happy-dom": "^16.8.1",
+    "happy-dom": "^20.0.2",
     "ist": "^1.1.7",
     "pkg-pr-new": "^0.0.57",
     "prettier": "^3.5.3",
