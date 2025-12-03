@@ -3,23 +3,21 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
-import type { Node, ResolvedPos} from 'prosemirror-model';
+import type { Node, ResolvedPos } from 'prosemirror-model';
 import { Fragment, Slice } from 'prosemirror-model';
-import type {
-  EditorState,
-  Transaction} from 'prosemirror-state';
+import type { EditorState, Transaction } from 'prosemirror-state';
 import {
   NodeSelection,
   Selection,
   SelectionRange,
-  TextSelection
+  TextSelection,
 } from 'prosemirror-state';
 import type { Mappable } from 'prosemirror-transform';
 import type { DecorationSource } from 'prosemirror-view';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 
 import { TableMap } from './tablemap';
-import type { CellAttrs} from './util';
+import type { CellAttrs } from './util';
 import { inSameTable, pointsAtCell, removeColSpan } from './util';
 
 /**
