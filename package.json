@@ -1,7 +1,7 @@
 {
   "name": "prosemirror-tables",
   "type": "module",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "packageManager": "pnpm@9.7.0",
   "description": "ProseMirror's rowspan/colspan tables component",
   "license": "MIT",
