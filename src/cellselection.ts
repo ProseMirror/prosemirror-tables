@@ -441,6 +441,42 @@ function isTextSelectionAcrossCells({ $from, $to }: TextSelection) {
   return fromCellBoundaryNode !== toCellBoundaryNode && $to.parentOffset === 0;
 }
 
+/**
+ * Normalizes a text selection that begins outside a table and ends inside it.
+ * In these cases, the entire table is selected by expanding the selection to
+ * cover the whole table node.
+ */
+function expandTextSelectionAcrossTable({
+  $anchor,
+  $head,
+  $from,
+  $to,
+}: TextSelection): Selection | undefined {
+  if ($to.pos - $from.pos < 5) return; // cheap elimination
+
+  let headTableStart = -1;
+  let headTableEnd = -1;
+
+  for (let i = $head.depth; i > 0; i--) {
+    const node = $head.node(i);
+    if (node.type.spec.tableRole === 'table') {
+      headTableStart = $head.start(i);
+      headTableEnd = $head.end(i);
+      break;
+    }
+  }
+
+  // head is not in a table
+  if (headTableStart === headTableEnd) return;
+  // anchor is inside this table
+  if (headTableStart <= $anchor.pos && $anchor.pos <= headTableEnd) return;
+
+  const doc = $anchor.doc;
+  return $anchor.pos < $head.pos
+    ? TextSelection.between($anchor, doc.resolve(headTableEnd), 1)
+    : TextSelection.between($anchor, doc.resolve(headTableStart), -1);
+}
+
 export function normalizeSelection(
   state: EditorState,
   tr: Transaction | undefined,
@@ -466,6 +502,8 @@ export function normalizeSelection(
     normalize = TextSelection.create(doc, sel.from);
   } else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) {
     normalize = TextSelection.create(doc, sel.$from.start(), sel.$from.end());
+  } else if (sel instanceof TextSelection) {
+    normalize ||= expandTextSelectionAcrossTable(sel);
   }
   if (normalize) (tr || (tr = state.tr)).setSelection(normalize);
   return tr;
