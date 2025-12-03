@@ -1,20 +1,3 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "target": "es2020",
-    "lib": ["es6", "dom", "esnext"],
-    "types": [],
-    "strict": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    "allowSyntheticDefaultImports": true,
-    "declarationDir": ".",
-    "noEmitOnError": false,
-    "moduleResolution": "node"
-  },
-  "include": ["./"],
-  "exclude": ["node_modules/"]
+  "extends": "@ocavue/tsconfig/dom/app.json"
 }
