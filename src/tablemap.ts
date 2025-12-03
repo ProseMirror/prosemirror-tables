@@ -8,8 +8,9 @@
 // document-relative positions. So code that uses them will typically
 // compute the start position of the table and offset positions passed
 // to or gotten from this structure by that amount.
-import { Attrs, Node } from 'prosemirror-model';
-import { CellAttrs } from './util';
+import type { Attrs, Node } from 'prosemirror-model';
+
+import type { CellAttrs } from './util';
 
 /**
  * @public
@@ -51,7 +52,6 @@ let addToCache: (key: Node, value: TableMap) => TableMap;
 // Prefer using a weak map to cache table maps. Fall back on a
 // fixed-size cache if that's not supported.
 if (typeof WeakMap != 'undefined') {
-  // eslint-disable-next-line
   let cache = new WeakMap<Node, TableMap>();
   readFromCache = (key) => cache.get(key);
   addToCache = (key, value) => {

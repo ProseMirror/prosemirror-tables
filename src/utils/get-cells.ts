@@ -1,7 +1,9 @@
 import type { Selection } from 'prosemirror-state';
 
 import { TableMap } from '../tablemap';
-import { FindNodeResult, findTable } from './query';
+
+import type { FindNodeResult } from './query';
+import { findTable } from './query';
 
 /**
  * Returns an array of cells in a column at the specified column index.

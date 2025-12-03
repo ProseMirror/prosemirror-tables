@@ -4,13 +4,13 @@ import 'prosemirror-example-setup/style/style.css';
 import 'prosemirror-gapcursor/style/gapcursor.css';
 import '../style/tables.css';
 
-import { EditorView } from 'prosemirror-view';
-import { EditorState } from 'prosemirror-state';
+import { exampleSetup, buildMenuItems } from 'prosemirror-example-setup';
+import { keymap } from 'prosemirror-keymap';
+import { MenuItem, Dropdown } from 'prosemirror-menu';
 import { DOMParser, Schema } from 'prosemirror-model';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
-import { keymap } from 'prosemirror-keymap';
-import { exampleSetup, buildMenuItems } from 'prosemirror-example-setup';
-import { MenuItem, Dropdown } from 'prosemirror-menu';
+import { EditorState } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 
 import {
   addColumnAfter,
@@ -42,8 +42,15 @@ const schema = new Schema({
             return dom.style.backgroundColor || null;
           },
           setDOMAttr(value, attrs) {
-            if (value)
-              attrs.style = (attrs.style || '') + `background-color: ${value};`;
+            if (value) {
+              attrs.style = [
+                `background-color: ${value as string}`,
+                attrs.style,
+              ]
+                .filter(Boolean)
+                .map(String)
+                .join('; ');
+            }
           },
         },
       },

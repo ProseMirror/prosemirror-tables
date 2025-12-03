@@ -1,11 +1,13 @@
 // Various helper function for working with tables
 
-import { EditorState, NodeSelection, PluginKey } from 'prosemirror-state';
+import type { Attrs, Node, ResolvedPos } from 'prosemirror-model';
+import type { EditorState, NodeSelection } from 'prosemirror-state';
+import { PluginKey } from 'prosemirror-state';
 
-import { Attrs, Node, ResolvedPos } from 'prosemirror-model';
-import { CellSelection } from './cellselection';
+import type { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
-import { Rect, TableMap } from './tablemap';
+import type { Rect } from './tablemap';
+import { TableMap } from './tablemap';
 
 /**
  * @public

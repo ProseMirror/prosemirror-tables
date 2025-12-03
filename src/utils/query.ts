@@ -1,5 +1,6 @@
 import type { Node, ResolvedPos } from 'prosemirror-model';
 import type { Selection } from 'prosemirror-state';
+
 import { CellSelection } from '../cellselection';
 import { cellAround, cellNear, inSameTable } from '../util';
 

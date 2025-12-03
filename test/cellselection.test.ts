@@ -1,11 +1,8 @@
 import ist from 'ist';
-import { Node, Slice } from 'prosemirror-model';
-import {
-  Command,
-  EditorState,
-  NodeSelection,
-  Selection,
-} from 'prosemirror-state';
+import type { Node } from 'prosemirror-model';
+import { Slice } from 'prosemirror-model';
+import type { Command, Selection } from 'prosemirror-state';
+import { EditorState, NodeSelection } from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
 import {
@@ -15,7 +12,8 @@ import {
   addRowBefore,
   CellSelection,
   tableEditing,
-} from '../src/';
+} from '../src';
+
 import {
   c,
   c11,

@@ -1,9 +1,9 @@
 import type { Node } from 'prosemirror-model';
 import { describe, expect, it } from 'vitest';
 
-import { p, table, td, tr } from './build';
-
 import { convertTableNodeToArrayOfRows } from '../src/utils/convert';
+
+import { p, table, td, tr } from './build';
 
 describe('convertTableNodeToArrayOfRows', () => {
   const convert = (tableNode: Node): (string | null)[][] => {

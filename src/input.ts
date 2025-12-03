@@ -2,16 +2,12 @@
 // table-related functionality.
 
 import { keydownHandler } from 'prosemirror-keymap';
-import { Fragment, ResolvedPos, Slice } from 'prosemirror-model';
-import {
-  Command,
-  EditorState,
-  Selection,
-  TextSelection,
-  Transaction,
-} from 'prosemirror-state';
+import type { ResolvedPos, Slice } from 'prosemirror-model';
+import { Fragment } from 'prosemirror-model';
+import type { Command, EditorState, Transaction } from 'prosemirror-state';
+import { Selection, TextSelection } from 'prosemirror-state';
+import type { EditorView } from 'prosemirror-view';
 
-import { EditorView } from 'prosemirror-view';
 import { CellSelection } from './cellselection';
 import { deleteCellSelection } from './commands';
 import { clipCells, fitSlice, insertCells, pastedCells } from './copypaste';

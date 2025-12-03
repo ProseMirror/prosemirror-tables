@@ -1,17 +1,12 @@
-import { Command, EditorState } from 'prosemirror-state';
+import type { Command } from 'prosemirror-state';
+import { EditorState } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 import { describe, expect, it } from 'vitest';
 
-import { EditorView } from 'prosemirror-view';
 import { arrow } from '../src/input';
-import {
-  TaggedNode,
-  c11,
-  cCursor,
-  cCursorBefore,
-  selectionFor,
-  table,
-  tr,
-} from './build';
+
+import type { TaggedNode } from './build';
+import { c11, cCursor, cCursorBefore, selectionFor, table, tr } from './build';
 
 function test(
   doc: TaggedNode,

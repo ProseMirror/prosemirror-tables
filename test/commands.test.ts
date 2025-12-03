@@ -1,8 +1,26 @@
 import ist from 'ist';
-import { Command, EditorState, Transaction } from 'prosemirror-state';
-import { Node } from 'prosemirror-model';
+import type { Node } from 'prosemirror-model';
+import type { Command, Transaction } from 'prosemirror-state';
+import { EditorState } from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
+import {
+  addColumnAfter,
+  addColumnBefore,
+  deleteColumn,
+  addRowAfter,
+  addRowBefore,
+  deleteRow,
+  mergeCells,
+  splitCell,
+  splitCellWithType,
+  setCellAttr,
+  toggleHeader,
+  toggleHeaderRow,
+  toggleHeaderColumn,
+} from '../src';
+
+import type { TaggedNode } from './build';
 import {
   doc,
   table,
@@ -22,23 +40,7 @@ import {
   cAnchor,
   eq,
   selectionFor,
-  TaggedNode,
 } from './build';
-import {
-  addColumnAfter,
-  addColumnBefore,
-  deleteColumn,
-  addRowAfter,
-  addRowBefore,
-  deleteRow,
-  mergeCells,
-  splitCell,
-  splitCellWithType,
-  setCellAttr,
-  toggleHeader,
-  toggleHeaderRow,
-  toggleHeaderColumn,
-} from '../src/';
 
 function test(
   doc: TaggedNode,
