@@ -1,27 +1,32 @@
 // This file defines a number of table-related commands.
 
-import {
-  Fragment,
+import type {
   Node,
   NodeType,
-  ResolvedPos,
+  ResolvedPos} from 'prosemirror-model';
+import {
+  Fragment,
   Slice,
 } from 'prosemirror-model';
-import {
+import type {
   Command,
   EditorState,
-  TextSelection,
-  Transaction,
+  Transaction} from 'prosemirror-state';
+import {
+  TextSelection
 } from 'prosemirror-state';
 
 import { CellSelection } from './cellselection';
 import type { Direction } from './input';
-import { tableNodeTypes, TableRole } from './schema';
-import { Rect, TableMap } from './tablemap';
+import type { TableRole } from './schema';
+import { tableNodeTypes } from './schema';
+import type { Rect} from './tablemap';
+import { TableMap } from './tablemap';
+import type {
+  CellAttrs} from './util';
 import {
   addColSpan,
   cellAround,
-  CellAttrs,
   cellWrapping,
   columnIsHeader,
   isInTable,

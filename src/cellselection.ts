@@ -3,20 +3,24 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
-import { Fragment, Node, ResolvedPos, Slice } from 'prosemirror-model';
-import {
+import type { Node, ResolvedPos} from 'prosemirror-model';
+import { Fragment, Slice } from 'prosemirror-model';
+import type {
   EditorState,
+  Transaction} from 'prosemirror-state';
+import {
   NodeSelection,
   Selection,
   SelectionRange,
-  TextSelection,
-  Transaction,
+  TextSelection
 } from 'prosemirror-state';
-import { Decoration, DecorationSet, DecorationSource } from 'prosemirror-view';
+import type { Mappable } from 'prosemirror-transform';
+import type { DecorationSource } from 'prosemirror-view';
+import { Decoration, DecorationSet } from 'prosemirror-view';
 
-import { Mappable } from 'prosemirror-transform';
 import { TableMap } from './tablemap';
-import { CellAttrs, inSameTable, pointsAtCell, removeColSpan } from './util';
+import type { CellAttrs} from './util';
+import { inSameTable, pointsAtCell, removeColSpan } from './util';
 
 /**
  * @public

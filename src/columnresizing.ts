@@ -1,15 +1,19 @@
-import { Attrs, Node as ProsemirrorNode } from 'prosemirror-model';
-import { EditorState, Plugin, PluginKey, Transaction } from 'prosemirror-state';
+import type { Attrs, Node as ProsemirrorNode } from 'prosemirror-model';
+import type { EditorState, Transaction } from 'prosemirror-state';
+import { Plugin, PluginKey } from 'prosemirror-state';
+import type {
+  EditorView,
+  NodeView} from 'prosemirror-view';
 import {
   Decoration,
-  DecorationSet,
-  EditorView,
-  NodeView,
+  DecorationSet
 } from 'prosemirror-view';
+
 import { tableNodeTypes } from './schema';
 import { TableMap } from './tablemap';
 import { TableView, updateColumnsOnResize } from './tableview';
-import { cellAround, CellAttrs, pointsAtCell } from './util';
+import type { CellAttrs} from './util';
+import { cellAround, pointsAtCell } from './util';
 
 /**
  * @public
