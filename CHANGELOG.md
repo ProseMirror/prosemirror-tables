@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.3](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.2...v1.8.3) (2025-12-03)
+
+
+### Bug Fixes
+
+* update repository URL in package.json ([#320](https://github.com/ProseMirror/prosemirror-tables/issues/320)) ([cdd85e6](https://github.com/ProseMirror/prosemirror-tables/commit/cdd85e6b23dbf1dc2c6de53ed986bf5163b486c0))
+
 ## [1.8.2](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.1...v1.8.2) (2025-12-03)
 
 
