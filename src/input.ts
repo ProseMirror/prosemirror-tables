@@ -287,5 +287,8 @@ function cellUnderMouse(
     top: event.clientY,
   });
   if (!mousePos) return null;
-  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;
+  // Use `inside` position when available (when pointer is inside a node),
+  // otherwise fall back to `pos`
+  const pos = mousePos.inside >= 0 ? mousePos.inside : mousePos.pos;
+  return cellAround(view.state.doc.resolve(pos));
 }
