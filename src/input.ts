@@ -287,5 +287,6 @@ function cellUnderMouse(
     top: event.clientY,
   });
   if (!mousePos) return null;
-  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;
+  const $pos = view.state.doc.resolve(mousePos.pos);
+  return cellAround($pos);
 }
