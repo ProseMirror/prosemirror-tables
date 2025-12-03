@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/prosemirror/prosemirror-tables.git"
+    "url": "https://github.com/ProseMirror/prosemirror-tables.git"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
