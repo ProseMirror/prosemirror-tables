@@ -6,9 +6,11 @@ in such a table, a plugin to manage such selections and enforce
 invariants on such tables, and a number of commands to work with
 tables.
 
-The top-level directory contains a `demo.js` and `index.html`, which
-can be built with `npm run build_demo` to show a simple demo of how the
+The `demo` directory contains a `demo.ts` and `index.html`, which
+can be built with `pnpm run build_demo` to show a simple demo of how the
 module can be used.
+
+## [Live Demo](https://prosemirror-tables.netlify.app/)
 
 ## Documentation
 
