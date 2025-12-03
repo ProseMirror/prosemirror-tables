@@ -191,7 +191,7 @@ export function deleteColumn(
         ? tr.doc.nodeAt(rect.tableStart - 1)
         : tr.doc;
       if (!table) {
-        throw RangeError('No table found');
+        throw new RangeError('No table found');
       }
       rect.table = table;
       rect.map = TableMap.get(table);
@@ -355,7 +355,7 @@ export function deleteRow(
         ? tr.doc.nodeAt(rect.tableStart - 1)
         : tr.doc;
       if (!table) {
-        throw RangeError('No table found');
+        throw new RangeError('No table found');
       }
       rect.table = table;
       rect.map = TableMap.get(rect.table);
@@ -452,7 +452,7 @@ export function mergeCells(
       ),
       rowspan: rect.bottom - rect.top,
     });
-    if (content.size) {
+    if (content.size > 0) {
       const end = mergedPos + 1 + mergedCell.content.size;
       const start = isEmpty(mergedCell) ? mergedPos + 1 : end;
       tr.replaceWith(start + rect.tableStart, end + rect.tableStart, content);
@@ -634,7 +634,7 @@ function deprecated_toggleHeader(type: ToggleHeaderType): Command {
             types.cell,
             nodes[i].attrs,
           );
-      if (tr.steps.length == 0)
+      if (tr.steps.length === 0)
         for (
           let i = 0;
           i < cells.length;
@@ -687,7 +687,7 @@ export type ToggleHeaderType = 'column' | 'row' | 'cell';
  */
 export function toggleHeader(
   type: ToggleHeaderType,
-  options?: { useDeprecatedLogic: boolean } | undefined,
+  options?: { useDeprecatedLogic: boolean },
 ): Command {
   options = options || { useDeprecatedLogic: false };
 

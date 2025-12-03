@@ -1,6 +1,6 @@
 // Helper for creating a schema that supports tables.
 
-import {
+import type {
   AttributeSpec,
   Attrs,
   Node,
@@ -8,7 +8,8 @@ import {
   NodeType,
   Schema,
 } from 'prosemirror-model';
-import { CellAttrs, MutableAttrs } from './util';
+
+import type { CellAttrs, MutableAttrs } from './util';
 
 function getCellAttrs(dom: HTMLElement | string, extraAttrs: Attrs): Attrs {
   if (typeof dom === 'string') {

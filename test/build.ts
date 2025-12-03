@@ -1,8 +1,10 @@
-import { Node, ResolvedPos, Schema } from 'prosemirror-model';
+import type { Node, ResolvedPos } from 'prosemirror-model';
+import { Schema } from 'prosemirror-model';
 import { schema as baseSchema } from 'prosemirror-schema-basic';
 import { NodeSelection, TextSelection } from 'prosemirror-state';
 import { builders, eq } from 'prosemirror-test-builder';
-import { CellSelection, cellAround, tableNodes } from '../src/';
+
+import { CellSelection, cellAround, tableNodes } from '../src';
 
 export type TaggedNode = Node & { tag: Record<string, number> };
 

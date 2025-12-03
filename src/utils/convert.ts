@@ -1,4 +1,5 @@
 import type { Node } from 'prosemirror-model';
+
 import { TableMap } from '../tablemap';
 
 /**

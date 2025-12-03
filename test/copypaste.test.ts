@@ -1,5 +1,6 @@
 import ist from 'ist';
-import { Fragment, Node } from 'prosemirror-model';
+import type { Node } from 'prosemirror-model';
+import { Fragment } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
@@ -9,7 +10,9 @@ import {
   __clipCells as clipCells,
   __insertCells as insertCells,
   __pastedCells as pastedCells,
-} from '../src/';
+} from '../src';
+
+import type { TaggedNode } from './build';
 import {
   c,
   c11,
@@ -21,7 +24,6 @@ import {
   hEmpty,
   p,
   table,
-  TaggedNode,
   td,
   tr,
 } from './build';

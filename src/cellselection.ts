@@ -68,7 +68,7 @@ export class CellSelection extends Selection {
     const ranges = cells.map((pos) => {
       const cell = table.nodeAt(pos);
       if (!cell) {
-        throw RangeError(`No cell with offset ${pos} found`);
+        throw new RangeError(`No cell with offset ${pos} found`);
       }
       const from = tableStart + pos + 1;
       return new SelectionRange(
@@ -101,7 +101,7 @@ export class CellSelection extends Selection {
 
   // Returns a rectangular slice of table rows containing the selected
   // cells.
-  public content(): Slice {
+  public override content(): Slice {
     const table = this.$anchorCell.node(-1);
     const map = TableMap.get(table);
     const tableStart = this.$anchorCell.start(-1);
@@ -126,7 +126,7 @@ export class CellSelection extends Selection {
         const cellRect = map.findCell(pos);
         let cell = table.nodeAt(pos);
         if (!cell) {
-          throw RangeError(`No cell with offset ${pos} found`);
+          throw new RangeError(`No cell with offset ${pos} found`);
         }
 
         const extraLeft = rect.left - cellRect.left;
@@ -147,7 +147,7 @@ export class CellSelection extends Selection {
           if (cellRect.left < rect.left) {
             cell = cell.type.createAndFill(attrs);
             if (!cell) {
-              throw RangeError(
+              throw new RangeError(
                 `Could not create cell with attrs ${JSON.stringify(attrs)}`,
               );
             }
@@ -178,7 +178,7 @@ export class CellSelection extends Selection {
     return new Slice(Fragment.from(fragment), 1, 1);
   }
 
-  public replace(tr: Transaction, content: Slice = Slice.empty): void {
+  public override replace(tr: Transaction, content: Slice = Slice.empty): void {
     const mapFrom = tr.steps.length,
       ranges = this.ranges;
     for (let i = 0; i < ranges.length; i++) {
@@ -197,7 +197,7 @@ export class CellSelection extends Selection {
     if (sel) tr.setSelection(sel);
   }
 
-  public replaceWith(tr: Transaction, node: Node): void {
+  public override replaceWith(tr: Transaction, node: Node): void {
     this.replace(tr, new Slice(Fragment.from(node), 0, 0));
   }
 
@@ -332,7 +332,10 @@ export class CellSelection extends Selection {
     };
   }
 
-  static fromJSON(doc: Node, json: CellSelectionJSON): CellSelection {
+  public static override fromJSON(
+    doc: Node,
+    json: CellSelectionJSON,
+  ): CellSelection {
     return new CellSelection(doc.resolve(json.anchor), doc.resolve(json.head));
   }
 
@@ -344,7 +347,7 @@ export class CellSelection extends Selection {
     return new CellSelection(doc.resolve(anchorCell), doc.resolve(headCell));
   }
 
-  getBookmark(): CellBookmark {
+  public override getBookmark(): CellBookmark {
     return new CellBookmark(this.$anchorCell.pos, this.$headCell.pos);
   }
 }

@@ -1,6 +1,9 @@
 import ist from 'ist';
+import type { Node } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 import { describe, it } from 'vitest';
+
+import { fixTables } from '../src';
 
 import {
   c,
@@ -15,9 +18,6 @@ import {
   td,
   tr,
 } from './build';
-
-import { Node } from 'prosemirror-model';
-import { fixTables } from '../src/';
 
 const cw100 = td({ colwidth: [100] }, p('x'));
 const cw200 = td({ colwidth: [200] }, p('x'));

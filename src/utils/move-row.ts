@@ -1,15 +1,16 @@
 import type { Node } from 'prosemirror-model';
 import type { Transaction } from 'prosemirror-state';
 
+import { CellSelection } from '../cellselection';
+import { TableMap } from '../tablemap';
+
 import {
   convertArrayOfRowsToTableNode,
   convertTableNodeToArrayOfRows,
 } from './convert';
-import { getSelectionRangeInRow } from './selection-range';
 import { moveRowInArrayOfRows } from './move-row-in-array-of-rows';
 import { findTable } from './query';
-import { TableMap } from '../tablemap';
-import { CellSelection } from '../cellselection';
+import { getSelectionRangeInRow } from './selection-range';
 
 /**
  * Parameters for moving a row in a table.

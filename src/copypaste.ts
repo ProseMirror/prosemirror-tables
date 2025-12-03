@@ -10,14 +10,17 @@
 // clipped to the selection's rectangle, optionally repeating the
 // pasted cells when they are smaller than the selection.
 
-import { Fragment, Node, NodeType, Schema, Slice } from 'prosemirror-model';
+import type { Node, NodeType, Schema } from 'prosemirror-model';
+import { Fragment, Slice } from 'prosemirror-model';
+import type { EditorState, Transaction } from 'prosemirror-state';
 import { Transform } from 'prosemirror-transform';
 
-import { EditorState, Transaction } from 'prosemirror-state';
 import { CellSelection } from './cellselection';
 import { tableNodeTypes } from './schema';
-import { ColWidths, Rect, TableMap } from './tablemap';
-import { CellAttrs, removeColSpan } from './util';
+import type { ColWidths, Rect } from './tablemap';
+import { TableMap } from './tablemap';
+import type { CellAttrs } from './util';
+import { removeColSpan } from './util';
 
 /**
  * @internal
@@ -33,7 +36,7 @@ export type Area = { width: number; height: number; rows: Fragment[] };
  * @internal
  */
 export function pastedCells(slice: Slice): Area | null {
-  if (!slice.size) return null;
+  if (slice.size === 0) return null;
   let { content, openStart, openEnd } = slice;
   while (
     content.childCount == 1 &&

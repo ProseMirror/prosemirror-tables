@@ -1,6 +1,7 @@
-import { Node } from 'prosemirror-model';
-import { NodeView, ViewMutationRecord } from 'prosemirror-view';
-import { CellAttrs } from './util';
+import type { Node } from 'prosemirror-model';
+import type { NodeView, ViewMutationRecord } from 'prosemirror-view';
+
+import type { CellAttrs } from './util';
 
 /**
  * @public

@@ -1,8 +1,10 @@
 import ist from 'ist';
+import { describe, it } from 'vitest';
+
+import { TableMap } from '../src';
+import type { Rect } from '../src';
 
 import { table, tr, c, c11 } from './build';
-import { Rect, TableMap } from '../src/';
-import { describe, it } from 'vitest';
 
 function eqRect(a: Rect, b: Rect) {
   return (
