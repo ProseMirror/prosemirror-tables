@@ -248,6 +248,11 @@ export function handleMouseDown(
 function atEndOfCell(view: EditorView, axis: Axis, dir: number): null | number {
   if (!(view.state.selection instanceof TextSelection)) return null;
   const { $head } = view.state.selection;
+  if ($head.parent.type.spec.tableRole == "cell" || $head.parent.type.spec.tableRole == "header_cell") {
+    const cellPos = $head.before();
+    const dirStr = axis == "vert" ? dir > 0 ? "down" : "up" : dir > 0 ? "right" : "left";
+    return view.endOfTextblock(dirStr) ? cellPos : null;
+  }
   for (let d = $head.depth - 1; d >= 0; d--) {
     const parent = $head.node(d),
       index = dir < 0 ? $head.index(d) : $head.indexAfter(d);
