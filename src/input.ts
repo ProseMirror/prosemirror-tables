@@ -289,6 +289,5 @@ function cellUnderMouse(
     const $cell = cellAround(view.state.doc.resolve(mousePos.inside));
     if ($cell) return $cell;
   }
-  
   return cellAround(view.state.doc.resolve(mousePos.pos));
 }
