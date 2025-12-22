@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.4](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.3...v1.8.4) (2025-12-22)
+
+
+### Bug Fixes
+
+* prevent cell selection on context menu open ([#324](https://github.com/ProseMirror/prosemirror-tables/issues/324)) ([92cd56b](https://github.com/ProseMirror/prosemirror-tables/commit/92cd56bdc5353a5e15625fa586140301a64546e8))
+
 ## [1.8.3](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.2...v1.8.3) (2025-12-03)
 
 
