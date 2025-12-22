@@ -174,6 +174,11 @@ export function handleMouseDown(
   view: EditorView,
   startEvent: MouseEvent,
 ): void {
+  // Only handle mouse down events for the main button (usually the left button).
+  // This ensures that the cell selection won't be triggered when trying to open
+  // the context menu.
+  if (startEvent.button != 0) return;
+
   if (startEvent.ctrlKey || startEvent.metaKey) return;
 
   const startDOMCell = domInCell(view, startEvent.target as Node);
