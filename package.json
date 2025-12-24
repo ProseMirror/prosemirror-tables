@@ -2,7 +2,7 @@
   "name": "prosemirror-tables",
   "type": "module",
   "version": "1.8.4",
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.26.2",
   "description": "ProseMirror's rowspan/colspan tables component",
   "license": "MIT",
   "repository": {
@@ -44,11 +44,11 @@
     "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
-    "@ocavue/eslint-config": "^3.7.1",
+    "@ocavue/eslint-config": "^3.8.0",
     "@ocavue/tsconfig": "^0.6.2",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.16",
     "builddocs": "^1.0.8",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "happy-dom": "^20.0.11",
     "ist": "^1.1.7",
     "pkg-pr-new": "^0.0.62",
@@ -61,8 +61,8 @@
     "prosemirror-test-builder": "^1.1.1",
     "tsdown": "^0.18.2",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6",
-    "vitest": "^4.0.15"
+    "vite": "^7.3.0",
+    "vitest": "^4.0.16"
   },
   "maintainers": [
     {
