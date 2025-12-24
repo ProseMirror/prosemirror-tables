@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.5](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.4...v1.8.5) (2025-12-24)
+
+
+### Bug Fixes
+
+* improve cell selection with fallback strategy for merged cells ([#323](https://github.com/ProseMirror/prosemirror-tables/issues/323)) ([d141168](https://github.com/ProseMirror/prosemirror-tables/commit/d1411689ef3cf5871e80ce641e916755b4c29e08))
+
 ## [1.8.4](https://github.com/ProseMirror/prosemirror-tables/compare/v1.8.3...v1.8.4) (2025-12-22)
 
 
