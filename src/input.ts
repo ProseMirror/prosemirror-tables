@@ -285,9 +285,9 @@ function cellUnderMouse(
   if (!mousePos) return null;
   // Prefer `inside` position for better accuracy with merged cells (rowspan/colspan),
   // but fall back to `pos` if `inside` doesn't resolve to a valid cell
-  if (mousePos.inside >= 0) {
-    const $cell = cellAround(view.state.doc.resolve(mousePos.inside));
-    if ($cell) return $cell;
-  }
-  return cellAround(view.state.doc.resolve(mousePos.pos));
+  let { inside, pos } = mousePos;
+  return (
+    (inside >= 0 && cellAround(view.state.doc.resolve(inside))) ||
+    cellAround(view.state.doc.resolve(pos))
+  );
 }
