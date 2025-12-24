@@ -2200,7 +2200,7 @@ function handlePaste(view, _, slice) {
 		return true;
 	} else return false;
 }
-function handleMouseDown(view, startEvent) {
+function handleMouseDown$1(view, startEvent) {
 	var _cellUnderMouse;
 	if (startEvent.button != 0) return;
 	if (startEvent.ctrlKey || startEvent.metaKey) return;
@@ -2381,7 +2381,7 @@ function columnResizing({ handleWidth = 5, cellMinWidth = 25, defaultCellMinWidt
 					handleMouseLeave(view);
 				},
 				mousedown: (view, event) => {
-					handleMouseDown$1(view, event, cellMinWidth, defaultCellMinWidth);
+					handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth);
 				}
 			},
 			decorations: (state) => {
@@ -2443,7 +2443,7 @@ function handleMouseLeave(view) {
 	const pluginState = columnResizingPluginKey.getState(view.state);
 	if (pluginState && pluginState.activeHandle > -1 && !pluginState.dragging) updateHandle(view, -1);
 }
-function handleMouseDown$1(view, event, cellMinWidth, defaultCellMinWidth) {
+function handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth) {
 	var _view$dom$ownerDocume;
 	if (!view.editable) return false;
 	const win = (_view$dom$ownerDocume = view.dom.ownerDocument.defaultView) !== null && _view$dom$ownerDocume !== void 0 ? _view$dom$ownerDocume : window;
@@ -2607,7 +2607,7 @@ function tableEditing({ allowTableNodeSelection = false } = {}) {
 		},
 		props: {
 			decorations: drawCellSelection,
-			handleDOMEvents: { mousedown: handleMouseDown },
+			handleDOMEvents: { mousedown: handleMouseDown$1 },
 			createSelectionBetween(view) {
 				return tableEditingKey.getState(view.state) != null ? view.state.selection : null;
 			},
