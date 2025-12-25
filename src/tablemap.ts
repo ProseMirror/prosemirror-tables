@@ -177,12 +177,48 @@ export class TableMap {
       top: topB,
       bottom: bottomB,
     } = this.findCell(b);
-    return {
+    let rect = {
       left: Math.min(leftA, leftB),
       top: Math.min(topA, topB),
       right: Math.max(rightA, rightB),
       bottom: Math.max(bottomA, bottomB),
     };
+
+    // Expand the rectangle to ensure it's truly rectangular and includes
+    // all cells that span across its boundaries
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+
+      // Check all cells in the current rectangle
+      for (let row = rect.top; row < rect.bottom; row++) {
+        for (let col = rect.left; col < rect.right; col++) {
+          const index = row * this.width + col;
+          const cellPos = this.map[index];
+          const cellRect = this.findCell(cellPos);
+
+          // If this cell extends beyond the current rectangle, expand it
+          if (cellRect.left < rect.left) {
+            rect.left = cellRect.left;
+            expanded = true;
+          }
+          if (cellRect.right > rect.right) {
+            rect.right = cellRect.right;
+            expanded = true;
+          }
+          if (cellRect.top < rect.top) {
+            rect.top = cellRect.top;
+            expanded = true;
+          }
+          if (cellRect.bottom > rect.bottom) {
+            rect.bottom = cellRect.bottom;
+            expanded = true;
+          }
+        }
+      }
+    }
+
+    return rect;
   }
 
   // Return the position of all cells that have the top left corner in
