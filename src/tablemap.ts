@@ -190,14 +190,21 @@ export class TableMap {
     while (expanded) {
       expanded = false;
 
-      // Check all cells in the current rectangle
-      for (let row = rect.top; row < rect.bottom; row++) {
-        for (let col = rect.left; col < rect.right; col++) {
-          const index = row * this.width + col;
-          const cellPos = this.map[index];
-          const cellRect = this.findCell(cellPos);
+      // Cache to avoid redundant findCell() calls
+      const seen: Record<number, boolean> = {};
 
-          // If this cell extends beyond the current rectangle, expand it
+      // Check cells at the four edges of the rectangle
+      // We need to check all edges because expansion might reveal new cells
+
+      // Top and bottom edges - check all columns
+      for (let col = rect.left; col < rect.right; col++) {
+        // Top edge
+        const topIndex = rect.top * this.width + col;
+        const topCellPos = this.map[topIndex];
+        if (!seen[topCellPos]) {
+          seen[topCellPos] = true;
+          const cellRect = this.findCell(topCellPos);
+
           if (cellRect.left < rect.left) {
             rect.left = cellRect.left;
             expanded = true;
@@ -213,6 +220,88 @@ export class TableMap {
           if (cellRect.bottom > rect.bottom) {
             rect.bottom = cellRect.bottom;
             expanded = true;
+          }
+        }
+
+        // Bottom edge
+        if (rect.bottom > 0) {
+          const bottomIndex = (rect.bottom - 1) * this.width + col;
+          const bottomCellPos = this.map[bottomIndex];
+          if (!seen[bottomCellPos]) {
+            seen[bottomCellPos] = true;
+            const cellRect = this.findCell(bottomCellPos);
+
+            if (cellRect.left < rect.left) {
+              rect.left = cellRect.left;
+              expanded = true;
+            }
+            if (cellRect.right > rect.right) {
+              rect.right = cellRect.right;
+              expanded = true;
+            }
+            if (cellRect.top < rect.top) {
+              rect.top = cellRect.top;
+              expanded = true;
+            }
+            if (cellRect.bottom > rect.bottom) {
+              rect.bottom = cellRect.bottom;
+              expanded = true;
+            }
+          }
+        }
+      }
+
+      // Left and right edges - check all rows
+      for (let row = rect.top; row < rect.bottom; row++) {
+        // Left edge
+        const leftIndex = row * this.width + rect.left;
+        const leftCellPos = this.map[leftIndex];
+        if (!seen[leftCellPos]) {
+          seen[leftCellPos] = true;
+          const cellRect = this.findCell(leftCellPos);
+
+          if (cellRect.left < rect.left) {
+            rect.left = cellRect.left;
+            expanded = true;
+          }
+          if (cellRect.right > rect.right) {
+            rect.right = cellRect.right;
+            expanded = true;
+          }
+          if (cellRect.top < rect.top) {
+            rect.top = cellRect.top;
+            expanded = true;
+          }
+          if (cellRect.bottom > rect.bottom) {
+            rect.bottom = cellRect.bottom;
+            expanded = true;
+          }
+        }
+
+        // Right edge
+        if (rect.right > 0) {
+          const rightIndex = row * this.width + (rect.right - 1);
+          const rightCellPos = this.map[rightIndex];
+          if (!seen[rightCellPos]) {
+            seen[rightCellPos] = true;
+            const cellRect = this.findCell(rightCellPos);
+
+            if (cellRect.left < rect.left) {
+              rect.left = cellRect.left;
+              expanded = true;
+            }
+            if (cellRect.right > rect.right) {
+              rect.right = cellRect.right;
+              expanded = true;
+            }
+            if (cellRect.top < rect.top) {
+              rect.top = cellRect.top;
+              expanded = true;
+            }
+            if (cellRect.bottom > rect.bottom) {
+              rect.bottom = cellRect.bottom;
+              expanded = true;
+            }
           }
         }
       }
