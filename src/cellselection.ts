@@ -30,6 +30,21 @@ export interface CellSelectionJSON {
 }
 
 /**
+ * Options for creating a CellSelection.
+ *
+ * @public
+ */
+export interface CellSelectionOptions {
+  /**
+   * When true, the selection will be expanded to form a complete rectangle,
+   * including all cells that span across the selection boundaries.
+   * This is useful for mouse drag selections to prevent T-shaped or L-shaped selections.
+   * Default is false.
+   */
+  forceRectangular?: boolean;
+}
+
+/**
  * A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
  * subclass that represents a cell selection spanning part of a table.
  * With the plugin enabled, these will be created when the user
@@ -51,13 +66,19 @@ export class CellSelection extends Selection {
   // positions given to this constructor should point _before_ two
   // cells in the same table. They may be the same, to select a single
   // cell.
-  constructor($anchorCell: ResolvedPos, $headCell: ResolvedPos = $anchorCell) {
+  constructor(
+    $anchorCell: ResolvedPos,
+    $headCell: ResolvedPos = $anchorCell,
+    options: CellSelectionOptions = {},
+  ) {
+    const { forceRectangular = false } = options;
     const table = $anchorCell.node(-1);
     const map = TableMap.get(table);
     const tableStart = $anchorCell.start(-1);
     const rect = map.rectBetween(
       $anchorCell.pos - tableStart,
       $headCell.pos - tableStart,
+      forceRectangular,
     );
 
     const doc = $anchorCell.node(0);

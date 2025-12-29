@@ -108,20 +108,16 @@ describe('CellSelection.content', () => {
       eq,
     ));
 
-  it('expands selection to include cells spanning horizontally', () =>
-    // With rectangular selection constraint, when a cell spans across the boundary,
-    // the selection expands to include the entire table
+  it('cuts off cells sticking out horizontally', () =>
     ist(
       selectionFor(
         table(tr(c11, cAnchor, c(2, 1)), tr(c(4, 1)), tr(c(2, 1), cHead, c11)),
       ).content(),
-      slice(table(tr(c11, c11, c(2, 1)), tr(c(4, 1)), tr(c(2, 1), c11, c11))),
+      slice(table(tr(c11, c11), tr(td({ colspan: 2 }, p())), tr(cEmpty, c11))),
       eq,
     ));
 
-  it('expands selection to include cells spanning vertically', () =>
-    // With rectangular selection constraint, the selection expands to include
-    // cells that span across the selection boundaries
+  it('cuts off cells sticking out vertically', () =>
     ist(
       selectionFor(
         table(
@@ -131,15 +127,11 @@ describe('CellSelection.content', () => {
           tr(c11),
         ),
       ).content(),
-      slice(
-        table(tr(c11, c(1, 4), c(1, 2)), tr(c11), tr(c(1, 2), c11), tr(c11)),
-      ),
+      slice(table(tr(c11, td({ rowspan: 2 }, p()), cEmpty), tr(c11, c11))),
       eq,
     ));
 
-  it('expands selection to preserve column widths', () =>
-    // With rectangular selection constraint, when a colspan cell spans the selection,
-    // the entire row must be included
+  it('preserves column widths', () =>
     ist(
       selectionFor(
         table(
@@ -148,13 +140,7 @@ describe('CellSelection.content', () => {
           tr(c11, cHead, c11),
         ),
       ).content(),
-      slice(
-        table(
-          tr(c11, c11, c11),
-          tr(td({ colspan: 3, colwidth: [100, 200, 300] }, p('x'))),
-          tr(c11, c11, c11),
-        ),
-      ),
+      slice(table(tr(c11), tr(td({ colwidth: [200] }, p())), tr(c11))),
       eq,
     ));
 });

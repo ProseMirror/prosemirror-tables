@@ -82,16 +82,26 @@ describe('TableMap', () => {
   });
 
   it('can find the rectangle between two cells', () => {
-    // With rectangular selection constraint, selections must expand to include
-    // all cells that span across the boundaries
-    ist(map.cellsInRect(map.rectBetween(1, 6)).join(', '), '1, 6, 11, 18, 25');
+    ist(map.cellsInRect(map.rectBetween(1, 6)).join(', '), '1, 6, 18, 25');
     ist(map.cellsInRect(map.rectBetween(1, 25)).join(', '), '1, 6, 11, 18, 25');
     ist(map.cellsInRect(map.rectBetween(1, 1)).join(', '), '1');
     ist(map.cellsInRect(map.rectBetween(6, 25)).join(', '), '6, 11, 18, 25');
     ist(map.cellsInRect(map.rectBetween(6, 11)).join(', '), '6, 11, 18');
     ist(map.cellsInRect(map.rectBetween(11, 6)).join(', '), '6, 11, 18');
-    ist(map.cellsInRect(map.rectBetween(18, 25)).join(', '), '6, 11, 18, 25');
+    ist(map.cellsInRect(map.rectBetween(18, 25)).join(', '), '18, 25');
     ist(map.cellsInRect(map.rectBetween(6, 18)).join(', '), '6, 18');
+  });
+
+  it('expands rectangle when forceRectangular is true', () => {
+    ist(
+      map.cellsInRect(map.rectBetween(1, 6, true)).join(', '),
+      '1, 6, 11, 18, 25',
+    );
+    ist(map.cellsInRect(map.rectBetween(6, 11, true)).join(', '), '6, 11, 18');
+    ist(
+      map.cellsInRect(map.rectBetween(18, 25, true)).join(', '),
+      '6, 11, 18, 25',
+    );
   });
 
   it('can find adjacent cells', () => {

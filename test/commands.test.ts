@@ -501,26 +501,8 @@ describe('mergeCells', () => {
   it("doesn't do anything when only one cell is selected", () =>
     test(table(tr(cAnchor, c11)), mergeCells, null));
 
-  it('expands selection when it includes spanning cells', () =>
-    // With rectangular selection constraint, the selection from cAnchor to cHead
-    // will expand to include the entire table because c(2,1) spans across
-    test(
-      table(tr(cAnchor, c(2, 1)), tr(c11, cHead, c11)),
-      mergeCells,
-      table(
-        tr(
-          td(
-            { colspan: 3, rowspan: 2 },
-            p('x'),
-            p('x'),
-            p('x'),
-            p('x'),
-            p('x'),
-          ),
-        ),
-        tr(),
-      ),
-    ));
+  it("doesn't do anything when the selection cuts across spanning cells", () =>
+    test(table(tr(cAnchor, c(2, 1)), tr(c11, cHead, c11)), mergeCells, null));
 
   it('can merge two cells in a column', () =>
     test(
@@ -685,16 +667,10 @@ describe('setCellAttr', () => {
     test(table(tr(cCursor, c11)), setCellAttr('test', 'default'), null));
 
   it('will set attributes on all cells covered by a cell selection', () =>
-    // With rectangular selection constraint, selection expands to include
-    // the entire first two rows because c(2,1) spans columns 0-1
     test(
       table(tr(c11, cAnchor, c11), tr(c(2, 1), cHead), tr(c11, c11, c11)),
       setCellAttr('test', 'value'),
-      table(
-        tr(cAttr, cAttr, cAttr),
-        tr(td({ colspan: 2, test: 'value' }, p('x')), cAttr),
-        tr(c11, c11, c11),
-      ),
+      table(tr(c11, cAttr, cAttr), tr(c(2, 1), cAttr), tr(c11, c11, c11)),
     ));
 });
 
