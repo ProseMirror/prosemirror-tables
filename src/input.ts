@@ -239,6 +239,13 @@ export function handleMouseDown(
       // Moving out of the initial cell -- start a new cell selection
       $anchor = cellUnderMouse(view, startEvent);
       if (!$anchor) return stop();
+      // Clear browser's native text selection when starting cross-cell selection
+      // This prevents text from being selected when first dragging across cells
+      const root = view.root as Document;
+      if (root.getSelection) {
+        const domSel = root.getSelection();
+        if (domSel) domSel.removeAllRanges();
+      }
     }
     if ($anchor) setCellSelection($anchor, event);
   }
