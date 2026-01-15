@@ -95,6 +95,18 @@ export function columnResizing({
         mousedown: (view, event) => {
           handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth);
         },
+        touchmove: (view, event) => {
+          handleMouseMove(view, event, handleWidth, lastColumnResizable);
+        },
+        touchend: (view) => {
+          handleMouseLeave(view);
+        },
+        touchcancel: (view) => {
+          handleMouseLeave(view);
+        },
+        touchstart: (view, event) => {
+          handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth)
+        },
       },
 
       decorations: (state) => {
@@ -138,9 +150,22 @@ export class ResizeState {
   }
 }
 
+function getEventCoordinates(event: MouseEvent | TouchEvent): { clientX: number; clientY: number } | null {
+  if (event instanceof MouseEvent) {
+    return { clientX: event.clientX, clientY: event.clientY };
+  }
+  if (event instanceof TouchEvent) {
+    const touch = event.touches?.[0] || event.changedTouches?.[0];
+    if (touch) {
+      return { clientX: touch.clientX, clientY: touch.clientY };
+    }
+  }
+  return null;
+}
+
 function handleMouseMove(
   view: EditorView,
-  event: MouseEvent,
+  event: MouseEvent | TouchEvent,
   handleWidth: number,
   lastColumnResizable: boolean,
 ): void {
@@ -151,12 +176,15 @@ function handleMouseMove(
 
   if (!pluginState.dragging) {
     const target = domCellAround(event.target as HTMLElement);
+    const coords = getEventCoordinates(event);
+    if (!coords) return;
+    const { clientX } = coords;
     let cell = -1;
     if (target) {
       const { left, right } = target.getBoundingClientRect();
-      if (event.clientX - left <= handleWidth)
+      if (clientX - left <= handleWidth)
         cell = edgeCell(view, event, 'left', handleWidth);
-      else if (right - event.clientX <= handleWidth)
+      else if (right - clientX <= handleWidth)
         cell = edgeCell(view, event, 'right', handleWidth);
     }
 
@@ -191,7 +219,7 @@ function handleMouseLeave(view: EditorView): void {
 
 function handleMouseDown(
   view: EditorView,
-  event: MouseEvent,
+  event: MouseEvent | TouchEvent,
   cellMinWidth: number,
   defaultCellMinWidth: number,
 ): boolean {
@@ -205,15 +233,25 @@ function handleMouseDown(
 
   const cell = view.state.doc.nodeAt(pluginState.activeHandle)!;
   const width = currentColWidth(view, pluginState.activeHandle, cell.attrs);
+  let clientX = 0
+  if (event instanceof MouseEvent) { clientX = event.clientX }
+  if (event instanceof TouchEvent) { clientX = event?.touches?.[0]?.clientX }
   view.dispatch(
     view.state.tr.setMeta(columnResizingPluginKey, {
-      setDragging: { startX: event.clientX, startWidth: width },
+      setDragging: { startX: clientX, startWidth: width },
     }),
   );
 
-  function finish(event: MouseEvent) {
-    win.removeEventListener('mouseup', finish);
-    win.removeEventListener('mousemove', move);
+  function finish(event: MouseEvent | TouchEvent) {
+    if (event instanceof MouseEvent) {
+      win.removeEventListener('mouseup', finish);
+      win.removeEventListener('mousemove', move);  
+    }
+    if (event instanceof TouchEvent) {
+      win.removeEventListener('touchend', finish);
+      win.removeEventListener('touchcancel', finish);
+      win.removeEventListener('touchmove', move);
+    }
     const pluginState = columnResizingPluginKey.getState(view.state);
     if (pluginState?.dragging) {
       updateColumnWidth(
@@ -227,8 +265,18 @@ function handleMouseDown(
     }
   }
 
-  function move(event: MouseEvent): void {
-    if (!event.which) return finish(event);
+  function move(event: MouseEvent | TouchEvent): void {
+    // 对于鼠标事件，检查 which；对于触摸事件，检查是否有有效的触摸点
+    if (event instanceof MouseEvent && !event.which) {
+      return finish(event);
+    }
+    if (event instanceof TouchEvent) {
+      const coords = getEventCoordinates(event);
+      if (!coords) {
+        return finish(event);
+      }
+    }
+    
     const pluginState = columnResizingPluginKey.getState(view.state);
     if (!pluginState) return;
     if (pluginState.dragging) {
@@ -248,9 +296,15 @@ function handleMouseDown(
     width,
     defaultCellMinWidth,
   );
-
-  win.addEventListener('mouseup', finish);
-  win.addEventListener('mousemove', move);
+  if (event instanceof MouseEvent) {
+    win.addEventListener('mouseup', finish);
+    win.addEventListener('mousemove', move);
+  }
+  if (event instanceof TouchEvent) {
+    win.addEventListener('touchend', finish);
+    win.addEventListener('touchcancel', finish);
+    win.addEventListener('touchmove', move);
+  }
   event.preventDefault();
   return true;
 }
@@ -286,7 +340,7 @@ function domCellAround(target: HTMLElement | null): HTMLElement | null {
 
 function edgeCell(
   view: EditorView,
-  event: MouseEvent,
+  event: MouseEvent | TouchEvent,
   side: 'left' | 'right',
   handleWidth: number,
 ): number {
@@ -294,9 +348,12 @@ function edgeCell(
   // across a collapsed table border. Use an offset to adjust the
   // target viewport coordinates away from the table border.
   const offset = side == 'right' ? -handleWidth : handleWidth;
+  const coords = getEventCoordinates(event);
+  if (!coords) return -1;
+  const { clientX, clientY } = coords;
   const found = view.posAtCoords({
-    left: event.clientX + offset,
-    top: event.clientY,
+    left: clientX + offset,
+    top: clientY,
   });
   if (!found) return -1;
   const { pos } = found;
@@ -311,12 +368,15 @@ function edgeCell(
 
 function draggedWidth(
   dragging: Dragging,
-  event: MouseEvent,
+  event: MouseEvent | TouchEvent,
   resizeMinWidth: number,
 ): number {
-  const offset = event.clientX - dragging.startX;
+  const coords = getEventCoordinates(event);
+  if (!coords) return resizeMinWidth;
+  const { clientX } = coords;
+  const offset = clientX - dragging.startX;
   return Math.max(resizeMinWidth, dragging.startWidth + offset);
-}
+} 
 
 function updateHandle(view: EditorView, value: number): void {
   view.dispatch(
