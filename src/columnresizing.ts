@@ -9,7 +9,8 @@ import { TableMap } from './tablemap';
 import { TableView, updateColumnsOnResize } from './tableview';
 import type { CellAttrs } from './util';
 import { cellAround, pointsAtCell } from './util';
-
+import { getEventCoordinates } from './eventCoor'
+ 
 /**
  * @public
  */
@@ -96,6 +97,7 @@ export function columnResizing({
           handleMouseDown(view, event, cellMinWidth, defaultCellMinWidth);
         },
         touchmove: (view, event) => {
+          console.log('zjzj touchmove', event?.constructor?.name, event)
           handleMouseMove(view, event, handleWidth, lastColumnResizable);
         },
         touchend: (view) => {
@@ -148,19 +150,6 @@ export class ResizeState {
     }
     return state;
   }
-}
-
-function getEventCoordinates(event: MouseEvent | TouchEvent): { clientX: number; clientY: number } | null {
-  if (event instanceof MouseEvent) {
-    return { clientX: event.clientX, clientY: event.clientY };
-  }
-  if (event instanceof TouchEvent) {
-    const touch = event.touches?.[0] || event.changedTouches?.[0];
-    if (touch) {
-      return { clientX: touch.clientX, clientY: touch.clientY };
-    }
-  }
-  return null;
 }
 
 function handleMouseMove(
@@ -233,9 +222,9 @@ function handleMouseDown(
 
   const cell = view.state.doc.nodeAt(pluginState.activeHandle)!;
   const width = currentColWidth(view, pluginState.activeHandle, cell.attrs);
-  let clientX = 0
-  if (event instanceof MouseEvent) { clientX = event.clientX }
-  if (event instanceof TouchEvent) { clientX = event?.touches?.[0]?.clientX }
+  const coords = getEventCoordinates(event)
+  if (!coords) return false;
+  const { clientX, isMouseEvent, isTouchEvent } = coords;
   view.dispatch(
     view.state.tr.setMeta(columnResizingPluginKey, {
       setDragging: { startX: clientX, startWidth: width },
@@ -243,11 +232,14 @@ function handleMouseDown(
   );
 
   function finish(event: MouseEvent | TouchEvent) {
-    if (event instanceof MouseEvent) {
+    const coords = getEventCoordinates(event);
+    if (!coords) return;
+    const { isMouseEvent, isTouchEvent } = coords;
+    if (isMouseEvent) {
       win.removeEventListener('mouseup', finish);
       win.removeEventListener('mousemove', move);  
     }
-    if (event instanceof TouchEvent) {
+    if (isTouchEvent) {
       win.removeEventListener('touchend', finish);
       win.removeEventListener('touchcancel', finish);
       win.removeEventListener('touchmove', move);
@@ -267,14 +259,11 @@ function handleMouseDown(
 
   function move(event: MouseEvent | TouchEvent): void {
     // 对于鼠标事件，检查 which；对于触摸事件，检查是否有有效的触摸点
-    if (event instanceof MouseEvent && !event.which) {
+    const coords = getEventCoordinates(event);
+    if (!coords) return finish(event)
+    const { isMouseEvent } = coords ?? {};
+    if (isMouseEvent && !event.which) {
       return finish(event);
-    }
-    if (event instanceof TouchEvent) {
-      const coords = getEventCoordinates(event);
-      if (!coords) {
-        return finish(event);
-      }
     }
     
     const pluginState = columnResizingPluginKey.getState(view.state);
@@ -290,17 +279,19 @@ function handleMouseDown(
     }
   }
 
+
   displayColumnWidth(
     view,
     pluginState.activeHandle,
     width,
     defaultCellMinWidth,
   );
-  if (event instanceof MouseEvent) {
+
+  if (isMouseEvent) {
     win.addEventListener('mouseup', finish);
     win.addEventListener('mousemove', move);
   }
-  if (event instanceof TouchEvent) {
+  if (isTouchEvent) {
     win.addEventListener('touchend', finish);
     win.addEventListener('touchcancel', finish);
     win.addEventListener('touchmove', move);
