@@ -17,7 +17,7 @@ import {
 import { tableEditingKey } from './util';
 
 export { CellBookmark, CellSelection } from './cellselection';
-export type { CellSelectionJSON } from './cellselection';
+export type { CellSelectionJSON, CellSelectionOptions } from './cellselection';
 export {
   columnResizing,
   columnResizingPluginKey,

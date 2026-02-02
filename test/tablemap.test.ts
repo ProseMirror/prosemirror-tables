@@ -92,6 +92,18 @@ describe('TableMap', () => {
     ist(map.cellsInRect(map.rectBetween(6, 18)).join(', '), '6, 18');
   });
 
+  it('expands rectangle when forceRectangular is true', () => {
+    ist(
+      map.cellsInRect(map.rectBetween(1, 6, true)).join(', '),
+      '1, 6, 11, 18, 25',
+    );
+    ist(map.cellsInRect(map.rectBetween(6, 11, true)).join(', '), '6, 11, 18');
+    ist(
+      map.cellsInRect(map.rectBetween(18, 25, true)).join(', '),
+      '6, 11, 18, 25',
+    );
+  });
+
   it('can find adjacent cells', () => {
     ist(map.nextCell(1, 'horiz', 1), 6);
     ist(map.nextCell(1, 'horiz', -1), null);

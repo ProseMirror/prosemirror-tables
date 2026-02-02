@@ -107,10 +107,12 @@ function shiftArrow(axis: Axis, dir: Direction): Command {
 
     const $head = nextCell(cellSel.$headCell, axis, dir);
     if (!$head) return false;
+    // Keyboard shift+arrow selections should also force rectangular shape
+    // for consistent behavior with mouse drag selections
     return maybeSetSelection(
       state,
       dispatch,
-      new CellSelection(cellSel.$anchorCell, $head),
+      new CellSelection(cellSel.$anchorCell, $head, { forceRectangular: true }),
     );
   };
 }
@@ -211,7 +213,11 @@ export function handleMouseDown(
       if (starting) $head = $anchor;
       else return;
     }
-    const selection = new CellSelection($anchor, $head);
+    // Mouse drag selections should force rectangular shape to prevent
+    // T-shaped or L-shaped selections when cells have colspan/rowspan
+    const selection = new CellSelection($anchor, $head, {
+      forceRectangular: true,
+    });
     if (starting || !view.state.selection.eq(selection)) {
       const tr = view.state.tr.setSelection(selection);
       if (starting) tr.setMeta(tableEditingKey, $anchor.pos);
