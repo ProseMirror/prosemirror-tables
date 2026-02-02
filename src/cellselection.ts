@@ -62,6 +62,8 @@ export class CellSelection extends Selection {
   // moves when extending the selection).
   public $headCell: ResolvedPos;
 
+  public forceRectangular: boolean;
+
   // A table selection is identified by its anchor and head cells. The
   // positions given to this constructor should point _before_ two
   // cells in the same table. They may be the same, to select a single
@@ -102,6 +104,7 @@ export class CellSelection extends Selection {
     super(ranges[0].$from, ranges[0].$to, ranges);
     this.$anchorCell = $anchorCell;
     this.$headCell = $headCell;
+    this.forceRectangular = forceRectangular;
   }
 
   public map(doc: Node, mapping: Mappable): CellSelection | Selection {
@@ -117,7 +120,10 @@ export class CellSelection extends Selection {
         return CellSelection.rowSelection($anchorCell, $headCell);
       else if (tableChanged && this.isColSelection())
         return CellSelection.colSelection($anchorCell, $headCell);
-      else return new CellSelection($anchorCell, $headCell);
+      else
+        return new CellSelection($anchorCell, $headCell, {
+          forceRectangular: this.forceRectangular,
+        });
     }
     return TextSelection.between($anchorCell, $headCell);
   }
@@ -132,6 +138,7 @@ export class CellSelection extends Selection {
     const rect = map.rectBetween(
       this.$anchorCell.pos - tableStart,
       this.$headCell.pos - tableStart,
+      this.forceRectangular,
     );
     const seen: Record<number, boolean> = {};
     const rows = [];
@@ -233,6 +240,7 @@ export class CellSelection extends Selection {
       map.rectBetween(
         this.$anchorCell.pos - tableStart,
         this.$headCell.pos - tableStart,
+        this.forceRectangular,
       ),
     );
     for (let i = 0; i < cells.length; i++) {
@@ -366,8 +374,13 @@ export class CellSelection extends Selection {
     doc: Node,
     anchorCell: number,
     headCell: number = anchorCell,
+    options: CellSelectionOptions = {},
   ): CellSelection {
-    return new CellSelection(doc.resolve(anchorCell), doc.resolve(headCell));
+    return new CellSelection(
+      doc.resolve(anchorCell),
+      doc.resolve(headCell),
+      options,
+    );
   }
 
   public override getBookmark(): CellBookmark {
