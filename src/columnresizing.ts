@@ -48,7 +48,7 @@ export type ColumnResizingOptions = {
 /**
  * @public
  */
-export type Dragging = { startX: number; startWidth: number };
+export type Dragging = { startX: number; startWidth: number; isRTL: boolean };
 
 /**
  * @public
@@ -154,10 +154,15 @@ function handleMouseMove(
     let cell = -1;
     if (target) {
       const { left, right } = target.getBoundingClientRect();
-      if (event.clientX - left <= handleWidth)
-        cell = edgeCell(view, event, 'left', handleWidth);
-      else if (right - event.clientX <= handleWidth)
-        cell = edgeCell(view, event, 'right', handleWidth);
+      if (event.clientX - left <= handleWidth) {
+        const tableDOM = domTableAround(target);
+        const isRTL = isTableRTL(tableDOM);
+        cell = edgeCell(view, event, isRTL ? 'end' : 'start', handleWidth);
+      } else if (right - event.clientX <= handleWidth) {
+        const tableDOM = domTableAround(target);
+        const isRTL = isTableRTL(tableDOM);
+        cell = edgeCell(view, event, isRTL ? 'start' : 'end', -handleWidth);
+      }
     }
 
     if (cell != pluginState.activeHandle) {
@@ -205,9 +210,11 @@ function handleMouseDown(
 
   const cell = view.state.doc.nodeAt(pluginState.activeHandle)!;
   const width = currentColWidth(view, pluginState.activeHandle, cell.attrs);
+  const tableDOM = domTableAround(event.target as HTMLElement);
+  const isRTL = isTableRTL(tableDOM);
   view.dispatch(
     view.state.tr.setMeta(columnResizingPluginKey, {
-      setDragging: { startX: event.clientX, startWidth: width },
+      setDragging: { startX: event.clientX, startWidth: width, isRTL },
     }),
   );
 
@@ -284,16 +291,28 @@ function domCellAround(target: HTMLElement | null): HTMLElement | null {
   return target;
 }
 
+function domTableAround(target: HTMLElement | null): HTMLTableElement | null {
+  while (target && target.nodeName != 'TABLE')
+    target =
+      target.classList && target.classList.contains('ProseMirror')
+        ? null
+        : (target.parentNode as HTMLElement);
+  return target as HTMLTableElement;
+}
+
+function isTableRTL(table: HTMLTableElement | null): boolean {
+  return table ? getComputedStyle(table).direction === 'rtl' : false;
+}
+
 function edgeCell(
   view: EditorView,
   event: MouseEvent,
-  side: 'left' | 'right',
-  handleWidth: number,
+  side: 'start' | 'end',
+  offset: number,
 ): number {
   // posAtCoords returns inconsistent positions when cursor is moving
   // across a collapsed table border. Use an offset to adjust the
   // target viewport coordinates away from the table border.
-  const offset = side == 'right' ? -handleWidth : handleWidth;
   const found = view.posAtCoords({
     left: event.clientX + offset,
     top: event.clientY,
@@ -302,7 +321,7 @@ function edgeCell(
   const { pos } = found;
   const $cell = cellAround(view.state.doc.resolve(pos));
   if (!$cell) return -1;
-  if (side == 'right') return $cell.pos;
+  if (side == 'end') return $cell.pos;
   const map = TableMap.get($cell.node(-1)),
     start = $cell.start(-1);
   const index = map.map.indexOf($cell.pos - start);
@@ -315,7 +334,10 @@ function draggedWidth(
   resizeMinWidth: number,
 ): number {
   const offset = event.clientX - dragging.startX;
-  return Math.max(resizeMinWidth, dragging.startWidth + offset);
+  return Math.max(
+    resizeMinWidth,
+    dragging.startWidth + (dragging.isRTL ? -offset : offset),
+  );
 }
 
 function updateHandle(view: EditorView, value: number): void {
