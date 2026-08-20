@@ -230,6 +230,10 @@ export function handleMouseDown(
 
   function move(_event: Event): void {
     const event = _event as MouseEvent;
+    // The mouseup that should have ended this gesture was never delivered, so
+    // end it here instead of extending the selection under a released button.
+    if (event.buttons == 0) return stop();
+
     const anchor = tableEditingKey.getState(view.state);
     let $anchor;
     if (anchor != null) {
