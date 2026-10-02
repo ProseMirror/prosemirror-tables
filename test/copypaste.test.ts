@@ -5,6 +5,7 @@ import { EditorState } from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
 import {
+  CellSelection,
   cellAround,
   TableMap,
   __clipCells as clipCells,
@@ -190,6 +191,7 @@ describe('insertCells', () => {
       pastedCells(cells.slice(cells.tag.a, cells.tag.b))!,
     );
     ist(state.doc, result, eq);
+    return state;
   }
 
   it('keeps the original cells', () =>
@@ -274,4 +276,50 @@ describe('insertCells', () => {
         ),
       ),
     ));
+
+  it('can select a pasted area whose bottom-right is covered by a rowspan', () =>
+    test(
+      doc(table(tr(cAnchor, c11), tr(c11, c11))),
+      doc(
+        table(
+          '<a>',
+          tr(td(p('x')), td({ rowspan: 2 }, p('y'))),
+          tr(td(p('z'))),
+          '<b>',
+        ),
+      ),
+      doc(table(tr(td(p('x')), td({ rowspan: 2 }, p('y'))), tr(td(p('z'))))),
+    ));
+
+  it('selects only the pasted area when its bottom-right is covered by a rowspan', () => {
+    const state = test(
+      doc(table(tr(cAnchor, c11, c11), tr(c11, c11, c11), tr(c11, c11, c11))),
+      doc(
+        table(
+          '<a>',
+          tr(td(p('x')), td({ rowspan: 2 }, p('y'))),
+          tr(td(p('z'))),
+          '<b>',
+        ),
+      ),
+      doc(
+        table(
+          tr(td(p('x')), td({ rowspan: 2 }, p('y')), c11),
+          tr(td(p('z')), c11),
+          tr(c11, c11, c11),
+        ),
+      ),
+    );
+    const sel = state.selection as CellSelection;
+    ist(sel instanceof CellSelection);
+    const map = TableMap.get(state.doc.firstChild!);
+    const rect = map.rectBetween(
+      sel.$anchorCell.pos - 1,
+      sel.$headCell.pos - 1,
+    );
+    ist(rect.left, 0);
+    ist(rect.top, 0);
+    ist(rect.right, 2);
+    ist(rect.bottom, 2);
+  });
 });

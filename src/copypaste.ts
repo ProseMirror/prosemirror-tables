@@ -377,7 +377,9 @@ export function insertCells(
   tr.setSelection(
     new CellSelection(
       tr.doc.resolve(tableStart + map.positionAt(top, left, table)),
-      tr.doc.resolve(tableStart + map.positionAt(bottom - 1, right - 1, table)),
+      tr.doc.resolve(
+        tableStart + map.map[(bottom - 1) * map.width + right - 1],
+      ),
     ),
   );
   dispatch(tr);
