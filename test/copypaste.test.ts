@@ -274,4 +274,18 @@ describe('insertCells', () => {
         ),
       ),
     ));
+
+  it('splits a rowspan cell at the right place when the table is not at the start of the document', () =>
+    test(
+      doc(p('ab'), table(tr(c11, td({ rowspan: 2 }, p('x<anchor>'))), tr(c11))),
+      doc(table('<a>', tr(td(p('Q'))), '<b>')),
+      doc(p('ab'), table(tr(c11, td(p('Q'))), tr(c11, cEmpty))),
+    ));
+
+  it('splits a rowspan cell in the first column at the right place', () =>
+    test(
+      doc(table(tr(td({ rowspan: 2 }, p('x<anchor>')), c11), tr(c11))),
+      doc(table('<a>', tr(td(p('Q'))), '<b>')),
+      doc(table(tr(td(p('Q')), c11), tr(cEmpty, c11))),
+    ));
 });

@@ -259,7 +259,9 @@ function isolateHorizontal(
         rowspan: top - cellTop,
       });
       tr.insert(
-        tr.mapping.slice(mapFrom).map(map.positionAt(top, cellLeft, table)),
+        tr.mapping
+          .slice(mapFrom)
+          .map(map.positionAt(top, cellLeft, table) + start),
         cell.type.createAndFill({
           ...cell.attrs,
           rowspan: cellTop + cell.attrs.rowspan - top,
