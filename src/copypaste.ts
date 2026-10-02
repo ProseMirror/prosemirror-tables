@@ -163,7 +163,7 @@ export function clipCells(
           cell = cell.type.create(
             {
               ...cell.attrs,
-              rowspan: Math.max(1, newHeight - cell.attrs.rowspan),
+              rowspan: Math.max(1, newHeight - row),
             },
             cell.content,
           );

@@ -149,6 +149,21 @@ describe('clipCells', () => {
     test(table('<a>', tr(c(1, 2), c(2, 1)), tr(c11, c11), '<b>'), 3, 1, [
       [c(1, 1), c(2, 1)],
     ]));
+
+  it('clips a rowspan that starts above the cut', () =>
+    test(table('<a>', tr(c(1, 3), c11), tr(c11), tr(c11), '<b>'), 2, 2, [
+      [c(1, 2), c11],
+      [c11],
+    ]));
+
+  it('clips a repeated rowspan at the bottom of the new height', () =>
+    test(table('<a>', tr(c(1, 2), c11), tr(c11), '<b>'), 2, 5, [
+      [c(1, 2), c11],
+      [c11],
+      [c(1, 2), c11],
+      [c11],
+      [c(1, 1), c11],
+    ]));
 });
 
 describe('insertCells', () => {
