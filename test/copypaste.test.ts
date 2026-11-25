@@ -5,6 +5,7 @@ import { EditorState } from 'prosemirror-state';
 import { describe, it } from 'vitest';
 
 import {
+  CellSelection,
   cellAround,
   TableMap,
   __clipCells as clipCells,
@@ -190,6 +191,7 @@ describe('insertCells', () => {
       pastedCells(cells.slice(cells.tag.a, cells.tag.b))!,
     );
     ist(state.doc, result, eq);
+    return state;
   }
 
   it('keeps the original cells', () =>
@@ -274,4 +276,43 @@ describe('insertCells', () => {
         ),
       ),
     ));
+
+  it('selects the pasted cells when the last pasted row is covered by a rowspan at the right edge', () => {
+    const state = test(
+      doc(table(tr(cAnchor, c11), tr(c11, c11))),
+      doc(
+        table(
+          '<a>',
+          tr(td(p('a')), td({ rowspan: 2 }, p('b'))),
+          tr(td(p('c'))),
+          '<b>',
+        ),
+      ),
+      doc(table(tr(td(p('a')), td({ rowspan: 2 }, p('b'))), tr(td(p('c'))))),
+    );
+    ist(state.selection instanceof CellSelection);
+    ist((state.selection as CellSelection).ranges.length, 3);
+  });
+
+  it('does not extend the selection past a rowspan covering the last pasted row', () => {
+    const state = test(
+      doc(table(tr(cAnchor, c11, c11), tr(c11, c11, c11))),
+      doc(
+        table(
+          '<a>',
+          tr(td(p('a')), td({ rowspan: 2 }, p('b'))),
+          tr(td(p('c'))),
+          '<b>',
+        ),
+      ),
+      doc(
+        table(
+          tr(td(p('a')), td({ rowspan: 2 }, p('b')), c11),
+          tr(td(p('c')), c11),
+        ),
+      ),
+    );
+    ist(state.selection instanceof CellSelection);
+    ist((state.selection as CellSelection).ranges.length, 3);
+  });
 });

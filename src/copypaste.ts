@@ -374,10 +374,15 @@ export function insertCells(
     );
   }
   recomp();
+  // Use the cells covering the corner slots: `positionAt` skips slots covered
+  // by a rowspan from an earlier row, so it can point past the pasted area or
+  // at the end of the row.
   tr.setSelection(
     new CellSelection(
-      tr.doc.resolve(tableStart + map.positionAt(top, left, table)),
-      tr.doc.resolve(tableStart + map.positionAt(bottom - 1, right - 1, table)),
+      tr.doc.resolve(tableStart + map.map[top * map.width + left]),
+      tr.doc.resolve(
+        tableStart + map.map[(bottom - 1) * map.width + right - 1],
+      ),
     ),
   );
   dispatch(tr);
